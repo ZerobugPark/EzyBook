@@ -10,14 +10,15 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         VStack {
-            if let apiKey = Bundle.main.object(forInfoDictionaryKey: "API_KEY") as? String {
-                Text(apiKey)
-            }
-            
-            Text("Hello, worldss!")
+            Text("dd")
+//
+//            Text("Hello, worlds!").foregroundStyle(.rosyPunch)
+//                .font(.custom("Pretendard-Regular", size: 30))
+//            Image(.flagArgentina)
         }
         .padding()
     }
+        
 }
 
 #Preview {
