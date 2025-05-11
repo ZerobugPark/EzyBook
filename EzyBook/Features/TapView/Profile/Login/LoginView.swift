@@ -48,9 +48,9 @@ struct LoginView: View {
     
     private var createAccount: some View {
         NavigationLink {
-            
+            CreateAccountView()
         } label: {
-            Text("계정가입하기")  // 버튼 텍스트
+            Text("회원가입")  // 버튼 텍스트
                 .font(.headline)  // 텍스트 폰트
                 .foregroundColor(.white)  // 텍스트 색상
                 .padding()  // 텍스트 주변 여백
