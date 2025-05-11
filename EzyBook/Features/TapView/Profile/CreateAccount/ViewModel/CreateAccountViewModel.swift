@@ -19,9 +19,20 @@ final class CreateAccountViewModel: ViewModelType {
     var input = Input()
     @Published var output = Output()
     
+    @Published var phoneNumberTextField: String {
+        didSet {
+            // phoneNumberTextField 변경 시 input 안에 값도 갱신
+            input.phoneNumberTextField = phoneNumberTextField
+        }
+    }
+    
+    
+    //@Published var phoneNumberTextField: String = ""
+    
     var cancellables = Set<AnyCancellable>()
     
     init() {
+        self.phoneNumberTextField = input.phoneNumberTextField
         transform()
     }
     
@@ -30,7 +41,7 @@ final class CreateAccountViewModel: ViewModelType {
 // MARK: Input/Output
 extension CreateAccountViewModel {
     
-    /// 이메일 유효성 검사
+    /// 이메일 유효성 검사 (서버에 있는데, 굳이 내가 체크를 할까?)
     /// ^:  문자열의 시작,
     /// [A-Z0-9a-z._%+-]+: 이메일의 앞 부분
     /// @: @기호 필수
@@ -46,23 +57,37 @@ extension CreateAccountViewModel {
     /// 비밀번호 복잡도 검사
     var validatePasswordCmplexEnough: Bool {
         let regex = #"^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]+$"#
-        return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: input.inputPassword)
+        return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: input.passwordTextField)
     }
     
     /// 비밀번호 길이 검사
     var validatePasswordLength: Bool {
-        return input.inputPassword.count > 7
+        return input.passwordTextField.count > 7
+    }
+        
+    /// 비밀번호 일치 여부 (사용 가능 여부
+    var validatePassword: Bool {
+        return input.passwordTextField == input.passwordConfirmTextField
     }
     
-    var validatePassword: Bool {
-        return input.inputPassword == input.inputPasswordConfirm
+    /// 닉네임 유효성 검사
+    var vaildationNicknameValid: Bool {
+        let regex = #"^[^,.\?\*@\-@]+$"#
+        return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: input.nicknameTextField)
     }
+    
+    var vaildationPhoneNumber: Bool {
+        return input.phoneNumberTextField.count == 11
+    }
+
     
     struct Input {
         var emailTextField = ""
-        
-        var inputPassword: String = ""
-        var inputPasswordConfirm: String = ""
+        var passwordTextField: String = ""
+        var passwordConfirmTextField: String = ""
+        var nicknameTextField: String = ""
+        var phoneNumberTextField: String = ""
+        var introduceTextField: String = ""
         
     }
     
@@ -70,8 +95,9 @@ extension CreateAccountViewModel {
         var isVaildEmail: Bool = false
         var isPasswordLongEnough: Bool = false
         var isPasswordComplexEnough: Bool = false
-        
         var isValidPassword: Bool = false
+        var isValidNickname: Bool = false
+        var isValidPhoneNumber: Bool = false
         
         // 비밀번호 히든 체크
         var visibleStates: [PasswordField: Bool] = [
@@ -104,6 +130,8 @@ extension CreateAccountViewModel {
         case togglePasswordVisibility(type: PasswordField)
         case passwordEditingCompleted
         case passwordConfirmEditingCompleted
+        case nickNameEditingCompleted
+        case phoneNumberEditingCompleted
     }
     
     func action(_ action: Action) {
@@ -123,6 +151,10 @@ extension CreateAccountViewModel {
             output.isPasswordComplexEnough = validatePasswordCmplexEnough
         case .passwordConfirmEditingCompleted:
             output.isValidPassword = validatePassword
+        case .nickNameEditingCompleted:
+            output.isValidNickname = vaildationNicknameValid
+        case .phoneNumberEditingCompleted:
+            output.isValidPhoneNumber = vaildationPhoneNumber
         }
     }
     

@@ -17,7 +17,7 @@ private struct ValidationTextModifier: ViewModifier {
         content
             .padding(.top, 5)
             .foregroundStyle(isVaild ? .grayScale100 : .grayScale60)
-            .font(.system(size: 14))
+            .font(.system(size: 12))
     }
 }
 

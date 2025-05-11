@@ -17,6 +17,10 @@ struct CreateAccountView: View {
                 VStack {
                     emailField()
                     passwordField()
+                    nicknameField()
+                    phonNumberField()
+                    introduceField()
+                    signUpButton()
                 }
             }
             .navigationTitle("회원가입")
@@ -29,7 +33,6 @@ struct CreateAccountView: View {
 }
 
 // MARK: CustomView
-
 extension CreateAccountView {
     
     private func emailField() -> some View {
@@ -70,11 +73,9 @@ extension CreateAccountView {
             passwordTextField(type: .confirm)
                 .padding(.top, 5)
             
-            
-            //4. 비밀번호는 최소 8자 이상이며, 영문자, 숫자, 특수문자(@$!%*#?&)를 각각 1개 이상 포함해야 합니다.
-            Text("✓ 영문자, 숫자, 특수문자(@$!%*#?&)를 각각 1개 이상 포함")
+            Text("✓ 영문자, 숫자, 특수문자(@$!%*#?&)를 각각 1개 이상 포함해야 합니다.")
                 .vaildTextdModify(viewModel.output.isPasswordComplexEnough)
-            Text("✓ 8자 이상")
+            Text("✓ 최고 글자 수는 8자 이상입니다.")
                 .vaildTextdModify(viewModel.output.isPasswordLongEnough)
             Text(viewModel.output.isValidPassword ? "✓ 비밀번호 일치" : "✓ 비밀번호가 일치하지 않습니다")
                 .vaildTextdModify(viewModel.output.isValidPassword)
@@ -89,7 +90,7 @@ extension CreateAccountView {
         let textfield = getPasswordBinding(for: type)
         
         return HStack {
-            ZStack(alignment: .trailing) {  // 텍스트 필드 위에 버튼을 올리기 위한 ZStack 사용
+            ZStack(alignment: .trailing) {
                 Group {
                     if viewModel.output.visibleStates[type] == true {
                         TextField(textfield.title, text: textfield.binding)
@@ -109,7 +110,7 @@ extension CreateAccountView {
                     Image(systemName: viewModel.output.visibleStates[type] == true ?  "eye.slash" : "eye")
                         .foregroundColor(.gray)
                 }
-                .padding(.trailing, 8)  // 버튼과 텍스트필드 사이 간격을 조정
+                .padding(.trailing, 8)
             }
         }
         .onSubmit {
@@ -127,11 +128,97 @@ extension CreateAccountView {
     private func getPasswordBinding(for type: PasswordField) -> (title: String, binding: Binding<String>) {
         switch type {
         case .password:
-            return ("비밀번호를 입력해 주세요" ,$viewModel.input.inputPassword)  // 비밀번호 바인딩
+            return ("비밀번호를 입력해 주세요" ,$viewModel.input.passwordTextField)
         case .confirm:
-            return ("비밀번호를 다시 입력해 주세요", $viewModel.input.inputPasswordConfirm)  // 비밀번호 확인 바인딩
+            return ("비밀번호를 다시 입력해 주세요", $viewModel.input.passwordConfirmTextField)
         }
     }
+    
+    private func nicknameField() -> some View {
+        VStack(alignment: .leading) {
+            HStack(spacing: 2) {
+                Text("닉네임")
+                    .font(.headline)
+                Text("*")
+                    .foregroundColor(.red)
+                    .font(.headline)
+            }
+            TextField("닉네임을 입력해주세요", text: $viewModel.input.nicknameTextField)
+                .textFieldModify()
+                .onSubmit {
+                    viewModel.action(.nickNameEditingCompleted)
+                }
+            
+            
+            Text("✓ , ,, ?, *, -, @는 nick으로 사용할 수 없습니다.")
+                .vaildTextdModify(viewModel.output.isValidNickname)
+        }
+        .padding()
+        
+    }
+    
+    private func phonNumberField() -> some View {
+        VStack(alignment: .leading) {
+            HStack(spacing: 2) {
+                Text("전화번호")
+                    .font(.headline)
+            }
+            TextField("전화번호를 입력해주세요", text: $viewModel.phoneNumberTextField)
+                .textFieldModify()
+                .keyboardType(.numberPad)
+                .onChange(of: viewModel.phoneNumberTextField) { newValue in
+                    let digitsOnly = newValue.filter { $0.isNumber }
+                    let limited = String(digitsOnly.prefix(11))
+                    
+                    // 변경된 값이 있으면 업데이트
+                    if newValue != limited {
+                        viewModel.phoneNumberTextField = limited
+                    }
+            
+                }
+                .onSubmit {
+                    viewModel.action(.phoneNumberEditingCompleted)
+                }
+            Text("✓ 유효한 형식입니다.")
+                .vaildTextdModify(viewModel.output.isValidPhoneNumber)
+                    
+            
+        }
+        .padding()
+        
+    }
+    
+    private func introduceField() -> some View {
+        VStack(alignment: .leading) {
+            HStack(spacing: 2) {
+                Text("소개")
+                    .font(.headline)
+            }
+            TextEditor(text: $viewModel.input.introduceTextField)
+                .frame(height: 150) // Set the height for the text input area
+                .cornerRadius(15) // 모서리 둥글게 하기
+                .border(Color.grayScale60.opacity(0.5), width: 1) // 테두리 추가
+        }
+        .padding()
+
+    }
+    
+    private func signUpButton() -> some View {
+        Button {
+            print("button Tapped")
+        } label: {
+            Text("회원가입")
+                .foregroundColor(.white)
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.black)
+                .clipShape(Capsule())
+        }
+        .padding()
+      
+    }
+    
 }
 
 #Preview {
