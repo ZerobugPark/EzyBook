@@ -10,7 +10,7 @@ import Alamofire
 
 enum UserRequest: PostRouter {
     
-    case validationEmail
+    case emailValidation
     case join
     case emailLogin
     case kakaoLogin
@@ -18,10 +18,10 @@ enum UserRequest: PostRouter {
     case profile
     
     
-    var endpoint: URL {
+    var endpoint: URL? {
         switch self {
-        case .validationEmail:
-            UserEndPoint.validationEmail.requestURL
+        case .emailValidation:
+            UserEndPoint.emailValidation.requestURL
         case .join:
             UserEndPoint.join.requestURL
         case .emailLogin:
@@ -38,7 +38,7 @@ enum UserRequest: PostRouter {
     
     var method: HTTPMethod {
             switch self {
-            case .validationEmail,
+            case .emailValidation,
                  .join,
                  .emailLogin,
                  .kakaoLogin,
@@ -49,5 +49,19 @@ enum UserRequest: PostRouter {
             }
         }
     
-
+    var requestBody: Encodable? {
+         switch self {
+         case .emailValidation(let request):
+             return request
+         case .join(let request):
+             return request
+         case .emailLogin(let request):
+             return request
+         case .kakaoLogin(let request):
+             return request
+         case .appleLogin(let request):
+             return request
+         case .profileLookup:
+             return nil
+         }
 }

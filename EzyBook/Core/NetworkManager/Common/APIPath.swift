@@ -16,7 +16,7 @@ enum APIPath {
     
     /// 사용자 관련 API
     enum User: String {
-        case validationEmail = "/v1/users/validation/email"
+        case emailValidation = "/v1/users/validation/email"
         case join = "/v1/users/join"
         case emailLogin = "/v1/users/login"
         case kakaoLogin = "/v1/users/login/kakao"

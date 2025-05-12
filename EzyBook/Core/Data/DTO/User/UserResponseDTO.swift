@@ -43,7 +43,7 @@ struct ProfileResponseDTO: Decodable {
 
 // MARK: Post(Response)
 /// 이메일 유효성 검사
-struct ValidationEmailResponseDTO: Decodable {
+struct EmailValidationResponseDTO: Decodable {
     let email: String
 }
 

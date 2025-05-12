@@ -9,7 +9,7 @@ import Foundation
 
 
 /// 이메일 유효성 검사
-struct ValidationEmailRequestDTO: Encodable {
+struct EmailValidationRequestDTO: Encodable {
     let email: String
 }
 

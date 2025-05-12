@@ -9,7 +9,7 @@ import Foundation
 
 enum UserEndPoint: APIEndPoint {
     
-    case validationEmail
+    case emailValidation
     case join
     case emailLogin
     case kakaoLogin
@@ -18,8 +18,8 @@ enum UserEndPoint: APIEndPoint {
     
     var path: String {
         switch self {
-        case .validationEmail:
-            return APIPath.User.validationEmail.rawValue
+        case .emailValidation:
+            return APIPath.User.emailValidation.rawValue
         case .join:
             return APIPath.User.join.rawValue
         case .emailLogin:

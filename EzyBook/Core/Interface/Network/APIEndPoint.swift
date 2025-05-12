@@ -18,7 +18,7 @@ extension APIEndPoint {
     }
     
     // requestURL은 baseURL과 path를 합친 URL로 기본 구현
-    var requestURL: URL {
-        return URL(string: baseURL + path)!
+    var requestURL: URL? {
+        return URL(string: baseURL + path)
     }
 }
