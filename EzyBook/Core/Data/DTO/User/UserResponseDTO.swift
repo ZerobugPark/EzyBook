@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: Get
 /// 프로필 조회
-struct ProfileResponseDTO: Decodable {
+struct ProfileCheckResponseDTO: Decodable {
     let userID: String
     let email: String
     let nick: String

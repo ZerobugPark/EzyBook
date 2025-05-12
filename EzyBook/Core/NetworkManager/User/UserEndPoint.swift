@@ -14,7 +14,7 @@ enum UserEndPoint: APIEndPoint {
     case emailLogin
     case kakaoLogin
     case appleLogin
-    case profile
+    case profileCheck
     
     var path: String {
         switch self {
@@ -28,8 +28,8 @@ enum UserEndPoint: APIEndPoint {
             return APIPath.User.kakaoLogin.rawValue
         case .appleLogin:
             return APIPath.User.appleLogin.rawValue
-        case .profile:
-            return APIPath.User.profile.rawValue
+        case .profileCheck:
+            return APIPath.User.profileCheck.rawValue
         }
     }
     

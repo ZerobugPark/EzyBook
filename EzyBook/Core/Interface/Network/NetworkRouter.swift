@@ -9,6 +9,8 @@ import Foundation
 
 import Alamofire
 
+
+
 protocol NetworkRouter: URLRequestConvertible {
     var endpoint: URL? { get }
     var method: HTTPMethod { get }
@@ -21,9 +23,10 @@ extension NetworkRouter {
         return nil
     }
     
-    func baseURLRequest() throws -> URLRequest {
+    /// Helper Function (프로토콜 추가할 필요가 없음)
+    func makeURLRequest() throws -> URLRequest {
         guard let url = endpoint else {
-            throw APIError.emailUnavailable
+            throw APIError.missingEndpoint
         }
         var request = URLRequest(url: url)
         request.method = method
@@ -31,7 +34,10 @@ extension NetworkRouter {
         return request
     }
     
-
+    // URLRequestConvertible 프로토콜 필수 사항
+    func asURLRequest() throws -> URLRequest {
+        try makeURLRequest()
+    }
     
 }
 

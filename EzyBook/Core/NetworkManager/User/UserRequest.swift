@@ -10,12 +10,12 @@ import Alamofire
 
 enum UserRequest: PostRouter {
     
-    case emailValidation
-    case join
-    case emailLogin
-    case kakaoLogin
-    case appleLogin
-    case profile
+    case emailValidation(body: EmailValidationRequestDTO)
+    case join(body: JoinRequestDTO)
+    case emailLogin(body: EmailLoginRequestDTO)
+    case kakaoLogin(body: KakaoLoginRequestDTO)
+    case appleLogin(body: AppleLoginRequestDTO)
+    case profileCheck
     
     
     var endpoint: URL? {
@@ -30,8 +30,8 @@ enum UserRequest: PostRouter {
             UserEndPoint.kakaoLogin.requestURL
         case .appleLogin:
             UserEndPoint.appleLogin.requestURL
-        case .profile:
-            UserEndPoint.profile.requestURL
+        case .profileCheck:
+            UserEndPoint.profileCheck.requestURL
         }
     }
     
@@ -44,24 +44,25 @@ enum UserRequest: PostRouter {
                  .kakaoLogin,
                  .appleLogin:
                 return .post
-            case .profile:
+            case .profileCheck:
                 return .get
             }
         }
     
     var requestBody: Encodable? {
-         switch self {
-         case .emailValidation(let request):
-             return request
-         case .join(let request):
-             return request
-         case .emailLogin(let request):
-             return request
-         case .kakaoLogin(let request):
-             return request
-         case .appleLogin(let request):
-             return request
-         case .profileLookup:
-             return nil
-         }
+        switch self {
+        case .emailValidation(let request):
+            return request
+        case .join(let request):
+            return request
+        case .emailLogin(let request):
+            return request
+        case .kakaoLogin(let request):
+            return request
+        case .appleLogin(let request):
+            return request
+        case .profileCheck:
+            return nil
+        }
+    }
 }

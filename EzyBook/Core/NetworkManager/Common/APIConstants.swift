@@ -18,10 +18,10 @@ enum APIConstants {
     }
 
     static var baseURL: String {
-        guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "BaseURL") as? String else {
-            fatalError("API_KEY not found in Info.plist")
+        guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "Base_URL") as? String else {
+            fatalError("Base_URL not found in Info.plist")
         }
-        return baseURL
+        return "http://" + baseURL
     }
     
         

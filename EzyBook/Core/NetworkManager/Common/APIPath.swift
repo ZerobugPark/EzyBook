@@ -21,7 +21,7 @@ enum APIPath {
         case emailLogin = "/v1/users/login"
         case kakaoLogin = "/v1/users/login/kakao"
         case appleLogin = "/v1/users/login/apple"
-        case profile = "/v1/users/me/profile"
+        case profileCheck = "/v1/users/me/profile"
         
     }
 }

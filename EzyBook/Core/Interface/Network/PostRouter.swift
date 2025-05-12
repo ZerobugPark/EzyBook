@@ -13,6 +13,7 @@ import Alamofire
 protocol PostRouter: NetworkRouter {
     var requestBody: Encodable? { get }
     var encoder: RequestEncoder { get }
+    func encodeBody(for request: URLRequest) throws -> URLRequest
 }
 
 extension PostRouter {
@@ -20,13 +21,24 @@ extension PostRouter {
         return URLQueryEncoder()
     }
     
+    /// POST 요청 특화 처리 (body)
+    func encodeBody(for request: URLRequest) throws -> URLRequest {
+        guard let body = requestBody else {
+            throw APIError.missingRequestBody
+        }
+        return try encoder.encode(request: request, with: body)
+    }
+    
+    /// Post 전용으로 재정의
     func asURLRequest() throws -> URLRequest {
-        var request = try baseURLRequest()
+        var request = try makeURLRequest()
         
-        // POST 요청 특화 처리 (body)
-        if let body = requestBody {
-            request = try JSONParameterEncoder.default
-                .encode(body, into: request)
+        request = try encodeBody(for: request)
+        
+        // body 체크
+        if let httpBody = request.httpBody,
+           let bodyString = String(data: httpBody, encoding: .utf8) {
+            print("Body JSON: \(bodyString)")
         }
         
         return request

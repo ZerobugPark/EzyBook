@@ -23,10 +23,24 @@ struct ProfileView: View {
                      .foregroundColor(.white)
                      .cornerRadius(8)
              }
+            
+            Button {
+                test()
+            } label: {
+                Text("네트워크 테스트")
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+            }
+            
          }
          .fullScreenCover(isPresented: $showModal) {
              LoginView(showModal: $showModal)
          }
+    }
+    private func test() {
+        NetworkService.shared.request(data: EmailValidationResponseDTO.self,  UserRequest.emailLogin(body: EmailLoginRequestDTO(email: "123", password: "123", deviceToken: nil)))
     }
 }
 

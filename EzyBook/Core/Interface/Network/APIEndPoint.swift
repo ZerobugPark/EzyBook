@@ -9,6 +9,7 @@ import Foundation
 
 protocol APIEndPoint {
     var path: String { get }
+    
 }
 
 extension APIEndPoint {
@@ -19,6 +20,8 @@ extension APIEndPoint {
     
     // requestURL은 baseURL과 path를 합친 URL로 기본 구현
     var requestURL: URL? {
+        print("123",baseURL)
+        print(APIConstants.apiKey)
         return URL(string: baseURL + path)
     }
 }

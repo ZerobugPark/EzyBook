@@ -14,12 +14,12 @@ protocol RequestEncoder {
     func encode(request: URLRequest, with parameters: Encodable?) throws -> URLRequest
 }
 
-// URL 쿼리 인코더 구현
+/// URL 쿼리 인코더 구현
 struct URLQueryEncoder: RequestEncoder {
     func encode(request: URLRequest, with requestBody: Encodable?) throws -> URLRequest {
         
         guard let body = requestBody else {
-            throw APIError.expiredRefreshToken
+            throw APIError.missingRequestBody
         }
         
         return try JSONParameterEncoder.default.encode(body, into: request)
