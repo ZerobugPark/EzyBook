@@ -8,6 +8,8 @@
 
 .DS_Store
 
+/Core/NetworkManager/EzyBookPath.swift
+
 ## User settings
 xcuserdata/
 
