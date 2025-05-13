@@ -8,5 +8,5 @@
 import Foundation
 
 protocol NetworkManager {
-    func callRequest<T: Decodable>(api: T, type: T.Type) -> Data
+    func request<R: NetworkRouter>(_ router: R, completionHandler: @escaping (Result <Data, APIError>) -> Void)
 }

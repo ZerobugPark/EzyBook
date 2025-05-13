@@ -9,13 +9,8 @@ import Foundation
 
 import Alamofire
 
-/// 단일 책임 분리를 위한 Encoder
-protocol RequestEncoder {
-    func encode(request: URLRequest, with parameters: Encodable?) throws -> URLRequest
-}
-
 /// URL 쿼리 인코더 구현
-struct URLQueryEncoder: RequestEncoder {
+struct URLQueryEncoder {
     func encode(request: URLRequest, with requestBody: Encodable?) throws -> URLRequest {
         
         guard let body = requestBody else {

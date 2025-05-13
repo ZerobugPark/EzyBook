@@ -12,12 +12,12 @@ import Alamofire
 /// Post 전용
 protocol PostRouter: NetworkRouter {
     var requestBody: Encodable? { get }
-    var encoder: RequestEncoder { get }
+    var encoder: URLQueryEncoder { get }
     func encodeBody(for request: URLRequest) throws -> URLRequest
 }
 
 extension PostRouter {
-    var encoder: RequestEncoder {
+    var encoder: URLQueryEncoder {
         return URLQueryEncoder()
     }
     

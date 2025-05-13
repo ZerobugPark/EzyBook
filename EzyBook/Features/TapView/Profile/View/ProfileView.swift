@@ -40,10 +40,20 @@ struct ProfileView: View {
          }
     }
     private func test() {
-        NetworkService.shared.request(
-            data: EmailValidationResponseDTO.self,
-            UserRequest.emailValidation(body: EmailValidationRequestDTO(email: "dddd"))
-        )
+        
+        
+        let test = NetworkRepository(networkManger: NetworkService(), decodingManager: ResponseDecoder())
+        let requestDTO = EmailValidationRequestDTO(email: "sesddddac_re_jack@gmail.com")
+        
+        test.fetchData(UserRequest.emailValidation(body: requestDTO)) { (result: Result<EmailValidationResponseDTO, APIErrorResponse>) in
+            
+            switch result {
+            case .success(let success):
+                print(success)
+            case .failure(let failure):
+                print(failure)
+            }
+        }
     }
 }
 

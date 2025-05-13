@@ -14,13 +14,17 @@ enum RequestType {
 
 
 enum APIError: Int, Error {
-    case missingEndpoint
-    case missingRequestBody
     case requiredFieldMissing = 400 // 필수값이 없을 때
     case invalidRefreshToken = 401 // 인증할 수 없는 리프레시 토큰 // 계정 확인
     case emailUnavailable = 409 // 사용 불가능한 이메일 또는 이미 가입된 유저
     case expiredRefreshToken = 418 // 토큰 만료
     case unknown
+    
+    case missingEndpoint = 10000
+    case missingRequestBody = 10001
+    case decodingError = 10002
+    
+    
     
     init(statusCode: Int) {
          self = APIError(rawValue: statusCode) ?? .unknown
@@ -28,10 +32,6 @@ enum APIError: Int, Error {
     
     var defaultMessage: String {
         switch self {
-        case .missingEndpoint:
-            return "endPoint를 확인해주세요."
-        case .missingRequestBody:
-            return "요청 바디가 유효하지 않습니다."
         case .requiredFieldMissing:
             return "필수값을 채워주세요."
         case .invalidRefreshToken:
@@ -42,7 +42,12 @@ enum APIError: Int, Error {
             return "토큰이 만료되었습니다."
         case .unknown:
             return "관리자 요청: 알 수 없는 오류."
-        
+        case .missingEndpoint:
+            return "endPoint를 확인해주세요."
+        case .missingRequestBody:
+            return "요청 바디가 유효하지 않습니다."
+        case .decodingError:
+            return "디코딩 타입을 확인해주세요." 
         }
     }
 }
@@ -58,4 +63,8 @@ extension APIError {
             return self.defaultMessage
         }
     }
+}
+/// 문자열을 보내기 위한 Error 추가
+enum APIErrorResponse: Error {
+    case api(_ responseCode: Int, message: String)
 }
