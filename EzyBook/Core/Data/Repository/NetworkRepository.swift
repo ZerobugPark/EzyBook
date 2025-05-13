@@ -23,11 +23,11 @@ final class NetworkRepository: EzyBookNetworkRepository {
                         
             switch result {
             case .success(let data):
-                let decodedResult = self.decodingManager.decode(data: data, type: JoinResponseDTO.self)
+                let decodedResult = self.decodingManager.decode(data: data, type: T.self)
                 
                 switch decodedResult {
                 case .success(let success):
-                    completionHandler(.success(success as! T))
+                    completionHandler(.success(success))
                 case .failure:
                     let responseCode = APIError(statusCode: 10002)
                     let error = APIErrorResponse.api(responseCode.rawValue, message: responseCode.defaultMessage)
