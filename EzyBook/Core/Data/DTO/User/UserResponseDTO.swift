@@ -44,7 +44,7 @@ struct ProfileCheckResponseDTO: Decodable {
 // MARK: Post(Response)
 /// 이메일 유효성 검사
 struct EmailValidationResponseDTO: Decodable {
-    let email: String
+    let message: String
 }
 
 /// 회원가입

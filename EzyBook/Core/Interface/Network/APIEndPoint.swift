@@ -13,15 +13,13 @@ protocol APIEndPoint {
 }
 
 extension APIEndPoint {
-    // 기본 baseURL 제공
+    /// 기본 baseURL 제공
     var baseURL: String {
         return APIConstants.baseURL
     }
     
-    // requestURL은 baseURL과 path를 합친 URL로 기본 구현
+    /// requestURL은 baseURL과 path를 합친 URL로 기본 구현
     var requestURL: URL? {
-        print("123",baseURL)
-        print(APIConstants.apiKey)
         return URL(string: baseURL + path)
     }
 }

@@ -40,7 +40,10 @@ struct ProfileView: View {
          }
     }
     private func test() {
-        NetworkService.shared.request(data: EmailValidationResponseDTO.self,  UserRequest.emailLogin(body: EmailLoginRequestDTO(email: "123", password: "123", deviceToken: nil)))
+        NetworkService.shared.request(
+            data: EmailValidationResponseDTO.self,
+            UserRequest.emailValidation(body: EmailValidationRequestDTO(email: "dddd"))
+        )
     }
 }
 
