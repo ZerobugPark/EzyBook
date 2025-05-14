@@ -14,7 +14,8 @@ struct ResponseDecoder {
             let decoded = try JSONDecoder().decode(T.self, from: data)
             return .success(decoded)
         } catch {
-            return .failure(.unknown)
+            let error = APIError(localErrorType: .decodingError)
+            return .failure(error)
         }
     }
 }

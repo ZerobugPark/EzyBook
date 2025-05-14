@@ -14,7 +14,7 @@ struct URLQueryEncoder {
     func encode(request: URLRequest, with requestBody: Encodable?) throws -> URLRequest {
         
         guard let body = requestBody else {
-            throw APIError.missingRequestBody
+            throw APIError(localErrorType: .missingEndpoint)
         }
         
         return try JSONParameterEncoder.default.encode(body, into: request)

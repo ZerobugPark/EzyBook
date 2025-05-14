@@ -26,7 +26,7 @@ extension NetworkRouter {
     /// Helper Function (프로토콜 추가할 필요가 없음)
     func makeURLRequest() throws -> URLRequest {
         guard let url = endpoint else {
-            throw APIError.missingEndpoint
+            throw APIError(localErrorType: .missingEndpoint)
         }
         var request = URLRequest(url: url)
         request.method = method

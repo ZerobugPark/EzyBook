@@ -17,7 +17,7 @@ final class NetworkRepository: EzyBookNetworkRepository {
         self.decodingManager = decodingManager
     }
     
-    func fetchData<T: Decodable & EntityConvertible, E: StructEntity, R: NetworkRouter>(dto: T.Type ,_ router: R, completionHandler: @escaping (Result<E, APIErrorResponse>) -> Void) where T.T == E {
+    func fetchData<T: Decodable & EntityConvertible, E: StructEntity, R: NetworkRouter>(dto: T.Type ,_ router: R, completionHandler: @escaping (Result<E, APIError>) -> Void) where T.T == E {
         
         networkManger.request(router) { (result: Result<Data, APIError>) in
                         
@@ -29,20 +29,15 @@ final class NetworkRepository: EzyBookNetworkRepository {
                 case .success(let success):
                     let entity = success.toEntity()
                     completionHandler(.success(entity))
-                case .failure:
-                    let responseCode = APIError(statusCode: 10002)
-                    let error = APIErrorResponse.api(responseCode.rawValue, message: responseCode.defaultMessage)
+                case .failure(let error):
                     completionHandler(.failure(error))
                 }
                 
-            case .failure(let failure):
-                let error = APIErrorResponse.api(failure.rawValue, message: failure.defaultMessage)
+            case .failure(let error):
                 completionHandler(.failure(error))
             }
         }
     }
-    
-    
     
 }
     

@@ -41,15 +41,16 @@ struct ProfileView: View {
     }
     private func test() {
         
-        let requestDTO = EmailValidationRequestDTO(email: "sesddddac_re_jack@gmail.com")
+        let requestDTO = EmailValidationRequestDTO(email: "sesac_re_jack@gmail.com")
         let networkRepository = container.makeNetworkRepository()
-        networkRepository.fetchData(dto: EmailValidationResponseDTO.self, UserRequest.emailValidation(body: requestDTO)) { (result: Result<EmailValidationEntity, APIErrorResponse>) in
+        networkRepository.fetchData(dto: EmailValidationResponseDTO.self, UserRequest.emailValidation(body: requestDTO)) { (result: Result<EmailValidationEntity, APIError>) in
             
             switch result {
             case .success(let success):
                 print(success)
             case .failure(let failure):
-                print(failure)
+                print(failure.code)
+                print(failure.userMessage)
             }
         }
         
