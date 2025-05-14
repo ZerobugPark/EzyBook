@@ -24,7 +24,7 @@ extension PostRouter {
     /// POST 요청 특화 처리 (body)
     func encodeBody(for request: URLRequest) throws -> URLRequest {
         guard let body = requestBody else {
-            throw APIError.missingRequestBody
+            throw APIError(localErrorType: .missingRequestBody)
         }
         return try encoder.encode(request: request, with: body)
     }

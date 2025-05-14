@@ -11,6 +11,7 @@ import Alamofire
 
 final class NetworkService: NetworkManager {
     
+    
     func request<R: NetworkRouter>(_ router: R, completionHandler: @escaping (Result <Data, APIError>) -> Void) {
         
         do {
@@ -22,20 +23,24 @@ final class NetworkService: NetworkManager {
                     switch response.result {
                     case .success(let data):
                         completionHandler(.success(data))
-                    case .failure:
+                    case .failure(let error):
+                        let responseMessage = response.data
                         if let statusCode = response.response?.statusCode {
-                            let apiError = APIError(statusCode: statusCode)
-                            completionHandler(.failure(apiError))
+                            let error = APIError(statusCode: statusCode, data: responseMessage)
+                            completionHandler(.failure(error))
                         } else {
-                            // 상태코드가 없을 때
-                            completionHandler(.failure(.unknown))
+                            let errorCode = (error as NSError).code
+                            let error = APIError(statusCode: errorCode, data: responseMessage)
+                            completionHandler(.failure(error))
                         }
                     }
                 }
         } catch {
-            completionHandler(.failure(.missingEndpoint))
+            let error = APIError(localErrorType: .missingEndpoint)
+            completionHandler(.failure(error))
         }
         
         
     }
 }
+
