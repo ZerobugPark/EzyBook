@@ -17,17 +17,18 @@ final class NetworkRepository: EzyBookNetworkRepository {
         self.decodingManager = decodingManager
     }
     
-    func fetchData<T: Decodable, R: NetworkRouter>(_ router: R, completionHandler: @escaping (Result<T, APIErrorResponse>) -> Void) {
+    func fetchData<T: Decodable & EntityConvertible, E: StructEntity, R: NetworkRouter>(dto: T.Type ,_ router: R, completionHandler: @escaping (Result<E, APIErrorResponse>) -> Void) where T.T == E {
         
         networkManger.request(router) { (result: Result<Data, APIError>) in
                         
             switch result {
             case .success(let data):
-                let decodedResult = self.decodingManager.decode(data: data, type: JoinResponseDTO.self)
+                let decodedResult = self.decodingManager.decode(data: data, type: T.self)
                 
                 switch decodedResult {
                 case .success(let success):
-                    completionHandler(.success(success as! T))
+                    let entity = success.toEntity()
+                    completionHandler(.success(entity))
                 case .failure:
                     let responseCode = APIError(statusCode: 10002)
                     let error = APIErrorResponse.api(responseCode.rawValue, message: responseCode.defaultMessage)

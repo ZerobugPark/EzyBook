@@ -42,3 +42,4 @@ struct AppleLoginRequestDTO: Encodable {
     let deviceToken: String?
     let nick: String?
 }
+

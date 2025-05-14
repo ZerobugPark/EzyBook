@@ -43,7 +43,7 @@ struct ProfileView: View {
         
         let requestDTO = EmailValidationRequestDTO(email: "sesddddac_re_jack@gmail.com")
         let networkRepository = container.makeNetworkRepository()
-        networkRepository.fetchData(UserRequest.emailValidation(body: requestDTO)) { (result: Result<EmailValidationResponseDTO, APIErrorResponse>) in
+        networkRepository.fetchData(dto: EmailValidationResponseDTO.self, UserRequest.emailValidation(body: requestDTO)) { (result: Result<EmailValidationEntity, APIErrorResponse>) in
             
             switch result {
             case .success(let success):
