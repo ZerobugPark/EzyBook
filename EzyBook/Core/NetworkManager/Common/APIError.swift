@@ -79,8 +79,16 @@ enum APIError: Error {
         case .localError(_, let message):
             return message ?? "앱 오류가 발생했습니다."
         case .dataError(_, let data):
-            if let data = data, let errorResponse = try? JSONDecoder().decode(ErrorMessageDTO.self, from: data) {
-                return errorResponse.message //?? "서버에서 오류가 발생했습니다."
+
+            if let data = data {
+                let decoder = ResponseDecoder()
+                let errorResponse = decoder.decode(data: data, type: ErrorMessageDTO.self)
+                switch errorResponse {
+                case .success(let success):
+                    return success.message
+                case .failure(let error):
+                    return error.userMessage
+                }
             }
             return "오류가 발생했습니다."
         }
