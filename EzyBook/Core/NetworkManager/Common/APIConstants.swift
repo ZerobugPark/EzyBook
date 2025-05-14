@@ -21,7 +21,6 @@ enum APIConstants {
         guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "Base_URL") as? String else {
             fatalError("Base_URL not found in Info.plist")
         }
-        //return "http://" + baseURL
         return baseURL
     }
     
