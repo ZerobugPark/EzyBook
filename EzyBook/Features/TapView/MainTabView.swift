@@ -16,6 +16,8 @@ struct MainTabView: View {
     
     @State private var selectedTab: Tab = .profile
     
+    @EnvironmentObject var container: DIContainer
+    
     var body: some View {
         TabView(selection: $selectedTab) {
             ProfileView()
@@ -24,6 +26,7 @@ struct MainTabView: View {
                     
                     
                 }
+                .environmentObject(container)
                 .tag(Tab.profile)
         }
     }

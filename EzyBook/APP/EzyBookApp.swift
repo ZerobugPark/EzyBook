@@ -9,9 +9,13 @@ import SwiftUI
 
 @main
 struct EzyBookApp: App {
+    
+    @StateObject var container = AppDIContainer().makeDIContainer()
+    
     var body: some Scene {
         WindowGroup {
             MainTabView()
+                .environmentObject(container)
         }
     }
 }

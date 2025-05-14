@@ -43,7 +43,7 @@ struct ProfileCheckResponseDTO: Decodable {
 
 // MARK: Post(Response)
 /// 이메일 유효성 검사
-struct EmailValidationResponseDTO: Decodable {
+struct EmailValidationResponseDTO: Decodable, EntityConvertible {
     let message: String
 }
 
@@ -83,4 +83,14 @@ struct LoginResponseDTO: Encodable {
         case refreshToken
     }
     
+}
+
+
+// MARK: UserReponseDTO Extension
+
+extension EmailValidationResponseDTO {
+    
+    func toEntity() -> EmailValidationEntity {
+        return EmailValidationEntity(message: self.message)
+    }
 }

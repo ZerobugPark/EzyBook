@@ -10,7 +10,7 @@ import SwiftUI
 struct ProfileView: View {
     
     @State private var showModal = false
-    
+    @EnvironmentObject var container: DIContainer
     
     var body: some View {
         VStack {
@@ -41,11 +41,9 @@ struct ProfileView: View {
     }
     private func test() {
         
-        
-        let test = NetworkRepository(networkManger: NetworkService(), decodingManager: ResponseDecoder())
         let requestDTO = EmailValidationRequestDTO(email: "sesddddac_re_jack@gmail.com")
-        
-        test.fetchData(UserRequest.emailValidation(body: requestDTO)) { (result: Result<EmailValidationResponseDTO, APIErrorResponse>) in
+        let networkRepository = container.makeNetworkRepository()
+        networkRepository.fetchData(dto: EmailValidationResponseDTO.self, UserRequest.emailValidation(body: requestDTO)) { (result: Result<EmailValidationEntity, APIErrorResponse>) in
             
             switch result {
             case .success(let success):
@@ -54,6 +52,8 @@ struct ProfileView: View {
                 print(failure)
             }
         }
+        
+     
     }
 }
 
