@@ -8,6 +8,6 @@
 import Foundation
 
 protocol EntityConvertible {
-    associatedtype T
-    func toEntity() -> T
+    associatedtype E: StructEntity
+    func toEntity() -> E
 }
