@@ -27,4 +27,21 @@ extension View {
     func vaildTextdModify(_ isVaild: Bool) -> some View {
         modifier(ValidationTextModifier(isVaild: isVaild))
     }
+    
+    func vaildTextdModify(_ state: EmailValidationState) -> some View {
+        var emailState: Bool
+        
+        switch state {
+        case .empty:
+            emailState = false
+        case .invalidFormat:
+            emailState = true
+        case .duplicated:
+            emailState = true
+        case .available:
+            emailState = true
+        }
+        
+        return modifier(ValidationTextModifier(isVaild: emailState))
+    }
 }

@@ -9,8 +9,8 @@ import SwiftUI
 
 struct CreateAccountView: View {
     
-    @StateObject private var viewModel = CreateAccountViewModel()
-    
+    @StateObject var viewModel: CreateAccountViewModel
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -25,6 +25,9 @@ struct CreateAccountView: View {
             }
             .navigationTitle("회원가입")
             .navigationBarTitleDisplayMode(.inline)
+        }
+        .onAppear {
+            viewModel.input.passwordTextField = ""
         }
         
     }
@@ -52,13 +55,15 @@ extension CreateAccountView {
             
             Text("✓ 유효한 이메일 형식입니다.")
                 .vaildTextdModify(viewModel.output.isVaildEmail)
+            Text("✓ 사용 가능한 이메일입니다.")
+                .vaildTextdModify(viewModel.output.isVaildEmail)
             
             
         }
         .padding()
         
     }
-    
+   
     private func passwordField() -> some View {
         VStack(alignment: .leading) {
             HStack(spacing: 2) {
@@ -77,7 +82,7 @@ extension CreateAccountView {
                 .vaildTextdModify(viewModel.output.isPasswordComplexEnough)
             Text("✓ 최고 글자 수는 8자 이상입니다.")
                 .vaildTextdModify(viewModel.output.isPasswordLongEnough)
-            Text(viewModel.output.isValidPassword ? "✓ 비밀번호 일치" : "✓ 비밀번호가 일치하지 않습니다")
+            Text("✓ 비밀번호가 일치합니다.")
                 .vaildTextdModify(viewModel.output.isValidPassword)
             
         }
@@ -221,6 +226,6 @@ extension CreateAccountView {
     
 }
 
-#Preview {
-    CreateAccountView()
-}
+//#Preview {
+//    CreateAccountView()
+//}

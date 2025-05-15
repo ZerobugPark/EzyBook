@@ -11,6 +11,7 @@ struct ProfileView: View {
     
     @State private var showModal = false
     
+    
     var body: some View {
         VStack {
              Button {

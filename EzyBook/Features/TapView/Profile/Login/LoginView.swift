@@ -10,6 +10,7 @@ import SwiftUI
 struct LoginView: View {
     
     @Binding var showModal: Bool
+    @EnvironmentObject var container: DIContainer
     
     var body: some View {
         NavigationStack {
@@ -48,7 +49,8 @@ struct LoginView: View {
     
     private var createAccount: some View {
         NavigationLink {
-            CreateAccountView()
+            let viewModel = container.makeAccountViewModel()
+            CreateAccountView(viewModel: viewModel)
         } label: {
             Text("회원가입")  // 버튼 텍스트
                 .font(.headline)  // 텍스트 폰트

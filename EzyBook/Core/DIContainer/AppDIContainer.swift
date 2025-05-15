@@ -12,6 +12,9 @@ final class AppDIContainer {
         let networkManger = NetworkService()
         let decoder = ResponseDecoder()
         
-        return DIContainer(networkManger: networkManger, decodingManger: decoder)
+        return DIContainer(
+            networkManger: networkManger,
+            decodingManger: decoder
+        )
     }
 }

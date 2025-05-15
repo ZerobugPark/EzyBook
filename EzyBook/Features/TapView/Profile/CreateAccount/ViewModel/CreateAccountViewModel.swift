@@ -8,14 +8,9 @@
 import SwiftUI
 import Combine
 
-/// 패스워드 텍스트 필드
-enum PasswordField {
-    case password
-    case confirm
-}
-
 final class CreateAccountViewModel: ViewModelType {
     
+    var newtworkRepository: NetworkRepository
     var input = Input()
     @Published var output = Output()
     
@@ -27,14 +22,14 @@ final class CreateAccountViewModel: ViewModelType {
     }
     
     
-    //@Published var phoneNumberTextField: String = ""
-    
     var cancellables = Set<AnyCancellable>()
     
-    init() {
+    init(newtworkRepository: NetworkRepository) {
+        self.newtworkRepository = newtworkRepository
         self.phoneNumberTextField = input.phoneNumberTextField
         transform()
     }
+    
     
 }
 
@@ -53,7 +48,7 @@ extension CreateAccountViewModel {
         return NSPredicate(format:"SELF MATCHES %@", regex).evaluate(with: input.emailTextField)
     }
     
-
+    
     /// 비밀번호 복잡도 검사
     var validatePasswordCmplexEnough: Bool {
         let regex = #"^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]+$"#
@@ -64,7 +59,7 @@ extension CreateAccountViewModel {
     var validatePasswordLength: Bool {
         return input.passwordTextField.count > 7
     }
-        
+    
     /// 비밀번호 일치 여부 (사용 가능 여부
     var validatePassword: Bool {
         return input.passwordTextField == input.passwordConfirmTextField
@@ -79,7 +74,7 @@ extension CreateAccountViewModel {
     var vaildationPhoneNumber: Bool {
         return input.phoneNumberTextField.count == 11
     }
-
+    
     
     struct Input {
         var emailTextField = ""
@@ -88,37 +83,32 @@ extension CreateAccountViewModel {
         var nicknameTextField: String = ""
         var phoneNumberTextField: String = ""
         var introduceTextField: String = ""
-        
     }
     
     struct Output {
-        var isVaildEmail: Bool = false
+        var isVaildEmail: EmailValidationState = .empty
         var isPasswordLongEnough: Bool = false
         var isPasswordComplexEnough: Bool = false
         var isValidPassword: Bool = false
         var isValidNickname: Bool = false
         var isValidPhoneNumber: Bool = false
         
+        
         // 비밀번호 히든 체크
         var visibleStates: [PasswordField: Bool] = [
             .password: false,
             .confirm: false
         ]
-        
-        
     }
     
-    func transform() {
-
-        
-    
-    }
+    func transform() { }
     
     
     private func toggleVisibility(for field: PasswordField) {
         output.visibleStates[field]?.toggle()
     }
- 
+    
+    
     
 }
 
@@ -137,7 +127,7 @@ extension CreateAccountViewModel {
     func action(_ action: Action) {
         switch action {
         case .emailEditingCompleted:
-            output.isVaildEmail = validateEmail
+            output.isVaildEmail = .invalidFormat
         case .togglePasswordVisibility(let type):
             switch type {
             case .password:
@@ -145,7 +135,7 @@ extension CreateAccountViewModel {
             case .confirm:
                 toggleVisibility(for: .confirm)
             }
-          
+            
         case .passwordEditingCompleted:
             output.isPasswordLongEnough = validatePasswordLength
             output.isPasswordComplexEnough = validatePasswordCmplexEnough
