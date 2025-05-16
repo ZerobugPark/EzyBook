@@ -53,10 +53,11 @@ extension CreateAccountView {
                     viewModel.action(.emailEditingCompleted)
                 }
             
+            //todo: isVaildEmail 이거 분리 처리할 거
             Text("✓ 유효한 이메일 형식입니다.")
                 .vaildTextdModify(viewModel.output.isVaildEmail)
             Text("✓ 사용 가능한 이메일입니다.")
-                .vaildTextdModify(viewModel.output.isVaildEmail)
+                .vaildTextdModify(viewModel.output.isAvailableEmail)
             
             
         }

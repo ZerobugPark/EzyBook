@@ -86,7 +86,8 @@ extension CreateAccountViewModel {
     }
     
     struct Output {
-        var isVaildEmail: EmailValidationState = .empty
+        var isVaildEmail = false
+        var isAvailableEmail = false
         var isPasswordLongEnough: Bool = false
         var isPasswordComplexEnough: Bool = false
         var isValidPassword: Bool = false
@@ -108,6 +109,29 @@ extension CreateAccountViewModel {
         output.visibleStates[field]?.toggle()
     }
     
+    private func verifyEmailAvailability() {
+        
+        let body = EmailValidationRequestDTO(email: input.emailTextField)
+        let router = UserRequest.emailValidation(body: body)
+        
+        
+        newtworkRepository.fetchData(dto: EmailValidationResponseDTO.self, router) { [weak self] (result: Result<EmailValidationEntity, APIError>) in
+            
+            guard let self = self else { return }
+            
+            switch result {
+            case .success(let success):
+                print(success)
+                output.isAvailableEmail = true
+            case .failure(let fail):
+                print(fail)
+                output.isAvailableEmail = false
+            }
+        }
+    
+    }
+ 
+ 
     
     
 }
@@ -127,7 +151,8 @@ extension CreateAccountViewModel {
     func action(_ action: Action) {
         switch action {
         case .emailEditingCompleted:
-            output.isVaildEmail = .invalidFormat
+            output.isVaildEmail = validateEmail
+            verifyEmailAvailability()
         case .togglePasswordVisibility(let type):
             switch type {
             case .password:
