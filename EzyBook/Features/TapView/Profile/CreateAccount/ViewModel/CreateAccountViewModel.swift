@@ -199,7 +199,9 @@ extension CreateAccountViewModel {
             
             switch result {
             case .success(let success):
+                output.isAccountCreated = true
                 print(success)
+                // TODO: 토큰 저장하는 코드 추가
             case .failure(let failure):
                 output.currentError = .error(code: failure.code, msg: failure.userMessage)
             }

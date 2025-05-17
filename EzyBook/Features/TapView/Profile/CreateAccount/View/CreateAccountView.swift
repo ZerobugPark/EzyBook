@@ -34,6 +34,11 @@ struct CreateAccountView: View {
                     title: viewModel.output.currentError?.message.title,
                     message: viewModel.output.currentError?.message.msg
                 )
+                .commonAlert(
+                    isPresented: $viewModel.output.isAccountCreated,
+                    title: "안내",
+                    message: "회원가입이 완료되었습니다."
+                )
             }
             .navigationTitle("회원가입")
             .navigationBarTitleDisplayMode(.inline)
