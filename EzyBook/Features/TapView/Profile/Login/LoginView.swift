@@ -52,14 +52,10 @@ struct LoginView: View {
             let viewModel = container.makeAccountViewModel()
             CreateAccountView(viewModel: viewModel)
         } label: {
-            Text("회원가입")  // 버튼 텍스트
-                .font(.headline)  // 텍스트 폰트
-                .foregroundColor(.white)  // 텍스트 색상
+            Text("회원이 아니신가요?")  // 버튼 텍스트
+                .font(.caption)  // 텍스트 폰트
+                .foregroundColor(.grayScale90)  // 텍스트 색상
                 .padding()  // 텍스트 주변 여백
-                .frame(maxWidth: .infinity)  // 버튼이 가능한 넓이 전체 채우기
-                .background(Color.black)
-                .clipShape(Capsule())  // 캡슐 형태로 만들기
-                .padding()
         }
     }
     
@@ -71,6 +67,5 @@ struct LoginView: View {
 
 
 #Preview {
-    @State var showModal = false
-    LoginView(showModal: $showModal)
+    PreViewHelper.makeLoginView()
 }
