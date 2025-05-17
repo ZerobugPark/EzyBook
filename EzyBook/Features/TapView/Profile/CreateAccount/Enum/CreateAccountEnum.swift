@@ -13,3 +13,16 @@ enum PasswordInputFieldType {
     case confirmPassword // 비밀번호 확인
 }
 
+
+enum AppError {
+    case error(code: Int, msg: String)
+    
+    var message: (title: String, msg: String) {
+        switch self {
+        case let .error(code, msg):
+            let title = "Error: \(code)"
+            return (title, msg)
+        }
+        
+    }
+}

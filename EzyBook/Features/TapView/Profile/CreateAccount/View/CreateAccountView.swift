@@ -22,6 +22,23 @@ struct CreateAccountView: View {
                     introduceField()
                     signUpButton()
                 }
+                .alert(isPresented: Binding<Bool>(
+                    get: { viewModel.output.isShowingError },
+                    set: { isPresented in
+                        if !isPresented {
+                            viewModel.resetError()
+                        }
+                    })
+                ) {
+                    Alert(
+                        title: Text(viewModel.output.currentError?.message.title ?? "unknown"),
+                        message: Text(viewModel.output.currentError?.message.msg ?? "관리자에게 문의해주세요"),
+                        dismissButton: .default(Text("확인"))
+                    )
+                }
+
+
+
             }
             .navigationTitle("회원가입")
             .navigationBarTitleDisplayMode(.inline)

@@ -100,14 +100,21 @@ extension CreateAccountViewModel {
         var isValidPassword: Bool = false
         var isValidNickname: Bool = false
         var isValidPhoneNumber: Bool = false
-        
         var isFormValid: Bool = false
+        var currentError: AppError? = nil
         
         // 비밀번호 히든 체크
         var visibleStates: [PasswordInputFieldType: Bool] = [
             .password: false,
             .confirmPassword: false
         ]
+        
+        
+        var isShowingError: Bool {
+            currentError != nil
+        }
+
+
     }
     
     func transform() { }
@@ -142,9 +149,9 @@ extension CreateAccountViewModel {
             case .success(let success):
                 print(success)
                 output.isAvailableEmail = true
-            case .failure(let fail):
-                print(fail)
+            case .failure(let failure):
                 output.isAvailableEmail = false
+                output.currentError = .error(code: failure.code, msg: failure.userMessage)
             }
         }
         
@@ -185,13 +192,15 @@ extension CreateAccountViewModel {
         )
         let router = UserRequest.join(body: body)
         
-        newtworkRepository.fetchData(dto: JoinResponseDTO.self, router) { (result: Result<JoinEntity, APIError>) in
+        newtworkRepository.fetchData(dto: JoinResponseDTO.self, router) { [weak self] (result: Result<JoinEntity, APIError>) in
+            
+            guard let self = self else { return }
             
             switch result {
             case .success(let success):
                 print(success)
             case .failure(let failure):
-                print(failure)
+                output.currentError = .error(code: failure.code, msg: failure.userMessage)
             }
         }
         
@@ -201,6 +210,11 @@ extension CreateAccountViewModel {
     private func updateFormValidation() {
         output.isFormValid = output.isVaildEmail && output.isAvailableEmail && output.isValidPassword && output.isValidNickname
     }
+    
+    func resetError() {
+        output.currentError = nil
+    }
+    
     
 }
 
