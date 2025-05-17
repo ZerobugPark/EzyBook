@@ -9,8 +9,8 @@ import SwiftUI
 
 struct CreateAccountView: View {
     
-    @StateObject private var viewModel = CreateAccountViewModel()
-    
+    @StateObject var viewModel: CreateAccountViewModel
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -22,9 +22,29 @@ struct CreateAccountView: View {
                     introduceField()
                     signUpButton()
                 }
+                .alert(isPresented: Binding<Bool>(
+                    get: { viewModel.output.isShowingError },
+                    set: { isPresented in
+                        if !isPresented {
+                            viewModel.resetError()
+                        }
+                    })
+                ) {
+                    Alert(
+                        title: Text(viewModel.output.currentError?.message.title ?? "unknown"),
+                        message: Text(viewModel.output.currentError?.message.msg ?? "관리자에게 문의해주세요"),
+                        dismissButton: .default(Text("확인"))
+                    )
+                }
+
+
+
             }
             .navigationTitle("회원가입")
             .navigationBarTitleDisplayMode(.inline)
+        }
+        .onAppear {
+            viewModel.input.passwordTextField = ""
         }
         
     }
@@ -50,15 +70,18 @@ extension CreateAccountView {
                     viewModel.action(.emailEditingCompleted)
                 }
             
+            //todo: isVaildEmail 이거 분리 처리할 거
             Text("✓ 유효한 이메일 형식입니다.")
                 .vaildTextdModify(viewModel.output.isVaildEmail)
+            Text("✓ 사용 가능한 이메일입니다.")
+                .vaildTextdModify(viewModel.output.isAvailableEmail)
             
             
         }
         .padding()
         
     }
-    
+   
     private func passwordField() -> some View {
         VStack(alignment: .leading) {
             HStack(spacing: 2) {
@@ -70,14 +93,14 @@ extension CreateAccountView {
             }
             passwordTextField(type: .password)
             
-            passwordTextField(type: .confirm)
+            passwordTextField(type: .confirmPassword)
                 .padding(.top, 5)
             
             Text("✓ 영문자, 숫자, 특수문자(@$!%*#?&)를 각각 1개 이상 포함해야 합니다.")
                 .vaildTextdModify(viewModel.output.isPasswordComplexEnough)
             Text("✓ 최고 글자 수는 8자 이상입니다.")
                 .vaildTextdModify(viewModel.output.isPasswordLongEnough)
-            Text(viewModel.output.isValidPassword ? "✓ 비밀번호 일치" : "✓ 비밀번호가 일치하지 않습니다")
+            Text("✓ 비밀번호가 일치합니다.")
                 .vaildTextdModify(viewModel.output.isValidPassword)
             
         }
@@ -85,7 +108,7 @@ extension CreateAccountView {
         
     }
     
-    private func passwordTextField(type: PasswordField) -> some View{
+    private func passwordTextField(type: PasswordInputFieldType) -> some View{
         
         let textfield = getPasswordBinding(for: type)
         
@@ -116,20 +139,20 @@ extension CreateAccountView {
         .onSubmit {
             switch type {
             case .password:
-                viewModel.action(.passwordEditingCompleted)
-            case .confirm:
-                viewModel.action(.passwordConfirmEditingCompleted)
+                viewModel.action(.passwordEditingCompleted(type: .password))
+            case .confirmPassword:
+                viewModel.action(.passwordEditingCompleted(type: .confirmPassword))
             }
          
         }
         
     }
     
-    private func getPasswordBinding(for type: PasswordField) -> (title: String, binding: Binding<String>) {
+    private func getPasswordBinding(for type: PasswordInputFieldType) -> (title: String, binding: Binding<String>) {
         switch type {
         case .password:
             return ("비밀번호를 입력해 주세요" ,$viewModel.input.passwordTextField)
-        case .confirm:
+        case .confirmPassword:
             return ("비밀번호를 다시 입력해 주세요", $viewModel.input.passwordConfirmTextField)
         }
     }
@@ -205,7 +228,7 @@ extension CreateAccountView {
     
     private func signUpButton() -> some View {
         Button {
-            print("button Tapped")
+            viewModel.action(.signUpButtonTapped)
         } label: {
             Text("회원가입")
                 .foregroundColor(.white)
@@ -215,12 +238,14 @@ extension CreateAccountView {
                 .background(Color.black)
                 .clipShape(Capsule())
         }
+        .opacity(viewModel.output.isFormValid ? 1 : 0.5)
+        .disabled(!viewModel.output.isFormValid)
         .padding()
       
     }
     
 }
 
-#Preview {
-    CreateAccountView()
-}
+//#Preview {
+//    CreateAccountView()
+//}

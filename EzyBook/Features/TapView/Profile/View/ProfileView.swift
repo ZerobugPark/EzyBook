@@ -10,7 +10,6 @@ import SwiftUI
 struct ProfileView: View {
     
     @State private var showModal = false
-    @EnvironmentObject var container: DIContainer
     
     var body: some View {
         VStack {
@@ -25,7 +24,7 @@ struct ProfileView: View {
              }
             
             Button {
-                test()
+                
             } label: {
                 Text("네트워크 테스트")
                     .padding()
@@ -39,23 +38,7 @@ struct ProfileView: View {
              LoginView(showModal: $showModal)
          }
     }
-    private func test() {
-        
-        let requestDTO = EmailValidationRequestDTO(email: "sesac_re_jack@gmail.com")
-        let networkRepository = container.makeNetworkRepository()
-        networkRepository.fetchData(dto: EmailValidationResponseDTO.self, UserRequest.emailValidation(body: requestDTO)) { (result: Result<EmailValidationEntity, APIError>) in
-            
-            switch result {
-            case .success(let success):
-                print(success)
-            case .failure(let failure):
-                print(failure.code)
-                print(failure.userMessage)
-            }
-        }
-        
-     
-    }
+  
 }
 
 #Preview {

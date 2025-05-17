@@ -27,4 +27,5 @@ extension View {
     func vaildTextdModify(_ isVaild: Bool) -> some View {
         modifier(ValidationTextModifier(isVaild: isVaild))
     }
+
 }

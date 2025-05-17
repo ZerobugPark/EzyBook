@@ -8,14 +8,9 @@
 import SwiftUI
 import Combine
 
-/// 패스워드 텍스트 필드
-enum PasswordField {
-    case password
-    case confirm
-}
-
 final class CreateAccountViewModel: ViewModelType {
     
+    var newtworkRepository: NetworkRepository
     var input = Input()
     @Published var output = Output()
     
@@ -27,14 +22,14 @@ final class CreateAccountViewModel: ViewModelType {
     }
     
     
-    //@Published var phoneNumberTextField: String = ""
-    
     var cancellables = Set<AnyCancellable>()
     
-    init() {
+    init(newtworkRepository: NetworkRepository) {
+        self.newtworkRepository = newtworkRepository
         self.phoneNumberTextField = input.phoneNumberTextField
         transform()
     }
+    
     
 }
 
@@ -53,7 +48,7 @@ extension CreateAccountViewModel {
         return NSPredicate(format:"SELF MATCHES %@", regex).evaluate(with: input.emailTextField)
     }
     
-
+    
     /// 비밀번호 복잡도 검사
     var validatePasswordCmplexEnough: Bool {
         let regex = #"^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]+$"#
@@ -64,7 +59,7 @@ extension CreateAccountViewModel {
     var validatePasswordLength: Bool {
         return input.passwordTextField.count > 7
     }
-        
+    
     /// 비밀번호 일치 여부 (사용 가능 여부
     var validatePassword: Bool {
         return input.passwordTextField == input.passwordConfirmTextField
@@ -72,14 +67,21 @@ extension CreateAccountViewModel {
     
     /// 닉네임 유효성 검사
     var vaildationNicknameValid: Bool {
-        let regex = #"^[^,.\?\*@\-@]+$"#
-        return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: input.nicknameTextField)
+        let forbiddenCharacters: Set<Character> = [",", ".", "?", "*", "-", "@"]
+        let input = input.nicknameTextField.trimmingCharacters(in: .whitespaces)
+        
+        if input.count == 1, let firstChar = input.first, forbiddenCharacters.contains(firstChar) {
+            return false
+        }
+        
+        return true
     }
     
     var vaildationPhoneNumber: Bool {
         return input.phoneNumberTextField.count == 11
     }
-
+    
+    
     
     struct Input {
         var emailTextField = ""
@@ -88,37 +90,131 @@ extension CreateAccountViewModel {
         var nicknameTextField: String = ""
         var phoneNumberTextField: String = ""
         var introduceTextField: String = ""
-        
     }
     
     struct Output {
-        var isVaildEmail: Bool = false
+        var isVaildEmail = false
+        var isAvailableEmail = false
         var isPasswordLongEnough: Bool = false
         var isPasswordComplexEnough: Bool = false
         var isValidPassword: Bool = false
         var isValidNickname: Bool = false
         var isValidPhoneNumber: Bool = false
+        var isFormValid: Bool = false
+        var currentError: AppError? = nil
         
         // 비밀번호 히든 체크
-        var visibleStates: [PasswordField: Bool] = [
+        var visibleStates: [PasswordInputFieldType: Bool] = [
             .password: false,
-            .confirm: false
+            .confirmPassword: false
         ]
         
         
-    }
-    
-    func transform() {
+        var isShowingError: Bool {
+            currentError != nil
+        }
 
-        
-    
+
     }
     
+    func transform() { }
     
-    private func toggleVisibility(for field: PasswordField) {
+    /// 이메일 유효성 검사 및 중복확인
+    private func handleEmailEditingCompleted() {
+        output.isVaildEmail = validateEmail
+        verifyEmailAvailability()
+        updateFormValidation()
+    }
+    
+    /// 텍스트필트 비밀번호 필드 히든 처리
+    ///
+    /// - Parameters:
+    ///   - field: 텍트스필드 타입
+    private func handleToggleVisibility(for field: PasswordInputFieldType) {
         output.visibleStates[field]?.toggle()
     }
- 
+    
+    /// 이메일 중복확인 (서버 통신)
+    private func verifyEmailAvailability() {
+        
+        let body = EmailValidationRequestDTO(email: input.emailTextField)
+        let router = UserRequest.emailValidation(body: body)
+        
+        
+        newtworkRepository.fetchData(dto: EmailValidationResponseDTO.self, router) { [weak self] (result: Result<EmailValidationEntity, APIError>) in
+            
+            guard let self = self else { return }
+            
+            switch result {
+            case .success(let success):
+                print(success)
+                output.isAvailableEmail = true
+            case .failure(let failure):
+                output.isAvailableEmail = false
+                output.currentError = .error(code: failure.code, msg: failure.userMessage)
+            }
+        }
+        
+    }
+    
+    /// 비밀번호 필드, 유효성 검사
+    private func handlePasswordEditingCompleted(for type: PasswordInputFieldType) {
+        switch type {
+        case .password:
+            output.isPasswordLongEnough = validatePasswordLength
+            output.isPasswordComplexEnough = validatePasswordCmplexEnough
+        case .confirmPassword:
+            output.isValidPassword = validatePassword
+        }
+        updateFormValidation()
+    }
+    
+    /// 닉네임 유효성 검사
+    private func handlerNickNameEditingCompleted() {
+        output.isValidNickname = vaildationNicknameValid
+        updateFormValidation()
+    }
+    
+    /// 휴대전화 유효성 검사
+    private func handlerPhoneNumberEditingCompleted() {
+        output.isValidPhoneNumber = vaildationPhoneNumber
+    }
+    
+    private func handleSignUp() {
+        
+        let body = JoinRequestDTO(
+            email: input.emailTextField,
+            password: input.passwordConfirmTextField,
+            nick: input.nicknameTextField,
+            phoneNum: input.phoneNumberTextField,
+            introduction: input.introduceTextField,
+            deviceToken: nil
+        )
+        let router = UserRequest.join(body: body)
+        
+        newtworkRepository.fetchData(dto: JoinResponseDTO.self, router) { [weak self] (result: Result<JoinEntity, APIError>) in
+            
+            guard let self = self else { return }
+            
+            switch result {
+            case .success(let success):
+                print(success)
+            case .failure(let failure):
+                output.currentError = .error(code: failure.code, msg: failure.userMessage)
+            }
+        }
+        
+    }
+    
+    /// 회원가입 버튼 버튼 상태
+    private func updateFormValidation() {
+        output.isFormValid = output.isVaildEmail && output.isAvailableEmail && output.isValidPassword && output.isValidNickname
+    }
+    
+    func resetError() {
+        output.currentError = nil
+    }
+    
     
 }
 
@@ -127,34 +223,28 @@ extension CreateAccountViewModel {
     
     enum Action {
         case emailEditingCompleted
-        case togglePasswordVisibility(type: PasswordField)
-        case passwordEditingCompleted
-        case passwordConfirmEditingCompleted
+        case togglePasswordVisibility(type: PasswordInputFieldType)
+        case passwordEditingCompleted(type: PasswordInputFieldType)
         case nickNameEditingCompleted
         case phoneNumberEditingCompleted
+        case signUpButtonTapped
     }
     
+    /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
     func action(_ action: Action) {
         switch action {
         case .emailEditingCompleted:
-            output.isVaildEmail = validateEmail
+            handleEmailEditingCompleted()
         case .togglePasswordVisibility(let type):
-            switch type {
-            case .password:
-                toggleVisibility(for: .password)
-            case .confirm:
-                toggleVisibility(for: .confirm)
-            }
-          
-        case .passwordEditingCompleted:
-            output.isPasswordLongEnough = validatePasswordLength
-            output.isPasswordComplexEnough = validatePasswordCmplexEnough
-        case .passwordConfirmEditingCompleted:
-            output.isValidPassword = validatePassword
+            handleToggleVisibility(for: type)
+        case .passwordEditingCompleted(let type):
+            handlePasswordEditingCompleted(for: type)
         case .nickNameEditingCompleted:
-            output.isValidNickname = vaildationNicknameValid
+            handlerNickNameEditingCompleted()
         case .phoneNumberEditingCompleted:
-            output.isValidPhoneNumber = vaildationPhoneNumber
+            handlerPhoneNumberEditingCompleted()
+        case .signUpButtonTapped:
+            handleSignUp()
         }
     }
     

@@ -20,9 +20,17 @@ final class DIContainer: ObservableObject {
         self.networkManger = networkManger
         self.decodingManger = decodingManger
     }
-
-    func makeNetworkRepository() -> NetworkRepository {
+    
+    private func makeNetworkRepository() -> NetworkRepository {
         return NetworkRepository(networkManger: networkManger, decodingManager: decodingManger)
+    }
+    
+}
+
+// MARK: Make ViewModel
+extension DIContainer {
+    func makeAccountViewModel() -> CreateAccountViewModel {
+        return CreateAccountViewModel(newtworkRepository: self.makeNetworkRepository())
     }
     
 }
