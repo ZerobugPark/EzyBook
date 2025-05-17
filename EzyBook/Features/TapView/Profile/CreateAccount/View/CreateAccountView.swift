@@ -76,7 +76,7 @@ extension CreateAccountView {
             }
             passwordTextField(type: .password)
             
-            passwordTextField(type: .confirm)
+            passwordTextField(type: .confirmPassword)
                 .padding(.top, 5)
             
             Text("✓ 영문자, 숫자, 특수문자(@$!%*#?&)를 각각 1개 이상 포함해야 합니다.")
@@ -91,7 +91,7 @@ extension CreateAccountView {
         
     }
     
-    private func passwordTextField(type: PasswordField) -> some View{
+    private func passwordTextField(type: PasswordInputFieldType) -> some View{
         
         let textfield = getPasswordBinding(for: type)
         
@@ -122,20 +122,20 @@ extension CreateAccountView {
         .onSubmit {
             switch type {
             case .password:
-                viewModel.action(.passwordEditingCompleted)
-            case .confirm:
-                viewModel.action(.passwordConfirmEditingCompleted)
+                viewModel.action(.passwordEditingCompleted(type: .password))
+            case .confirmPassword:
+                viewModel.action(.passwordEditingCompleted(type: .confirmPassword))
             }
          
         }
         
     }
     
-    private func getPasswordBinding(for type: PasswordField) -> (title: String, binding: Binding<String>) {
+    private func getPasswordBinding(for type: PasswordInputFieldType) -> (title: String, binding: Binding<String>) {
         switch type {
         case .password:
             return ("비밀번호를 입력해 주세요" ,$viewModel.input.passwordTextField)
-        case .confirm:
+        case .confirmPassword:
             return ("비밀번호를 다시 입력해 주세요", $viewModel.input.passwordConfirmTextField)
         }
     }
@@ -211,7 +211,7 @@ extension CreateAccountView {
     
     private func signUpButton() -> some View {
         Button {
-            print("button Tapped")
+            viewModel.action(.signUpButtonTapped)
         } label: {
             Text("회원가입")
                 .foregroundColor(.white)
@@ -221,6 +221,8 @@ extension CreateAccountView {
                 .background(Color.black)
                 .clipShape(Capsule())
         }
+        .opacity(viewModel.output.isFormValid ? 1 : 0.5)
+        .disabled(!viewModel.output.isFormValid)
         .padding()
       
     }

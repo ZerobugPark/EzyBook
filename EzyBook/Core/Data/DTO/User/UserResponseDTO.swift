@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: Get
 /// 프로필 조회
-struct ProfileCheckResponseDTO: Decodable {
+struct ProfileCheckResponseDTO: Decodable, EntityConvertible {
     let userID: String
     let email: String
     let nick: String
@@ -48,7 +48,7 @@ struct EmailValidationResponseDTO: Decodable, EntityConvertible {
 }
 
 /// 회원가입
-struct JoinResponseDTO: Decodable {
+struct JoinResponseDTO: Decodable, EntityConvertible {
     let userID: String
     let email: String
     let nick: String
@@ -66,7 +66,7 @@ struct JoinResponseDTO: Decodable {
 }
 
 /// 로그인 (이메일, 카카오, 애플 공통)
-struct LoginResponseDTO: Encodable {
+struct LoginResponseDTO: Encodable, EntityConvertible {
     let userID: String
     let email: String
     let nick: String
