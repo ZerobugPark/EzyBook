@@ -14,7 +14,7 @@ struct CreateAccountView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack {
+                VStack(spacing: 10) {
                     emailField()
                     passwordField()
                     nicknameField()
@@ -22,29 +22,24 @@ struct CreateAccountView: View {
                     introduceField()
                     signUpButton()
                 }
-                .alert(isPresented: Binding<Bool>(
-                    get: { viewModel.output.isShowingError },
-                    set: { isPresented in
-                        if !isPresented {
-                            viewModel.resetError()
+                .commonAlert(
+                    isPresented: Binding(
+                        get: { viewModel.output.isShowingError },
+                        set: { isPresented in
+                            if !isPresented {
+                                viewModel.resetError()
+                            }
                         }
-                    })
-                ) {
-                    Alert(
-                        title: Text(viewModel.output.currentError?.message.title ?? "unknown"),
-                        message: Text(viewModel.output.currentError?.message.msg ?? "관리자에게 문의해주세요"),
-                        dismissButton: .default(Text("확인"))
-                    )
-                }
-
-
-
+                    ),
+                    title: viewModel.output.currentError?.message.title,
+                    message: viewModel.output.currentError?.message.msg
+                )
             }
             .navigationTitle("회원가입")
             .navigationBarTitleDisplayMode(.inline)
         }
         .onAppear {
-            viewModel.input.passwordTextField = ""
+            //viewModel.input.passwordTextField = ""
         }
         
     }
@@ -57,25 +52,15 @@ extension CreateAccountView {
     
     private func emailField() -> some View {
         VStack(alignment: .leading) {
-            HStack(spacing: 2) {
-                Text("이메일")
-                    .font(.headline)
-                Text("*")
-                    .foregroundColor(.red)
-                    .font(.headline)
-            }
+            fieldTitle("이메일", required: true)
             TextField("이메일을 입력해주세요.", text: $viewModel.input.emailTextField)
                 .textFieldModify()
-                .onSubmit {
-                    viewModel.action(.emailEditingCompleted)
-                }
+                .onSubmit { viewModel.action(.emailEditingCompleted) }
             
-            //todo: isVaildEmail 이거 분리 처리할 거
             Text("✓ 유효한 이메일 형식입니다.")
                 .vaildTextdModify(viewModel.output.isVaildEmail)
             Text("✓ 사용 가능한 이메일입니다.")
                 .vaildTextdModify(viewModel.output.isAvailableEmail)
-            
             
         }
         .padding()
@@ -84,15 +69,8 @@ extension CreateAccountView {
    
     private func passwordField() -> some View {
         VStack(alignment: .leading) {
-            HStack(spacing: 2) {
-                Text("비밀번호")
-                    .font(.headline)
-                Text("*")
-                    .foregroundColor(.red)
-                    .font(.headline)
-            }
+            fieldTitle("비밀번호", required: true)
             passwordTextField(type: .password)
-            
             passwordTextField(type: .confirmPassword)
                 .padding(.top, 5)
             
@@ -109,32 +87,29 @@ extension CreateAccountView {
     }
     
     private func passwordTextField(type: PasswordInputFieldType) -> some View{
-        
-        let textfield = getPasswordBinding(for: type)
+        let passwordFieldInfo = getPasswordBinding(for: type)
         
         return HStack {
             ZStack(alignment: .trailing) {
                 Group {
                     if viewModel.output.visibleStates[type] == true {
-                        TextField(textfield.title, text: textfield.binding)
+                        TextField(passwordFieldInfo.title, text: passwordFieldInfo.binding)
                             .textFieldModify()
-                        
-                        
                     } else {
-                        SecureField(textfield.title, text: textfield.binding)
+                        SecureField(passwordFieldInfo.title, text: passwordFieldInfo.binding)
                             .textFieldModify()
                     }
-                    
                 }
                 
                 Button {
                     viewModel.action(.togglePasswordVisibility(type: type))
                 } label: {
-                    Image(systemName: viewModel.output.visibleStates[type] == true ?  "eye.slash" : "eye")
+                    Image(systemName: viewModel.output.visibleStates[type] == true ?  "eye" : "eye.slash")
                         .foregroundColor(.gray)
                 }
                 .padding(.trailing, 8)
             }
+            .frame(height: 50)
         }
         .onSubmit {
             switch type {
@@ -143,7 +118,6 @@ extension CreateAccountView {
             case .confirmPassword:
                 viewModel.action(.passwordEditingCompleted(type: .confirmPassword))
             }
-         
         }
         
     }
@@ -159,19 +133,10 @@ extension CreateAccountView {
     
     private func nicknameField() -> some View {
         VStack(alignment: .leading) {
-            HStack(spacing: 2) {
-                Text("닉네임")
-                    .font(.headline)
-                Text("*")
-                    .foregroundColor(.red)
-                    .font(.headline)
-            }
+            fieldTitle("닉네임", required: true)
             TextField("닉네임을 입력해주세요", text: $viewModel.input.nicknameTextField)
                 .textFieldModify()
-                .onSubmit {
-                    viewModel.action(.nickNameEditingCompleted)
-                }
-            
+                .onSubmit { viewModel.action(.nickNameEditingCompleted) }
             
             Text("✓ , ,, ?, *, -, @는 nick으로 사용할 수 없습니다.")
                 .vaildTextdModify(viewModel.output.isValidNickname)
@@ -182,10 +147,7 @@ extension CreateAccountView {
     
     private func phonNumberField() -> some View {
         VStack(alignment: .leading) {
-            HStack(spacing: 2) {
-                Text("전화번호")
-                    .font(.headline)
-            }
+            fieldTitle("전화번호")
             TextField("전화번호를 입력해주세요", text: $viewModel.phoneNumberTextField)
                 .textFieldModify()
                 .keyboardType(.numberPad)
@@ -197,7 +159,6 @@ extension CreateAccountView {
                     if newValue != limited {
                         viewModel.phoneNumberTextField = limited
                     }
-            
                 }
                 .onSubmit {
                     viewModel.action(.phoneNumberEditingCompleted)
@@ -213,10 +174,7 @@ extension CreateAccountView {
     
     private func introduceField() -> some View {
         VStack(alignment: .leading) {
-            HStack(spacing: 2) {
-                Text("소개")
-                    .font(.headline)
-            }
+            fieldTitle("소개")
             TextEditor(text: $viewModel.input.introduceTextField)
                 .frame(height: 150) // Set the height for the text input area
                 .cornerRadius(15) // 모서리 둥글게 하기
@@ -244,8 +202,20 @@ extension CreateAccountView {
       
     }
     
+    private func fieldTitle(_ title: String, required: Bool = false) -> some View {
+         HStack(spacing: 2) {
+             Text(title)
+                 .font(.headline)
+             if required {
+                 Text("*")
+                     .foregroundColor(.red)
+                     .font(.headline)
+             }
+         }
+     }
+    
 }
 
-//#Preview {
-//    CreateAccountView()
-//}
+#Preview {
+    PreViewHelper.makeCreateAccountView()
+}

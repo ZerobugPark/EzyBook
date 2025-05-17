@@ -19,4 +19,8 @@ enum PreViewHelper {
             .environmentObject(diContainer)
     }
     
+    static func makeCreateAccountView() -> some View {
+        CreateAccountView(viewModel: diContainer.makeAccountViewModel())
+    }
+    
 }

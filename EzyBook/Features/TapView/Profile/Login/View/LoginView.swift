@@ -36,8 +36,6 @@ struct LoginView: View {
                     joinEmalil
                     appleLogin
                     kakaoLogin
-                    
-                
                     createAccount
                     Spacer()
                     
