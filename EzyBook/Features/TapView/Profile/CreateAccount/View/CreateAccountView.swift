@@ -9,46 +9,52 @@ import SwiftUI
 
 struct CreateAccountView: View {
     
+    @Binding var selectedIndex: Int
     @StateObject var viewModel: CreateAccountViewModel
-
+    
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 10) {
-                    emailField()
-                    passwordField()
-                    nicknameField()
-                    phonNumberField()
-                    introduceField()
-                    signUpButton()
+        ScrollView {
+            VStack(alignment: .leading, spacing: 10) {
+                emailField()
+                passwordField()
+                nicknameField()
+                phonNumberField()
+                introduceField()
+                signUpButton()
+                
+                Button {
+                    withAnimation(.easeInOut) {
+                        selectedIndex = 0
+                    }
+                } label: {
+                    Text("< 로그인 해주세요")
                 }
-                .commonAlert(
-                    isPresented: Binding(
-                        get: { viewModel.output.isShowingError },
-                        set: { isPresented in
-                            if !isPresented {
-                                viewModel.resetError()
-                            }
-                        }
-                    ),
-                    title: viewModel.output.currentError?.message.title,
-                    message: viewModel.output.currentError?.message.msg
-                )
-                .commonAlert(
-                    isPresented: $viewModel.output.isAccountCreated,
-                    title: "안내",
-                    message: "회원가입이 완료되었습니다."
-                )
+                
             }
-            .navigationTitle("회원가입")
-            .navigationBarTitleDisplayMode(.inline)
+            .padding(.horizontal)
+            .commonAlert(
+                isPresented: Binding(
+                    get: { viewModel.output.isShowingError },
+                    set: { isPresented in
+                        if !isPresented {
+                            viewModel.resetError()
+                        }
+                    }
+                ),
+                title: viewModel.output.currentError?.message.title,
+                message: viewModel.output.currentError?.message.msg
+            )
+            .commonAlert(
+                isPresented: $viewModel.output.isAccountCreated,
+                title: "안내",
+                message: "회원가입이 완료되었습니다."
+            )
         }
         .onAppear {
             //viewModel.input.passwordTextField = ""
         }
-        
     }
-    
+ 
     
 }
 
@@ -68,10 +74,8 @@ extension CreateAccountView {
                 .vaildTextdModify(viewModel.output.isAvailableEmail)
             
         }
-        .padding()
-        
     }
-   
+    
     private func passwordField() -> some View {
         VStack(alignment: .leading) {
             fieldTitle("비밀번호", required: true)
@@ -87,8 +91,6 @@ extension CreateAccountView {
                 .vaildTextdModify(viewModel.output.isValidPassword)
             
         }
-        .padding()
-        
     }
     
     private func passwordTextField(type: PasswordInputFieldType) -> some View{
@@ -146,8 +148,6 @@ extension CreateAccountView {
             Text("✓ , ,, ?, *, -, @는 nick으로 사용할 수 없습니다.")
                 .vaildTextdModify(viewModel.output.isValidNickname)
         }
-        .padding()
-        
     }
     
     private func phonNumberField() -> some View {
@@ -170,10 +170,9 @@ extension CreateAccountView {
                 }
             Text("✓ 유효한 형식입니다.")
                 .vaildTextdModify(viewModel.output.isValidPhoneNumber)
-                    
+            
             
         }
-        .padding()
         
     }
     
@@ -185,8 +184,6 @@ extension CreateAccountView {
                 .cornerRadius(15) // 모서리 둥글게 하기
                 .border(Color.grayScale60.opacity(0.5), width: 1) // 테두리 추가
         }
-        .padding()
-
     }
     
     private func signUpButton() -> some View {
@@ -203,21 +200,20 @@ extension CreateAccountView {
         }
         .opacity(viewModel.output.isFormValid ? 1 : 0.5)
         .disabled(!viewModel.output.isFormValid)
-        .padding()
-      
+        
     }
     
     private func fieldTitle(_ title: String, required: Bool = false) -> some View {
-         HStack(spacing: 2) {
-             Text(title)
-                 .font(.headline)
-             if required {
-                 Text("*")
-                     .foregroundColor(.red)
-                     .font(.headline)
-             }
-         }
-     }
+        HStack(spacing: 2) {
+            Text(title)
+                .font(.headline)
+            if required {
+                Text("*")
+                    .foregroundColor(.red)
+                    .font(.headline)
+            }
+        }
+    }
     
 }
 

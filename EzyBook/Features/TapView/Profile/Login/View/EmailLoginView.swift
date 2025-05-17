@@ -11,35 +11,45 @@ struct EmailLoginView: View {
     
     @State private var email: String = ""
     @State private var password: String = ""
-    
+    @Binding var selectedIndex: Int
+
     var body: some View {
-        NavigationStack {
-            VStack(alignment: .leading, spacing: 20) {
-                
-                
-                FloatingLabelTextField(title: "이메일", text: $email)
-                FloatingLabelSecureField(title: "비밀번호", text: $password)
-                Button("로그인") {
-                    // 로그인 처리
-                }
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(15)
-                
-                Spacer()
+        VStack(alignment: .leading, spacing: 20) {
+            
+            FloatingLabelTextField(title: "이메일", text: $email)
+            FloatingLabelSecureField(title: "비밀번호", text: $password)
+            Button("로그인") {
+                // 로그인 처리
             }
-            .navigationTitle("로그인")
-            .navigationBarTitleDisplayMode(.inline)
-            .padding(.horizontal)
-        }
-        
+            .padding()
+            .frame(maxWidth: .infinity)
+            .background(Color.blue)
+            .foregroundColor(.white)
+            .cornerRadius(15)
+            
+            Spacer()
+            
+            
+            HStack() {
+                Spacer()
+                Button {
+                    withAnimation(.easeInOut) {
+                        selectedIndex = 1
+                    }
+                } label: {
+                    Text("지금 가입하세요 >")
+                }
+                .padding(.trailing)
+            }
+
+            
+        }   .padding(.horizontal)
     }
+    
 }
 
 #Preview {
-    EmailLoginView()
+    PreViewHelper.makeEmailLoginView()
 }
 
 struct FloatingLabelTextField: View {
@@ -93,10 +103,10 @@ struct FloatingLabelTextField: View {
 struct FloatingLabelSecureField: View {
     let title: String
     @Binding var text: String
-
+    
     @FocusState private var isFocused: Bool
     @State private var isTextVisible: Bool = false
-
+    
     var body: some View {
         ZStack(alignment: .leading) {
             VStack {
@@ -105,14 +115,14 @@ struct FloatingLabelSecureField: View {
                     .frame(height: 1)
                     .foregroundColor(isFocused ? .blue : .gray)
             }
-
+            
             VStack(alignment: .leading, spacing: 0) {
                 Text(title)
                     .font(.system(size: isFocused || !text.isEmpty ? 12 : 16))
                     .foregroundColor(isFocused ? .blue : .gray)
                     .offset(y: isFocused || !text.isEmpty ? -10 : 20)
                     .animation(.spring(response: 0.2), value: isFocused || !text.isEmpty)
-
+                
                 HStack {
                     Group {
                         if isTextVisible {
@@ -122,7 +132,7 @@ struct FloatingLabelSecureField: View {
                         }
                     }
                     .focused($isFocused)
-
+                    
                     Button(action: {
                         isTextVisible.toggle()
                     }) {
