@@ -11,8 +11,19 @@ import Foundation
 enum PasswordInputFieldType {
     case password        // 비밀번호
     case confirmPassword // 비밀번호 확인
+    
+    func toField() -> Field {
+        switch self {
+        case .password: return .password
+        case .confirmPassword: return .confirmPassword
+        }
+    }
 }
 
+/// Focused Field
+enum Field: Hashable {
+    case email, password, confirmPassword, nickname, phone
+}
 
 enum AppError {
     case error(code: Int, msg: String)

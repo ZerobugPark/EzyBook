@@ -20,8 +20,7 @@ final class CreateAccountViewModel: ViewModelType {
             input.phoneNumberTextField = phoneNumberTextField
         }
     }
-    
-    
+        
     var cancellables = Set<AnyCancellable>()
     
     init(newtworkRepository: NetworkRepository) {
@@ -35,32 +34,8 @@ final class CreateAccountViewModel: ViewModelType {
 
 // MARK: Input/Output
 extension CreateAccountViewModel {
-    
-    /// 이메일 유효성 검사 (서버에 있는데, 굳이 내가 체크를 할까?)
-    /// ^:  문자열의 시작,
-    /// [A-Z0-9a-z._%+-]+: 이메일의 앞 부분
-    /// @: @기호 필수
-    /// \. :도메인과 확장자 구분 및 Dot(.)필수
-    /// [A-Za-z]{2,}: 도메인 확장자 (2글자 이상)
-    /// $ 문자열 끝
-    var validateEmail: Bool {
-        let regex = #"^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"#
-        return NSPredicate(format:"SELF MATCHES %@", regex).evaluate(with: input.emailTextField)
-    }
-    
-    
-    /// 비밀번호 복잡도 검사
-    var validatePasswordCmplexEnough: Bool {
-        let regex = #"^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]+$"#
-        return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: input.passwordTextField)
-    }
-    
-    /// 비밀번호 길이 검사
-    var validatePasswordLength: Bool {
-        return input.passwordTextField.count > 7
-    }
-    
-    /// 비밀번호 일치 여부 (사용 가능 여부
+        
+    /// 비밀번호 일치 여부 (사용 가능 여부)
     var validatePassword: Bool {
         return input.passwordTextField == input.passwordConfirmTextField
     }
@@ -70,9 +45,14 @@ extension CreateAccountViewModel {
         let forbiddenCharacters: Set<Character> = [",", ".", "?", "*", "-", "@"]
         let input = input.nicknameTextField.trimmingCharacters(in: .whitespaces)
         
+        if input.isEmpty {
+            return false
+        }
+        
         if input.count == 1, let firstChar = input.first, forbiddenCharacters.contains(firstChar) {
             return false
         }
+        
         
         return true
     }
@@ -80,8 +60,6 @@ extension CreateAccountViewModel {
     var vaildationPhoneNumber: Bool {
         return input.phoneNumberTextField.count == 11
     }
-    
-    
     
     struct Input {
         var emailTextField = ""
@@ -110,7 +88,6 @@ extension CreateAccountViewModel {
             .confirmPassword: false
         ]
         
-        
         var isShowingError: Bool {
             currentError != nil
         }
@@ -122,8 +99,12 @@ extension CreateAccountViewModel {
     
     /// 이메일 유효성 검사 및 중복확인
     private func handleEmailEditingCompleted() {
-        output.isVaildEmail = validateEmail
-        verifyEmailAvailability()
+        output.isVaildEmail =  input.emailTextField.validateEmail()
+        
+        if output.isVaildEmail {
+            verifyEmailAvailability()
+        }
+        
         updateFormValidation()
     }
     
@@ -159,14 +140,14 @@ extension CreateAccountViewModel {
     }
     
     /// 비밀번호 필드, 유효성 검사
-    private func handlePasswordEditingCompleted(for type: PasswordInputFieldType) {
-        switch type {
-        case .password:
-            output.isPasswordLongEnough = validatePasswordLength
-            output.isPasswordComplexEnough = validatePasswordCmplexEnough
-        case .confirmPassword:
+    private func handlePasswordEditingCompleted() {
+        output.isPasswordLongEnough = input.passwordTextField.validatePasswordLength()
+        output.isPasswordComplexEnough = input.passwordTextField.validatePasswordCmplexEnough()
+       
+        if output.isPasswordLongEnough && output.isPasswordComplexEnough {
             output.isValidPassword = validatePassword
         }
+        
         updateFormValidation()
     }
     
@@ -187,12 +168,12 @@ extension CreateAccountViewModel {
             email: input.emailTextField,
             password: input.passwordConfirmTextField,
             nick: input.nicknameTextField,
-            phoneNum: input.phoneNumberTextField,
-            introduction: input.introduceTextField,
+            phoneNum: input.phoneNumberTextField.isEmpty ? nil : input.phoneNumberTextField,
+            introduction: input.introduceTextField.isEmpty ? nil : input.introduceTextField,
             deviceToken: nil
         )
         let router = UserRequest.join(body: body)
-        
+        print(body)
         newtworkRepository.fetchData(dto: JoinResponseDTO.self, router) { [weak self] (result: Result<JoinEntity, APIError>) in
             
             guard let self = self else { return }
@@ -227,7 +208,7 @@ extension CreateAccountViewModel {
     enum Action {
         case emailEditingCompleted
         case togglePasswordVisibility(type: PasswordInputFieldType)
-        case passwordEditingCompleted(type: PasswordInputFieldType)
+        case passwordEditingCompleted
         case nickNameEditingCompleted
         case phoneNumberEditingCompleted
         case signUpButtonTapped
@@ -240,8 +221,8 @@ extension CreateAccountViewModel {
             handleEmailEditingCompleted()
         case .togglePasswordVisibility(let type):
             handleToggleVisibility(for: type)
-        case .passwordEditingCompleted(let type):
-            handlePasswordEditingCompleted(for: type)
+        case .passwordEditingCompleted:
+            handlePasswordEditingCompleted()
         case .nickNameEditingCompleted:
             handlerNickNameEditingCompleted()
         case .phoneNumberEditingCompleted:
