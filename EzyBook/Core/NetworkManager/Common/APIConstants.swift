@@ -16,7 +16,7 @@ enum APIConstants {
         }
         return apiKey
     }
-
+    
     static var baseURL: String {
         guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "Base_URL") as? String else {
             fatalError("Base_URL not found in Info.plist")
@@ -24,9 +24,4 @@ enum APIConstants {
         return baseURL
     }
     
-        
-    static let commonHeaders: HTTPHeaders = [
-        "SeSACKey": apiKey,
-        "Content-Type": "application/json"
-    ]
 }

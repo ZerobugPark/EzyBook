@@ -10,7 +10,7 @@ import Combine
 
 final class CreateAccountViewModel: ViewModelType {
     
-    var newtworkRepository: NetworkRepository
+    var newtworkRepository: EzyBookNetworkRepository
     var input = Input()
     @Published var output = Output()
     
@@ -23,7 +23,7 @@ final class CreateAccountViewModel: ViewModelType {
         
     var cancellables = Set<AnyCancellable>()
     
-    init(newtworkRepository: NetworkRepository) {
+    init(newtworkRepository: EzyBookNetworkRepository) {
         self.newtworkRepository = newtworkRepository
         self.phoneNumberTextField = input.phoneNumberTextField
         transform()

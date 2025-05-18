@@ -9,12 +9,14 @@ import SwiftUI
 
 enum PreViewHelper {
     
+    static let networkManger = NetworkService()
+    static let decoder = ResponseDecoder()
+    static let networkRepository = NetworkRepository(networkManger: networkManger, decodingManager: decoder)
+    
     static let diContainer = DIContainer(
-        networkManger: NetworkService(),
-        decodingManger: ResponseDecoder(),
+        networkRepository: networkRepository,
         tokenManager: makeTokenManger()
     )
-    
     static func makeLoginView(showModal: Binding<Bool> = .constant(false)) -> some View {
         LoginView(showModal: showModal)
             .environmentObject(diContainer)
@@ -46,7 +48,8 @@ extension PreViewHelper {
         return TokenManager(
             saveTokenUseCase: saveToeknUseCase,
             loadTokenUseCase: loadTokenUseCase,
-            deleteTokenUseCase: deleteTokenUseCase
+            deleteTokenUseCase: deleteTokenUseCase,
+            networkRepository: networkRepository
         )
     }
 }

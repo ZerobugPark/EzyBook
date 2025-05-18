@@ -9,5 +9,5 @@ import Foundation
 
 enum KeyChainManger {
     static let accessToken = "AccessToken"
-    static let refreshToke = "RefreshToken"
+    static let refreshToken = "RefreshToken"
 }

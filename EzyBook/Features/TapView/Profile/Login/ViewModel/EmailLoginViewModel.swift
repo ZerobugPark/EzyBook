@@ -11,14 +11,14 @@ import Combine
 
 final class EmailLoginViewModel: ViewModelType {
     
-    var newtworkRepository: NetworkRepository
+    var newtworkRepository: EzyBookNetworkRepository
     var tokenManager: TokenManager
     var input = Input()
     @Published var output = Output()
         
     var cancellables = Set<AnyCancellable>()
     
-    init(newtworkRepository: NetworkRepository, tokenManager: TokenManager) {
+    init(newtworkRepository: EzyBookNetworkRepository, tokenManager: TokenManager) {
         self.newtworkRepository = newtworkRepository
         self.tokenManager = tokenManager
         transform()
@@ -66,11 +66,12 @@ extension EmailLoginViewModel {
             switch result {
             case .success(let success):
                 //TODO: Error처리 고민
-                let accessResult = tokenManager.saveToken(key: KeyChainManger.accessToken, value: success.accessToken)
-                let refreshResult = tokenManager.saveToken(key: KeyChainManger.refreshToke, value: success.refreshToken)
-                let tokenSaveResults = (access: accessResult, refresh: refreshResult)
+                
+                let tokenSaveResults = tokenManager.saveTokens(accessToken: success.accessToken, refreshToken:  success.refreshToken)
 //                print(tokenSaveResults)
-//                print(success.refreshToken)
+                
+                print("accessToken", success.accessToken)
+                print("refreshToekn" ,success.refreshToken)
 //                print(tokenManager.loadToken(key: KeyChainManger.refreshToke))
             case .failure(let failure):
                 output.loginError = .serverError(.error(code: failure.code, msg: failure.userMessage))

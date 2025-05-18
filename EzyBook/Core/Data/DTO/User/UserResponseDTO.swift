@@ -130,7 +130,7 @@ extension LoginResponseDTO {
             email: self.email,
             nick: self.nick,
             accessToken: self.accessToken,
-            refreshToken: self.accessToken
+            refreshToken: self.refreshToken
         )
     }
 }

@@ -16,7 +16,7 @@ final class NetworkService: NetworkManager {
         
         do {
             let urlRequest = try router.asURLRequest()
-            
+            print(urlRequest)
             AF.request(urlRequest)
                 .validate()
                 .responseData { response in
