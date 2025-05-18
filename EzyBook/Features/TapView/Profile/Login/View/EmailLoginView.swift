@@ -18,6 +18,7 @@ struct EmailLoginView: View {
             
             FloatingLabelTextField(title: "이메일", text: $email)
             FloatingLabelSecureField(title: "비밀번호", text: $password)
+                .padding(.bottom)
             Button("로그인") {
                 // 로그인 처리
             }

@@ -24,12 +24,14 @@ struct LoginSignUpPagerView: View {
                 .frame(maxWidth: .infinity, alignment: selectedIndex == 0 ? .leading : .trailing)
                 .animation(.easeInOut(duration: 0.4), value: selectedIndex)
                 .padding(.horizontal)
-            
+                
             
             TabView(selection: $selectedIndex) {
                 EmailLoginView(selectedIndex: $selectedIndex)
+                    .padding(.top, 10)
                     .tag(0)
                 CreateAccountView(selectedIndex: $selectedIndex, viewModel: container.makeAccountViewModel())
+                    .padding(.top, 10)
                     .tag(1)
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
