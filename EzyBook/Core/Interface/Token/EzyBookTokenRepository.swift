@@ -8,7 +8,7 @@
 import Foundation
 
 protocol EzyBookTokenRepository {
-    func save(key: String, value: String) -> Bool
-    func loadRefreshToken(key: String) -> String?
+    func saveToken(key: String, value: String) -> Bool
+    func loadToken(key: String) -> String?
     func deleteToken(key: String) -> Bool
 }

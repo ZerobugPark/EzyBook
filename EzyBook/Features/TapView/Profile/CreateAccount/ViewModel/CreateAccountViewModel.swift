@@ -128,8 +128,7 @@ extension CreateAccountViewModel {
             guard let self = self else { return }
             
             switch result {
-            case .success(let success):
-                print(success)
+            case .success(_):
                 output.isAvailableEmail = true
             case .failure(let failure):
                 output.isAvailableEmail = false

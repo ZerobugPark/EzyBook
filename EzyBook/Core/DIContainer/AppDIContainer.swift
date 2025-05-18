@@ -27,7 +27,13 @@ extension AppDIContainer {
         let keychainHelper = KeyChainHelper()
         let tokenRepository = KeychainTokenRepository(keyChainManger: keychainHelper)
         let saveToeknUseCase = DefaultSaveTokenUseCase(tokenRepository: tokenRepository)
+        let loadTokenUseCase = DefaultLoadTokenUseCase(tokenRepository: tokenRepository)
+        let deleteTokenUseCase = DefaultDeleteTokenUseCase(tokenRepository: tokenRepository)
         
-        return TokenManager(saveTokenUseCase: saveToeknUseCase)
+        return TokenManager(
+            saveTokenUseCase: saveToeknUseCase,
+            loadTokenUseCase: loadTokenUseCase,
+            deleteTokenUseCase: deleteTokenUseCase
+        )
     }
 }

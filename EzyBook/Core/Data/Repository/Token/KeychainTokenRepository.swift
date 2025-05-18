@@ -15,11 +15,11 @@ final class KeychainTokenRepository: EzyBookTokenRepository {
         self.keyChainManger = keyChainManger
     }
     
-    func save(key: String, value: String) -> Bool {
+    func saveToken(key: String, value: String) -> Bool {
         keyChainManger.saveToken(key: key, value: value)
     }
     
-    func loadRefreshToken(key: String) -> String? {
+    func loadToken(key: String) -> String? {
         keyChainManger.loadToken(key: key)
     }
     

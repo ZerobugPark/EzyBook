@@ -18,6 +18,6 @@ final class DefaultSaveTokenUseCase: SaveTokenUseCase {
     }
 
     func callAsFunction(key: String, value: String) -> Bool {
-        return tokenRepository.save(key: key, value: value)
+        return tokenRepository.saveToken(key: key, value: value)
     }
 }

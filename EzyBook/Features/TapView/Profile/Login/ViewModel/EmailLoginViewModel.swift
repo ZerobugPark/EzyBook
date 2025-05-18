@@ -64,14 +64,16 @@ extension EmailLoginViewModel {
             guard let self = self else { return }
 
             switch result {
-            case .success(let data):
+            case .success(let success):
                 //TODO: Error처리 고민
-                let accessResult = tokenManager.saveTokens(key: KeyChainManger.accessToken, value: data.accessToken)
-                let refreshResult = tokenManager.saveTokens(key: KeyChainManger.refreshToke, value: data.refreshToken)
+                let accessResult = tokenManager.saveToken(key: KeyChainManger.accessToken, value: success.accessToken)
+                let refreshResult = tokenManager.saveToken(key: KeyChainManger.refreshToke, value: success.refreshToken)
                 let tokenSaveResults = (access: accessResult, refresh: refreshResult)
-                print(tokenSaveResults)
-            case .failure(let err):
-                output.loginError = .serverError(.error(code: err.code, msg: err.userMessage))
+//                print(tokenSaveResults)
+//                print(success.refreshToken)
+//                print(tokenManager.loadToken(key: KeyChainManger.refreshToke))
+            case .failure(let failure):
+                output.loginError = .serverError(.error(code: failure.code, msg: failure.userMessage))
             }
         }
         
