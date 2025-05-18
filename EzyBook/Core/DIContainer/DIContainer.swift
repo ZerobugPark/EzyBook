@@ -13,16 +13,21 @@ import Foundation
 
 final class DIContainer: ObservableObject {
 
-    private let networkManger: NetworkService
+    private let networkManger: NetworkManager
     private let decodingManger: ResponseDecoder
     
-    init(networkManger: NetworkService, decodingManger: ResponseDecoder) {
+    private let tokenManager: TokenManager
+    
+    
+    init(networkManger: NetworkManager, decodingManger: ResponseDecoder, tokenManager: TokenManager) {
         self.networkManger = networkManger
         self.decodingManger = decodingManger
+        self.tokenManager = tokenManager
     }
     
     private func makeNetworkRepository() -> NetworkRepository {
         return NetworkRepository(networkManger: networkManger, decodingManager: decodingManger)
+        
     }
     
 }
@@ -34,7 +39,7 @@ extension DIContainer {
     }
     
     func makeEmailLoginViewModel() -> EmailLoginViewModel {
-        return EmailLoginViewModel(newtworkRepository: self.makeNetworkRepository())
+        return EmailLoginViewModel(newtworkRepository: self.makeNetworkRepository(), tokenManager: tokenManager)
     }
     
 }

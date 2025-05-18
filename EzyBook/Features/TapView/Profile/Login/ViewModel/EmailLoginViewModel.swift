@@ -12,13 +12,15 @@ import Combine
 final class EmailLoginViewModel: ViewModelType {
     
     var newtworkRepository: NetworkRepository
+    var tokenManager: TokenManager
     var input = Input()
     @Published var output = Output()
         
     var cancellables = Set<AnyCancellable>()
     
-    init(newtworkRepository: NetworkRepository) {
+    init(newtworkRepository: NetworkRepository, tokenManager: TokenManager) {
         self.newtworkRepository = newtworkRepository
+        self.tokenManager = tokenManager
         transform()
     }
 }
@@ -63,8 +65,11 @@ extension EmailLoginViewModel {
 
             switch result {
             case .success(let data):
-                print("로그인 성공: \(data)")
-                // TODO: 토큰 저장, 화면 전환 등
+                //TODO: Error처리 고민
+                let accessResult = tokenManager.saveTokens(key: KeyChainManger.accessToken, value: data.accessToken)
+                let refreshResult = tokenManager.saveTokens(key: KeyChainManger.refreshToke, value: data.refreshToken)
+                let tokenSaveResults = (access: accessResult, refresh: refreshResult)
+                print(tokenSaveResults)
             case .failure(let err):
                 output.loginError = .serverError(.error(code: err.code, msg: err.userMessage))
             }

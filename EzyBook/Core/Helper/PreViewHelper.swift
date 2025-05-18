@@ -11,7 +11,8 @@ enum PreViewHelper {
     
     static let diContainer = DIContainer(
         networkManger: NetworkService(),
-        decodingManger: ResponseDecoder()
+        decodingManger: ResponseDecoder(),
+        tokenManager: makeTokenManger()
     )
     
     static func makeLoginView(showModal: Binding<Bool> = .constant(false)) -> some View {
@@ -33,3 +34,14 @@ enum PreViewHelper {
             .environmentObject(diContainer)
     }
 }
+
+extension PreViewHelper {
+    static func makeTokenManger() -> TokenManager {
+        let keychainHelper = KeyChainHelper()
+        let tokenRepository = KeychainTokenRepository(keyChainManger: keychainHelper)
+        let saveToeknUseCase = DefaultSaveTokenUseCase(tokenRepository: tokenRepository)
+        
+        return TokenManager(saveTokenUseCase: saveToeknUseCase)
+    }
+}
+

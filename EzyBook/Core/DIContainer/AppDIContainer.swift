@@ -11,10 +11,23 @@ final class AppDIContainer {
     func makeDIContainer() -> DIContainer {
         let networkManger = NetworkService()
         let decoder = ResponseDecoder()
+        let tokenManger =  makeTokenManger()
         
         return DIContainer(
             networkManger: networkManger,
-            decodingManger: decoder
+            decodingManger: decoder,
+            tokenManager: tokenManger
         )
+    }
+}
+
+extension AppDIContainer {
+    
+    private func makeTokenManger() -> TokenManager {
+        let keychainHelper = KeyChainHelper()
+        let tokenRepository = KeychainTokenRepository(keyChainManger: keychainHelper)
+        let saveToeknUseCase = DefaultSaveTokenUseCase(tokenRepository: tokenRepository)
+        
+        return TokenManager(saveTokenUseCase: saveToeknUseCase)
     }
 }
