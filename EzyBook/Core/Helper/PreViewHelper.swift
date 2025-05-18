@@ -19,4 +19,17 @@ enum PreViewHelper {
             .environmentObject(diContainer)
     }
     
+    static func makeCreateAccountView(selectedIndex: Binding<Int> = .constant(1)) -> some View {
+        CreateAccountView(selectedIndex: selectedIndex, viewModel: diContainer.makeAccountViewModel())
+    }
+    
+    static func makeEmailLoginView(selectedIndex: Binding<Int> = .constant(0)) -> some View {
+        EmailLoginView(selectedIndex: selectedIndex)
+            .environmentObject(diContainer)
+    }
+    
+    static func makeLoginSignUpPagerView() -> some View {
+        LoginSignUpPagerView()
+            .environmentObject(diContainer)
+    }
 }

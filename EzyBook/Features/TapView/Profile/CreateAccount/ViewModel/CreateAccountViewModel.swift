@@ -85,23 +85,24 @@ extension CreateAccountViewModel {
     
     struct Input {
         var emailTextField = ""
-        var passwordTextField: String = ""
-        var passwordConfirmTextField: String = ""
-        var nicknameTextField: String = ""
-        var phoneNumberTextField: String = ""
-        var introduceTextField: String = ""
+        var passwordTextField = ""
+        var passwordConfirmTextField = ""
+        var nicknameTextField = ""
+        var phoneNumberTextField = ""
+        var introduceTextField = ""
     }
     
     struct Output {
         var isVaildEmail = false
         var isAvailableEmail = false
-        var isPasswordLongEnough: Bool = false
-        var isPasswordComplexEnough: Bool = false
-        var isValidPassword: Bool = false
-        var isValidNickname: Bool = false
-        var isValidPhoneNumber: Bool = false
-        var isFormValid: Bool = false
+        var isPasswordLongEnough = false
+        var isPasswordComplexEnough = false
+        var isValidPassword = false
+        var isValidNickname = false
+        var isValidPhoneNumber = false
+        var isFormValid = false
         var currentError: AppError? = nil
+        var isAccountCreated = false
         
         // 비밀번호 히든 체크
         var visibleStates: [PasswordInputFieldType: Bool] = [
@@ -198,7 +199,9 @@ extension CreateAccountViewModel {
             
             switch result {
             case .success(let success):
+                output.isAccountCreated = true
                 print(success)
+                // TODO: 토큰 저장하는 코드 추가
             case .failure(let failure):
                 output.currentError = .error(code: failure.code, msg: failure.userMessage)
             }
