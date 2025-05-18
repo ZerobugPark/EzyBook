@@ -173,7 +173,6 @@ extension CreateAccountViewModel {
             deviceToken: nil
         )
         let router = UserRequest.join(body: body)
-        print(body)
         newtworkRepository.fetchData(dto: JoinResponseDTO.self, router) { [weak self] (result: Result<JoinEntity, APIError>) in
             
             guard let self = self else { return }
@@ -181,7 +180,7 @@ extension CreateAccountViewModel {
             switch result {
             case .success(let success):
                 output.isAccountCreated = true
-                print(success)
+                //print(success)
                 // TODO: 토큰 저장하는 코드 추가
             case .failure(let failure):
                 output.currentError = .error(code: failure.code, msg: failure.userMessage)
@@ -195,7 +194,7 @@ extension CreateAccountViewModel {
         output.isFormValid = output.isVaildEmail && output.isAvailableEmail && output.isValidPassword && output.isValidNickname
     }
     
-    func resetError() {
+    private func handlerResetError() {
         output.currentError = nil
     }
     
@@ -212,6 +211,7 @@ extension CreateAccountViewModel {
         case nickNameEditingCompleted
         case phoneNumberEditingCompleted
         case signUpButtonTapped
+        case resetError
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
@@ -229,6 +229,8 @@ extension CreateAccountViewModel {
             handlerPhoneNumberEditingCompleted()
         case .signUpButtonTapped:
             handleSignUp()
+        case .resetError:
+            handlerResetError()
         }
     }
     

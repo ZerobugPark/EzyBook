@@ -66,11 +66,10 @@ struct JoinResponseDTO: Decodable, EntityConvertible {
 }
 
 /// 로그인 (이메일, 카카오, 애플 공통)
-struct LoginResponseDTO: Encodable, EntityConvertible {
+struct LoginResponseDTO: Decodable, EntityConvertible {
     let userID: String
     let email: String
     let nick: String
-    let profileImage: String
     let accessToken: String
     let refreshToken: String
     
@@ -78,7 +77,6 @@ struct LoginResponseDTO: Encodable, EntityConvertible {
         case userID = "user_id"
         case email
         case nick
-        case profileImage
         case accessToken
         case refreshToken
     }
@@ -131,7 +129,6 @@ extension LoginResponseDTO {
             userID: self.userID,
             email: self.email,
             nick: self.nick,
-            profileImage: self.profileImage,
             accessToken: self.accessToken,
             refreshToken: self.accessToken
         )

@@ -41,7 +41,7 @@ struct CreateAccountView: View {
                     get: { viewModel.output.isShowingError },
                     set: { isPresented in
                         if !isPresented {
-                            viewModel.resetError()
+                            viewModel.action(.resetError)
                         }
                     }
                 ),
