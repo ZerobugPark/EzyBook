@@ -10,7 +10,7 @@ import Combine
 
 final class CreateAccountViewModel: ViewModelType {
     
-    var newtworkRepository: NetworkRepository
+    var newtworkRepository: EzyBookNetworkRepository
     var input = Input()
     @Published var output = Output()
     
@@ -23,7 +23,7 @@ final class CreateAccountViewModel: ViewModelType {
         
     var cancellables = Set<AnyCancellable>()
     
-    init(newtworkRepository: NetworkRepository) {
+    init(newtworkRepository: EzyBookNetworkRepository) {
         self.newtworkRepository = newtworkRepository
         self.phoneNumberTextField = input.phoneNumberTextField
         transform()
@@ -128,8 +128,7 @@ extension CreateAccountViewModel {
             guard let self = self else { return }
             
             switch result {
-            case .success(let success):
-                print(success)
+            case .success(_):
                 output.isAvailableEmail = true
             case .failure(let failure):
                 output.isAvailableEmail = false
@@ -178,10 +177,11 @@ extension CreateAccountViewModel {
             guard let self = self else { return }
             
             switch result {
-            case .success(let success):
+            case .success(_):
                 output.isAccountCreated = true
-                //print(success)
-                // TODO: 토큰 저장하는 코드 추가
+                // TODO: 고민
+                // 회원가입후 자동로그인을 해줘야할까? 아니면 유저가 로그인을 하게 둬야할까?
+                // 자동로그인 해주면 토큰을 굳이 저장해야하지만, 일반 로그인이라면 저장할 필요가 없긴한데.
             case .failure(let failure):
                 output.currentError = .error(code: failure.code, msg: failure.userMessage)
             }

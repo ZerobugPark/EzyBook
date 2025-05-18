@@ -112,9 +112,6 @@ extension EmailLoginView {
                 .padding(.top, 15) // 레이블이 위로 올라갈 공간 확보
             }
             .frame(height: 40)
-            .onChange(of: isFocused) { newValue in
-                print("포커스 상태 변경: \(newValue)")
-            }
         }
     }
 

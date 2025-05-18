@@ -6,15 +6,13 @@
 //
 
 import Foundation
-
 import Alamofire
-
-
 
 protocol NetworkRouter: URLRequestConvertible {
     var endpoint: URL? { get }
     var method: HTTPMethod { get }
     var parameters: Parameters? { get }
+    var headers: HTTPHeaders { get }
 }
 
 extension NetworkRouter {
@@ -30,7 +28,7 @@ extension NetworkRouter {
         }
         var request = URLRequest(url: url)
         request.method = method
-        request.headers = APIConstants.commonHeaders
+        request.headers = headers//APIConstants.commonHeaders
         return request
     }
     

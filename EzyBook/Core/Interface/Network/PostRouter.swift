@@ -36,10 +36,10 @@ extension PostRouter {
         request = try encodeBody(for: request)
         
         // body 체크
-        if let httpBody = request.httpBody,
-           let bodyString = String(data: httpBody, encoding: .utf8) {
-            print("Body JSON: \(bodyString)")
-        }
+//        if let httpBody = request.httpBody,
+//           let bodyString = String(data: httpBody, encoding: .utf8) {
+//            print("Body JSON: \(bodyString)")
+//        }
         
         return request
     }

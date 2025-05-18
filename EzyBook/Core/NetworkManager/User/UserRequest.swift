@@ -37,17 +37,17 @@ enum UserRequest: PostRouter {
     
     
     var method: HTTPMethod {
-            switch self {
-            case .emailValidation,
-                 .join,
-                 .emailLogin,
-                 .kakaoLogin,
-                 .appleLogin:
-                return .post
-            case .profileCheck:
-                return .get
-            }
+        switch self {
+        case .emailValidation,
+                .join,
+                .emailLogin,
+                .kakaoLogin,
+                .appleLogin:
+            return .post
+        case .profileCheck:
+            return .get
         }
+    }
     
     var requestBody: Encodable? {
         switch self {
@@ -61,8 +61,20 @@ enum UserRequest: PostRouter {
             return request
         case .appleLogin(let request):
             return request
-        case .profileCheck:
+        case .profileCheck: //이거 따로 안빼도 되나? Post 전용인데?..
             return nil
         }
     }
+    
+    var headers: HTTPHeaders {
+        switch self {
+        case .emailValidation, .join, .emailLogin, .kakaoLogin, .appleLogin, .profileCheck:
+            return [
+                "SeSACKey": APIConstants.apiKey,
+                "Content-Type": "application/json"
+            ]
+            
+        }
+    }
+    
 }
