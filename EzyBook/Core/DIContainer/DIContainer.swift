@@ -15,10 +15,12 @@ final class DIContainer: ObservableObject {
 
     private let networkRepository: EzyBookNetworkRepository
     private let tokenManager: TokenManager
+    let kakaoLoginUseCase: KakaoLoginUseCase
     
-    init(networkRepository: EzyBookNetworkRepository, tokenManager: TokenManager) {
+    init(networkRepository: EzyBookNetworkRepository, tokenManager: TokenManager, kakaoLoginUseCase: KakaoLoginUseCase) {
         self.networkRepository = networkRepository
         self.tokenManager = tokenManager
+        self.kakaoLoginUseCase = kakaoLoginUseCase
         
     }
         

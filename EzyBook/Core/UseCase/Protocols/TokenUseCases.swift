@@ -11,7 +11,6 @@ import Foundation
 /// let result = saveTokenUseCase(key: key, value: value)
 /// let result = saveTokenUseCase.callAsFunction(key: key, value: value)
 protocol SaveTokenUseCase {
-    
     func callAsFunction(key: String, value: String) -> Bool
 }
 

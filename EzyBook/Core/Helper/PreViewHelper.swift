@@ -12,10 +12,13 @@ enum PreViewHelper {
     static let networkManger = NetworkService()
     static let decoder = ResponseDecoder()
     static let networkRepository = NetworkRepository(networkManger: networkManger, decodingManager: decoder)
+    static let kaKaoLoginRepository = KaKaoLoginRepository(networkRepository: networkRepository, tokenManager: makeTokenManger())
+    static let kakaoLoginUseCase = DefaultKakaoLoginUseCase(kakoLoginRepository: kaKaoLoginRepository)
     
     static let diContainer = DIContainer(
         networkRepository: networkRepository,
-        tokenManager: makeTokenManger()
+        tokenManager: makeTokenManger(),
+        kakaoLoginUseCase: kakaoLoginUseCase
     )
     static func makeLoginView(showModal: Binding<Bool> = .constant(false)) -> some View {
         LoginView(showModal: showModal)

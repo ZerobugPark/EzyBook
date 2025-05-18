@@ -86,7 +86,7 @@ struct LoginView: View {
     
     private var kakaoLogin: some View {
         Button {
-            
+            container.kakaoLoginUseCase()
         } label: {
             Image(.kakaoLogin)
                 .resizable()

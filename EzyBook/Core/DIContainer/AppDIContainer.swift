@@ -11,13 +11,15 @@ final class AppDIContainer {
     
     private let networkManger = NetworkService()
     private let decoder = ResponseDecoder()
-    private lazy var  networkRepository = NetworkRepository(networkManger: networkManger, decodingManager: decoder)
+    private lazy var networkRepository = NetworkRepository(networkManger: networkManger, decodingManager: decoder)
+    private lazy var kaKaoLoginRepository = KaKaoLoginRepository(networkRepository: networkRepository, tokenManager: makeTokenManger())
+    private lazy var kakaoLoginUseCase = DefaultKakaoLoginUseCase(kakoLoginRepository: kaKaoLoginRepository)
     
     func makeDIContainer() -> DIContainer {
         let tokenManger =  makeTokenManger()
         return DIContainer(
             networkRepository: networkRepository,
-            tokenManager: tokenManger
+            tokenManager: tokenManger, kakaoLoginUseCase: kakaoLoginUseCase
         )
     }
 }
