@@ -24,7 +24,7 @@ enum PreViewHelper {
     }
     
     static func makeEmailLoginView(selectedIndex: Binding<Int> = .constant(0)) -> some View {
-        EmailLoginView(selectedIndex: selectedIndex)
+        EmailLoginView(selectedIndex: selectedIndex, viewModel: diContainer.makeEmailLoginViewModel())
             .environmentObject(diContainer)
     }
     

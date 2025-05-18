@@ -33,4 +33,8 @@ extension DIContainer {
         return CreateAccountViewModel(newtworkRepository: self.makeNetworkRepository())
     }
     
+    func makeEmailLoginViewModel() -> EmailLoginViewModel {
+        return EmailLoginViewModel(newtworkRepository: self.makeNetworkRepository())
+    }
+    
 }

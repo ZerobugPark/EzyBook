@@ -12,6 +12,10 @@ struct CreateAccountView: View {
     @Binding var selectedIndex: Int
     @StateObject var viewModel: CreateAccountViewModel
     
+    @FocusState private var focusedField: Field?
+    @State private var lastFocusedField: Field?
+    
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 10) {
@@ -37,7 +41,7 @@ struct CreateAccountView: View {
                     get: { viewModel.output.isShowingError },
                     set: { isPresented in
                         if !isPresented {
-                            viewModel.resetError()
+                            viewModel.action(.resetError)
                         }
                     }
                 ),
@@ -47,14 +51,27 @@ struct CreateAccountView: View {
             .commonAlert(
                 isPresented: $viewModel.output.isAccountCreated,
                 title: "안내",
-                message: "회원가입이 완료되었습니다."
-            )
+                message: "회원가입이 완료되었습니다.") {
+                    withAnimation(.easeInOut) {
+                        selectedIndex = 0
+                    }
+                }
         }
-        .onAppear {
-            //viewModel.input.passwordTextField = ""
+        .onChange(of: focusedField) { newValue in
+            
+            if let last = lastFocusedField, newValue != last {
+                validateLastFocusedField(last)
+            }
+            
+            // 현재 포커스 상태 저장 (nil 포함)
+            lastFocusedField = newValue
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            focusedField = nil
         }
     }
- 
+    
     
 }
 
@@ -66,6 +83,7 @@ extension CreateAccountView {
             fieldTitle("이메일", required: true)
             TextField("이메일을 입력해주세요.", text: $viewModel.input.emailTextField)
                 .textFieldModify()
+                .focused($focusedField, equals: .email)
                 .onSubmit { viewModel.action(.emailEditingCompleted) }
             
             Text("✓ 유효한 이메일 형식입니다.")
@@ -79,8 +97,8 @@ extension CreateAccountView {
     private func passwordField() -> some View {
         VStack(alignment: .leading) {
             fieldTitle("비밀번호", required: true)
-            passwordTextField(type: .password)
-            passwordTextField(type: .confirmPassword)
+            passwordTextField(type: .password, focusedField: $focusedField)
+            passwordTextField(type: .confirmPassword, focusedField: $focusedField)
                 .padding(.top, 5)
             
             Text("✓ 영문자, 숫자, 특수문자(@$!%*#?&)를 각각 1개 이상 포함해야 합니다.")
@@ -93,7 +111,7 @@ extension CreateAccountView {
         }
     }
     
-    private func passwordTextField(type: PasswordInputFieldType) -> some View{
+    private func passwordTextField(type: PasswordInputFieldType, focusedField: FocusState<Field?>.Binding) -> some View{
         let passwordFieldInfo = getPasswordBinding(for: type)
         
         return HStack {
@@ -102,9 +120,11 @@ extension CreateAccountView {
                     if viewModel.output.visibleStates[type] == true {
                         TextField(passwordFieldInfo.title, text: passwordFieldInfo.binding)
                             .textFieldModify()
+                            .focused(focusedField, equals: type.toField())
                     } else {
                         SecureField(passwordFieldInfo.title, text: passwordFieldInfo.binding)
                             .textFieldModify()
+                            .focused(focusedField, equals: type.toField())
                     }
                 }
                 
@@ -121,9 +141,9 @@ extension CreateAccountView {
         .onSubmit {
             switch type {
             case .password:
-                viewModel.action(.passwordEditingCompleted(type: .password))
+                viewModel.action(.passwordEditingCompleted)
             case .confirmPassword:
-                viewModel.action(.passwordEditingCompleted(type: .confirmPassword))
+                viewModel.action(.passwordEditingCompleted)
             }
         }
         
@@ -143,7 +163,9 @@ extension CreateAccountView {
             fieldTitle("닉네임", required: true)
             TextField("닉네임을 입력해주세요", text: $viewModel.input.nicknameTextField)
                 .textFieldModify()
+                .focused($focusedField, equals: .nickname)
                 .onSubmit { viewModel.action(.nickNameEditingCompleted) }
+            
             
             Text("✓ , ,, ?, *, -, @는 nick으로 사용할 수 없습니다.")
                 .vaildTextdModify(viewModel.output.isValidNickname)
@@ -156,6 +178,7 @@ extension CreateAccountView {
             TextField("전화번호를 입력해주세요", text: $viewModel.phoneNumberTextField)
                 .textFieldModify()
                 .keyboardType(.numberPad)
+                .focused($focusedField, equals: .phone)
                 .onChange(of: viewModel.phoneNumberTextField) { newValue in
                     let digitsOnly = newValue.filter { $0.isNumber }
                     let limited = String(digitsOnly.prefix(11))
@@ -212,6 +235,22 @@ extension CreateAccountView {
                     .foregroundColor(.red)
                     .font(.headline)
             }
+        }
+    }
+    
+   
+    private func validateLastFocusedField(_ field: Field) {
+        switch field {
+        case .email:
+            viewModel.action(.emailEditingCompleted)
+        case .password:
+            viewModel.action(.passwordEditingCompleted)
+        case .confirmPassword:
+            viewModel.action(.passwordEditingCompleted)
+        case .nickname:
+            viewModel.action(.nickNameEditingCompleted)
+        case .phone:
+            viewModel.action(.phoneNumberEditingCompleted)
         }
     }
     
