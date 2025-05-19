@@ -11,7 +11,7 @@ struct LoginView: View {
     
     @Binding var showModal: Bool
     @EnvironmentObject var container: DIContainer
-    
+    @StateObject var viewModel: SocialLoginViewModel
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading,spacing: 10) {
@@ -86,7 +86,7 @@ struct LoginView: View {
     
     private var kakaoLogin: some View {
         Button {
-            container.kakaoLoginUseCase()
+            viewModel.action(.logunButtonTapped)
         } label: {
             Image(.kakaoLogin)
                 .resizable()
@@ -110,6 +110,6 @@ extension LoginView {
 
 }
 
-#Preview {
-    PreViewHelper.makeLoginView()
-}
+//#Preview {
+//    PreViewHelper.makeLoginView()
+//}

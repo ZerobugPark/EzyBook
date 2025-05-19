@@ -17,6 +17,14 @@ enum APIError: Error {
     // 원시 데이터가 있는 에러 (파싱이 필요한 경우)
     case dataError(code: Int, data: Data?)
     
+    case socialLoginError(message: String)
+    
+    // 소셜 로그인 타입
+    enum SocialLoginType: String {
+        case kakao
+        case apple
+        case unknown
+    }
     // 로컬 에러 타입
     enum LocalErrorType: Int {
         case missingEndpoint = 10000
@@ -59,6 +67,18 @@ enum APIError: Error {
         }
     }
     
+    // SocialLogin Error 타입 생성
+    init(type: SocialLoginType, message: String? = nil) {
+        switch type {
+        case .kakao:
+            self = .socialLoginError(message: message ?? "카카오 로그인 오류")
+        case .apple:
+            self = .socialLoginError(message: message ?? "애플 로그인 오류")
+        case .unknown:
+            self = .socialLoginError(message: "알 수 없는 오류")
+        }
+    }
+    
     // 에러 코드
     var code: Int {
         switch self {
@@ -68,6 +88,8 @@ enum APIError: Error {
             return type.rawValue
         case .dataError(let code, _):
             return code
+        case .socialLoginError(_):
+            return -1
         }
     }
     
@@ -79,7 +101,6 @@ enum APIError: Error {
         case .localError(_, let message):
             return message ?? "앱 오류가 발생했습니다."
         case .dataError(_, let data):
-
             if let data = data {
                 let decoder = ResponseDecoder()
                 let errorResponse = decoder.decode(data: data, type: ErrorMessageDTO.self)
@@ -91,6 +112,8 @@ enum APIError: Error {
                 }
             }
             return "오류가 발생했습니다."
+        case .socialLoginError(let message):
+            return message
         }
     }
     

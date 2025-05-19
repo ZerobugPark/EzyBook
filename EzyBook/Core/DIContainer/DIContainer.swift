@@ -13,27 +13,43 @@ import Foundation
 
 final class DIContainer: ObservableObject {
 
-    private let networkRepository: EzyBookNetworkRepository
-    private let tokenManager: TokenManager
-    let kakaoLoginUseCase: KakaoLoginUseCase
+    private let authNetworkRepository: AuthNetworkRepository
+    private let socialUseCase: DefaultSocialLoginUseCase
+
     
-    init(networkRepository: EzyBookNetworkRepository, tokenManager: TokenManager, kakaoLoginUseCase: KakaoLoginUseCase) {
-        self.networkRepository = networkRepository
-        self.tokenManager = tokenManager
-        self.kakaoLoginUseCase = kakaoLoginUseCase
-        
+    init(authNetworkRepository: AuthNetworkRepository, socialUseCase: DefaultSocialLoginUseCase) {
+        self.authNetworkRepository = authNetworkRepository
+        self.socialUseCase = socialUseCase
     }
         
 }
 
 // MARK: Make ViewModel
 extension DIContainer {
-    func makeAccountViewModel() -> CreateAccountViewModel {
-        return CreateAccountViewModel(newtworkRepository: networkRepository)
-    }
+//    func makeAccountViewModel() -> CreateAccountViewModel {
+//        return CreateAccountViewModel(newtworkRepository: networkRepository)
+//    }
+//    
+//    func makeEmailLoginViewModel() -> EmailLoginViewModel {
+//        return EmailLoginViewModel(newtworkRepository: networkRepository, tokenManager: tokenManager)
+//    }
     
-    func makeEmailLoginViewModel() -> EmailLoginViewModel {
-        return EmailLoginViewModel(newtworkRepository: networkRepository, tokenManager: tokenManager)
-    }
+//    func makeLoginViewModel(for type: LoginType) -> LoginViewModel {
+//        switch type {
+//        case let .email(email, password):
+//            let useCase = EmailLoginUseCase(...)
+//            return LoginViewModel(loginUseCase: useCase)
+//        case .kakao:
+//            let useCase = SocialLoginUseCase(provider: .kakao, ...)
+//            return LoginViewModel(loginUseCase: useCase)
+//        case .apple:
+//            let useCase = SocialLoginUseCase(provider: .apple, ...)
+//            return LoginViewModel(loginUseCase: useCase)
+//        }
+//    }
     
+    func makeSocialLoginViewModel() -> SocialLoginViewModel {
+        return SocialLoginViewModel(useCase: socialUseCase)
+    }
+
 }

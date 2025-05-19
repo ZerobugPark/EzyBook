@@ -27,12 +27,12 @@ struct LoginSignUpPagerView: View {
                 
             
             TabView(selection: $selectedIndex) {
-                EmailLoginView(selectedIndex: $selectedIndex, viewModel: container.makeEmailLoginViewModel())
-                    .padding(.top, 10)
-                    .tag(0)
-                CreateAccountView(selectedIndex: $selectedIndex, viewModel: container.makeAccountViewModel())
-                    .padding(.top, 10)
-                    .tag(1)
+//                EmailLoginView(selectedIndex: $selectedIndex, viewModel: container.makeEmailLoginViewModel())
+//                    .padding(.top, 10)
+//                    .tag(0)
+//                CreateAccountView(selectedIndex: $selectedIndex, viewModel: container.makeAccountViewModel())
+//                    .padding(.top, 10)
+//                    .tag(1)
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             Spacer()
@@ -63,7 +63,7 @@ struct LoginSignUpPagerView: View {
            }
        }
 }
-
-#Preview {
-    PreViewHelper.makeLoginSignUpPagerView()
-}
+//
+//#Preview {
+//    PreViewHelper.makeLoginSignUpPagerView()
+//}

@@ -59,24 +59,24 @@ extension EmailLoginViewModel {
 
         let body = EmailLoginRequestDTO(email: input.emailTextField, password: input.passwordTextField, deviceToken: nil)
         let router = UserRequest.emailLogin(body: body)
-
-        newtworkRepository.fetchData(dto: LoginResponseDTO.self, router) { [weak self] (result: Result<LoginEntity, APIError>) in
-            guard let self = self else { return }
-
-            switch result {
-            case .success(let success):
-                //TODO: Error처리 고민
-                
-                let tokenSaveResults = tokenManager.saveTokens(accessToken: success.accessToken, refreshToken:  success.refreshToken)
-//                print(tokenSaveResults)
-                
-                print("accessToken", success.accessToken)
-                print("refreshToekn" ,success.refreshToken)
-//                print(tokenManager.loadToken(key: KeyChainManger.refreshToke))
-            case .failure(let failure):
-                output.loginError = .serverError(.error(code: failure.code, msg: failure.userMessage))
-            }
-        }
+//
+//        newtworkRepository.fetchData(dto: LoginResponseDTO.self, router) { [weak self] (result: Result<LoginEntity, APIError>) in
+//            guard let self = self else { return }
+//
+//            switch result {
+//            case .success(let success):
+//                //TODO: Error처리 고민
+//                
+//                let tokenSaveResults = tokenManager.saveTokens(accessToken: success.accessToken, refreshToken:  success.refreshToken)
+////                print(tokenSaveResults)
+//                
+//                print("accessToken", success.accessToken)
+//                print("refreshToekn" ,success.refreshToken)
+////                print(tokenManager.loadToken(key: KeyChainManger.refreshToke))
+//            case .failure(let failure):
+//                output.loginError = .serverError(.error(code: failure.code, msg: failure.userMessage))
+//            }
+//        }
         
     }
     private func handlerResetError() {

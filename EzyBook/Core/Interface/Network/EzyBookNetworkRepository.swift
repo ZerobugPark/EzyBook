@@ -8,5 +8,6 @@
 import Foundation
 
 protocol EzyBookNetworkRepository {
-    func fetchData<T: Decodable & EntityConvertible, E: StructEntity ,R: NetworkRouter>(dto: T.Type, _ router: R, completionHandler: @escaping (Result<E, APIError>) -> Void) where T.E == E
+//    func fetchData<T: Decodable & EntityConvertible, E: StructEntity ,R: NetworkRouter>(dto: T.Type, _ router: R, completionHandler: @escaping (Result<E, APIError>) -> Void) where T.E == E
+    func fetchData<T: Decodable & EntityConvertible, E: StructEntity, R: NetworkRouter>(dto: T.Type ,_ router: R) async throws -> E where T.E == E 
 }

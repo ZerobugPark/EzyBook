@@ -63,9 +63,9 @@ struct EmailLoginView: View {
     
 }
 
-#Preview {
-    PreViewHelper.makeEmailLoginView()
-}
+//#Preview {
+//    PreViewHelper.makeEmailLoginView()
+//}
 
 extension EmailLoginView {
     

@@ -123,18 +123,18 @@ extension CreateAccountViewModel {
         let router = UserRequest.emailValidation(body: body)
         
         
-        newtworkRepository.fetchData(dto: EmailValidationResponseDTO.self, router) { [weak self] (result: Result<EmailValidationEntity, APIError>) in
-            
-            guard let self = self else { return }
-            
-            switch result {
-            case .success(_):
-                output.isAvailableEmail = true
-            case .failure(let failure):
-                output.isAvailableEmail = false
-                output.currentError = .error(code: failure.code, msg: failure.userMessage)
-            }
-        }
+//        newtworkRepository.fetchData(dto: EmailValidationResponseDTO.self, router) { [weak self] (result: Result<EmailValidationEntity, APIError>) in
+//            
+//            guard let self = self else { return }
+//            
+//            switch result {
+//            case .success(_):
+//                output.isAvailableEmail = true
+//            case .failure(let failure):
+//                output.isAvailableEmail = false
+//                output.currentError = .error(code: failure.code, msg: failure.userMessage)
+//            }
+//        }
         
     }
     
@@ -172,20 +172,20 @@ extension CreateAccountViewModel {
             deviceToken: nil
         )
         let router = UserRequest.join(body: body)
-        newtworkRepository.fetchData(dto: JoinResponseDTO.self, router) { [weak self] (result: Result<JoinEntity, APIError>) in
-            
-            guard let self = self else { return }
-            
-            switch result {
-            case .success(_):
-                output.isAccountCreated = true
-                // TODO: 고민
-                // 회원가입후 자동로그인을 해줘야할까? 아니면 유저가 로그인을 하게 둬야할까?
-                // 자동로그인 해주면 토큰을 굳이 저장해야하지만, 일반 로그인이라면 저장할 필요가 없긴한데.
-            case .failure(let failure):
-                output.currentError = .error(code: failure.code, msg: failure.userMessage)
-            }
-        }
+//        newtworkRepository.fetchData(dto: JoinResponseDTO.self, router) { [weak self] (result: Result<JoinEntity, APIError>) in
+//            
+//            guard let self = self else { return }
+//            
+//            switch result {
+//            case .success(_):
+//                output.isAccountCreated = true
+//                // TODO: 고민
+//                // 회원가입후 자동로그인을 해줘야할까? 아니면 유저가 로그인을 하게 둬야할까?
+//                // 자동로그인 해주면 토큰을 굳이 저장해야하지만, 일반 로그인이라면 저장할 필요가 없긴한데.
+//            case .failure(let failure):
+//                output.currentError = .error(code: failure.code, msg: failure.userMessage)
+//            }
+//        }
         
     }
     

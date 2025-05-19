@@ -1,5 +1,5 @@
 //
-//  KaKaoLoginUseCase.swift
+//  EmailLoginUseCase.swift
 //  EzyBook
 //
 //  Created by youngkyun park on 5/19/25.
@@ -7,6 +7,7 @@
 
 import Foundation
 
-protocol KakaoLoginUseCase {
-    func callAsFunction()
+
+protocol EmailLoginUseCase: LoginUseCase {
+    
 }
