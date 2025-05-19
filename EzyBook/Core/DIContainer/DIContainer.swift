@@ -10,16 +10,17 @@ import Foundation
 ///
 /// 공통 모듈
 /// 네트워크 서비스?, 저장소 패턴, 또 뭐가 있을끼?
-
 final class DIContainer: ObservableObject {
 
-    private let networkRepository: EzyBookNetworkRepository
-    private let tokenManager: TokenManager
     
-    init(networkRepository: EzyBookNetworkRepository, tokenManager: TokenManager) {
-        self.networkRepository = networkRepository
-        self.tokenManager = tokenManager
-        
+    private let socialUseCase: DefaultSocialLoginUseCase
+    private let emailLoginUseCase: DefaultLoginUseCase
+    private let createAccounUseCase: DefaultCreateAccountUseCase
+    
+    init(socialUseCase: DefaultSocialLoginUseCase, emailLoginUseCase: DefaultLoginUseCase, createAccounUseCase: DefaultCreateAccountUseCase) {
+        self.socialUseCase = socialUseCase
+        self.emailLoginUseCase = emailLoginUseCase
+        self.createAccounUseCase = createAccounUseCase
     }
         
 }
@@ -27,11 +28,15 @@ final class DIContainer: ObservableObject {
 // MARK: Make ViewModel
 extension DIContainer {
     func makeAccountViewModel() -> CreateAccountViewModel {
-        return CreateAccountViewModel(newtworkRepository: networkRepository)
+        return CreateAccountViewModel(createUseCase: createAccounUseCase)
     }
     
     func makeEmailLoginViewModel() -> EmailLoginViewModel {
-        return EmailLoginViewModel(newtworkRepository: networkRepository, tokenManager: tokenManager)
+        return EmailLoginViewModel(emailLoginUseCase: emailLoginUseCase)
     }
     
+    func makeSocialLoginViewModel() -> SocialLoginViewModel {
+        return SocialLoginViewModel(useCase: socialUseCase)
+    }
+
 }

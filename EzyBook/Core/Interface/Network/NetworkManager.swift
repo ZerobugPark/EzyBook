@@ -8,5 +8,5 @@
 import Foundation
 
 protocol NetworkManager {
-    func request<R: NetworkRouter>(_ router: R, completionHandler: @escaping (Result <Data, APIError>) -> Void)
+    func request<R: NetworkRouter>(_ router: R) async throws -> Data
 }

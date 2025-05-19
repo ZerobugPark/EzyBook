@@ -8,7 +8,7 @@
 import Foundation
 import Security
 
-final class KeyChainHelper: KeyChainProtocol {
+final class KeyChainManager: KeyChainProtocol {
     
     @discardableResult
     func saveToken(key: String, value token: String) -> Bool {

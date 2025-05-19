@@ -10,7 +10,8 @@ import SwiftUI
 struct LoginView: View {
     
     @Binding var showModal: Bool
-    @EnvironmentObject var container: DIContainer
+
+    @StateObject var viewModel: SocialLoginViewModel
     
     var body: some View {
         NavigationStack {
@@ -86,7 +87,7 @@ struct LoginView: View {
     
     private var kakaoLogin: some View {
         Button {
-            
+            viewModel.action(.logunButtonTapped)
         } label: {
             Image(.kakaoLogin)
                 .resizable()

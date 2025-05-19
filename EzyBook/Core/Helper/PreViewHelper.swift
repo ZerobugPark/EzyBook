@@ -11,14 +11,22 @@ enum PreViewHelper {
     
     static let networkManger = NetworkService()
     static let decoder = ResponseDecoder()
-    static let networkRepository = NetworkRepository(networkManger: networkManger, decodingManager: decoder)
+    static let networkRepository = DefaultNetworkRepository(networkManger: networkManger, decodingManager: decoder)
+
+    static let refreshScheduler = DefaultTokenRefreshScheduler()
+    static let tokenManger =  makeTokenManger()
+    
+    static let authNetworkRepository = DefaultAuthNetworkRepository(tokenManager: tokenManger, networkManager: networkRepository, refreshScheduler: refreshScheduler)
     
     static let diContainer = DIContainer(
-        networkRepository: networkRepository,
-        tokenManager: makeTokenManger()
+        socialUseCase: makeSocialUsecase(),
+        emailLoginUseCase: makeEmailUsecase(),
+        createAccounUseCase: makeCreateAcctounUsecase()
     )
+        
+    
     static func makeLoginView(showModal: Binding<Bool> = .constant(false)) -> some View {
-        LoginView(showModal: showModal)
+        LoginView(showModal: showModal, viewModel: diContainer.makeSocialLoginViewModel())
             .environmentObject(diContainer)
     }
     
@@ -38,9 +46,10 @@ enum PreViewHelper {
 }
 
 extension PreViewHelper {
+    
     static func makeTokenManger() -> TokenManager {
-        let keychainHelper = KeyChainHelper()
-        let tokenRepository = KeychainTokenRepository(keyChainManger: keychainHelper)
+        let keychainManager = KeyChainManager()
+        let tokenRepository = KeychainTokenRepository(keyChainManger: keychainManager)
         let saveToeknUseCase = DefaultSaveTokenUseCase(tokenRepository: tokenRepository)
         let loadTokenUseCase = DefaultLoadTokenUseCase(tokenRepository: tokenRepository)
         let deleteTokenUseCase = DefaultDeleteTokenUseCase(tokenRepository: tokenRepository)
@@ -48,9 +57,34 @@ extension PreViewHelper {
         return TokenManager(
             saveTokenUseCase: saveToeknUseCase,
             loadTokenUseCase: loadTokenUseCase,
-            deleteTokenUseCase: deleteTokenUseCase,
-            networkRepository: networkRepository
-        )
+            deleteTokenUseCase: deleteTokenUseCase)
     }
+    
+    static func makeSocialUsecase() -> DefaultSocialLoginUseCase {
+        
+        let kakaoProvider = KaKaoLoginProvider()
+        let appleLoginRepository = AppleLoginProvider()
+    
+        let useCase = DefaultSocialLoginUseCase(
+            kakaLoginProvider: kakaoProvider,
+            appleLoginRepository: appleLoginRepository,
+            authNetworkRepository: authNetworkRepository
+        )
+        
+        return useCase
+    }
+    
+    static func makeEmailUsecase() -> DefaultLoginUseCase {
+        let useCase = DefaultLoginUseCase(
+            authNetworkRepository: authNetworkRepository
+        )
+        return useCase
+    }
+    
+    static func makeCreateAcctounUsecase() -> DefaultCreateAccountUseCase {
+        let useCase = DefaultCreateAccountUseCase(networkManager: networkRepository)
+        return useCase
+    }
+
 }
 

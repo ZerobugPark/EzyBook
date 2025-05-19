@@ -11,16 +11,15 @@ import Combine
 
 final class EmailLoginViewModel: ViewModelType {
     
-    var newtworkRepository: EzyBookNetworkRepository
-    var tokenManager: TokenManager
+    let emailLoginUseCase: DefaultLoginUseCase
+    
     var input = Input()
     @Published var output = Output()
         
     var cancellables = Set<AnyCancellable>()
     
-    init(newtworkRepository: EzyBookNetworkRepository, tokenManager: TokenManager) {
-        self.newtworkRepository = newtworkRepository
-        self.tokenManager = tokenManager
+    init(emailLoginUseCase: DefaultLoginUseCase) {
+        self.emailLoginUseCase = emailLoginUseCase
         transform()
     }
 }
@@ -57,26 +56,17 @@ extension EmailLoginViewModel {
             return
         }
 
-        let body = EmailLoginRequestDTO(email: input.emailTextField, password: input.passwordTextField, deviceToken: nil)
-        let router = UserRequest.emailLogin(body: body)
-
-        newtworkRepository.fetchData(dto: LoginResponseDTO.self, router) { [weak self] (result: Result<LoginEntity, APIError>) in
+        emailLoginUseCase.emailLogin(email: input.emailTextField, password: input.passwordTextField) { [weak self] result in
+            
             guard let self = self else { return }
-
             switch result {
             case .success(let success):
-                //TODO: Error처리 고민
-                
-                let tokenSaveResults = tokenManager.saveTokens(accessToken: success.accessToken, refreshToken:  success.refreshToken)
-//                print(tokenSaveResults)
-                
-                print("accessToken", success.accessToken)
-                print("refreshToekn" ,success.refreshToken)
-//                print(tokenManager.loadToken(key: KeyChainManger.refreshToke))
+                print("123성공",success)
             case .failure(let failure):
-                output.loginError = .serverError(.error(code: failure.code, msg: failure.userMessage))
+                self.output.loginError = .serverError(.error(code: failure.code, msg: failure.userMessage))
             }
         }
+
         
     }
     private func handlerResetError() {

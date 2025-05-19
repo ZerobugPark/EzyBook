@@ -10,6 +10,7 @@ import SwiftUI
 struct ProfileView: View {
     
     @State private var showModal = false
+    @EnvironmentObject var container: DIContainer
     
     var body: some View {
         VStack {
@@ -35,7 +36,7 @@ struct ProfileView: View {
             
          }
          .fullScreenCover(isPresented: $showModal) {
-             LoginView(showModal: $showModal)
+             LoginView(showModal: $showModal, viewModel: container.makeSocialLoginViewModel())
          }
     }
   
