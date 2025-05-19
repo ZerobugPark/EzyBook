@@ -63,10 +63,8 @@ struct EmailLoginView: View {
     
 }
 
-//#Preview {
-//    PreViewHelper.makeEmailLoginView()
-//}
 
+// MARK: Floating TextField
 extension EmailLoginView {
     
     private struct FloatingLabelTextField: View {
@@ -164,4 +162,9 @@ extension EmailLoginView {
         }
     }
 
+}
+
+
+#Preview {
+    PreViewHelper.makeEmailLoginView()
 }
