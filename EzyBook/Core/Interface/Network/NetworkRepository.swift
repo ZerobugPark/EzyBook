@@ -6,3 +6,7 @@
 //
 
 import Foundation
+
+protocol NetworkRepository {
+    func fetchData<T: Decodable & EntityConvertible, E: StructEntity, R: NetworkRouter>(dto: T.Type ,_ router: R) async throws -> E where T.E == E
+}

@@ -30,9 +30,9 @@ struct LoginSignUpPagerView: View {
                 EmailLoginView(selectedIndex: $selectedIndex, viewModel: container.makeEmailLoginViewModel())
                     .padding(.top, 10)
                     .tag(0)
-//                CreateAccountView(selectedIndex: $selectedIndex, viewModel: container.makeAccountViewModel())
-//                    .padding(.top, 10)
-//                    .tag(1)
+                CreateAccountView(selectedIndex: $selectedIndex, viewModel: container.makeAccountViewModel())
+                    .padding(.top, 10)
+                    .tag(1)
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             Spacer()

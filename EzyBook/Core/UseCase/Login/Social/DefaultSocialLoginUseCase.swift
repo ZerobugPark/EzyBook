@@ -6,8 +6,6 @@
 //
 
 import Foundation
-import Combine
-
 
 final class DefaultSocialLoginUseCase {
     
@@ -15,12 +13,7 @@ final class DefaultSocialLoginUseCase {
     private let kakaLoginProvider: SocialLoginProvider
     private let appleLoginRepository: SocialLoginProvider
     private let authNetworkRepository: AuthNetworkRepository
-    
-    // ViewModel이 구독할 상태
-    //let authUIState = CurrentValueSubject<AuthUIState, Never>(.idle)
-    
-    //private var cancellables = Set<AnyCancellable>()
-    
+        
     init(kakaLoginProvider: SocialLoginProvider, appleLoginRepository: SocialLoginProvider, authNetworkRepository: AuthNetworkRepository) {
         self.kakaLoginProvider = kakaLoginProvider
         self.appleLoginRepository = appleLoginRepository
@@ -44,7 +37,7 @@ extension DefaultSocialLoginUseCase {
                 if let apiError = error as? APIError {
                     completionHandler(.failure(apiError))
                 } else {
-                    completionHandler(.failure(APIError(type: .unknown)))
+                    completionHandler(.failure(.unknown))
                 }
             }
         }

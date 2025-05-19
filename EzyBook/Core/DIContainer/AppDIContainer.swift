@@ -11,7 +11,7 @@ final class AppDIContainer {
     
     private let networkManger = NetworkService()
     private let decoder = ResponseDecoder()
-    private lazy var networkRepository = NetworkRepository(networkManger: networkManger, decodingManager: decoder)
+    private lazy var networkRepository = DefaultNetworkRepository(networkManger: networkManger, decodingManager: decoder)
 
     private let refreshScheduler = DefaultTokenRefreshScheduler()
     private lazy var tokenManger =  makeTokenManger()
@@ -19,13 +19,17 @@ final class AppDIContainer {
     private lazy var authNetworkRepository = DefaultAuthNetworkRepository(tokenManager: tokenManger, networkManager: networkRepository, refreshScheduler: refreshScheduler)
     
     
-    
     func makeDIContainer() -> DIContainer {
         
         let socialUseCase = makeSocialUsecase()
         let emailUseCase = makeEmailUsecase()
+        let createAccountUseCase = makeCreateAcctounUsecase()
         
-        return DIContainer(socialUseCase: socialUseCase, emailLoginUseCase: emailUseCase)
+        return DIContainer(
+            socialUseCase: socialUseCase,
+            emailLoginUseCase: emailUseCase,
+            createAccounUseCase: createAccountUseCase
+        )
         
     }
 }
@@ -44,8 +48,7 @@ extension AppDIContainer {
         return TokenManager(
             saveTokenUseCase: saveToeknUseCase,
             loadTokenUseCase: loadTokenUseCase,
-            deleteTokenUseCase: deleteTokenUseCase, networkRepository: networkRepository
-        )
+            deleteTokenUseCase: deleteTokenUseCase)
     }
     
     private func makeSocialUsecase() -> DefaultSocialLoginUseCase {
@@ -53,13 +56,24 @@ extension AppDIContainer {
         let kakaoProvider = KaKaoLoginProvider()
         let appleLoginRepository = AppleLoginProvider()
     
-        let socialUseCase = DefaultSocialLoginUseCase(kakaLoginProvider: kakaoProvider, appleLoginRepository: appleLoginRepository, authNetworkRepository: authNetworkRepository)
+        let useCase = DefaultSocialLoginUseCase(
+            kakaLoginProvider: kakaoProvider,
+            appleLoginRepository: appleLoginRepository,
+            authNetworkRepository: authNetworkRepository
+        )
         
-        return socialUseCase
+        return useCase
     }
     
     private func makeEmailUsecase() -> DefaultLoginUseCase {
-        let emailUseCase = DefaultLoginUseCase(authNetworkRepository: authNetworkRepository)
-        return emailUseCase
+        let useCase = DefaultLoginUseCase(
+            authNetworkRepository: authNetworkRepository
+        )
+        return useCase
+    }
+    
+    private func makeCreateAcctounUsecase() -> DefaultCreateAccountUseCase {
+        let useCase = DefaultCreateAccountUseCase(networkManager: networkRepository)
+        return useCase
     }
 }

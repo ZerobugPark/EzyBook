@@ -35,7 +35,7 @@ extension DefaultLoginUseCase {
                 if let apiError = error as? APIError {
                     completionHandler(.failure(apiError))
                 } else {
-                    completionHandler(.failure(APIError(type: .unknown)))
+                    completionHandler(.failure(.unknown))
                 }
             }
         }

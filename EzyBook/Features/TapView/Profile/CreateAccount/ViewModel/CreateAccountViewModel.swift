@@ -10,7 +10,7 @@ import Combine
 
 final class CreateAccountViewModel: ViewModelType {
     
-    var newtworkRepository: EzyBookNetworkRepository
+    var createUseCase: DefaultCreateAccountUseCase
     var input = Input()
     @Published var output = Output()
     
@@ -23,8 +23,8 @@ final class CreateAccountViewModel: ViewModelType {
         
     var cancellables = Set<AnyCancellable>()
     
-    init(newtworkRepository: EzyBookNetworkRepository) {
-        self.newtworkRepository = newtworkRepository
+    init(createUseCase: DefaultCreateAccountUseCase) {
+        self.createUseCase = createUseCase
         self.phoneNumberTextField = input.phoneNumberTextField
         transform()
     }
@@ -52,7 +52,6 @@ extension CreateAccountViewModel {
         if input.count == 1, let firstChar = input.first, forbiddenCharacters.contains(firstChar) {
             return false
         }
-        
         
         return true
     }
@@ -102,7 +101,15 @@ extension CreateAccountViewModel {
         output.isVaildEmail =  input.emailTextField.validateEmail()
         
         if output.isVaildEmail {
-            verifyEmailAvailability()
+            createUseCase.verifyEmailAvailability(input.emailTextField) { result in
+                switch result {
+                case .success(_):
+                    self.output.isAvailableEmail = true
+                case .failure(let failure):
+                    self.output.isAvailableEmail = false
+                    self.output.currentError = .error(code: failure.code, msg: failure.userMessage)
+                }
+            }
         }
         
         updateFormValidation()
@@ -116,27 +123,6 @@ extension CreateAccountViewModel {
         output.visibleStates[field]?.toggle()
     }
     
-    /// 이메일 중복확인 (서버 통신)
-    private func verifyEmailAvailability() {
-        
-        let body = EmailValidationRequestDTO(email: input.emailTextField)
-        let router = UserRequest.emailValidation(body: body)
-        
-        
-//        newtworkRepository.fetchData(dto: EmailValidationResponseDTO.self, router) { [weak self] (result: Result<EmailValidationEntity, APIError>) in
-//            
-//            guard let self = self else { return }
-//            
-//            switch result {
-//            case .success(_):
-//                output.isAvailableEmail = true
-//            case .failure(let failure):
-//                output.isAvailableEmail = false
-//                output.currentError = .error(code: failure.code, msg: failure.userMessage)
-//            }
-//        }
-        
-    }
     
     /// 비밀번호 필드, 유효성 검사
     private func handlePasswordEditingCompleted() {
@@ -172,21 +158,15 @@ extension CreateAccountViewModel {
             deviceToken: nil
         )
         let router = UserRequest.join(body: body)
-//        newtworkRepository.fetchData(dto: JoinResponseDTO.self, router) { [weak self] (result: Result<JoinEntity, APIError>) in
-//            
-//            guard let self = self else { return }
-//            
-//            switch result {
-//            case .success(_):
-//                output.isAccountCreated = true
-//                // TODO: 고민
-//                // 회원가입후 자동로그인을 해줘야할까? 아니면 유저가 로그인을 하게 둬야할까?
-//                // 자동로그인 해주면 토큰을 굳이 저장해야하지만, 일반 로그인이라면 저장할 필요가 없긴한데.
-//            case .failure(let failure):
-//                output.currentError = .error(code: failure.code, msg: failure.userMessage)
-//            }
-//        }
         
+        createUseCase.signUp(router) { result in
+            switch result {
+            case .success(_):
+                self.output.isAccountCreated = true
+            case .failure(let failure):
+                self.output.currentError = .error(code: failure.code, msg: failure.userMessage)
+            }
+        }
     }
     
     /// 회원가입 버튼 버튼 상태
@@ -215,7 +195,7 @@ extension CreateAccountViewModel {
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
-    func action(_ action: Action) {
+        func action(_ action: Action) {
         switch action {
         case .emailEditingCompleted:
             handleEmailEditingCompleted()

@@ -1,5 +1,5 @@
 //
-//  NetworkRepository.swift
+//  DefaultNetworkRepository.swift
 //  EzyBook
 //
 //  Created by youngkyun park on 5/13/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class DefaultNetworkRepository: EzyBookNetworkRepository {
+final class DefaultNetworkRepository: NetworkRepository {
     
     private let networkManger: NetworkManager
     private let decodingManager: ResponseDecoder

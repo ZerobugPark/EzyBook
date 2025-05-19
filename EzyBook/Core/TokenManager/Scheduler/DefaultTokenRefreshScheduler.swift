@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+/// TokenRefreshScheduler
+/// DefaultAuthNetworkRepository에서 타이머를 관리할 경우 너무 책임이 커지기 때문에 분리
 final class DefaultTokenRefreshScheduler: TokenRefreshScheduler {
     
     

@@ -19,11 +19,12 @@ enum APIError: Error {
     
     case socialLoginError(message: String)
     
+    case unknown
+    
     // 소셜 로그인 타입
     enum SocialLoginType: String {
         case kakao
         case apple
-        case unknown
     }
     // 로컬 에러 타입
     enum LocalErrorType: Int {
@@ -74,8 +75,6 @@ enum APIError: Error {
             self = .socialLoginError(message: message ?? "카카오 로그인 오류")
         case .apple:
             self = .socialLoginError(message: message ?? "애플 로그인 오류")
-        case .unknown:
-            self = .socialLoginError(message: "알 수 없는 오류")
         }
     }
     
@@ -88,7 +87,7 @@ enum APIError: Error {
             return type.rawValue
         case .dataError(let code, _):
             return code
-        case .socialLoginError(_):
+        case .socialLoginError(_), .unknown:
             return -1
         }
     }
@@ -114,6 +113,8 @@ enum APIError: Error {
             return "오류가 발생했습니다."
         case .socialLoginError(let message):
             return message
+        case .unknown:
+            return "알 수 없는 오류가 발생했습니다."
         }
     }
     

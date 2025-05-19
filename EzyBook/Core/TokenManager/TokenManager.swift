@@ -22,13 +22,11 @@ final class TokenManager {
     private let saveTokenUseCase: SaveTokenUseCase
     private let loadTokenUseCase: LoadTokenUseCase
     private let deleteTokenUseCase: DeleteTokenUseCase
-    private let networkRepository: EzyBookNetworkRepository
     
-    init(saveTokenUseCase: SaveTokenUseCase, loadTokenUseCase: LoadTokenUseCase, deleteTokenUseCase: DeleteTokenUseCase, networkRepository: EzyBookNetworkRepository) {
+    init(saveTokenUseCase: SaveTokenUseCase, loadTokenUseCase: LoadTokenUseCase, deleteTokenUseCase: DeleteTokenUseCase) {
         self.saveTokenUseCase = saveTokenUseCase
         self.loadTokenUseCase = loadTokenUseCase
         self.deleteTokenUseCase = deleteTokenUseCase
-        self.networkRepository = networkRepository
     }
     
     //토큰에 개발저장이 필요하다면 (확장성 고려)
