@@ -13,13 +13,13 @@ import Foundation
 
 final class DIContainer: ObservableObject {
 
-    private let authNetworkRepository: AuthNetworkRepository
-    private let socialUseCase: DefaultSocialLoginUseCase
-
     
-    init(authNetworkRepository: AuthNetworkRepository, socialUseCase: DefaultSocialLoginUseCase) {
-        self.authNetworkRepository = authNetworkRepository
+    private let socialUseCase: DefaultSocialLoginUseCase
+    private let emailLoginUseCase: DefaultLoginUseCase
+    
+    init(socialUseCase: DefaultSocialLoginUseCase, emailLoginUseCase: DefaultLoginUseCase) {
         self.socialUseCase = socialUseCase
+        self.emailLoginUseCase = emailLoginUseCase
     }
         
 }
@@ -30,9 +30,9 @@ extension DIContainer {
 //        return CreateAccountViewModel(newtworkRepository: networkRepository)
 //    }
 //    
-//    func makeEmailLoginViewModel() -> EmailLoginViewModel {
-//        return EmailLoginViewModel(newtworkRepository: networkRepository, tokenManager: tokenManager)
-//    }
+    func makeEmailLoginViewModel() -> EmailLoginViewModel {
+        return EmailLoginViewModel(emailLoginUseCase: emailLoginUseCase)
+    }
     
 //    func makeLoginViewModel(for type: LoginType) -> LoginViewModel {
 //        switch type {

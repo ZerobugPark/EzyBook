@@ -9,6 +9,8 @@ import Foundation
 
 /// 실제 네트워크 통신 진행
 final class DefaultAuthNetworkRepository: AuthNetworkRepository {
+
+    
     // 통신 및 갱신 Flow 진행
     private let tokenManager: TokenManager
     private let networkManager: NetworkRepository
@@ -32,6 +34,18 @@ final class DefaultAuthNetworkRepository: AuthNetworkRepository {
         refreshScheduler.start { [weak self] in
             try? await self?.refreshTokenIfNeeded()
         }
+    }
+    
+    func emailLogin(_ router: UserRequest) async throws {
+        
+        let data = try await networkManager.fetchData(dto: LoginResponseDTO.self, router)
+        
+        _ = tokenManager.saveTokens(accessToken: data.accessToken, refreshToken: data.refreshToken)
+        
+        refreshScheduler.start { [weak self] in
+            try? await self?.refreshTokenIfNeeded()
+        }
+        
     }
 
 }

@@ -10,8 +10,9 @@ import SwiftUI
 struct LoginView: View {
     
     @Binding var showModal: Bool
-    @EnvironmentObject var container: DIContainer
+
     @StateObject var viewModel: SocialLoginViewModel
+    
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading,spacing: 10) {

@@ -17,7 +17,7 @@ enum AuthState {
 
 
 /// 토근 관련 매니저 (저장, 갱신 등)
-final class TokenManager: ObservableObject {
+final class TokenManager {
     
     private let saveTokenUseCase: SaveTokenUseCase
     private let loadTokenUseCase: LoadTokenUseCase

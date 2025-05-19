@@ -27,9 +27,9 @@ struct LoginSignUpPagerView: View {
                 
             
             TabView(selection: $selectedIndex) {
-//                EmailLoginView(selectedIndex: $selectedIndex, viewModel: container.makeEmailLoginViewModel())
-//                    .padding(.top, 10)
-//                    .tag(0)
+                EmailLoginView(selectedIndex: $selectedIndex, viewModel: container.makeEmailLoginViewModel())
+                    .padding(.top, 10)
+                    .tag(0)
 //                CreateAccountView(selectedIndex: $selectedIndex, viewModel: container.makeAccountViewModel())
 //                    .padding(.top, 10)
 //                    .tag(1)

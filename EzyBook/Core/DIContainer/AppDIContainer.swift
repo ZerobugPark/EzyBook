@@ -13,19 +13,19 @@ final class AppDIContainer {
     private let decoder = ResponseDecoder()
     private lazy var networkRepository = NetworkRepository(networkManger: networkManger, decodingManager: decoder)
 
+    private let refreshScheduler = DefaultTokenRefreshScheduler()
+    private lazy var tokenManger =  makeTokenManger()
     
+    private lazy var authNetworkRepository = DefaultAuthNetworkRepository(tokenManager: tokenManger, networkManager: networkRepository, refreshScheduler: refreshScheduler)
     
     
     
     func makeDIContainer() -> DIContainer {
-        let tokenManger =  makeTokenManger()
-        let refresh = DefaultTokenRefreshScheduler()
-        let authNetworkRepository = DefaultAuthNetworkRepository(tokenManager: tokenManger, networkManager: networkRepository, refreshScheduler: refresh)
         
+        let socialUseCase = makeSocialUsecase()
+        let emailUseCase = makeEmailUsecase()
         
-        let social = DefaultSocialLoginUseCase(kakaLoginProvider: KaKaoLoginProvider(), appleLoginRepository: AppleLoginProvider(), authNetworkRepository: authNetworkRepository)
-      
-        return DIContainer(authNetworkRepository: authNetworkRepository, socialUseCase: social)
+        return DIContainer(socialUseCase: socialUseCase, emailLoginUseCase: emailUseCase)
         
     }
 }
@@ -35,8 +35,8 @@ extension AppDIContainer {
  
     
     private func makeTokenManger() -> TokenManager {
-        let keychainHelper = KeyChainHelper()
-        let tokenRepository = KeychainTokenRepository(keyChainManger: keychainHelper)
+        let keychainManager = KeyChainManager()
+        let tokenRepository = KeychainTokenRepository(keyChainManger: keychainManager)
         let saveToeknUseCase = DefaultSaveTokenUseCase(tokenRepository: tokenRepository)
         let loadTokenUseCase = DefaultLoadTokenUseCase(tokenRepository: tokenRepository)
         let deleteTokenUseCase = DefaultDeleteTokenUseCase(tokenRepository: tokenRepository)
@@ -46,5 +46,20 @@ extension AppDIContainer {
             loadTokenUseCase: loadTokenUseCase,
             deleteTokenUseCase: deleteTokenUseCase, networkRepository: networkRepository
         )
+    }
+    
+    private func makeSocialUsecase() -> DefaultSocialLoginUseCase {
+        
+        let kakaoProvider = KaKaoLoginProvider()
+        let appleLoginRepository = AppleLoginProvider()
+    
+        let socialUseCase = DefaultSocialLoginUseCase(kakaLoginProvider: kakaoProvider, appleLoginRepository: appleLoginRepository, authNetworkRepository: authNetworkRepository)
+        
+        return socialUseCase
+    }
+    
+    private func makeEmailUsecase() -> DefaultLoginUseCase {
+        let emailUseCase = DefaultLoginUseCase(authNetworkRepository: authNetworkRepository)
+        return emailUseCase
     }
 }

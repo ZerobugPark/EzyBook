@@ -9,4 +9,5 @@ import Foundation
 
 protocol AuthNetworkRepository {
     func kakoLogin(_ token: String) async throws
+    func emailLogin(_ router: UserRequest) async throws
 }
