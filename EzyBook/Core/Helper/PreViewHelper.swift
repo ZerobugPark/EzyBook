@@ -49,7 +49,7 @@ extension PreViewHelper {
     
     static func makeTokenManger() -> TokenManager {
         let keychainManager = KeyChainManager()
-        let tokenRepository = KeychainTokenRepository(keyChainManger: keychainManager)
+        let tokenRepository = DefaultKeychainTokenRepository(keyChainManger: keychainManager)
         let saveToeknUseCase = DefaultSaveTokenUseCase(tokenRepository: tokenRepository)
         let loadTokenUseCase = DefaultLoadTokenUseCase(tokenRepository: tokenRepository)
         let deleteTokenUseCase = DefaultDeleteTokenUseCase(tokenRepository: tokenRepository)

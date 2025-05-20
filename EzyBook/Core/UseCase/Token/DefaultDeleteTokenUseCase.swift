@@ -9,9 +9,9 @@ import Foundation
 
 final class DefaultDeleteTokenUseCase: DeleteTokenUseCase {
     
-    private let tokenRepository: EzyBookTokenRepository
+    private let tokenRepository: TokenRepository
     
-    init(tokenRepository: EzyBookTokenRepository) {
+    init(tokenRepository: TokenRepository) {
         self.tokenRepository = tokenRepository
     }
 

@@ -8,10 +8,10 @@
 import Foundation
 
 final class DefaultLoadTokenUseCase: LoadTokenUseCase {
-    private let tokenRepository: EzyBookTokenRepository
+    private let tokenRepository: TokenRepository
     
 
-    init(tokenRepository: EzyBookTokenRepository) {
+    init(tokenRepository: TokenRepository) {
         self.tokenRepository = tokenRepository
     }
 
