@@ -14,14 +14,7 @@ struct ResponseDecoder {
             let decoded = try JSONDecoder().decode(T.self, from: data)
             return .success(decoded)
         } catch {
-            
-            do {
-                let serverError = try JSONDecoder().decode(ErrorMessageDTO.self, from: data)                
-                return .failure(APIError(statusCode: ))
-            } catch {
-                
-                return .failure(APIError(localErrorType: .decodingError))
-            }
+            return .failure(APIError(localErrorType: .decodingError))
         }
     }
 }
