@@ -8,5 +8,5 @@
 import Foundation
 
 protocol AppleLoginRepository {
-    func loingWithApple(_ token: String) async throws -> LoginEntity
+    func requestAppleLogin(_ token: String, _ name: String?) async throws -> LoginEntity
 }

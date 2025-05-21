@@ -5,6 +5,7 @@
 //  Created by youngkyun park on 5/21/25.
 //
 
+import AuthenticationServices
 import Foundation
 
 final class DefaultAppleLoginUseCase {
@@ -26,11 +27,11 @@ final class DefaultAppleLoginUseCase {
 // MARK: Login
 extension DefaultAppleLoginUseCase {
     
-    func execute(completionHandler: @escaping (Result <Void, APIError>) -> Void) {
+    func execute(_ result:  Result<ASAuthorization, any Error>,completionHandler: @escaping (Result <Void, APIError>) -> Void) {
         Task {
             do {
-                let data = try await appleLoginService.appleLogin()
-                let token = try await authRepository.loingWithApple(data)
+                let data = try await appleLoginService.loginWithApple(result)
+                let token = try await authRepository.requestAppleLogin(data.token, data.name)
                 completionHandler(.success(()))
             } catch  {
                 let resolvedError: APIError
@@ -47,6 +48,7 @@ extension DefaultAppleLoginUseCase {
         }
     }
 }
+
 
 
 
