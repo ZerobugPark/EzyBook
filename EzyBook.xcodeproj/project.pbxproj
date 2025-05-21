@@ -24,7 +24,7 @@
 		D04DA72F2DCF7D7F0031AA2F /* Exceptions for "EzyBook" folder in "EzyBook" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				APP/Info.plist,
+				Application/Info.plist,
 			);
 			target = D04DA7182DCF7C750031AA2F /* EzyBook */;
 		};
@@ -292,7 +292,7 @@
 				DEVELOPMENT_TEAM = 9ZR9M5J9M6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = EzyBook/APP/Info.plist;
+				INFOPLIST_FILE = EzyBook/Application/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = EzyBook;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -330,7 +330,7 @@
 				DEVELOPMENT_TEAM = 9ZR9M5J9M6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = EzyBook/APP/Info.plist;
+				INFOPLIST_FILE = EzyBook/Application/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = EzyBook;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
