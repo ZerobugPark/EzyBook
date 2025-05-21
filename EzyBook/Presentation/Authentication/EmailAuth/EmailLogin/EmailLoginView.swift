@@ -165,6 +165,6 @@ extension EmailLoginView {
 }
 
 
-//#Preview {
-//    PreViewHelper.makeEmailLoginView()
-//}
+#Preview {
+    PreViewHelper.makeEmailLoginView()
+}
