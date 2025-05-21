@@ -13,22 +13,26 @@ import Foundation
 final class DIContainer: ObservableObject {
 
     
-    private let socialUseCase: DefaultSocialLoginUseCase
-    private let emailLoginUseCase: DefaultLoginUseCase
-    private let createAccounUseCase: DefaultCreateAccountUseCase
+    private let kakaoLoginUseCase: DefaultKakaoLoginUseCase
+    private let createAccountUseCase : DefaultCreateAccountUseCase
+    private let emailLoginUseCase : DefaultEmailLoginUseCase
+    private let appleLoginUseCase: DefaultAppleLoginUseCase
+
     
-    init(socialUseCase: DefaultSocialLoginUseCase, emailLoginUseCase: DefaultLoginUseCase, createAccounUseCase: DefaultCreateAccountUseCase) {
-        self.socialUseCase = socialUseCase
+    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase) {
+        self.kakaoLoginUseCase = kakaoLoginUseCase
+        self.createAccountUseCase = createAccountUseCase
         self.emailLoginUseCase = emailLoginUseCase
-        self.createAccounUseCase = createAccounUseCase
+        self.appleLoginUseCase = appleLoginUseCase
     }
+    
         
 }
 
 // MARK: Make ViewModel
 extension DIContainer {
     func makeAccountViewModel() -> CreateAccountViewModel {
-        return CreateAccountViewModel(createUseCase: createAccounUseCase)
+        return CreateAccountViewModel(createUseCase: createAccountUseCase)
     }
     
     func makeEmailLoginViewModel() -> EmailLoginViewModel {
@@ -36,7 +40,10 @@ extension DIContainer {
     }
     
     func makeSocialLoginViewModel() -> LoginViewModel {
-        return LoginViewModel(useCase: socialUseCase)
+        return LoginViewModel(
+            kakaoLoginUseCase: kakaoLoginUseCase,
+            appleLoginUseCase: appleLoginUseCase
+        )
     }
 
 }

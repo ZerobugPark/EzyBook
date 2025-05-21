@@ -25,7 +25,7 @@ struct EzyBookApp: App {
     
     var body: some Scene {
         WindowGroup {
-            MainTabView()
+            LoginView(viewModel: container.makeSocialLoginViewModel())
                 .environmentObject(container)
                 .onOpenURL(perform: { url in
                     if (AuthApi.isKakaoTalkLoginUrl(url)) {

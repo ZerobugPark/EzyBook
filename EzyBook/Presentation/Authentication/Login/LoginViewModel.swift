@@ -11,15 +11,17 @@ import Combine
 
 final class LoginViewModel: ViewModelType {
     
-    var useCase: DefaultSocialLoginUseCase
+    private let kakaoLoginUseCase: DefaultKakaoLoginUseCase
+    private let appleLoginUseCase: DefaultAppleLoginUseCase
     
     var input = Input()
     @Published var output = Output()
         
     var cancellables = Set<AnyCancellable>()
     
-    init(useCase: DefaultSocialLoginUseCase) {
-        self.useCase = useCase
+    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase) {
+        self.kakaoLoginUseCase = kakaoLoginUseCase
+        self.appleLoginUseCase = appleLoginUseCase
         transform()
     }
 }
@@ -39,10 +41,10 @@ extension LoginViewModel {
     func transform() { }
     
     private func test() {
-        useCase.kakaoLogin { result in
+        kakaoLoginUseCase.execute { result in
             switch result {
             case .success(let success):
-                print(success)
+                print("12312",success)
             case .failure(let failure):
                 print(failure)
             }

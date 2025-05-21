@@ -9,69 +9,56 @@ import Foundation
 
 final class AppDIContainer {
     
-    private let networkManger = NetworkService()
+    // MARK: - Infrastructure
+    private let httpClient = DefaultHttpClient()
     private let decoder = ResponseDecoder()
-    private lazy var networkRepository = DefaultNetworkRepository(networkManger: networkManger, decodingManager: decoder)
+    private lazy var networkService = DefaultNetworkService(networkManger: httpClient, decodingManager: decoder)
 
     private let refreshScheduler = DefaultTokenRefreshScheduler()
-    private lazy var tokenManger =  makeTokenManger()
-    
-    private lazy var authNetworkRepository = DefaultAuthNetworkRepository(tokenManager: tokenManger, networkManager: networkRepository, refreshScheduler: refreshScheduler)
-    
-    
+    private let storage = KeyChainTokenStorage()
+    private lazy var tokenService = TokenService(storage: storage, scheduler: refreshScheduler)
+
+    // MARK: - Data Layer
+    private lazy var authRepository = DefaultAuthRepository(networkService: networkService)
+    private lazy var socialLoginService = DefaultsSocialLoginService()
+
+    // MARK: - DIContainer Factory
     func makeDIContainer() -> DIContainer {
-        
-        let socialUseCase = makeSocialUsecase()
-        let emailUseCase = makeEmailUsecase()
-        let createAccountUseCase = makeCreateAcctounUsecase()
-        
         return DIContainer(
-            socialUseCase: socialUseCase,
-            emailLoginUseCase: emailUseCase,
-            createAccounUseCase: createAccountUseCase
+            kakaoLoginUseCase: makeKakaoLoginUseCase(),
+            createAccountUseCase: makeCreateAccountUseCase(),
+            emailLoginUseCase: makeEmailLoginUseCase(),
+            appleLoginUseCase: makeAppleLoginUseCase()
         )
-        
     }
 }
 
 extension AppDIContainer {
-    
-    private func makeTokenManger() -> TokenManager {
-        let keychainManager = KeyChainManager()
-        let tokenRepository = DefaultKeychainTokenRepository(keyChainManger: keychainManager)
-        let saveToeknUseCase = DefaultSaveTokenUseCase(tokenRepository: tokenRepository)
-        let loadTokenUseCase = DefaultLoadTokenUseCase(tokenRepository: tokenRepository)
-        let deleteTokenUseCase = DefaultDeleteTokenUseCase(tokenRepository: tokenRepository)
-        
-        return TokenManager(
-            saveTokenUseCase: saveToeknUseCase,
-            loadTokenUseCase: loadTokenUseCase,
-            deleteTokenUseCase: deleteTokenUseCase)
-    }
-    
-    private func makeSocialUsecase() -> DefaultSocialLoginUseCase {
-        
-        let kakaoProvider = KaKaoLoginProvider()
-        let appleLoginRepository = AppleLoginProvider()
-    
-        let useCase = DefaultSocialLoginUseCase(
-            kakaLoginProvider: kakaoProvider,
-            appleLoginRepository: appleLoginRepository,
-            authNetworkRepository: authNetworkRepository
+
+    private func makeKakaoLoginUseCase() -> DefaultKakaoLoginUseCase {
+        return DefaultKakaoLoginUseCase(
+            kakoLoginService: socialLoginService,
+            authRepository: authRepository,
+            tokenService: tokenService
         )
-        
-        return useCase
     }
-    
-    private func makeEmailUsecase() -> DefaultLoginUseCase {
-        let useCase = DefaultLoginUseCase(
-            authNetworkRepository: authNetworkRepository
+
+    private func makeAppleLoginUseCase() -> DefaultAppleLoginUseCase {
+        return DefaultAppleLoginUseCase(
+            appleLoginService: socialLoginService,
+            authRepository: authRepository,
+            tokenService: tokenService
         )
-        return useCase
     }
-    
-    private func makeCreateAcctounUsecase() -> DefaultCreateAccountUseCase {
-        let useCase = DefaultCreateAccountUseCase(networkManager: networkRepository)
-        return useCase
+
+    private func makeEmailLoginUseCase() -> DefaultEmailLoginUseCase {
+        return DefaultEmailLoginUseCase(
+            authRepository: authRepository,
+            tokenService: tokenService
+        )
+    }
+
+    private func makeCreateAccountUseCase() -> DefaultCreateAccountUseCase {
+        return DefaultCreateAccountUseCase(authRepository: authRepository)
     }
 }

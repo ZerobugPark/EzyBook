@@ -11,6 +11,7 @@ import Combine
 final class CreateAccountViewModel: ViewModelType {
     
     var createUseCase: DefaultCreateAccountUseCase
+    
     var input = Input()
     @Published var output = Output()
     
@@ -101,7 +102,7 @@ extension CreateAccountViewModel {
         output.isVaildEmail =  input.emailTextField.validateEmail()
         
         if output.isVaildEmail {
-            createUseCase.verifyEmailAvailability(input.emailTextField) { result in
+            createUseCase.verifyEmail(input.emailTextField) { result in
                 switch result {
                 case .success(_):
                     self.output.isAvailableEmail = true

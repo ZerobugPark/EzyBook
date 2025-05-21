@@ -9,14 +9,13 @@ import SwiftUI
 
 struct LoginView: View {
     
-    @Binding var showModal: Bool
+    
 
     @StateObject var viewModel: LoginViewModel
     
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading,spacing: 10) {
-                backButton
                 content
                 Spacer()
             }
@@ -25,18 +24,18 @@ struct LoginView: View {
         }
     }
     
-    private var backButton: some View {
-        HStack {
-            Button {
-                showModal = false
-            } label: {
-                Image(systemName: "chevron.left")
-                    .foregroundColor(.blue)
-            }
-            Spacer()
-        }
-        .padding()
-    }
+//    private var backButton: some View {
+//        HStack {
+//            Button {
+//                showModal = false
+//            } label: {
+//                Image(systemName: "chevron.left")
+//                    .foregroundColor(.blue)
+//            }
+//            Spacer()
+//        }
+//        .padding()
+//    }
     
     private var content: some View {
         VStack(alignment: .center) {
@@ -111,6 +110,6 @@ extension LoginView {
 
 }
 
-#Preview {
-    PreViewHelper.makeLoginView()
-}
+//#Preview {
+//    PreViewHelper.makeLoginView()
+//}

@@ -11,14 +11,14 @@ import Combine
 
 final class EmailLoginViewModel: ViewModelType {
     
-    let emailLoginUseCase: DefaultLoginUseCase
+    let emailLoginUseCase: DefaultEmailLoginUseCase
     
     var input = Input()
     @Published var output = Output()
         
     var cancellables = Set<AnyCancellable>()
     
-    init(emailLoginUseCase: DefaultLoginUseCase) {
+    init(emailLoginUseCase: DefaultEmailLoginUseCase) {
         self.emailLoginUseCase = emailLoginUseCase
         transform()
     }

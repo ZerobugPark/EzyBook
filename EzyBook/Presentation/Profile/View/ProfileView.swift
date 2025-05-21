@@ -35,9 +35,9 @@ struct ProfileView: View {
             }
             
          }
-         .fullScreenCover(isPresented: $showModal) {
-             LoginView(showModal: $showModal, viewModel: container.makeSocialLoginViewModel())
-         }
+//         .fullScreenCover(isPresented: $showModal) {
+//             LoginView(showModal: $showModal, viewModel: container.makeSocialLoginViewModel())
+//         }
     }
   
 }
