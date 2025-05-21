@@ -9,7 +9,7 @@ import Foundation
 
 
 
-struct ProfileCheckEntity: StructEntity {
+struct ProfileCheckEntity {
     let userID: String
     let email: String
     let nick: String
@@ -25,13 +25,13 @@ struct ProfileCheckEntity: StructEntity {
     
 }
 
-struct EmailValidationEntity: StructEntity {
+struct EmailValidationEntity {
     let message: String
 }
 
 
 /// 회원가입
-struct JoinEntity: StructEntity {
+struct JoinEntity {
     let userID: String
     let email: String
     let nick: String
@@ -41,7 +41,7 @@ struct JoinEntity: StructEntity {
 }
 
 /// 로그인 (이메일, 카카오, 애플 공통)
-struct LoginEntity: StructEntity {
+struct LoginEntity {
     let userID: String
     let email: String
     let nick: String

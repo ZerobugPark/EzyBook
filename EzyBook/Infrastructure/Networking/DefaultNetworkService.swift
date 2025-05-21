@@ -16,7 +16,7 @@ final class DefaultNetworkService: NetworkService {
         self.decodingManager = decodingManager
     }
     
-    func fetchData<T: Decodable & EntityConvertible, E: StructEntity, R: NetworkRouter>(dto: T.Type ,_ router: R) async throws -> E where T.E == E {
+    func fetchData<T: Decodable & EntityConvertible, R: NetworkRouter>(dto: T.Type ,_ router: R) async throws -> T {
         
         let urlRequest: URLRequest
         do {
@@ -35,7 +35,7 @@ final class DefaultNetworkService: NetworkService {
             let decodedResult = decodingManager.decode(data: data, type: dto)
             switch decodedResult {
             case .success(let decodedDTO):
-                return decodedDTO.toEntity()
+                return decodedDTO
             case .failure(let decodeError):
                 throw decodeError
             }

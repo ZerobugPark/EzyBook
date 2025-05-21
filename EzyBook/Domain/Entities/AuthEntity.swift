@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct RefreshEntity: StructEntity {
+struct RefreshEntity {
     let accessToken: String
     let refreshToken: String
 }

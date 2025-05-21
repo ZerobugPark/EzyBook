@@ -38,7 +38,7 @@ extension DefaultAuthRepository {
     func emailLogin(_ router: UserRequest) async throws -> LoginEntity {
         let data = try await networkService.fetchData(dto: LoginResponseDTO.self, router)
         
-        return data
+        return data.toEntity()
     }
     
     /// 카카오 로그인
@@ -49,7 +49,7 @@ extension DefaultAuthRepository {
         
         let data = try await networkService.fetchData(dto: LoginResponseDTO.self, router)
         
-        return data
+        return data.toEntity()
     }
     
     func loingWithApple(_ token: String) async throws -> LoginEntity {
@@ -58,7 +58,7 @@ extension DefaultAuthRepository {
         
         let data = try await networkService.fetchData(dto: LoginResponseDTO.self, router)
         
-        return data
+        return data.toEntity()
     }
 }
 
