@@ -8,5 +8,5 @@
 import Foundation
 
 protocol EmailLoginRepository {
-    func emailLogin(_ router: UserRequest) async throws -> LoginEntity
+    func requestEmailLogin(_ router: UserRequest) async throws -> LoginEntity
 }

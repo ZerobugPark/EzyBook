@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AuthenticationServices
 
 struct LoginView: View {
     
@@ -60,9 +61,9 @@ struct LoginView: View {
                 .frame(height: 50)
                 .frame(maxWidth: .infinity)
                 .background(Color.white)
-                .clipShape(RoundedRectangle(cornerRadius: 15))
+                .clipShape(RoundedRectangle(cornerRadius: 7))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 15)
+                    RoundedRectangle(cornerRadius: 7)
                         .stroke(Color.black, lineWidth: 1)
                 )
                 .padding(.horizontal, 43)
@@ -70,23 +71,20 @@ struct LoginView: View {
     }
     
     private var appleLogin: some View {
-        Button {
-            
-        } label: {
-            Image(.appleLogin)
-                .resizable()
-                .scaledToFit()
-                .frame(height: 50)
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, 30)
-            
-        }
+        SignInWithAppleButton(.signIn, onRequest: { request in
+            viewModel.action(.appleLoginButtonTapped(reqeust: request))
+        }, onCompletion: { result in
+            viewModel.action(.appleLoginCompleted(result: result))
+        })
+        .frame(height: 50)
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 43)
         
     }
     
     private var kakaoLogin: some View {
         Button {
-            viewModel.action(.logunButtonTapped)
+            viewModel.action(.kakaoLoginButtonTapped)
         } label: {
             Image(.kakaoLogin)
                 .resizable()

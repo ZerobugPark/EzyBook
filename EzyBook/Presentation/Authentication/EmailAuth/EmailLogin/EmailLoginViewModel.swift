@@ -60,8 +60,8 @@ extension EmailLoginViewModel {
             
             guard let self = self else { return }
             switch result {
-            case .success(let success):
-                print("123성공",success)
+            case .success(_):
+                print("Success: Email Login")
             case .failure(let failure):
                 self.output.loginError = .serverError(.error(code: failure.code, msg: failure.userMessage))
             }

@@ -9,8 +9,6 @@ import Foundation
 
 final class DefaultAuthRepository: SignUpRepository, EmailLoginRepository, KakaoLoginRepository, AppleLoginRepository {
 
-    
-
     private let networkService: NetworkService
     
     init(networkService: NetworkService) {
@@ -35,30 +33,30 @@ final class DefaultAuthRepository: SignUpRepository, EmailLoginRepository, Kakao
 // MARK:  Login
 extension DefaultAuthRepository {
     
-    func emailLogin(_ router: UserRequest) async throws -> LoginEntity {
+    func requestEmailLogin(_ router: UserRequest) async throws -> LoginEntity {
         let data = try await networkService.fetchData(dto: LoginResponseDTO.self, router)
         
-        return data
+        return data.toEntity()
     }
     
     /// 카카오 로그인
-    func loingWithKaKao(_ token: String) async throws -> LoginEntity {
+    func requestKakaoLogin(_ token: String) async throws -> LoginEntity {
         
         let requestDto = KakaoLoginRequestDTO(oauthToken: token, deviceToken: nil)
         let router = UserRequest.kakaoLogin(body: requestDto)
         
         let data = try await networkService.fetchData(dto: LoginResponseDTO.self, router)
         
-        return data
+        return data.toEntity()
     }
     
-    func loingWithApple(_ token: String) async throws -> LoginEntity {
-        let requestDto = AppleLoginRequestDTO(idToken: "", deviceToken: nil, nick: nil)
+    func requestAppleLogin(_ token: String, _ name: String?) async throws -> LoginEntity {
+        let requestDto = AppleLoginRequestDTO(idToken: token, deviceToken: nil, nick: name)
         let router = UserRequest.appleLogin(body: requestDto)
         
         let data = try await networkService.fetchData(dto: LoginResponseDTO.self, router)
         
-        return data
+        return data.toEntity()
     }
 }
 

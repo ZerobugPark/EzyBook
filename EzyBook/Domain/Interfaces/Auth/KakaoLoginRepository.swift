@@ -8,5 +8,5 @@
 import Foundation
 
 protocol KakaoLoginRepository {
-    func loingWithKaKao(_ token: String) async throws -> LoginEntity
+    func requestKakaoLogin(_ token: String) async throws -> LoginEntity
 }

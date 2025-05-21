@@ -29,8 +29,8 @@ extension DefaultKakaoLoginUseCase {
     func execute(completionHandler: @escaping (Result <Void, APIError>) -> Void) {
         Task {
             do {
-                let data = try await kakoLoginService.kakoLogin()
-                let token = try await authRepository.loingWithKaKao(data)
+                let data = try await kakoLoginService.loginWithKakao()
+                let token = try await authRepository.requestKakaoLogin(data)
                 
                 completionHandler(.success(()))
             } catch  {

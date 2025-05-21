@@ -31,7 +31,7 @@ extension DefaultEmailLoginUseCase {
         
         Task {
             do {
-               let _ = try await authRepository.emailLogin(router)
+               let _ = try await authRepository.requestEmailLogin(router)
                 completionHandler(.success(()))
             } catch  {
                 let resolvedError: APIError
