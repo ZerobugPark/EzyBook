@@ -10,9 +10,8 @@ import Foundation
 final class AppDIContainer {
     
     // MARK: - Infrastructure
-    private let httpClient = DefaultHttpClient()
     private let decoder = ResponseDecoder()
-    private lazy var networkService = DefaultNetworkService(networkManger: httpClient, decodingManager: decoder)
+    private lazy var networkService = DefaultNetworkService(decodingManager: decoder)
 
     private let refreshScheduler = DefaultTokenRefreshScheduler()
     private let storage = KeyChainTokenStorage()
