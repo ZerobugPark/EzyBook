@@ -33,11 +33,11 @@ extension EmailLoginViewModel {
     }
     
     struct Output {
-        var loginError: LoginInputValidationError? = nil
+        var loginError: LoginFlowError? = nil
         var isShowingError: Bool {
             loginError != nil
         }
-
+        var loginSuccessed = false
     }
     
     func transform() { }
@@ -56,12 +56,11 @@ extension EmailLoginViewModel {
             return
         }
 
-        emailLoginUseCase.emailLogin(email: input.emailTextField, password: input.passwordTextField) { [weak self] result in
+        emailLoginUseCase.emailLogin(email: input.emailTextField, password: input.passwordTextField) { result in
             
-            guard let self = self else { return }
             switch result {
             case .success(_):
-                print("Success: Email Login")
+                self.output.loginSuccessed = true
             case .failure(let failure):
                 self.output.loginError = .serverError(.error(code: failure.code, msg: failure.userMessage))
             }

@@ -31,8 +31,10 @@ extension DefaultKakaoLoginUseCase {
             do {
                 let data = try await kakoLoginService.loginWithKakao()
                 let token = try await authRepository.requestKakaoLogin(data)
-                
-                completionHandler(.success(()))
+                _ = tokenService.saveTokens(accessToken: token.accessToken, refreshToken: token.refreshToken)
+                await MainActor.run {
+                    completionHandler(.success(()))
+                }
             } catch  {
                 let resolvedError: APIError
                 if let apiError = error as? APIError {

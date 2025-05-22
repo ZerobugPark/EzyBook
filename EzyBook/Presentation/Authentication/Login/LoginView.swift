@@ -10,8 +10,7 @@ import AuthenticationServices
 
 struct LoginView: View {
     
-    
-
+    @EnvironmentObject var authModel: AuthModelObject
     @StateObject var viewModel: LoginViewModel
     
     var body: some View {
@@ -23,21 +22,21 @@ struct LoginView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color(.systemBackground))
         }
+        .commonAlert(
+            isPresented: Binding(
+                get: { viewModel.output.isShowingError },
+                set: { isPresented in
+                    if !isPresented {
+                        viewModel.action(.resetError)
+                    }
+                }
+            ),
+            title: viewModel.output.loginError?.title,
+            message: viewModel.output.loginError?.message
+        )
     }
     
-//    private var backButton: some View {
-//        HStack {
-//            Button {
-//                showModal = false
-//            } label: {
-//                Image(systemName: "chevron.left")
-//                    .foregroundColor(.blue)
-//            }
-//            Spacer()
-//        }
-//        .padding()
-//    }
-    
+
     private var content: some View {
         VStack(alignment: .center) {
             Text("로그인을 통해, 지금 여행을 계획해보세요")
@@ -52,8 +51,8 @@ struct LoginView: View {
     }
     
     private var joinEmail: some View {
-        NavigationLink {
-            LoginSignUpPagerView()
+        Button {
+            authModel.push(.emailLogin)
         } label: {
             Text("Continue with Email")
                 .font(.headline)
@@ -76,6 +75,7 @@ struct LoginView: View {
         }, onCompletion: { result in
             viewModel.action(.appleLoginCompleted(result: result))
         })
+        .onLoginSuccessModify(viewModel.output.loginSuccessed)
         .frame(height: 50)
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 43)
@@ -93,6 +93,7 @@ struct LoginView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, 43)
         }
+        .onLoginSuccessModify(viewModel.output.loginSuccessed)
     }
     
 }

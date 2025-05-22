@@ -32,7 +32,10 @@ extension DefaultAppleLoginUseCase {
             do {
                 let data = try await appleLoginService.loginWithApple(result)
                 let token = try await authRepository.requestAppleLogin(data.token, data.name)
-                completionHandler(.success(()))
+                _ = tokenService.saveTokens(accessToken: token.accessToken, refreshToken: token.refreshToken)
+                await MainActor.run {
+                    completionHandler(.success(()))
+                }
             } catch  {
                 let resolvedError: APIError
                 if let apiError = error as? APIError {

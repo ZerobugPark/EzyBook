@@ -10,7 +10,6 @@ import SwiftUI
 struct EmailLoginView: View {
     
     @Binding var selectedIndex: Int
-
     @StateObject var viewModel: EmailLoginViewModel
     
     var body: some View {
@@ -22,6 +21,7 @@ struct EmailLoginView: View {
             Button("로그인") {
                 viewModel.action(.logunButtonTapped)
             }
+            .onLoginSuccessModify(viewModel.output.loginSuccessed)
             .padding()
             .frame(maxWidth: .infinity)
             .background(Color.blue)
@@ -29,8 +29,7 @@ struct EmailLoginView: View {
             .cornerRadius(15)
             
             Spacer()
-            
-            
+                 
             HStack() {
                 Spacer()
                 Button {
@@ -42,8 +41,6 @@ struct EmailLoginView: View {
                 }
                 .padding(.trailing)
             }
-
-            
         }
         .padding(.horizontal)
         .commonAlert(

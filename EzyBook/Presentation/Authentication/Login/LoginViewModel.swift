@@ -32,7 +32,13 @@ extension LoginViewModel {
     
     struct Input { }
     
-    struct Output { }
+    struct Output {
+        var loginError: LoginFlowError? = nil
+        var isShowingError: Bool {
+            loginError != nil
+        }
+        var loginSuccessed = false
+    }
     
     func transform() { }
     
@@ -40,9 +46,9 @@ extension LoginViewModel {
         kakaoLoginUseCase.execute { result in
             switch result {
             case .success(_):
-                break
+                self.output.loginSuccessed = true
             case .failure(let failure):
-                print(failure)
+                self.output.loginError = .kakaoLoginError(code: failure.code)
             }
         }
     }
@@ -55,13 +61,16 @@ extension LoginViewModel {
         appleLoginUseCase.execute(result) { result in
             switch result {
             case .success(_):
-                break
+                self.output.loginSuccessed = true
             case .failure(let failure):
-                print(failure)
+                self.output.loginError = .appleLoginError(code: failure.code)
             }
         }
     }
-  
+    
+    private func handlerResetError() {
+        output.loginError = nil
+    }
 }
 
 // MARK: Action
@@ -71,6 +80,7 @@ extension LoginViewModel {
         case kakaoLoginButtonTapped
         case appleLoginButtonTapped(reqeust: ASAuthorizationAppleIDRequest)
         case appleLoginCompleted(result: Result<ASAuthorization, any Error>)
+        case resetError
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
@@ -82,6 +92,8 @@ extension LoginViewModel {
             configureAppleLoginRequest(request)
         case .appleLoginCompleted(let result):
             handleAppleLoginResult(result)
+        case .resetError:
+            handlerResetError()
         }
     }
 }

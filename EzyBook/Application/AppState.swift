@@ -5,4 +5,8 @@
 //  Created by youngkyun park on 5/21/25.
 //
 
-import Foundation
+import SwiftUI
+
+final class AppState: ObservableObject {
+    @Published var isLoggedIn: Bool = false
+}

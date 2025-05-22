@@ -11,6 +11,7 @@ struct LoginSignUpPagerView: View {
     @State private var selectedIndex = 0
     @State private var bounce = false
     
+    @EnvironmentObject var authModel: AuthModelObject
     @EnvironmentObject private var container: DIContainer
     
     private let titles = ["로그인", "회원가입"]
@@ -43,7 +44,7 @@ struct LoginSignUpPagerView: View {
     private var backButton: some View {
         HStack {
             Button {
-                
+                authModel.pop()
             } label: {
                 Image(systemName: "xmark")
                     .foregroundColor(.blue)
