@@ -40,7 +40,8 @@ struct LoginView: View {
     private var content: some View {
         VStack(alignment: .center) {
             Text("로그인을 통해, 지금 여행을 계획해보세요")
-                .font(.title)
+                .appFont(PaperlogyFontStyle.title)
+                .foregroundStyle(.grayScale90)
                 .padding()
             
             joinEmail
