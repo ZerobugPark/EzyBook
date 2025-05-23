@@ -42,16 +42,17 @@ struct LoginSignUpPagerView: View {
     }
     
     private var backButton: some View {
-        HStack {
+        HStack() {
             Button {
                 authModel.pop()
             } label: {
-                Image(systemName: "xmark")
-                    .foregroundColor(.blue)
+                Image(.iconChevron)
+                    
             }
             Spacer()
         }
-        .padding()
+        .padding(.leading, 5)
+        .padding(.bottom, 20)
     }
     
     private func triggerBounce() {

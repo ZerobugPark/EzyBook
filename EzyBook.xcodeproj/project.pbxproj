@@ -12,6 +12,7 @@
 		D050A5C12DD104AA00E79E59 /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = D050A5C02DD104AA00E79E59 /* KakaoSDKAuth */; };
 		D050A5C32DD104AA00E79E59 /* KakaoSDKCommon in Frameworks */ = {isa = PBXBuildFile; productRef = D050A5C22DD104AA00E79E59 /* KakaoSDKCommon */; };
 		D050A5C52DD104AA00E79E59 /* KakaoSDKUser in Frameworks */ = {isa = PBXBuildFile; productRef = D050A5C42DD104AA00E79E59 /* KakaoSDKUser */; };
+		D0EAEE7D2DE0575C0008FABD /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = D0EAEE7C2DE0575C0008FABD /* Lottie */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,6 +50,7 @@
 				D050A5C32DD104AA00E79E59 /* KakaoSDKCommon in Frameworks */,
 				D050A5C12DD104AA00E79E59 /* KakaoSDKAuth in Frameworks */,
 				D050A5C52DD104AA00E79E59 /* KakaoSDKUser in Frameworks */,
+				D0EAEE7D2DE0575C0008FABD /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -96,6 +98,7 @@
 				D050A5C02DD104AA00E79E59 /* KakaoSDKAuth */,
 				D050A5C22DD104AA00E79E59 /* KakaoSDKCommon */,
 				D050A5C42DD104AA00E79E59 /* KakaoSDKUser */,
+				D0EAEE7C2DE0575C0008FABD /* Lottie */,
 			);
 			productName = EzyBook;
 			productReference = D04DA7192DCF7C750031AA2F /* EzyBook.app */;
@@ -127,6 +130,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				D050A5BF2DD104AA00E79E59 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
+				D0EAEE7B2DE0575C0008FABD /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D04DA71A2DCF7C750031AA2F /* Products */;
@@ -390,6 +394,14 @@
 				minimumVersion = 2.24.1;
 			};
 		};
+		D0EAEE7B2DE0575C0008FABD /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -407,6 +419,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D050A5BF2DD104AA00E79E59 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
 			productName = KakaoSDKUser;
+		};
+		D0EAEE7C2DE0575C0008FABD /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D0EAEE7B2DE0575C0008FABD /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

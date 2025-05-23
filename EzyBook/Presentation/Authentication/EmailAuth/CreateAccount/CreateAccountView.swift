@@ -12,8 +12,8 @@ struct CreateAccountView: View {
     @Binding var selectedIndex: Int
     @StateObject var viewModel: CreateAccountViewModel
     
-    @FocusState private var focusedField: FocusField?
-    @State private var lastFocusedField: FocusField?
+    @FocusState private var focusedField: SignUpFocusField?
+    @State private var lastFocusedField: SignUpFocusField?
     
     
     var body: some View {
@@ -32,7 +32,11 @@ struct CreateAccountView: View {
                     }
                 } label: {
                     Text("< 로그인 해주세요")
+                        .appFont(PaperlogyFontStyle.caption)
+                        .foregroundColor(.grayScale75)
                 }
+                .padding(.top, 20)
+                .padding(.bottom, 20)
                 
             }
             .padding(.horizontal)
@@ -66,6 +70,9 @@ struct CreateAccountView: View {
             // 현재 포커스 상태 저장 (nil 포함)
             lastFocusedField = newValue
         }
+        .onDisappear {
+            focusedField = nil
+        }
         .contentShape(Rectangle())
         .onTapGesture {
             focusedField = nil
@@ -83,12 +90,15 @@ extension CreateAccountView {
             fieldTitle("이메일", required: true)
             TextField("이메일을 입력해주세요.", text: $viewModel.input.emailTextField)
                 .textFieldModify()
+                .appFont(PretendardFontStyle.body1)
                 .focused($focusedField, equals: .email)
                 .onSubmit { viewModel.action(.emailEditingCompleted) }
             
             Text("✓ 유효한 이메일 형식입니다.")
+                .appFont(PretendardFontStyle.caption1)
                 .vaildTextdModify(viewModel.output.isVaildEmail)
             Text("✓ 사용 가능한 이메일입니다.")
+                .appFont(PretendardFontStyle.caption1)
                 .vaildTextdModify(viewModel.output.isAvailableEmail)
             
         }
@@ -102,16 +112,19 @@ extension CreateAccountView {
                 .padding(.top, 5)
             
             Text("✓ 영문자, 숫자, 특수문자(@$!%*#?&)를 각각 1개 이상 포함해야 합니다.")
+                .appFont(PretendardFontStyle.caption1)
                 .vaildTextdModify(viewModel.output.isPasswordComplexEnough)
             Text("✓ 최고 글자 수는 8자 이상입니다.")
+                .appFont(PretendardFontStyle.caption1)
                 .vaildTextdModify(viewModel.output.isPasswordLongEnough)
             Text("✓ 비밀번호가 일치합니다.")
+                .appFont(PretendardFontStyle.caption1)
                 .vaildTextdModify(viewModel.output.isValidPassword)
             
         }
     }
     
-    private func passwordTextField(type: PasswordInputFieldType, focusedField: FocusState<FocusField?>.Binding) -> some View{
+    private func passwordTextField(type: PasswordInputFieldType, focusedField: FocusState<SignUpFocusField?>.Binding) -> some View{
         let passwordFieldInfo = getPasswordBinding(for: type)
         
         return HStack {
@@ -120,10 +133,12 @@ extension CreateAccountView {
                     if viewModel.output.visibleStates[type] == true {
                         TextField(passwordFieldInfo.title, text: passwordFieldInfo.binding)
                             .textFieldModify()
+                            .appFont(PretendardFontStyle.body1)
                             .focused(focusedField, equals: type.toField())
                     } else {
                         SecureField(passwordFieldInfo.title, text: passwordFieldInfo.binding)
                             .textFieldModify()
+                            .appFont(PretendardFontStyle.body1)
                             .focused(focusedField, equals: type.toField())
                     }
                 }
@@ -163,11 +178,13 @@ extension CreateAccountView {
             fieldTitle("닉네임", required: true)
             TextField("닉네임을 입력해주세요", text: $viewModel.input.nicknameTextField)
                 .textFieldModify()
+                .appFont(PretendardFontStyle.body1)
                 .focused($focusedField, equals: .nickname)
                 .onSubmit { viewModel.action(.nickNameEditingCompleted) }
             
             
             Text("✓ , ,, ?, *, -, @는 nick으로 사용할 수 없습니다.")
+                .appFont(PretendardFontStyle.caption1)
                 .vaildTextdModify(viewModel.output.isValidNickname)
         }
     }
@@ -177,6 +194,7 @@ extension CreateAccountView {
             fieldTitle("전화번호")
             TextField("전화번호를 입력해주세요", text: $viewModel.phoneNumberTextField)
                 .textFieldModify()
+                .appFont(PretendardFontStyle.body1)
                 .keyboardType(.numberPad)
                 .focused($focusedField, equals: .phone)
                 .onChange(of: viewModel.phoneNumberTextField) { newValue in
@@ -192,7 +210,10 @@ extension CreateAccountView {
                     viewModel.action(.phoneNumberEditingCompleted)
                 }
             Text("✓ 유효한 형식입니다.")
+                .appFont(PretendardFontStyle.caption1)
                 .vaildTextdModify(viewModel.output.isValidPhoneNumber)
+                
+                
             
             
         }
@@ -218,8 +239,9 @@ extension CreateAccountView {
                 .font(.headline)
                 .frame(maxWidth: .infinity)
                 .padding()
-                .background(Color.black)
+                .background(.deepSeafoam)
                 .clipShape(Capsule())
+                .appFont(PaperlogyFontStyle.caption)
         }
         .opacity(viewModel.output.isFormValid ? 1 : 0.5)
         .disabled(!viewModel.output.isFormValid)
@@ -229,17 +251,17 @@ extension CreateAccountView {
     private func fieldTitle(_ title: String, required: Bool = false) -> some View {
         HStack(spacing: 2) {
             Text(title)
-                .font(.headline)
+                .appFont(PretendardFontStyle.body1)
             if required {
                 Text("*")
                     .foregroundColor(.red)
-                    .font(.headline)
+                    .appFont(PretendardFontStyle.body2)
             }
         }
     }
     
    
-    private func validateLastFocusedField(_ field: FocusField) {
+    private func validateLastFocusedField(_ field: SignUpFocusField) {
         switch field {
         case .email:
             viewModel.action(.emailEditingCompleted)

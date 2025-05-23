@@ -14,14 +14,14 @@ struct LoginView: View {
     @StateObject var viewModel: LoginViewModel
     
     var body: some View {
-        NavigationStack {
-            VStack(alignment: .leading,spacing: 10) {
-                content
-                Spacer()
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(.systemBackground))
+        
+        VStack(alignment: .leading,spacing: 0) {
+            content
+                .padding(.bottom, 60)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(.systemBackground))
+        .onLoginSuccessModify(viewModel.output.loginSuccessed)
         .commonAlert(
             isPresented: Binding(
                 get: { viewModel.output.isShowingError },
@@ -36,17 +36,23 @@ struct LoginView: View {
         )
     }
     
-
+    
+    
     private var content: some View {
-        VStack(alignment: .center) {
-            Text("로그인을 통해, 지금 여행을 계획해보세요")
+        VStack(alignment: .center, spacing: 10) {
+            LoginAnimation(animationName: "LoginAnimation")
+                .frame(width: 250, height: 250)
+                .padding(.top, 50)
+            Text("이지북으로 예약하고,\n간편하게 예약 하세요!")
                 .appFont(PaperlogyFontStyle.title)
-                .foregroundStyle(.grayScale90)
-                .padding()
+                .foregroundStyle(.blackSeafoam)
+                .padding(.top, 30)
             
+            Spacer()
             joinEmail
             appleLogin
             kakaoLogin
+
         }
         .frame(maxWidth: .infinity, alignment: .center)
     }
@@ -76,7 +82,6 @@ struct LoginView: View {
         }, onCompletion: { result in
             viewModel.action(.appleLoginCompleted(result: result))
         })
-        .onLoginSuccessModify(viewModel.output.loginSuccessed)
         .frame(height: 50)
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 43)
@@ -94,7 +99,6 @@ struct LoginView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, 43)
         }
-        .onLoginSuccessModify(viewModel.output.loginSuccessed)
     }
     
 }
@@ -107,7 +111,7 @@ extension LoginView {
         static let buttonHeight: CGFloat = 50
         static let iconPaddingHorizontal: CGFloat = 30
     }
-
+    
 }
 
 #Preview {
