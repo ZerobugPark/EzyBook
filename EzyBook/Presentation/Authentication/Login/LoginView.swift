@@ -21,7 +21,7 @@ struct LoginView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(.systemBackground))
-        
+        .onLoginSuccessModify(viewModel.output.loginSuccessed)
         .commonAlert(
             isPresented: Binding(
                 get: { viewModel.output.isShowingError },
@@ -35,6 +35,7 @@ struct LoginView: View {
             message: viewModel.output.loginError?.message
         )
     }
+    
     
     
     private var content: some View {
@@ -81,7 +82,6 @@ struct LoginView: View {
         }, onCompletion: { result in
             viewModel.action(.appleLoginCompleted(result: result))
         })
-        .onLoginSuccessModify(viewModel.output.loginSuccessed)
         .frame(height: 50)
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 43)
@@ -99,7 +99,6 @@ struct LoginView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, 43)
         }
-        .onLoginSuccessModify(viewModel.output.loginSuccessed)
     }
     
 }
