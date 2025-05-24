@@ -11,7 +11,7 @@ enum PreViewHelper {
     
     // MARK: - Infrastructure
     static let decoder = ResponseDecoder()
-    static let networkService = DefaultNetworkService(decodingManager: decoder)
+    static let networkService = DefaultNetworkService(decodingService: decoder)
     
 
     static let refreshScheduler = DefaultTokenRefreshScheduler()

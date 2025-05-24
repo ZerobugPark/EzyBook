@@ -11,7 +11,7 @@ final class AppDIContainer {
     
     // MARK: - Infrastructure
     private let decoder = ResponseDecoder()
-    private lazy var networkService = DefaultNetworkService(decodingManager: decoder)
+    private lazy var networkService = DefaultNetworkService(decodingService: decoder)
 
     private let refreshScheduler = DefaultTokenRefreshScheduler()
     private let storage = KeyChainTokenStorage()

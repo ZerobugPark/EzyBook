@@ -27,7 +27,7 @@ extension DefaultEmailLoginUseCase {
         
         let requestDto = EmailLoginRequestDTO(email: email, password: password, deviceToken: nil)
 
-        let router = UserRequest.emailLogin(body: requestDto)
+        let router = UserPostRequest.emailLogin(body: requestDto)
         
         Task {
             do {

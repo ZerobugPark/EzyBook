@@ -10,10 +10,10 @@ import Alamofire
 
 final class DefaultNetworkService: NetworkService {
 
-    private let decodingManager: ResponseDecoder
+    private let decodingService: ResponseDecoder
     
-    init(decodingManager: ResponseDecoder) {
-        self.decodingManager = decodingManager
+    init(decodingService: ResponseDecoder) {
+        self.decodingService = decodingService
     }
     
     func fetchData<T: Decodable & EntityConvertible, R: NetworkRouter>(dto: T.Type ,_ router: R) async throws -> T {
@@ -32,7 +32,7 @@ final class DefaultNetworkService: NetworkService {
             .response
         switch response.result {
         case .success(let data):
-            let decodedResult = decodingManager.decode(data: data, type: dto)
+            let decodedResult = decodingService.decode(data: data, type: dto)
             switch decodedResult {
             case .success(let decodedDTO):
                 return decodedDTO

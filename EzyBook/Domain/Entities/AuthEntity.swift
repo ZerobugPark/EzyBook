@@ -10,4 +10,9 @@ import Foundation
 struct RefreshEntity {
     let accessToken: String
     let refreshToken: String
+    
+    init(dto: AuthResponseDTO) {
+        self.accessToken = dto.accessToken
+        self.refreshToken = dto.refreshToken
+    }
 }

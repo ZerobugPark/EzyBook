@@ -28,8 +28,8 @@ final class TokenService {
     }
     
     func saveTokens(accessToken: String, refreshToken: String) -> Bool {
-        let accessSaved = storage.saveToken(key: KeyChainManger.accessToken, value: accessToken)
-        let refreshSaved = storage.saveToken(key: KeyChainManger.refreshToken, value: refreshToken)
+        let accessSaved = storage.saveToken(key: KeychainKeys.accessToken, value: accessToken)
+        let refreshSaved = storage.saveToken(key: KeychainKeys.refreshToken, value: refreshToken)
         
         return accessSaved && refreshSaved
     }
