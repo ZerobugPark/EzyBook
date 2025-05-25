@@ -56,7 +56,7 @@ extension EmailLoginViewModel {
             return
         }
 
-        emailLoginUseCase.emailLogin(email: input.emailTextField, password: input.passwordTextField) { result in
+        emailLoginUseCase.execute(email: input.emailTextField, password: input.passwordTextField) { result in
             
             switch result {
             case .success(_):

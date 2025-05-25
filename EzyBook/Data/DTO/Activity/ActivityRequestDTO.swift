@@ -15,10 +15,10 @@ struct ActivityFileUploadRequestDTO: Encodable {
 /// 액티비티 (요약)목록 조회
 /// 내가 킵한 액티비티 조회
 struct ActivitySummaryListRequestDTO: Encodable {
-    let country: String
-    let category: String
-    let limit: String
-    let next: String
+    let country: String?
+    let category: String?
+    let limit: String?
+    let next: String?
 }
 
 /// 액티비티 상세  조회

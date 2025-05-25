@@ -11,31 +11,58 @@ final class AppDIContainer {
     
     // MARK: - Infrastructure
     private let decoder = ResponseDecoder()
-    private lazy var networkService = DefaultNetworkService(decodingService: decoder)
-
-    private let refreshScheduler = DefaultTokenRefreshScheduler()
     private let storage = KeyChainTokenStorage()
-    private lazy var tokenService = TokenService(storage: storage, scheduler: refreshScheduler)
-
+    
+    private let tokenNetworkService: DefaultNetworkService // 토큰 전용 네트워크 서비스
+    private let tokenService: DefaultTokenService
+    private let interceptor: TokenInterceptor
+    private let networkService: DefaultNetworkService
+                                                            
     // MARK: - Data Layer
-    private lazy var authRepository = DefaultAuthRepository(networkService: networkService)
-    private lazy var socialLoginService = DefaultsSocialLoginService()
+    private let authRepository: DefaultAuthRepository
+    private let socialLoginService: DefaultsSocialLoginService
+    
+    private let activityRepository: DefaultActivityRepository
+    private let newActivityRepository: DefaultActivityRepository
 
+    
+    
+    init() {
+        tokenNetworkService = DefaultNetworkService(decodingService: decoder, interceptor: nil)
+        /// 어차피 액세스 토큰 갱신이기 때문에, 내부에처  헤더값이랑 같이 보내주면 됨 (즉, 이 때는 인터셉터를 쓸 필요가 없음)
+        tokenService = DefaultTokenService(storage: storage, networkService: tokenNetworkService)
+        interceptor = TokenInterceptor(tokenService: tokenService)
+        networkService = DefaultNetworkService(decodingService: decoder, interceptor: interceptor)
+        
+        authRepository = DefaultAuthRepository(networkService: networkService)
+        socialLoginService = DefaultsSocialLoginService()
+        
+        activityRepository = DefaultActivityRepository(networkService: networkService)
+        
+        newActivityRepository = DefaultActivityRepository(networkService: networkService)
+    }
+    
+    
     // MARK: - DIContainer Factory
     func makeDIContainer() -> DIContainer {
-        return DIContainer(
+        DIContainer(
             kakaoLoginUseCase: makeKakaoLoginUseCase(),
             createAccountUseCase: makeCreateAccountUseCase(),
             emailLoginUseCase: makeEmailLoginUseCase(),
-            appleLoginUseCase: makeAppleLoginUseCase()
+            appleLoginUseCase: makeAppleLoginUseCase(),
+            activityListUseCase: makeActivityListUseCase(),
+            activityNewListUseCase: makeActivityNewListUseCase()
         )
     }
 }
 
+
+
+// MARK: Auth
 extension AppDIContainer {
 
     private func makeKakaoLoginUseCase() -> DefaultKakaoLoginUseCase {
-        return DefaultKakaoLoginUseCase(
+        DefaultKakaoLoginUseCase(
             kakoLoginService: socialLoginService,
             authRepository: authRepository,
             tokenService: tokenService
@@ -43,7 +70,7 @@ extension AppDIContainer {
     }
 
     private func makeAppleLoginUseCase() -> DefaultAppleLoginUseCase {
-        return DefaultAppleLoginUseCase(
+        DefaultAppleLoginUseCase(
             appleLoginService: socialLoginService,
             authRepository: authRepository,
             tokenService: tokenService
@@ -51,13 +78,26 @@ extension AppDIContainer {
     }
 
     private func makeEmailLoginUseCase() -> DefaultEmailLoginUseCase {
-        return DefaultEmailLoginUseCase(
+        DefaultEmailLoginUseCase(
             authRepository: authRepository,
             tokenService: tokenService
         )
     }
 
     private func makeCreateAccountUseCase() -> DefaultCreateAccountUseCase {
-        return DefaultCreateAccountUseCase(authRepository: authRepository)
+        DefaultCreateAccountUseCase(authRepository: authRepository)
+    }
+}
+
+
+// MARK: Activity
+extension AppDIContainer {
+
+    private func makeActivityListUseCase() -> DefaultActivityListUseCase {
+        DefaultActivityListUseCase(repo: activityRepository)
+    }
+
+    private func makeActivityNewListUseCase() -> DefaultNewActivityListUseCase {
+        DefaultNewActivityListUseCase(repo: newActivityRepository)
     }
 }

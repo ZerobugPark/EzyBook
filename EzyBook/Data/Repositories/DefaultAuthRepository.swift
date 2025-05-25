@@ -59,17 +59,3 @@ extension DefaultAuthRepository {
         return data.toEntity()
     }
 }
-
-
-/// 참고용
-//func emailLogin(_ router: UserRequest) async throws {
-//    
-//    let data = try await networkManager.fetchData(dto: LoginResponseDTO.self, router)
-//    
-//    _ = tokenManager.saveTokens(accessToken: data.accessToken, refreshToken: data.refreshToken)
-//    
-//    refreshScheduler.start { [weak self] in
-//        try? await self?.refreshTokenIfNeeded()
-//    }
-//    
-//}

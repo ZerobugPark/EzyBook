@@ -9,6 +9,8 @@ import Foundation
 import Alamofire
 
 enum UserPostRequest: PostRouter {
+   
+    //TODO: 프로필 이미지 업로드는 따로 만들어야 할듯
     
     case emailValidation(body: EmailValidationRequestDTO)
     case join(body: JoinRequestDTO)
@@ -16,6 +18,9 @@ enum UserPostRequest: PostRouter {
     case kakaoLogin(body: KakaoLoginRequestDTO)
     case appleLogin(body: AppleLoginRequestDTO)
     
+    var requiresAuth: Bool {
+        false
+    }
     
     var endpoint: URL? {
         switch self {
@@ -54,7 +59,7 @@ enum UserPostRequest: PostRouter {
     }
     
     var headers: HTTPHeaders {
-        return [
+        [
             "SeSACKey": APIConstants.apiKey,
             "Content-Type": "application/json"
         ]
