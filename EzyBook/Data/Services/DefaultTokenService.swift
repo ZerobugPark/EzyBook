@@ -10,14 +10,19 @@ import Combine
 
 
 /// 토근 관련 매니저 (저장, 갱신 등)
-final class TokenService {
+/// 이것도 구조체가 낫지않나?... 고민이네
+struct DefaultTokenService: TokenWritable, TokenRefreshable {
     
     private let storage: TokenStorage
-    private let scheduler :TokenRefreshScheduler
+    private let networkService: NetworkService
     
-    init(storage: TokenStorage, scheduler: TokenRefreshScheduler) {
+    var accessToken: String? {
+        loadToken(key: KeychainKeys.accessToken)
+    }
+    
+    init(storage: TokenStorage, networkService: NetworkService) {
         self.storage = storage
-        self.scheduler = scheduler
+        self.networkService = networkService
     }
     
     //토큰에 개발저장이 필요하다면 (확장성 고려)
@@ -39,6 +44,7 @@ final class TokenService {
         storage.loadToken(key: key)
     }
     
+    /// 회원탈퇴할 때, 추가적으로 프로토콜 분리
     func deleteToken(key: String) -> Bool {
         let result =  storage.deleteToken(key: key)
         return result
@@ -46,19 +52,20 @@ final class TokenService {
     
 }
 
-extension TokenService {
-//   여기서 갱신하는 플로우 필요해보임
-//    private func refreshTokenIfNeeded() async throws {
-//     
-//        guard let accessToken = storage.loadToken(key: KeyChainManger.accessToken),
-//              let refreshToken = storage.loadToken(key: KeyChainManger.refreshToken) else {
-//            return
-//        }
-//    
-//        let router = AuthRequest.refresh(accessToken: accessToken, refreshToken: refreshToken)
-//        
-//        let response = try await networkManager.fetchData(dto: AuthResponseDTO.self, router)
-//        
-//        let _ = tokenManager.saveTokens(accessToken: response.accessToken, refreshToken: response.refreshToken)
-//    }
+extension DefaultTokenService {
+    
+    func refreshToken() async throws {
+        
+        guard let accessToken = loadToken(key: KeychainKeys.accessToken), let refreshToken = loadToken(key: KeychainKeys.refreshToken) else {
+            throw APIError(localErrorType: .tokenNotFound)
+        }
+    
+        let router = AuthRequest.refresh(accessToken: accessToken, refreshToken: refreshToken)
+  
+        let data = try await networkService.fetchData(dto: AuthResponseDTO.self, router)
+   
+        _ = saveTokens(accessToken: data.accessToken, refreshToken: data.refreshToken)
+        
+    }
+
 }

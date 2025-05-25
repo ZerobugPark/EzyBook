@@ -10,8 +10,11 @@ import Alamofire
 
 enum UserGetRequest: GetRouter {
     
-    case profileLookUp(accessToken: String)
+    case profileLookUp
     
+    var requiresAuth: Bool {
+        true
+    }
     
     var endpoint: URL? {
         switch self {
@@ -20,21 +23,15 @@ enum UserGetRequest: GetRouter {
         }
     }
     
-    
     var method: HTTPMethod {
         .get
     }
     
     var headers: HTTPHeaders {
-        
-        switch self {
-        case .profileLookUp(let accessToken):
-            return [
-                "SeSACKey": APIConstants.apiKey,
-                "Authorization": accessToken
-            ]
-        }
-
+        [
+            "SeSACKey": APIConstants.apiKey
+        ]
     }
     
+
 }

@@ -13,9 +13,9 @@ final class DefaultAppleLoginUseCase {
     // 여기는 카카오 로그인과, apple 로그인이 필요
     private let appleLoginService: SocialLoginService
     private let authRepository: AppleLoginRepository
-    private let tokenService: TokenService
+    private let tokenService: TokenWritable
     
-    init(appleLoginService: SocialLoginService, authRepository: AppleLoginRepository, tokenService: TokenService) {
+    init(appleLoginService: SocialLoginService, authRepository: AppleLoginRepository, tokenService: TokenWritable) {
         self.appleLoginService = appleLoginService
         self.authRepository = authRepository
         self.tokenService = tokenService

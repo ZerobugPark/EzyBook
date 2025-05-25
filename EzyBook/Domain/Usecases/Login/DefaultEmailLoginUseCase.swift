@@ -10,9 +10,9 @@ import Foundation
 final class DefaultEmailLoginUseCase {
 
     private let authRepository: EmailLoginRepository
-    private let tokenService: TokenService
+    private let tokenService: TokenWritable
     
-    init(authRepository: EmailLoginRepository, tokenService: TokenService) {
+    init(authRepository: EmailLoginRepository, tokenService: TokenWritable) {
         self.authRepository = authRepository
         self.tokenService = tokenService
     }
@@ -23,7 +23,7 @@ final class DefaultEmailLoginUseCase {
 
 extension DefaultEmailLoginUseCase {
     
-    func emailLogin (email: String, password: String, completionHandler: @escaping (Result <Void, APIError>) -> Void) {
+    func execute(email: String, password: String, completionHandler: @escaping (Result <Void, APIError>) -> Void) {
         
         let requestDto = EmailLoginRequestDTO(email: email, password: password, deviceToken: nil)
 

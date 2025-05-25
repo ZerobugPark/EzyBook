@@ -9,7 +9,8 @@ import SwiftUI
 
 struct HomeView: View {
     
-    private let test = DefaultNetworkService(decodingService: ResponseDecoder())
+    //private let test = DefaultNetworkService(decodingService: ResponseDecoder())
+    @EnvironmentObject var container: DIContainer
     
     var body: some View {
         VStack {
@@ -18,34 +19,41 @@ struct HomeView: View {
             } label: {
                 Text("통신 테스트")
             }
+            
+            Button {
+                networkTest2()
+            } label: {
+                Text("통신 테스트2")
+            }
         }
+        
+        
     }
     
     func networkTest() {
-        let storage  = KeyChainTokenStorage()
-        let key = storage.loadToken(key: KeychainKeys.accessToken)!
+       
+        let data = ActivitySummaryListRequestDTO(country: "대한민국", category: nil, limit: "5", next: nil)
         
-        /// 목록조회 OK
-        //let router = ActivityRequest.activityFiles(accessToken: key)
-        
-        // 상세조회 오류
-        //let router = ActivityRequest.activityDetail(accessToken: key, id: "f4df4b150d87cc76f2")
-        
-        // 신규 액티비티 조회
-        //let router = ActivityRequest.newActivities(accessToken: key)
-        
-        let router = UserGetRequest.profileLookUp(accessToken: key)
-        
-        Task {
-            do {
-                let data = try await test.fetchData(dto: ProfileLookUpResponseDTO.self, router)
-                print(data)
-            } catch {
-                print(error)
+        container.activityListUseCase.execute(requestDto: data) { result in
+            switch result {
+            case .success(let success):
+                print(success)
+            case .failure(let failure):
+                print(failure)
             }
-    
         }
-        
+    }
+    
+    func networkTest2() {
+       
+        container.activityNewListUseCase.execute(country: "일본", category: nil) { result in
+            switch result {
+            case .success(let success):
+                print(success)
+            case .failure(let failure):
+                print(failure)
+            }
+        }
     }
 }
 

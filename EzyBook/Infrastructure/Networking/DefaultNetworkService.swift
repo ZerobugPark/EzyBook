@@ -11,9 +11,11 @@ import Alamofire
 final class DefaultNetworkService: NetworkService {
 
     private let decodingService: ResponseDecoder
+    private let interceptor: TokenInterceptor? // 이것도 추상화를 해줘야하나
     
-    init(decodingService: ResponseDecoder) {
+    init(decodingService: ResponseDecoder, interceptor: TokenInterceptor?) {
         self.decodingService = decodingService
+        self.interceptor = interceptor
     }
     
     func fetchData<T: Decodable & EntityConvertible, R: NetworkRouter>(dto: T.Type ,_ router: R) async throws -> T {
@@ -26,7 +28,7 @@ final class DefaultNetworkService: NetworkService {
         }
         
         
-        let response = await AF.request(urlRequest)
+        let response = await AF.request(urlRequest, interceptor: interceptor)
             .validate(statusCode: 200...299)
             .serializingData()
             .response

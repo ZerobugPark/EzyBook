@@ -22,7 +22,6 @@ enum ActivityEndPoint: APIEndPoint {
     /// path:    어떤 리소스에 접근할지를 명확히 지정할 때 (ID, 고정된 리소스 구조)
     /// query:    검색, 필터링, 정렬, 페이지네이션 등 추가적인 옵션일 때
     
-    
     var path: String {
         switch self {
         case .activityFiles:

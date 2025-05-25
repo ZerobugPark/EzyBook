@@ -10,6 +10,8 @@ import Alamofire
 
 protocol NetworkRouter: URLRequestConvertible {
     var endpoint: URL? { get }
+    var parameterEncoder: ParameterEncoding { get }
+    var requiresAuth: Bool { get }
     var method: HTTPMethod { get }
     var parameters: Parameters? { get }
     var headers: HTTPHeaders { get }
@@ -18,7 +20,11 @@ protocol NetworkRouter: URLRequestConvertible {
 extension NetworkRouter {
     
     var parameters: Parameters? {
-        return nil
+        nil
+    }
+    
+    var parameterEncoder: ParameterEncoding {
+        URLEncoding.default
     }
     
     /// Helper Function (프로토콜 추가할 필요가 없음)
@@ -28,13 +34,21 @@ extension NetworkRouter {
         }
         var request = URLRequest(url: url)
         request.method = method
-        request.headers = headers//APIConstants.commonHeaders
+        request.headers = headers
         return request
     }
     
     /// URLRequestConvertible 프로토콜 필수 사항
     func asURLRequest() throws -> URLRequest {
-        try makeURLRequest()
+        var request = try makeURLRequest()
+        
+        /// 헤더 여부 판단
+        /// forHTTPHeaderField는 URLRequest 메서드로 Alamofire는 별개
+        if !requiresAuth {
+            request.setValue("true", forHTTPHeaderField: "No-Auth")
+        }
+    
+        return try parameterEncoder.encode(request, with: parameters)
     }
     
 }

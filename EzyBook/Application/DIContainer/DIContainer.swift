@@ -12,18 +12,25 @@ import Foundation
 /// 네트워크 서비스?, 저장소 패턴, 또 뭐가 있을끼?
 final class DIContainer: ObservableObject {
 
-    
+    /// Auth
     private let kakaoLoginUseCase: DefaultKakaoLoginUseCase
     private let createAccountUseCase : DefaultCreateAccountUseCase
     private let emailLoginUseCase : DefaultEmailLoginUseCase
     private let appleLoginUseCase: DefaultAppleLoginUseCase
+    
+    
+    /// Activity
+    let activityListUseCase: DefaultActivityListUseCase
+    let activityNewListUseCase: DefaultNewActivityListUseCase
 
     
-    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase) {
+    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase) {
         self.kakaoLoginUseCase = kakaoLoginUseCase
         self.createAccountUseCase = createAccountUseCase
         self.emailLoginUseCase = emailLoginUseCase
         self.appleLoginUseCase = appleLoginUseCase
+        self.activityListUseCase = activityListUseCase
+        self.activityNewListUseCase = activityNewListUseCase
     }
     
         

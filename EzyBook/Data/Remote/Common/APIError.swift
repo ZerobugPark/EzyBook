@@ -28,9 +28,10 @@ enum APIError: Error {
     }
     // 로컬 에러 타입
     enum LocalErrorType: Int {
-        case missingEndpoint = 10000
-        case missingRequestBody = 10001
-        case decodingError = 10002
+        case missingEndpoint
+        case missingRequestBody
+        case decodingError
+        case tokenNotFound
         // 기타 로컬 에러 타입
     }
     
@@ -65,6 +66,8 @@ enum APIError: Error {
             self = .localError(type: localErrorType, message: "요청 바디가 유효하지 않습니다.")
         case .decodingError:
             self = .localError(type: localErrorType, message: "디코딩 타입을 확인해주세요.")
+        case .tokenNotFound:
+            self = .localError(type: localErrorType, message: "토큰을 불러올 수 없습니다")
         }
     }
     
