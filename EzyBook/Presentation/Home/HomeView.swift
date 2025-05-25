@@ -13,20 +13,31 @@ struct HomeView: View {
     @State private var selectedFilter: Filter = .all
     
     @StateObject var viewModel: HomeViewModel
+    @State var searchText = ""
     
-
     /// 버튼 컬럼
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 20), count: 4)
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 10), count: 4)
     
     /// 버튼 Rows
     private let rows = [GridItem(.flexible(), spacing: 20)]
     
     
     var body: some View {
-        NavigationStack {
-            VStack {
-                makeFlagSelectionView()
-                makeFilterSelectionView()
+        ScrollView(.vertical) {
+            VStack(spacing: 15) {
+                
+                if viewModel.output.isLoading {
+                    ProgressView()
+                } else {
+                    
+                    makeSearchBarButton()
+                    makeFlagSelectionView()
+                    makeFilterSelectionView()
+                }
+                
+            }
+            .onAppear {
+                //viewModel.action(.onAppearRequested)
             }
             .commonAlert(
                 isPresented: Binding(
@@ -46,7 +57,7 @@ struct HomeView: View {
 }
 
 #Preview {
-//    HomeView()
+    PreViewHelper.makeHomeView()
 }
 
 
@@ -54,12 +65,12 @@ struct HomeView: View {
 extension HomeView {
     
     private func makeFlagSelectionView() -> some View {
-        LazyVGrid(columns: columns, spacing: 20) {
+        LazyVGrid(columns: columns, spacing: 10) {
             ForEach(Flag.allCases) { flag in
                 makeFlagButton(flag)
             }
         }
-        .padding(.horizontal, 30)
+        .padding(.horizontal, 10)
     }
     
     private func makeFlagButton(_ flag: Flag) -> some View {
@@ -70,22 +81,22 @@ extension HomeView {
             VStack(alignment: .center, spacing: 0) {
                 flag.image
                     .resizable()
-                    .frame(width: 60, height: 60)
+                    .frame(width: 50, height: 50)
                 if flag != .all {
                     Text(flag.rawValue)
-                        .appFont(PretendardFontStyle.body1)
+                        .appFont(PretendardFontStyle.caption1)
                         .foregroundStyle(selectedFlag == flag ? .blackSeafoam : .grayScale100)
                 }
                 
             }
-            .frame(width: 80, height: 90)
+            .frame(width: 70, height: 75)
             .background(
                 RoundedRectangle(cornerRadius: 10)
                     .fill(selectedFlag == flag ? .deepSeafoam.opacity(0.3) : Color.white)
             )
             .overlay {
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(.grayScale75, lineWidth: 0.5)
+                    .stroke(.grayScale60, lineWidth: 0.5)
             }
         }
     }
@@ -114,19 +125,48 @@ extension HomeView {
             viewModel.action(.selectionChanged(flag: selectedFlag, filter: selectedFilter))
         } label: {
             Text(filter.rawValue)
-                .appFont(PretendardFontStyle.body2)
-                .foregroundStyle(selectedFlag.rawValue == filter.rawValue ? .blackSeafoam : .grayScale100)
+                .appFont(PretendardFontStyle.caption1)
+                .foregroundStyle(selectedFilter == filter ? .blackSeafoam : .grayScale100)
                 .padding(10)
-            //.frame(width: 30, height: 30)
                 .background(
                     RoundedRectangle(cornerRadius: 17)
                         .fill(selectedFilter == filter ? .deepSeafoam.opacity(0.3) : Color.white)
                 )
                 .overlay {
                     RoundedRectangle(cornerRadius: 17)
-                        .stroke(.grayScale75, lineWidth: 0.5)
+                        .stroke(.grayScale60, lineWidth: 0.5)
                 }
             
         }
     }
 }
+
+// MARK: Custom SearchBar
+
+extension HomeView {
+    private func makeSearchBarButton() -> some View {
+        Button {
+            //viewModel.action(.searchTapped)
+        } label: {
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.blackSeafoam)
+                Text("찾으시는 액티비티가 있나요?")
+                    .appFont(PretendardFontStyle.body1)
+                    .foregroundColor(.grayScale75)
+                Spacer()
+            }
+            .padding(10)
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color(.grayScale30))
+            )
+        }
+        .padding(.horizontal, 10)
+        .padding(.top, 30)
+        
+    }
+    
+    
+}
+

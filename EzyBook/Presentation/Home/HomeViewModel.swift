@@ -38,6 +38,9 @@ extension HomeViewModel {
     }
     
     struct Output {
+        
+        var isLoading = false
+        
         var presentedError: DisplayError? = nil
         var isShowingError: Bool {
             presentedError != nil
@@ -58,12 +61,28 @@ extension HomeViewModel {
         activityListUseCase.execute(requestDto: requestDto) { [weak self] result in
             switch result {
             case .success(let success):
-                dump(success)
+                break
             case .failure(let error):
                 self?.output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
             }
         }
     
+    }
+    
+    private func handleLoadData() {
+        
+        
+        let requestDto = ActivitySummaryListRequestDTO(country: nil, category: nil, limit: "\(limit)", next: nextCursor)
+        
+        activityListUseCase.execute(requestDto: requestDto) { [weak self] result in
+            switch result {
+            case .success(let success):
+                self?.output.isLoading = true
+                print("success")
+            case .failure(let error):
+                self?.output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+            }
+        }
     }
     
     private func handlerResetError() {
@@ -76,6 +95,7 @@ extension HomeViewModel {
 extension HomeViewModel {
     
     enum Action {
+        case onAppearRequested
         case selectionChanged(flag: Flag, filter: Filter)
         
         case resetError
@@ -86,8 +106,11 @@ extension HomeViewModel {
         switch action {
         case let .selectionChanged(flag, filter):
             handleSelectionResult(flag, filter)
+        case .onAppearRequested:
+            handleLoadData()
         case .resetError:
             handlerResetError()
+        
         }
     }
     

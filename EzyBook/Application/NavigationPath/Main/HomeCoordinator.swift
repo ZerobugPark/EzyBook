@@ -1,16 +1,13 @@
 //
-//  AuthModelObject.swift
+//  MainModelObject.swift
 //  EzyBook
 //
 //  Created by youngkyun park on 5/22/25.
 //
 
-import Foundation
-
 import SwiftUI
 
-
-final class AuthModelObject: ObservableObject {
+final class HomeCoordinator: ObservableObject {
  
     @Published var path = NavigationPath()
     

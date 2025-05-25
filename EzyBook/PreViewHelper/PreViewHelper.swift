@@ -40,7 +40,7 @@ enum PreViewHelper {
         activitySearchUseCase: makeActivityNewListUseCase()
     )
     
-        
+    static let coordinators = CoordinatorContainer()
     
     static func makeLoginView(showModal: Binding<Bool> = .constant(false)) -> some View {
         LoginView(viewModel: diContainer.makeSocialLoginViewModel())
@@ -59,6 +59,17 @@ enum PreViewHelper {
     static func makeLoginSignUpPagerView() -> some View {
         LoginSignUpPagerView()
             .environmentObject(diContainer)
+    }
+    
+    static func makeHomeView() -> some View {
+        HomeView(viewModel: diContainer.makeHomeViewModel())
+            .environmentObject(diContainer)
+    }
+    
+    static func makeMainTabView() -> some View {
+        MainTabView()
+            .environmentObject(diContainer)
+            .environmentObject(coordinators.makeHomeCoordinator())
     }
 }
 
@@ -108,6 +119,8 @@ extension PreViewHelper {
     static func makeActivityNewListUseCase() -> DefaultActivitySearchUseCase {
         DefaultActivitySearchUseCase(repo: newActivityRepository)
     }
+    
+
 }
 
 #endif

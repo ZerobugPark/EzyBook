@@ -10,7 +10,7 @@ import AuthenticationServices
 
 struct LoginView: View {
     
-    @EnvironmentObject var authModel: AuthModelObject
+    @EnvironmentObject var authModel: AuthCoordinator
     @StateObject var viewModel: LoginViewModel
     
     var body: some View {

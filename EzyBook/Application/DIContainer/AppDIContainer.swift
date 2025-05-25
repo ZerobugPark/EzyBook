@@ -55,6 +55,10 @@ final class AppDIContainer {
             activitySearchUseCase: makeActivityNewListUseCase()
         )
     }
+    
+    func makeCoordinatorContainer() -> CoordinatorContainer {
+        return CoordinatorContainer()
+    }
 }
 
 

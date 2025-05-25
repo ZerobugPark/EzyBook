@@ -41,19 +41,41 @@ struct MainTabView: View {
     @Namespace private var animation
     @State private var tabShapePosition: CGPoint = .zero
     @EnvironmentObject var container: DIContainer
+    @EnvironmentObject var homeCoordinator: HomeCoordinator
     
     init() {
         /// TabBar Hidden이 안될 때,
         //UITabBar.appearance().isHidden = true
     }
     
+    var title: some View {
+        Text("EzyBook")
+            .appFont(PaperlogyFontStyle.body)
+            .foregroundStyle(.blackSeafoam)
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
             TabView(selection: $activeTab) {
-                HomeView(viewModel: container.makeHomeViewModel())
-                    .tag(Tab.home)
+                NavigationStack(path: $homeCoordinator.path) {
+                    HomeView(viewModel: container.makeHomeViewModel())
+                        .toolbar {
+                            ToolbarItem(placement: .topBarLeading) {
+                                title
+                            }
+
+                            ToolbarItem(placement: .topBarTrailing) {
+                                HStack(alignment: .center, spacing: 0) {
+                                    makeAlarmButton()
+                                    makeKeppButton()
+                                }
+                            }
+                            
+                        }
+                        .tag(Tab.home)
                     ///Hiding Native Tab Bar
-                    .toolbar(.hidden, for: .tabBar)
+                        .toolbar(.hidden, for: .tabBar)
+                }
                 
                 Text("Services")
                     .tag(Tab.reviews)
@@ -112,5 +134,27 @@ struct MainTabView: View {
 
 
 #Preview {
-    MainTabView()
+    PreViewHelper.makeMainTabView()
+}
+
+
+extension MainTabView {
+    
+    func makeAlarmButton() -> some View {
+        Button {
+            print("text heart")
+        } label: {
+            Image(.iconNoti)
+        }
+    }
+    
+    func makeKeppButton() -> some View {
+        
+        Button {
+            print("test heart")
+        } label: {
+            Image(.iconLikeEmpty)
+        }
+
+    }
 }
