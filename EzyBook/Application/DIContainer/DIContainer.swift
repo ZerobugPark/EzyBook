@@ -22,15 +22,17 @@ final class DIContainer: ObservableObject {
     /// Activity
     let activityListUseCase: DefaultActivityListUseCase
     let activityNewListUseCase: DefaultNewActivityListUseCase
+    let activitySearchUseCase: DefaultActivitySearchUseCase
 
     
-    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase) {
+    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase) {
         self.kakaoLoginUseCase = kakaoLoginUseCase
         self.createAccountUseCase = createAccountUseCase
         self.emailLoginUseCase = emailLoginUseCase
         self.appleLoginUseCase = appleLoginUseCase
         self.activityListUseCase = activityListUseCase
         self.activityNewListUseCase = activityNewListUseCase
+        self.activitySearchUseCase = activitySearchUseCase
     }
     
         

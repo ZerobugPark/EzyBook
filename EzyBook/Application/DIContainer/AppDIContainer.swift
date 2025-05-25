@@ -51,7 +51,8 @@ final class AppDIContainer {
             emailLoginUseCase: makeEmailLoginUseCase(),
             appleLoginUseCase: makeAppleLoginUseCase(),
             activityListUseCase: makeActivityListUseCase(),
-            activityNewListUseCase: makeActivityNewListUseCase()
+            activityNewListUseCase: makeActivityNewListUseCase(),
+            activitySearchUseCase: makeActivityNewListUseCase()
         )
     }
 }
@@ -99,5 +100,9 @@ extension AppDIContainer {
 
     private func makeActivityNewListUseCase() -> DefaultNewActivityListUseCase {
         DefaultNewActivityListUseCase(repo: newActivityRepository)
+    }
+    
+    private func makeActivityNewListUseCase() -> DefaultActivitySearchUseCase {
+        DefaultActivitySearchUseCase(repo: newActivityRepository)
     }
 }

@@ -1,5 +1,5 @@
 //
-//  DefaultNewActivityListUseCase.swift
+//  DefaultActivitySearchUseCase.swift
 //  EzyBook
 //
 //  Created by youngkyun park on 5/25/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class DefaultNewActivityListUseCase {
+final class DefaultActivitySearchUseCase {
 
     private let repo: ActivityQueryRepository
     
@@ -18,15 +18,14 @@ final class DefaultNewActivityListUseCase {
     
 }
 
-
-extension DefaultNewActivityListUseCase {
+extension DefaultActivitySearchUseCase {
     
-    func execute(country: String?, category: String?,  completionHandler: @escaping (Result <[ActivitySummaryEntity], APIError>) -> Void) {
+    func execute(title: String,  completionHandler: @escaping (Result <[ActivitySummaryEntity], APIError>) -> Void) {
 
         
-        let requestDto = ActivityNewSummaryListRequestDTO(country: country, category: category)
+        let requestDto = ActivitySearchListRequestDTO(title: title)
         
-        let router = ActivityRequest.newActivities(param: requestDto)
+        let router = ActivityRequest.serachActiviy(param: requestDto)
         
         Task {
             do {

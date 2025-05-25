@@ -38,6 +38,6 @@ struct ActivityNewSummaryListRequestDTO: Encodable {
 }
 
 /// 액티비티 검색
-struct ActivityListListRequestDTO: Encodable {
-    let title: String?
+struct ActivitySearchListRequestDTO: Encodable {
+    let title: String
 }

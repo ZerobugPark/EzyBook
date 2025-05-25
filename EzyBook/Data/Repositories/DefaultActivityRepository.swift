@@ -9,7 +9,9 @@ import Foundation
 
 import Foundation
 
-final class DefaultActivityRepository: ActivityListRepository, ActivityNewListRepository {
+final class DefaultActivityRepository: ActivityListRepository, ActivityQueryRepository  {
+ 
+    
 
     private let networkService: NetworkService
     
@@ -24,6 +26,7 @@ final class DefaultActivityRepository: ActivityListRepository, ActivityNewListRe
     }
     
     /// 신규 액티비티 목록 조회
+    /// 액티비티 검색 결과
     func requestActivityNewList(_ router: ActivityRequest) async throws -> [ActivitySummaryEntity] {
         let data = try await networkService.fetchData(dto: ActivityListResponseDTO.self, router)
         return data.toEntity()

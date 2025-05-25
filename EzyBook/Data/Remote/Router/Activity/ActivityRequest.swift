@@ -14,6 +14,7 @@ enum ActivityRequest: GetRouter {
     case activityList(param: ActivitySummaryListRequestDTO)
     case activityDetail(id: String)
     case newActivities(param: ActivityNewSummaryListRequestDTO)
+    case serachActiviy(param: ActivitySearchListRequestDTO)
     
     var requiresAuth: Bool {
         true
@@ -29,15 +30,14 @@ enum ActivityRequest: GetRouter {
             ActivityEndPoint.activityDetail(id: id).requestURL
         case .newActivities:
             ActivityEndPoint.newActivities.requestURL
+        case .serachActiviy:
+            ActivityEndPoint.activitySearch.requestURL
         }
     }
     
     
     var method: HTTPMethod {
-        switch self {
-        case .activityFiles, .activityList, .activityDetail, .newActivities:
-            return .get
-        }
+        return .get
     }
     
     var headers: HTTPHeaders {
@@ -70,7 +70,8 @@ enum ActivityRequest: GetRouter {
             
             let filtered = result.compactMapValues { $0 }
             return filtered.isEmpty ? nil : filtered as Parameters // 업캐스팅
-            
+        case .serachActiviy(let param):
+            return ["title": param.title]
         default:
             return nil
         }

@@ -15,7 +15,7 @@ struct HomeView: View {
     var body: some View {
         VStack {
             Button {
-                networkTest()
+                networkTest3()
             } label: {
                 Text("통신 테스트")
             }
@@ -32,7 +32,7 @@ struct HomeView: View {
     
     func networkTest() {
        
-        let data = ActivitySummaryListRequestDTO(country: "대한민국", category: nil, limit: "5", next: nil)
+        let data = ActivitySummaryListRequestDTO(country: "대한민국", category: "투어", limit: "5", next: nil)
         
         container.activityListUseCase.execute(requestDto: data) { result in
             switch result {
@@ -46,7 +46,21 @@ struct HomeView: View {
     
     func networkTest2() {
        
-        container.activityNewListUseCase.execute(country: "일본", category: nil) { result in
+        container.activityNewListUseCase.execute(country: "일본", category: "투어") { result in
+            switch result {
+            case .success(let success):
+                print(success)
+            case .failure(let failure):
+                print(failure)
+            }
+        }
+    }
+    
+    //액티비티 검색
+    func networkTest3() {
+       
+        
+        container.activitySearchUseCase.execute(title: "스키")  { result in
             switch result {
             case .success(let success):
                 print(success)
