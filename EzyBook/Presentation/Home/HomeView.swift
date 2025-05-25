@@ -28,6 +28,18 @@ struct HomeView: View {
                 makeFlagSelectionView()
                 makeFilterSelectionView()
             }
+            .commonAlert(
+                isPresented: Binding(
+                    get: { viewModel.output.isShowingError },
+                    set: { isPresented in
+                        if !isPresented {
+                            viewModel.action(.resetError)
+                        }
+                    }
+                ),
+                title: viewModel.output.presentedError?.message.title,
+                message: viewModel.output.presentedError?.message.msg
+            )
         }
     }
     

@@ -16,7 +16,7 @@ struct AppEntryView: View {
         if appState.isLoggedIn {
             MainTabView()
         } else {
-            AuthModelView()
+            AuthCoordinatorView()
         }
         
     }

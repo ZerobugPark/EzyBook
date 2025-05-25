@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct AuthModelView: View {
+struct AuthCoordinatorView: View {
     
     @EnvironmentObject var auth: AuthModelObject
     @EnvironmentObject var container: DIContainer
@@ -23,5 +23,5 @@ struct AuthModelView: View {
 }
 
 #Preview {
-    AuthModelView()
+    AuthCoordinatorView()
 }
