@@ -32,9 +32,22 @@ final class DefaultNetworkService: NetworkService {
             .validate(statusCode: 200...299)
             .serializingData()
             .response
+        
+        #if DEBUG
+        let urlString = urlRequest.url?.absoluteString ?? "Invalid URL"
+        #endif
+        
+        let statusCode = response.response?.statusCode
+        
         switch response.result {
         case .success(let data):
+            
             let decodedResult = decodingService.decode(data: data, type: dto)
+            
+            #if DEBUG
+            NetworkLog.success(url: urlString, statusCode: statusCode ?? 0, data: data)
+            #endif
+           
             switch decodedResult {
             case .success(let decodedDTO):
                 return decodedDTO
@@ -42,7 +55,9 @@ final class DefaultNetworkService: NetworkService {
                 throw decodeError
             }
         case .failure(let afError):
-            let statusCode = response.response?.statusCode
+            #if DEBUG
+            NetworkLog.failure(url: urlString, statusCode: statusCode ?? 0, data: response.data)
+            #endif
             let responseData = response.data
             if let code = statusCode {
                 throw APIError(statusCode: code, data: responseData)

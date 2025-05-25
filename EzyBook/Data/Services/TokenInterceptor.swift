@@ -49,6 +49,7 @@ struct TokenInterceptor: RequestInterceptor {
         completion: @escaping @Sendable (RetryResult) -> Void
     ) {
         
+        print("here")
         guard let response = request.task?.response as? HTTPURLResponse else {
             completion(.doNotRetryWithError(error))
             return
@@ -65,6 +66,9 @@ struct TokenInterceptor: RequestInterceptor {
                 }
             }
             
+        } else {
+            /// 해당 상태코드가 아니면  더 이상 retry하지 않겠다 라고 else 추가해줘야함...
+            completion(.doNotRetryWithError(error))
         }
         
     }
