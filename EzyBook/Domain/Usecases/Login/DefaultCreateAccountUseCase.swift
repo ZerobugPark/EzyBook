@@ -33,7 +33,7 @@ extension DefaultCreateAccountUseCase {
         }
     }
     
-    func signUp(_ rotuer: UserRequest, completionHandler: @escaping (Result <Void, APIError>) -> Void) {
+    func signUp(_ rotuer: UserPostRequest, completionHandler: @escaping (Result <Void, APIError>) -> Void) {
         Task {
             do {
                 let _ = try await authRepository.signUp(rotuer)

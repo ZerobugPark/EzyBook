@@ -158,7 +158,7 @@ extension CreateAccountViewModel {
             introduction: input.introduceTextField.isEmpty ? nil : input.introduceTextField,
             deviceToken: nil
         )
-        let router = UserRequest.join(body: body)
+        let router = UserPostRequest.join(body: body)
         
         createUseCase.signUp(router) { result in
             switch result {

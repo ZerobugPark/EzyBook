@@ -18,13 +18,13 @@ final class DefaultAuthRepository: SignUpRepository, EmailLoginRepository, Kakao
     /// 이메일 중복확인
     func verifyEmailAvailability(_ email: String) async throws {
         let body = EmailValidationRequestDTO(email: email)
-        let router = UserRequest.emailValidation(body: body)
+        let router = UserPostRequest.emailValidation(body: body)
         
         _ = try await networkService.fetchData(dto: EmailValidationResponseDTO.self, router)
         
     }
     
-    func signUp(_ router: UserRequest) async throws {
+    func signUp(_ router: UserPostRequest) async throws {
         _ = try await networkService.fetchData(dto: JoinResponseDTO.self, router)
     }
     
@@ -33,7 +33,7 @@ final class DefaultAuthRepository: SignUpRepository, EmailLoginRepository, Kakao
 // MARK:  Login
 extension DefaultAuthRepository {
     
-    func requestEmailLogin(_ router: UserRequest) async throws -> LoginEntity {
+    func requestEmailLogin(_ router: UserPostRequest) async throws -> LoginEntity {
         let data = try await networkService.fetchData(dto: LoginResponseDTO.self, router)
         
         return data.toEntity()
@@ -43,7 +43,7 @@ extension DefaultAuthRepository {
     func requestKakaoLogin(_ token: String) async throws -> LoginEntity {
         
         let requestDto = KakaoLoginRequestDTO(oauthToken: token, deviceToken: nil)
-        let router = UserRequest.kakaoLogin(body: requestDto)
+        let router = UserPostRequest.kakaoLogin(body: requestDto)
         
         let data = try await networkService.fetchData(dto: LoginResponseDTO.self, router)
         
@@ -52,24 +52,10 @@ extension DefaultAuthRepository {
     
     func requestAppleLogin(_ token: String, _ name: String?) async throws -> LoginEntity {
         let requestDto = AppleLoginRequestDTO(idToken: token, deviceToken: nil, nick: name)
-        let router = UserRequest.appleLogin(body: requestDto)
+        let router = UserPostRequest.appleLogin(body: requestDto)
         
         let data = try await networkService.fetchData(dto: LoginResponseDTO.self, router)
         
         return data.toEntity()
     }
 }
-
-
-/// 참고용
-//func emailLogin(_ router: UserRequest) async throws {
-//    
-//    let data = try await networkManager.fetchData(dto: LoginResponseDTO.self, router)
-//    
-//    _ = tokenManager.saveTokens(accessToken: data.accessToken, refreshToken: data.refreshToken)
-//    
-//    refreshScheduler.start { [weak self] in
-//        try? await self?.refreshTokenIfNeeded()
-//    }
-//    
-//}

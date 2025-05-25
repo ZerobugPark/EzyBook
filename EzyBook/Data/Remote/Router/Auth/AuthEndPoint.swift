@@ -14,8 +14,9 @@ enum AuthEndPoint: APIEndPoint {
     var path: String {
         switch self {
         case .refresh:
-            return APIPath.Auth.refersh.rawValue
+            return "/v1/auth/refresh"
         }
     }
     
 }
+

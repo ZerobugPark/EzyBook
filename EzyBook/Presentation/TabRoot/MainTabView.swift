@@ -49,8 +49,7 @@ struct MainTabView: View {
     var body: some View {
         VStack(spacing: 0) {
             TabView(selection: $activeTab) {
-        
-                Text("Home")
+                HomeView()
                     .tag(Tab.home)
                     ///Hiding Native Tab Bar
                     .toolbar(.hidden, for: .tabBar)

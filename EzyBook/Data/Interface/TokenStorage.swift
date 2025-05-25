@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol TokenStorage {
+protocol TokenStorage: Sendable {
     func saveToken(key: String, value token: String) -> Bool
     func loadToken(key: String) -> String?
     func deleteToken(key: String) -> Bool

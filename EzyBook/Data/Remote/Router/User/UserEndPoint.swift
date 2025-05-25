@@ -14,24 +14,35 @@ enum UserEndPoint: APIEndPoint {
     case emailLogin
     case kakaoLogin
     case appleLogin
-    case profileCheck
+    case profileLookUp   // 조회
+    case profileModify
+    case deviceTokenUpdate
+    case profileImageUpload
+    case searchUser
+    
+    
     
     var path: String {
         switch self {
         case .emailValidation:
-            return APIPath.User.emailValidation.rawValue
+            return "/v1/users/validation/email"
         case .join:
-            return APIPath.User.join.rawValue
+            return "/v1/users/join"
         case .emailLogin:
-            return APIPath.User.emailLogin.rawValue
+            return "/v1/users/login"
         case .kakaoLogin:
-            return APIPath.User.kakaoLogin.rawValue
+            return "/v1/users/login/kakao"
         case .appleLogin:
-            return APIPath.User.appleLogin.rawValue
-        case .profileCheck:
-            return APIPath.User.profileCheck.rawValue
+            return "/v1/users/login/apple"
+        case .profileLookUp, .profileModify:
+            return "/v1/users/me/profile"
+        case .deviceTokenUpdate:
+            return "/v1/users/me/deviceToken"
+        case .profileImageUpload:
+            return "/v1/users/me/profile/image"
+        case .searchUser:
+            return "/v1/users/search"
         }
     }
-    
-    
+
 }
