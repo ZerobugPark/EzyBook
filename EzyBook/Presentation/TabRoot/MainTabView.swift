@@ -40,6 +40,7 @@ struct MainTabView: View {
     /// For Smooth Shape Sliding Effect, We're going to use Matched Geometry
     @Namespace private var animation
     @State private var tabShapePosition: CGPoint = .zero
+    @EnvironmentObject var container: DIContainer
     
     init() {
         /// TabBar Hidden이 안될 때,
@@ -49,7 +50,7 @@ struct MainTabView: View {
     var body: some View {
         VStack(spacing: 0) {
             TabView(selection: $activeTab) {
-                HomeView()
+                HomeView(viewModel: container.makeHomeViewModel())
                     .tag(Tab.home)
                     ///Hiding Native Tab Bar
                     .toolbar(.hidden, for: .tabBar)

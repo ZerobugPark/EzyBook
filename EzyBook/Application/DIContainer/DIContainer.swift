@@ -38,7 +38,7 @@ final class DIContainer: ObservableObject {
         
 }
 
-// MARK: Make ViewModel
+// MARK: Make Auth ViewModel
 extension DIContainer {
     func makeAccountViewModel() -> CreateAccountViewModel {
         return CreateAccountViewModel(createUseCase: createAccountUseCase)
@@ -55,4 +55,14 @@ extension DIContainer {
         )
     }
 
+}
+
+// MARK: Make Home ViewModel
+extension DIContainer {
+    func makeHomeViewModel() -> HomeViewModel {
+        return HomeViewModel(
+            activityListUseCase: activityListUseCase,
+            activityNewLisUsecaset: activityNewListUseCase
+        )
+    }
 }

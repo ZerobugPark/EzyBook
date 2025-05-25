@@ -17,7 +17,7 @@ struct ActivityFileUploadRequestDTO: Encodable {
 struct ActivitySummaryListRequestDTO: Encodable {
     let country: String?
     let category: String?
-    let limit: String?
+    let limit: String
     let next: String?
 }
 

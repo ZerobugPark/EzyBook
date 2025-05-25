@@ -66,6 +66,6 @@ struct LoginSignUpPagerView: View {
        }
 }
 
-//#Preview {
-//    PreViewHelper.makeLoginSignUpPagerView()
-//}
+#Preview {
+    PreViewHelper.makeLoginSignUpPagerView()
+}
