@@ -46,6 +46,13 @@ struct HomeView: View {
                     }
                     .frame(height: 200)
                     
+                    Image(uiImage: viewModel.output.outputData)
+                    Button {
+                        viewModel.action(.test)
+                    } label: {
+                        Text("테스트입니다")
+                    }
+
                     
                     makeFlagSelectionView()
                     makeFilterSelectionView()
@@ -55,7 +62,7 @@ struct HomeView: View {
                 
             }
             .onAppear {
-                //viewModel.action(.onAppearRequested)
+                viewModel.action(.onAppearRequested)
             }
             .commonAlert(
                 isPresented: Binding(
@@ -75,7 +82,7 @@ struct HomeView: View {
 }
 
 #Preview {
-    PreViewHelper.makeHomeView()
+    //PreViewHelper.makeHomeView()
 }
 
 

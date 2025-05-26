@@ -148,7 +148,7 @@ extension CreateAccountViewModel {
         output.isValidPhoneNumber = vaildationPhoneNumber
     }
     
-    private func handleSignUp() {
+    private func requestSignUp() {
         
         let body = JoinRequestDTO(
             email: input.emailTextField,
@@ -175,7 +175,7 @@ extension CreateAccountViewModel {
         output.isFormValid = output.isVaildEmail && output.isAvailableEmail && output.isValidPassword && output.isValidNickname
     }
     
-    private func handlerResetError() {
+    private func handleResetError() {
         output.currentError = nil
     }
     
@@ -209,9 +209,9 @@ extension CreateAccountViewModel {
         case .phoneNumberEditingCompleted:
             handlerPhoneNumberEditingCompleted()
         case .signUpButtonTapped:
-            handleSignUp()
+            requestSignUp()
         case .resetError:
-            handlerResetError()
+            handleResetError()
         }
     }
     

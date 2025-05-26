@@ -42,7 +42,7 @@ extension LoginViewModel {
     
     func transform() { }
     
-    private func handleKakaoLoginResult() {
+    private func requestKakaoLogin() {
         kakaoLoginUseCase.execute { result in
             switch result {
             case .success(_):
@@ -53,11 +53,12 @@ extension LoginViewModel {
         }
     }
     
+    /// 애플 로그인 권한 설정
     private func configureAppleLoginRequest(_ request: ASAuthorizationAppleIDRequest) {
         request.requestedScopes = [.email, .fullName]
     }
     
-    private func handleAppleLoginResult(_ result: Result<ASAuthorization, any Error>) {
+    private func requestAppleLogin(_ result: Result<ASAuthorization, any Error>) {
         appleLoginUseCase.execute(result) { result in
             switch result {
             case .success(_):
@@ -68,7 +69,7 @@ extension LoginViewModel {
         }
     }
     
-    private func handlerResetError() {
+    private func handleResetError() {
         output.loginError = nil
     }
 }
@@ -87,13 +88,13 @@ extension LoginViewModel {
     func action(_ action: Action) {
         switch action {
         case .kakaoLoginButtonTapped:
-            handleKakaoLoginResult()
+            requestKakaoLogin()
         case .appleLoginButtonTapped(let request):
             configureAppleLoginRequest(request)
         case .appleLoginCompleted(let result):
-            handleAppleLoginResult(result)
+            requestAppleLogin(result)
         case .resetError:
-            handlerResetError()
+            handleResetError()
         }
     }
 }
