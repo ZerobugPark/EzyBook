@@ -15,6 +15,8 @@ struct HomeView: View {
     @StateObject var viewModel: HomeViewModel
     @State var searchText = ""
     
+    private let array = ["1", "2", "3"]
+    
     /// 버튼 컬럼
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 10), count: 4)
     
@@ -31,8 +33,24 @@ struct HomeView: View {
                 } else {
                     
                     makeSearchBarButton()
+                    
+                    BasicCarousel(pageCount: array.count, visibleEdgeSpace: 20, spacing: 10) { index in
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 15)
+                                .fill(Color.blue)
+                                .shadow(radius: 5)
+                            Text(array[index])
+                                .font(.largeTitle)
+                                .foregroundColor(.white)
+                        }
+                    }
+                    .frame(height: 200)
+                    
+                    
                     makeFlagSelectionView()
                     makeFilterSelectionView()
+                    
+                    
                 }
                 
             }
