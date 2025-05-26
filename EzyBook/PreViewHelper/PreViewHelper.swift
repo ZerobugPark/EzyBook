@@ -21,6 +21,10 @@ enum PreViewHelper {
     static let interceptor = TokenInterceptor(tokenService: tokenService)
     static let  networkService = DefaultNetworkService(decodingService: decoder, interceptor: interceptor)
     
+    static let imageCache = ImageMemoryCache()
+    
+    static let imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache)
+    
     static let  authRepository = DefaultAuthRepository(networkService: networkService)
     static let  socialLoginService = DefaultsSocialLoginService()
     
@@ -37,11 +41,16 @@ enum PreViewHelper {
         appleLoginUseCase: makeAppleLoginUseCase(),
         activityListUseCase: makeActivityListUseCase(),
         activityNewListUseCase: makeActivityNewListUseCase(),
-        activitySearchUseCase: makeActivityNewListUseCase()
+        activitySearchUseCase: makeActivityNewListUseCase(),
+        imageLoader: makeImageLoaderUseCase()
     )
     
     static let coordinators = CoordinatorContainer()
     
+    static func makeImageLoaderUseCase() -> DefaultLoadImageUseCase {
+        DefaultLoadImageUseCase(imageLoader: imageLoader)
+    }
+
     static func makeLoginView(showModal: Binding<Bool> = .constant(false)) -> some View {
         LoginView(viewModel: diContainer.makeSocialLoginViewModel())
             .environmentObject(diContainer)

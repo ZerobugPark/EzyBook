@@ -15,6 +15,8 @@ struct HomeView: View {
     @StateObject var viewModel: HomeViewModel
     @State var searchText = ""
     
+    @Environment(\.displayScale) var scale
+    
     private let array = ["1", "2", "3"]
     
     /// 버튼 컬럼
@@ -46,6 +48,13 @@ struct HomeView: View {
                     }
                     .frame(height: 200)
                     
+                    Image(uiImage: viewModel.output.outputData)
+                    Button {
+                        viewModel.action(.test)
+                    } label: {
+                        Text("테스트입니다")
+                    }
+
                     
                     makeFlagSelectionView()
                     makeFilterSelectionView()
@@ -55,7 +64,8 @@ struct HomeView: View {
                 
             }
             .onAppear {
-                //viewModel.action(.onAppearRequested)
+                viewModel.action(.updateScale(scale: scale))
+                viewModel.action(.onAppearRequested)
             }
             .commonAlert(
                 isPresented: Binding(
@@ -75,7 +85,7 @@ struct HomeView: View {
 }
 
 #Preview {
-    PreViewHelper.makeHomeView()
+    //PreViewHelper.makeHomeView()
 }
 
 
