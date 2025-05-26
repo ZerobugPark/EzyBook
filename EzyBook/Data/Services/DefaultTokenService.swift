@@ -11,7 +11,7 @@ import Combine
 
 /// 토근 관련 매니저 (저장, 갱신 등)
 /// 이것도 구조체가 낫지않나?... 고민이네
-struct DefaultTokenService: TokenWritable, TokenRefreshable {
+struct DefaultTokenService: TokenWritable, TokenRefreshable, TokenLoadable {
     
     private let storage: TokenStorage
     private let networkService: NetworkService

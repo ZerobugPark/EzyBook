@@ -10,21 +10,28 @@ import Combine
 
 final class HomeViewModel: ViewModelType {
     
-    var activityListUseCase: DefaultActivityListUseCase
-    var activityNewLisUsecaset: DefaultNewActivityListUseCase
+    private let activityListUseCase: DefaultActivityListUseCase
+    private let activityNewLisUseCase: DefaultNewActivityListUseCase
+    private let imageLoader: DefaultLoadImageUseCase
     
     var input = Input()
     @Published var output = Output()
     
     
+    
     var cancellables = Set<AnyCancellable>()
     
-    private let limit = 5000
+    private let limit = 5
     private var nextCursor: String?
     
-    init(activityListUseCase: DefaultActivityListUseCase, activityNewLisUsecaset: DefaultNewActivityListUseCase) {
+    init(
+        activityListUseCase: DefaultActivityListUseCase,
+        activityNewLisUsecaset: DefaultNewActivityListUseCase,
+        imageLoader: DefaultLoadImageUseCase
+    ) {
         self.activityListUseCase = activityListUseCase
-        self.activityNewLisUsecaset = activityNewLisUsecaset
+        self.activityNewLisUseCase = activityNewLisUsecaset
+        self.imageLoader = imageLoader
         transform()
     }
     
@@ -39,53 +46,95 @@ extension HomeViewModel {
     
     struct Output {
         
-        var isLoading = false
+        var isLoading = true
         
         var presentedError: DisplayError? = nil
         var isShowingError: Bool {
             presentedError != nil
         }
+        
+        var newAcitivityList: [ActivitySummaryEntity] = []
+        var outputData: UIImage = UIImage(systemName: "star")!
     }
     
     func transform() { }
     
     
     
-    private func handleSelectionResult(_ flag: Flag, _ filter: Filter) {
+//    private func requestActivities(_ flag: Flag = .all, _ filter: Filter = .all) {
+//        
+//        let country = flag.requestValue
+//        let category =  filter.requestValue
+//        
+//        let requestDto = ActivitySummaryListRequestDTO(country: country, category: category, limit: "\(limit)", next: nextCursor)
+//        
+//        activityListUseCase.execute(requestDto: requestDto) { [weak self] result in
+//            self?.handleResult(result)
+//            
+//        }
+//        
+//        activityNewLisUseCase.execute(country: country, category: category) { [weak self] result in
+//            self?.handleResult(result)
+//        }
+//        
+//        
+//    }
+    
+    private func requestActivities(_ flag: Flag = .all, _ filter: Filter = .all) {
         
         let country = flag.requestValue
         let category =  filter.requestValue
         
         let requestDto = ActivitySummaryListRequestDTO(country: country, category: category, limit: "\(limit)", next: nextCursor)
         
-        activityListUseCase.execute(requestDto: requestDto) { [weak self] result in
+        
+        let listPublisher = activityListUseCase.executePulisher(requestDto: requestDto)
+        
+        let newListPublisher = activityNewLisUseCase.executePulisher(country: country, category: category)
+
+        /// Zip, 둘 중에 하나만 실패해도 실패
+        /// Error처리를 현재 Usecase에서 해주고 있어서 Combine이 더 낫다고 판단
+        /// async let으로 사용할 경우 에러에 대한 핸들링을 뷰모델에서 해야하는데, 과연 그게 맞을까?
+        Publishers.Zip(listPublisher, newListPublisher)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+                }
+            } receiveValue: { [weak self] listResult, newListResult in
+                //print(listResult)
+                dump(newListResult)
+                self?.output.newAcitivityList = newListResult
+                self?.output.isLoading = false
+            }
+            .store(in: &cancellables)
+    }
+    
+    
+    private func requestImage() {
+        imageLoader.execute(output.newAcitivityList[0].thumbnails[1]) { [weak self] result in
             switch result {
             case .success(let success):
-                break
+                self?.output.outputData = success
             case .failure(let error):
                 self?.output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
             }
         }
-    
     }
     
-    private func handleLoadData() {
-        
-        
-        let requestDto = ActivitySummaryListRequestDTO(country: nil, category: nil, limit: "\(limit)", next: nextCursor)
-        
-        activityListUseCase.execute(requestDto: requestDto) { [weak self] result in
-            switch result {
-            case .success(let success):
-                self?.output.isLoading = true
-                print("success")
-            case .failure(let error):
-                self?.output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
-            }
-        }
-    }
     
-    private func handlerResetError() {
+//    private func handleResult<T>(_ result: Result<T, APIError>) {
+//        
+//        switch result {
+//        case .success(let success):
+//            break
+//        case .failure(let error):
+//            output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+//        }
+//        
+//    }
+    
+    private func handleResetError() {
         output.presentedError = nil
     }
     
@@ -97,7 +146,7 @@ extension HomeViewModel {
     enum Action {
         case onAppearRequested
         case selectionChanged(flag: Flag, filter: Filter)
-        
+        case test
         case resetError
     }
     
@@ -105,12 +154,13 @@ extension HomeViewModel {
     func action(_ action: Action) {
         switch action {
         case let .selectionChanged(flag, filter):
-            handleSelectionResult(flag, filter)
+            requestActivities(flag, filter)
         case .onAppearRequested:
-            handleLoadData()
+            requestActivities()
         case .resetError:
-            handlerResetError()
-        
+            handleResetError()
+        case .test:
+            requestImage()
         }
     }
     

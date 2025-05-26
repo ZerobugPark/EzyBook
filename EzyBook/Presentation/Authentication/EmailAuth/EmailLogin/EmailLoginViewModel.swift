@@ -43,7 +43,7 @@ extension EmailLoginViewModel {
     func transform() { }
     
   
-    private func handleLogin() {
+    private func requestLogin() {
         
         guard input.emailTextField.validateEmail() else {
             output.loginError = .emailInvalidFormat
@@ -68,7 +68,7 @@ extension EmailLoginViewModel {
 
         
     }
-    private func handlerResetError() {
+    private func handleResetError() {
         output.loginError = nil
     }
 }
@@ -85,9 +85,9 @@ extension EmailLoginViewModel {
     func action(_ action: Action) {
         switch action {
         case .logunButtonTapped:
-            handleLogin()
+            requestLogin()
         case .resetError:
-            handlerResetError()
+            handleResetError()
         }
     }
 }

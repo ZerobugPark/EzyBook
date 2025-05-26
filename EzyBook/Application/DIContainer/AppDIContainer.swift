@@ -17,6 +17,7 @@ final class AppDIContainer {
     private let tokenService: DefaultTokenService
     private let interceptor: TokenInterceptor
     private let networkService: DefaultNetworkService
+    private let imageLoader: DefaultImageLoader
                                                             
     // MARK: - Data Layer
     private let authRepository: DefaultAuthRepository
@@ -24,6 +25,8 @@ final class AppDIContainer {
     
     private let activityRepository: DefaultActivityRepository
     private let newActivityRepository: DefaultActivityRepository
+    
+
 
     
     
@@ -40,6 +43,8 @@ final class AppDIContainer {
         activityRepository = DefaultActivityRepository(networkService: networkService)
         
         newActivityRepository = DefaultActivityRepository(networkService: networkService)
+        
+        imageLoader = DefaultImageLoader(tokenService: tokenService)
     }
     
     
@@ -52,12 +57,20 @@ final class AppDIContainer {
             appleLoginUseCase: makeAppleLoginUseCase(),
             activityListUseCase: makeActivityListUseCase(),
             activityNewListUseCase: makeActivityNewListUseCase(),
-            activitySearchUseCase: makeActivityNewListUseCase()
+            activitySearchUseCase: makeActivityNewListUseCase(),
+            imageLoader: makeImageLoaderUseCase()
         )
     }
     
     func makeCoordinatorContainer() -> CoordinatorContainer {
         return CoordinatorContainer()
+    }
+}
+
+// MARK: Common
+extension AppDIContainer {
+    private func makeImageLoaderUseCase() -> DefaultLoadImageUseCase {
+        DefaultLoadImageUseCase(imageLoader: imageLoader)
     }
 }
 
