@@ -16,11 +16,10 @@ final class HomeViewModel: ViewModelType {
     
     var input = Input()
     @Published var output = Output()
-    
-    
-    
+
     var cancellables = Set<AnyCancellable>()
     
+    private var scale: CGFloat = 0
     private let limit = 5
     private var nextCursor: String?
     
@@ -112,7 +111,7 @@ extension HomeViewModel {
     
     
     private func requestImage() {
-        imageLoader.execute(output.newAcitivityList[0].thumbnails[1]) { [weak self] result in
+        imageLoader.execute(output.newAcitivityList[0].thumbnails[1], scale: scale) { [weak self] result in
             switch result {
             case .success(let success):
                 self?.output.outputData = success
@@ -138,6 +137,10 @@ extension HomeViewModel {
         output.presentedError = nil
     }
     
+    private func handleUpdateScale(_ scale: CGFloat) {
+        self.scale = scale
+    }
+    
 }
 
 // MARK: Action
@@ -145,6 +148,7 @@ extension HomeViewModel {
     
     enum Action {
         case onAppearRequested
+        case updateScale(scale: CGFloat)
         case selectionChanged(flag: Flag, filter: Filter)
         case test
         case resetError
@@ -155,12 +159,15 @@ extension HomeViewModel {
         switch action {
         case let .selectionChanged(flag, filter):
             requestActivities(flag, filter)
+        case .updateScale(let scale):
+            handleUpdateScale(scale)
         case .onAppearRequested:
             requestActivities()
         case .resetError:
             handleResetError()
         case .test:
             requestImage()
+  
         }
     }
     

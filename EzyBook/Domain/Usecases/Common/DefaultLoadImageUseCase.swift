@@ -16,18 +16,10 @@ struct DefaultLoadImageUseCase {
         self.imageLoader = imageLoader
     }
     
-    
-    func execute(_ path: String, completionHandler: @escaping (Result <UIImage, APIError>) -> Void) {
-        
+    func execute(_ path: String, scale: CGFloat, completionHandler: @escaping (Result<UIImage, APIError>) -> Void) {
         Task {
             do {
-                let data = try await imageLoader.loadImage(from: path)
-                
-                guard let image = UIImage(data: data!) else {
-                    let fallback = UIImage(named: "star")!
-                    return completionHandler(.success(fallback))
-                }
-                
+                let image = try await imageLoader.loadImage(from: path, scale: scale)
                 await MainActor.run {
                     completionHandler(.success(image))
                 }
@@ -38,15 +30,12 @@ struct DefaultLoadImageUseCase {
                 } else {
                     resolvedError = .unknown
                 }
-                await MainActor.run {
-                    completionHandler(.failure(resolvedError))
-                }
-
+                
+                completionHandler(.failure(resolvedError))
             }
+            
         }
-
     }
     
-    
-    
 }
+

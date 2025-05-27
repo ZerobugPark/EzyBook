@@ -20,7 +20,10 @@ enum PreViewHelper {
     
     static let interceptor = TokenInterceptor(tokenService: tokenService)
     static let  networkService = DefaultNetworkService(decodingService: decoder, interceptor: interceptor)
-    static let imageLoader = DefaultImageLoader(tokenService: tokenService)
+    
+    static let imageCache = ImageMemoryCache()
+    
+    static let imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache)
     
     static let  authRepository = DefaultAuthRepository(networkService: networkService)
     static let  socialLoginService = DefaultsSocialLoginService()

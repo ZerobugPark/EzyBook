@@ -15,6 +15,8 @@ struct HomeView: View {
     @StateObject var viewModel: HomeViewModel
     @State var searchText = ""
     
+    @Environment(\.displayScale) var scale
+    
     private let array = ["1", "2", "3"]
     
     /// 버튼 컬럼
@@ -62,6 +64,7 @@ struct HomeView: View {
                 
             }
             .onAppear {
+                viewModel.action(.updateScale(scale: scale))
                 viewModel.action(.onAppearRequested)
             }
             .commonAlert(
