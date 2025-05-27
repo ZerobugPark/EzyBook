@@ -16,7 +16,8 @@ struct BasicCarousel<Content: View>: View {
     let spacing: CGFloat
     let content: (PageIndex) -> Content
     
-    @GestureState var dragOffset: CGFloat = 0
+    //@GestureState var dragOffset: CGFloat = 0
+    @State private var dragOffset: CGFloat = 0
     @State var currentIndex: Int = 0
     
     init(pageCount: Int, visibleEdgeSpace: CGFloat, spacing: CGFloat, @ViewBuilder content: @escaping (PageIndex) -> Content) {
@@ -34,28 +35,43 @@ struct BasicCarousel<Content: View>: View {
             
             HStack(spacing: spacing) {
                 ForEach(0..<pageCount, id: \.self) { pageIndex in
+                    let distance = abs(currentIndex - pageIndex)
+                    let scale = max(0.85, 1.0 - CGFloat(distance) * 0.1)
+
                     self.content(pageIndex)
+                        .scaleEffect(scale)
                         .frame(
                             width: pageWidth,
                             height: proxy.size.height
                         )
+                        .animation(.easeInOut(duration: 0.2), value: currentIndex)
+                    
                 }
                 .contentShape(Rectangle())
             }
             .offset(x: offsetX)
             .gesture(
                 DragGesture()
-                    .updating($dragOffset) { value, out, _ in
-                        out = value.translation.width
+                    .onChanged { value in
+                        dragOffset = value.translation.width
                     }
                     .onEnded { value in
-                        let offsetX = value.translation.width
-                        let progress = -offsetX / pageWidth
-                        let increment = Int(progress.rounded())
                         
-                        currentIndex = max(min(currentIndex + increment, pageCount - 1), 0)
+                        let offsetX = value.translation.width
+                        let threshold: CGFloat = 50
+                        
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            if offsetX > threshold {
+                                currentIndex = max(currentIndex - 1, 0)
+                            } else if offsetX < -threshold {
+                                currentIndex = min(currentIndex + 1, pageCount - 1)
+                            }
+                            dragOffset = 0
+                        }
                     }
             )
         }
     }
 }
+
+

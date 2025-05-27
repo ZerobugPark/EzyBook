@@ -25,7 +25,7 @@ final class DefaultImageLoader: ImagerLoader {
     func loadImage(from path: String, scale: CGFloat) async throws ->  UIImage {
         
         
-        let fullURL = APIConstants.baseURL + "/v1" + "/data/activities/eva-darron-oCdVtGFeDC0_1747148932541.jpg"//path
+        let fullURL = APIConstants.baseURL + "/v1" + path
         
         /// 캐시에 데이터 여부 판단
 //        if let cached = imageCache.get(forKey: fullURL) {

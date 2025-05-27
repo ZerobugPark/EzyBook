@@ -28,7 +28,7 @@ struct HomeView: View {
     
     var body: some View {
         ScrollView(.vertical) {
-            VStack(spacing: 15) {
+            VStack(alignment: .center, spacing: 15) {
                 
                 if viewModel.output.isLoading {
                     ProgressView()
@@ -36,25 +36,27 @@ struct HomeView: View {
                     
                     makeSearchBarButton()
                     
-                    BasicCarousel(pageCount: array.count, visibleEdgeSpace: 20, spacing: 10) { index in
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 15)
-                                .fill(Color.blue)
-                                .shadow(radius: 5)
-                            Text(array[index])
-                                .font(.largeTitle)
-                                .foregroundColor(.white)
+                    BasicCarousel(pageCount: viewModel.output.acitivityNewDetailList.count, visibleEdgeSpace: 40, spacing: 10) { index in
+                        GeometryReader { geo in
+                            ZStack(alignment: .bottomLeading) {
+                                Image(uiImage: viewModel.output.acitivityNewDetailList[index].thumnail)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: geo.size.width, height: geo.size.height)
+                                    .clipped()
+
+                                VStack(alignment: .leading) {
+                                    Text("Title")
+                                    Text("Description")
+                                }
+                                .padding()
+                            }
+                            .cornerRadius(15)
+                            .shadow(radius: 2)
                         }
                     }
-                    .frame(height: 200)
-                    
-                    Image(uiImage: viewModel.output.outputData)
-                    Button {
-                        viewModel.action(.test)
-                    } label: {
-                        Text("테스트입니다")
-                    }
-
+                    .frame(height: 300)
+                                  
                     
                     makeFlagSelectionView()
                     makeFilterSelectionView()

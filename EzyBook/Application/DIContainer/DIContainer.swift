@@ -23,13 +23,14 @@ final class DIContainer: ObservableObject {
     let activityListUseCase: DefaultActivityListUseCase
     let activityNewListUseCase: DefaultNewActivityListUseCase
     let activitySearchUseCase: DefaultActivitySearchUseCase
+    let activityDetailUseCase: DefaultActivityDetailUseCase
     
     
     /// Common
     let imageLoader: DefaultLoadImageUseCase
 
     
-    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, imageLoader: DefaultLoadImageUseCase) {
+    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, imageLoader: DefaultLoadImageUseCase) {
         self.kakaoLoginUseCase = kakaoLoginUseCase
         self.createAccountUseCase = createAccountUseCase
         self.emailLoginUseCase = emailLoginUseCase
@@ -37,6 +38,7 @@ final class DIContainer: ObservableObject {
         self.activityListUseCase = activityListUseCase
         self.activityNewListUseCase = activityNewListUseCase
         self.activitySearchUseCase = activitySearchUseCase
+        self.activityDetailUseCase = activityDetailUseCase
         self.imageLoader = imageLoader
     }
     
@@ -68,6 +70,7 @@ extension DIContainer {
         return HomeViewModel(
             activityListUseCase: activityListUseCase,
             activityNewLisUsecaset: activityNewListUseCase,
+            activityDeatilUseCase: activityDetailUseCase,
             imageLoader: imageLoader
         )
     }

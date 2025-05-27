@@ -41,7 +41,8 @@ enum PreViewHelper {
         appleLoginUseCase: makeAppleLoginUseCase(),
         activityListUseCase: makeActivityListUseCase(),
         activityNewListUseCase: makeActivityNewListUseCase(),
-        activitySearchUseCase: makeActivityNewListUseCase(),
+        activitySearchUseCase: makeActivitySearchUseCase(),
+        activityDetailUseCase: makeActivityDetailUseCase(),
         imageLoader: makeImageLoaderUseCase()
     )
     
@@ -122,13 +123,16 @@ extension PreViewHelper {
     }
 
     static func makeActivityNewListUseCase() -> DefaultNewActivityListUseCase {
-        DefaultNewActivityListUseCase(repo: newActivityRepository)
+        DefaultNewActivityListUseCase(repo: activityRepository)
     }
     
-    static func makeActivityNewListUseCase() -> DefaultActivitySearchUseCase {
-        DefaultActivitySearchUseCase(repo: newActivityRepository)
+    static func makeActivitySearchUseCase() -> DefaultActivitySearchUseCase {
+        DefaultActivitySearchUseCase(repo: activityRepository)
     }
     
+    static func makeActivityDetailUseCase() -> DefaultActivityDetailUseCase {
+        DefaultActivityDetailUseCase(repo: activityRepository)
+    }
 
 }
 

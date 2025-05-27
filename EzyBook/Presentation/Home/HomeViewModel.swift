@@ -12,11 +12,13 @@ final class HomeViewModel: ViewModelType {
     
     private let activityListUseCase: DefaultActivityListUseCase
     private let activityNewLisUseCase: DefaultNewActivityListUseCase
+    private let activityDeatilUseCase: DefaultActivityDetailUseCase
+    
     private let imageLoader: DefaultLoadImageUseCase
     
     var input = Input()
     @Published var output = Output()
-
+    
     var cancellables = Set<AnyCancellable>()
     
     private var scale: CGFloat = 0
@@ -26,11 +28,14 @@ final class HomeViewModel: ViewModelType {
     init(
         activityListUseCase: DefaultActivityListUseCase,
         activityNewLisUsecaset: DefaultNewActivityListUseCase,
+        activityDeatilUseCase: DefaultActivityDetailUseCase,
         imageLoader: DefaultLoadImageUseCase
     ) {
         self.activityListUseCase = activityListUseCase
         self.activityNewLisUseCase = activityNewLisUsecaset
+        self.activityDeatilUseCase = activityDeatilUseCase
         self.imageLoader = imageLoader
+        
         transform()
     }
     
@@ -52,32 +57,12 @@ extension HomeViewModel {
             presentedError != nil
         }
         
-        var newAcitivityList: [ActivitySummaryEntity] = []
-        var outputData: UIImage = UIImage(systemName: "star")!
+        var acitivityNewDetailList: [NewActivityModel] = []
+        
     }
     
     func transform() { }
     
-    
-    
-//    private func requestActivities(_ flag: Flag = .all, _ filter: Filter = .all) {
-//        
-//        let country = flag.requestValue
-//        let category =  filter.requestValue
-//        
-//        let requestDto = ActivitySummaryListRequestDTO(country: country, category: category, limit: "\(limit)", next: nextCursor)
-//        
-//        activityListUseCase.execute(requestDto: requestDto) { [weak self] result in
-//            self?.handleResult(result)
-//            
-//        }
-//        
-//        activityNewLisUseCase.execute(country: country, category: category) { [weak self] result in
-//            self?.handleResult(result)
-//        }
-//        
-//        
-//    }
     
     private func requestActivities(_ flag: Flag = .all, _ filter: Filter = .all) {
         
@@ -86,52 +71,78 @@ extension HomeViewModel {
         
         let requestDto = ActivitySummaryListRequestDTO(country: country, category: category, limit: "\(limit)", next: nextCursor)
         
-        
-        let listPublisher = activityListUseCase.executePulisher(requestDto: requestDto)
-        
-        let newListPublisher = activityNewLisUseCase.executePulisher(country: country, category: category)
-
-        /// Zip, 둘 중에 하나만 실패해도 실패
-        /// Error처리를 현재 Usecase에서 해주고 있어서 Combine이 더 낫다고 판단
-        /// async let으로 사용할 경우 에러에 대한 핸들링을 뷰모델에서 해야하는데, 과연 그게 맞을까?
-        Publishers.Zip(listPublisher, newListPublisher)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+        Task {
+            do {
+                /// async let:    비동기 작업 시작
+                async let listResult = activityListUseCase.execute(requestDto: requestDto)
+                async let newListResult = activityNewLisUseCase.execute(country: country, category: category)
+                
+                // 둘 다 성공해야 넘어감
+                let (list, newList) = try await (listResult, newListResult)
+                
+                let details = try await reqeuestActivityDetailList(data: newList)
+                
+                await MainActor.run {
+                    output.acitivityNewDetailList = details
+                    output.isLoading = false
                 }
-            } receiveValue: { [weak self] listResult, newListResult in
-                //print(listResult)
-                dump(newListResult)
-                self?.output.newAcitivityList = newListResult
-                self?.output.isLoading = false
+            } catch let error as APIError {
+                await MainActor.run {
+                    output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+                }
             }
-            .store(in: &cancellables)
-    }
-    
-    
-    private func requestImage() {
-        imageLoader.execute(output.newAcitivityList[0].thumbnails[1], scale: scale) { [weak self] result in
-            switch result {
-            case .success(let success):
-                self?.output.outputData = success
-            case .failure(let error):
-                self?.output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
-            }
+            
         }
     }
     
+    private func reqeuestActivityDetailList(data:  [ActivitySummaryEntity]) async throws -> [NewActivityModel] {
+        
+        
+        var result: [NewActivityModel] = []
+        
+        /// 순서가 보장이 되어야할까?
+        for item in data {
+            do {
+                let detail = try await activityDeatilUseCase.execute(id: item.activityID)
+                let thumnailImage = try await requestThumbnailImage(detail.thumbnails)
+                
+                
+                let list = NewActivityModel(
+                    activityID: detail.activityID,
+                    title: detail.title,
+                    country: detail.country,
+                    thumnail: thumnailImage,
+                    tag: detail.tags[0],
+                    description: detail.description
+                )
+                
+                result.append(list) // 순서 보장
+            } catch {
+                throw error
+            }
+        }
+        
+        return result
+    }
     
-//    private func handleResult<T>(_ result: Result<T, APIError>) {
-//        
-//        switch result {
-//        case .success(let success):
-//            break
-//        case .failure(let error):
-//            output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
-//        }
-//        
-//    }
+    
+    
+    
+    private func requestThumbnailImage(_ paths: [String]) async throws -> UIImage {
+        
+        let imagePaths = paths.filter {
+            $0.hasSuffix(".jpg") // || $0.hasSuffix(".png")
+        }
+        
+        guard let path = imagePaths.first else {
+            let fallback = UIImage(systemName: "star")!
+            return fallback
+        }
+        
+        return try await imageLoader.execute(path, scale: scale)
+    
+    }
+    
     
     private func handleResetError() {
         output.presentedError = nil
@@ -166,8 +177,9 @@ extension HomeViewModel {
         case .resetError:
             handleResetError()
         case .test:
-            requestImage()
-  
+            break
+            //requestImage()
+            
         }
     }
     

@@ -9,7 +9,7 @@ import Foundation
 
 import Foundation
 
-final class DefaultActivityRepository: ActivityListRepository, ActivityQueryRepository  {
+final class DefaultActivityRepository: ActivityListRepository, ActivityQueryRepository,  ActivityDetailRepository {
  
     
 
@@ -29,6 +29,12 @@ final class DefaultActivityRepository: ActivityListRepository, ActivityQueryRepo
     /// 액티비티 검색 결과
     func requestActivityNewList(_ router: ActivityRequest) async throws -> [ActivitySummaryEntity] {
         let data = try await networkService.fetchData(dto: ActivityListResponseDTO.self, router)
+        return data.toEntity()
+    }
+    
+    func requestActivityDetail(_ router: ActivityRequest) async throws -> ActivityDetailEntity {
+        let data = try await networkService.fetchData(dto: ActivityDetailResponseDTO.self, router)
+        
         return data.toEntity()
     }
     
