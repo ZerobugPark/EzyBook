@@ -56,14 +56,19 @@ extension EmailLoginViewModel {
             return
         }
 
-        emailLoginUseCase.execute(email: input.emailTextField, password: input.passwordTextField) { result in
-            
-            switch result {
-            case .success(_):
-                self.output.loginSuccessed = true
-            case .failure(let failure):
-                self.output.loginError = .serverError(.error(code: failure.code, msg: failure.userMessage))
+        Task {
+            do {
+                try await emailLoginUseCase.execute(email: input.emailTextField, password: input.passwordTextField)
+                
+                await MainActor.run {
+                    self.output.loginSuccessed = true
+                }
+            } catch let error as APIError {
+                await MainActor.run {
+                    self.output.loginError = .serverError(.error(code: error.code, msg: error.userMessage))
+                }
             }
+            
         }
 
         

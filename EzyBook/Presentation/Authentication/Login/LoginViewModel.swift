@@ -43,12 +43,17 @@ extension LoginViewModel {
     func transform() { }
     
     private func requestKakaoLogin() {
-        kakaoLoginUseCase.execute { result in
-            switch result {
-            case .success(_):
-                self.output.loginSuccessed = true
-            case .failure(let failure):
-                self.output.loginError = .kakaoLoginError(code: failure.code)
+        
+        Task {
+            do {
+                try await kakaoLoginUseCase.execute()
+                await MainActor.run {
+                    output.loginSuccessed = true
+                }
+            } catch let error as APIError {
+                await MainActor.run {
+                    self.output.loginError = .kakaoLoginError(code: error.code)
+                }
             }
         }
     }
@@ -59,12 +64,16 @@ extension LoginViewModel {
     }
     
     private func requestAppleLogin(_ result: Result<ASAuthorization, any Error>) {
-        appleLoginUseCase.execute(result) { result in
-            switch result {
-            case .success(_):
-                self.output.loginSuccessed = true
-            case .failure(let failure):
-                self.output.loginError = .appleLoginError(code: failure.code)
+        Task {
+            do {
+                try await appleLoginUseCase.execute(result)
+                await MainActor.run {
+                    output.loginSuccessed = true
+                }
+            } catch let error as APIError {
+                await MainActor.run {
+                    self.output.loginError = .kakaoLoginError(code: error.code)
+                }
             }
         }
     }

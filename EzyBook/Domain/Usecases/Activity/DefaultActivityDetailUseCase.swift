@@ -35,32 +35,5 @@ extension DefaultActivityDetailUseCase {
             }
         }
     }
-    //
-    //    func execute(id: String,  completionHandler: @escaping (Result <ActivityDetailEntity, APIError>) -> Void) {
-    //
-    //        let requestDto = ActivityDetailRequestDTO(activityId: id)
-    //
-    //        let router = ActivityRequest.activityDetail(param: requestDto)
-    //
-    //        Task {
-    //            do {
-    //                let data = try await repo.requestActivityDetail(router)
-    //
-    //                await MainActor.run {
-    //                    completionHandler(.success((data)))
-    //                }
-    //            } catch  {
-    //                let resolvedError: APIError
-    //                if let apiError = error as? APIError {
-    //                    resolvedError = apiError
-    //                } else {
-    //                    resolvedError = .unknown
-    //                }
-    //                await MainActor.run {
-    //                    completionHandler(.failure(resolvedError))
-    //                }
-    //
-    //            }
-    //        }
-    //    }
+    
 }

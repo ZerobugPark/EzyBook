@@ -29,27 +29,5 @@ struct DefaultLoadImageUseCase {
         }
     }
     
-    
-//    func execute(_ path: String, scale: CGFloat, completionHandler: @escaping (Result<UIImage, APIError>) -> Void) {
-//        Task {
-//            do {
-//                let image = try await imageLoader.loadImage(from: path, scale: scale)
-//                await MainActor.run {
-//                    completionHandler(.success(image))
-//                }
-//            } catch {
-//                let resolvedError: APIError
-//                if let apiError = error as? APIError {
-//                    resolvedError = apiError
-//                } else {
-//                    resolvedError = .unknown
-//                }
-//                
-//                completionHandler(.failure(resolvedError))
-//            }
-//            
-//        }
-//    }
-    
 }
 

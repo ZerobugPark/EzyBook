@@ -27,26 +27,19 @@ final class DefaultAppleLoginUseCase {
 // MARK: Login
 extension DefaultAppleLoginUseCase {
     
-    func execute(_ result:  Result<ASAuthorization, any Error>,completionHandler: @escaping (Result <Void, APIError>) -> Void) {
-        Task {
-            do {
-                let data = try await appleLoginService.loginWithApple(result)
-                let token = try await authRepository.requestAppleLogin(data.token, data.name)
-                _ = tokenService.saveTokens(accessToken: token.accessToken, refreshToken: token.refreshToken)
-                await MainActor.run {
-                    completionHandler(.success(()))
-                }
-            } catch  {
-                let resolvedError: APIError
-                if let apiError = error as? APIError {
-                    resolvedError = apiError
-                } else {
-                    resolvedError = .unknown
-                }
-                await MainActor.run {
-                    completionHandler(.failure(resolvedError))
-                }
-                
+    
+    func execute(_ result:  Result<ASAuthorization, any Error>) async throws -> Void {
+        
+        do {
+            let data = try await appleLoginService.loginWithApple(result)
+            let token = try await authRepository.requestAppleLogin(data.token, data.name)
+            _ = tokenService.saveTokens(accessToken: token.accessToken, refreshToken: token.refreshToken)
+            
+        }    catch {
+            if let apiError = error as? APIError {
+                throw apiError
+            } else {
+                throw APIError.unknown
             }
         }
     }

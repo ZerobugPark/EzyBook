@@ -100,19 +100,23 @@ extension CreateAccountViewModel {
     /// 이메일 유효성 검사 및 중복확인
     private func handleEmailEditingCompleted() {
         output.isVaildEmail =  input.emailTextField.validateEmail()
-        
+
         if output.isVaildEmail {
-            createUseCase.verifyEmail(input.emailTextField) { result in
-                switch result {
-                case .success(_):
-                    self.output.isAvailableEmail = true
-                case .failure(let failure):
-                    self.output.isAvailableEmail = false
-                    self.output.currentError = .error(code: failure.code, msg: failure.userMessage)
+            Task {
+                do {
+                    try await createUseCase.verifyEmail(input.emailTextField)
+                    await MainActor.run {
+                        output.isAvailableEmail = true
+                    }
+                } catch let error as APIError {
+                    await MainActor.run {
+                        output.isAvailableEmail = false
+                        output.currentError = DisplayError.error(code: error.code, msg: error.userMessage)
+                    }
                 }
             }
         }
-        
+            
         updateFormValidation()
     }
     
@@ -160,14 +164,20 @@ extension CreateAccountViewModel {
         )
         let router = UserPostRequest.join(body: body)
         
-        createUseCase.signUp(router) { result in
-            switch result {
-            case .success(_):
-                self.output.isAccountCreated = true
-            case .failure(let failure):
-                self.output.currentError = .error(code: failure.code, msg: failure.userMessage)
+        Task {
+            do {
+                try await createUseCase.signUp(router)
+                await MainActor.run {
+                    output.isAccountCreated = true
+                }
+            } catch let error as APIError {
+                await MainActor.run {
+                    output.isAvailableEmail = false
+                    output.currentError = DisplayError.error(code: error.code, msg: error.userMessage)
+                }
             }
         }
+
     }
     
     /// 회원가입 버튼 버튼 상태

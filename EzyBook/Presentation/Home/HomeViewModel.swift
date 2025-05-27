@@ -91,7 +91,6 @@ extension HomeViewModel {
                     output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
                 }
             }
-            
         }
     }
     
@@ -131,14 +130,13 @@ extension HomeViewModel {
     private func requestThumbnailImage(_ paths: [String]) async throws -> UIImage {
         
         let imagePaths = paths.filter {
-            $0.hasSuffix(".jpg") // || $0.hasSuffix(".png")
+            $0.hasSuffix(".jpg") || $0.hasSuffix(".png")
         }
         
         guard let path = imagePaths.first else {
             let fallback = UIImage(systemName: "star")!
             return fallback
         }
-        
         return try await imageLoader.execute(path, scale: scale)
     
     }
@@ -161,7 +159,6 @@ extension HomeViewModel {
         case onAppearRequested
         case updateScale(scale: CGFloat)
         case selectionChanged(flag: Flag, filter: Filter)
-        case test
         case resetError
     }
     
@@ -176,10 +173,6 @@ extension HomeViewModel {
             requestActivities()
         case .resetError:
             handleResetError()
-        case .test:
-            break
-            //requestImage()
-            
         }
     }
     
