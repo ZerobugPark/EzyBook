@@ -23,7 +23,7 @@ enum PreViewHelper {
     
     static let imageCache = ImageMemoryCache()
     
-    static let imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache)
+    static let imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache, interceptor: interceptor)
     
     static let  authRepository = DefaultAuthRepository(networkService: networkService)
     static let  socialLoginService = DefaultsSocialLoginService()

@@ -45,7 +45,7 @@ final class AppDIContainer {
         
         newActivityRepository = DefaultActivityRepository(networkService: networkService)
         imageCache = ImageMemoryCache()
-        imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache)
+        imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache, interceptor: interceptor)
     }
     
     

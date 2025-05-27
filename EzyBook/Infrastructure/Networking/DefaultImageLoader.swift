@@ -13,12 +13,13 @@ final class DefaultImageLoader: ImagerLoader {
     
     private let tokenService: TokenLoadable
     private let imageCache: ImageMemoryCache
+    private let interceptor: TokenInterceptor?
     
-    init(tokenService: TokenLoadable, imageCache: ImageMemoryCache) {
+    init(tokenService: TokenLoadable, imageCache: ImageMemoryCache, interceptor: TokenInterceptor?) {
         self.tokenService = tokenService
         self.imageCache = imageCache
+        self.interceptor = interceptor
     }
-    
     
     
     func loadImage(from path: String, scale: CGFloat) async throws ->  UIImage {
@@ -47,7 +48,7 @@ final class DefaultImageLoader: ImagerLoader {
 //            "If-None-Match" : etag
 //        ]
         
-        let response = await AF.request(fullURL, headers: header)
+        let response = await AF.request(fullURL, headers: header, interceptor: interceptor)
             .validate(statusCode: 200...304)
             .serializingData()
             .response
