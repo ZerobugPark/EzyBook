@@ -1,5 +1,5 @@
 //
-//  LocationTag.swift
+//  AdvertisementTag.swift
 //  EzyBook
 //
 //  Created by youngkyun park on 5/28/25.
@@ -7,20 +7,15 @@
 
 import SwiftUI
 
-struct LocationTag: View {
+struct AdvertisementTag: View {
     
-    private let country: String
-    
-    init(country: String) {
-        self.country = country
-    }
     
     var body: some View {
         Label {
-            Text(country)
+            Text("광고")
                 .appFont(PretendardFontStyle.body3, textColor: .grayScale0)
         } icon: {
-            Image(.iconLocation)
+            Image(.iconInfo)
                 .renderingMode(.template)
                 .resizable()
                 .frame(width: 16, height: 16)
@@ -30,9 +25,10 @@ struct LocationTag: View {
         .padding(.vertical, 6)
         .background(.ultraThinMaterial.opacity(0.5))
         .clipShape(Capsule())
+        
     }
 }
 
 #Preview {
-    LocationTag(country: "dddd")
+    AdvertisementTag()
 }

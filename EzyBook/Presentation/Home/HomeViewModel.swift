@@ -57,17 +57,37 @@ extension HomeViewModel {
             presentedError != nil
         }
         
-        var activityNewDetailList: [NewActivityModel] = [
-            NewActivityModel(
-                activityID: "3123",
-                title: "겨울 새싹 스키 원정대",
-                country: "스위스",
-                thumnail: UIImage(systemName: "star")!,
-                tag: "test",
-                description: "끝업이 펼쳐진 슬로프의 자유를 우리 함께 느겨봅시다",
-                originalPrice: 100000,
-                finalPrice: 100000
-            )
+        var activityNewDetailList: [NewActivityModel] = []
+        var filterActivityDetailList: [FilterActivityModel] = [
+//            FilterActivityModel(
+//                from: ActivityDetailEntity(
+//                    dto: ActivityDetailResponseDTO(
+//                        activityID: "123",
+//                        title: "대한민국에서 신나는 먹방",
+//                        country: "대한민국",
+//                        category: "먹방",
+//                        thumbnails: [],
+//                        geolocation: ActivityGeolocationDTO(longitude: 1.0, latitude: 1.0),
+//                        startDate: "",
+//                        endDate: "2025-08-07",
+//                        price: ActivityPriceDTO(original: 324000, final: 123000),
+//                        tags: ["New 오픈특가"],
+//                        pointReward: 10,
+//                        restrictions: ActivityRestrictionsDTO(minHeight: 10, minAge: 10, maxParticipants: 10),
+//                        description: "세계적으로 유명한 대한민국에서 오감을 만족시키는 여정에서 잊지 못할 추억을 체험해보세요. 새로운 시각을 가질 시간이 될 것입니다. 전문 가이드가 함께합니다!",
+//                        isAdvertisement: true,
+//                        isKeep: true,
+//                        keepCount: 100,
+//                        totalOrderCount: 100,
+//                        schedule: [],
+//                        reservationList: [],
+//                        creator: ActivityCreatorDTO(userID: "123", nick: "123", introduction: "123"),
+//                        createdAt: nil,
+//                        updatedAt: nil
+//                    )
+//                ),
+//                thumbnail: UIImage(systemName: "star")!
+//            )
             
         ]
         
@@ -86,16 +106,23 @@ extension HomeViewModel {
         Task {
             do {
                 /// async let:    비동기 작업 시작
-                async let listResult = activityListUseCase.execute(requestDto: requestDto)
+                async let filterListResult = activityListUseCase.execute(requestDto: requestDto)
                 async let newListResult = activityNewLisUseCase.execute(country: country, category: category)
                 
                 // 둘 다 성공해야 넘어감
-                let (list, newList) = try await (listResult, newListResult)
+                let (filterList, newList) = try await (filterListResult, newListResult)
                 
-                let details = try await reqeuestActivityDetailList(data: newList)
+                let newActivitydetails = try await reqeuestActivityDetailList(newList, type: NewActivityModel.self)
+                
+                let filterListdetails = try await reqeuestActivityDetailList(filterList.data, type: FilterActivityModel.self)
+                
+                /// 커서 저장
+                nextCursor = filterList.nextCursor
+                
                 
                 await MainActor.run {
-                    output.activityNewDetailList = details
+                    output.activityNewDetailList = newActivitydetails
+                    output.filterActivityDetailList = filterListdetails
                     output.isLoading = false
                 }
             } catch let error as APIError {
@@ -106,35 +133,29 @@ extension HomeViewModel {
         }
     }
     
-    private func reqeuestActivityDetailList(data:  [ActivitySummaryEntity]) async throws -> [NewActivityModel] {
+    /// 굳이 순서가 보장되어야할까? 필터로 구분할 수 있을텐데..
+    private func  reqeuestActivityDetailList<T: ActivityModelBuildable>(_ data:  [ActivitySummaryEntity], type: T.Type) async throws -> [T] {
         
-        
-        var result: [NewActivityModel] = []
-        
-        /// 순서가 보장이 되어야할까?
-        for item in data {
-            do {
-                let detail = try await activityDeatilUseCase.execute(id: item.activityID)
-                let thumnailImage = try await requestThumbnailImage(detail.thumbnails)
-                
-                let list = NewActivityModel(
-                    activityID: detail.activityID,
-                    title: detail.title,
-                    country: detail.country,
-                    thumnail: thumnailImage,
-                    tag: detail.tags[0],
-                    description: detail.description,
-                    originalPrice: detail.price.original,
-                    finalPrice: detail.price.final
-                )
-                
-                result.append(list) // 순서 보장
-            } catch {
-                throw error
+        return try await withThrowingTaskGroup(of: T.self) { [weak self] group in
+            guard let self = self else {
+                throw APIError(localErrorType: .decodingError)
             }
-        }
-        
-        return result
+                for item in data {
+                    group.addTask {
+                        let detail = try await self.activityDeatilUseCase.execute(id: item.activityID)
+                        let thumbnailImage = try await self.requestThumbnailImage(detail.thumbnails)
+                        /// 아래 for문으로 이동
+                        return T(from: detail, thumbnail: thumbnailImage)
+                    }
+                }
+
+                var result: [T] = []
+                for try await item in group {
+                    result.append(item)
+                }
+
+                return result
+            }
     }
     
     

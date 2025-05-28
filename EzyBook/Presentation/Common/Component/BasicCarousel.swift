@@ -16,7 +16,6 @@ struct BasicCarousel<Content: View>: View {
     let spacing: CGFloat
     let content: (PageIndex) -> Content
     
-    //@GestureState var dragOffset: CGFloat = 0
     @State private var dragOffset: CGFloat = 0
     @State var currentIndex: Int = 0
     

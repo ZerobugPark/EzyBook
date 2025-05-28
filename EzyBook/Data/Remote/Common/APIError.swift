@@ -32,6 +32,7 @@ enum APIError: Error {
         case missingRequestBody
         case decodingError
         case tokenNotFound
+        case seifIsNil
         // 기타 로컬 에러 타입
     }
     
@@ -68,6 +69,8 @@ enum APIError: Error {
             self = .localError(type: localErrorType, message: "디코딩 타입을 확인해주세요.")
         case .tokenNotFound:
             self = .localError(type: localErrorType, message: "토큰을 불러올 수 없습니다")
+        case .seifIsNil:
+            self = .localError(type: localErrorType, message: "self가 없습니다.")
         }
     }
     
