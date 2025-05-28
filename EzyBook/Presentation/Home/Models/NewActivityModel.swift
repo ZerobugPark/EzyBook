@@ -15,5 +15,9 @@ struct NewActivityModel {
     let thumnail: UIImage
     let tag: String
     let description: String
+    let originalPrice: Int
+    let finalPrice: Int
+    
+    // 금액이 다를 경우 어떻게 비교를 해줄까?
     
 }

@@ -57,7 +57,19 @@ extension HomeViewModel {
             presentedError != nil
         }
         
-        var acitivityNewDetailList: [NewActivityModel] = []
+        var activityNewDetailList: [NewActivityModel] = [
+            NewActivityModel(
+                activityID: "3123",
+                title: "겨울 새싹 스키 원정대",
+                country: "스위스",
+                thumnail: UIImage(systemName: "star")!,
+                tag: "test",
+                description: "끝업이 펼쳐진 슬로프의 자유를 우리 함께 느겨봅시다",
+                originalPrice: 100000,
+                finalPrice: 100000
+            )
+            
+        ]
         
     }
     
@@ -83,7 +95,7 @@ extension HomeViewModel {
                 let details = try await reqeuestActivityDetailList(data: newList)
                 
                 await MainActor.run {
-                    output.acitivityNewDetailList = details
+                    output.activityNewDetailList = details
                     output.isLoading = false
                 }
             } catch let error as APIError {
@@ -105,14 +117,15 @@ extension HomeViewModel {
                 let detail = try await activityDeatilUseCase.execute(id: item.activityID)
                 let thumnailImage = try await requestThumbnailImage(detail.thumbnails)
                 
-                
                 let list = NewActivityModel(
                     activityID: detail.activityID,
                     title: detail.title,
                     country: detail.country,
                     thumnail: thumnailImage,
                     tag: detail.tags[0],
-                    description: detail.description
+                    description: detail.description,
+                    originalPrice: detail.price.original,
+                    finalPrice: detail.price.final
                 )
                 
                 result.append(list) // 순서 보장

@@ -30,34 +30,18 @@ struct HomeView: View {
         ScrollView(.vertical) {
             VStack(alignment: .center, spacing: 15) {
                 
+//                makeSearchBarButton()
+//                makeNewActivityView()
+//                makeFlagSelectionView()
+//                makeFilterSelectionView()
+                
+                
                 if viewModel.output.isLoading {
                     ProgressView()
                 } else {
                     
                     makeSearchBarButton()
-                    
-                    BasicCarousel(pageCount: viewModel.output.acitivityNewDetailList.count, visibleEdgeSpace: 40, spacing: 10) { index in
-                        GeometryReader { geo in
-                            ZStack(alignment: .bottomLeading) {
-                                Image(uiImage: viewModel.output.acitivityNewDetailList[index].thumnail)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: geo.size.width, height: geo.size.height)
-                                    .clipped()
-
-                                VStack(alignment: .leading) {
-                                    Text("Title")
-                                    Text("Description")
-                                }
-                                .padding()
-                            }
-                            .cornerRadius(15)
-                            .shadow(radius: 2)
-                        }
-                    }
-                    .frame(height: 300)
-                                  
-                    
+                    makeNewActivityView()
                     makeFlagSelectionView()
                     makeFilterSelectionView()
                     
@@ -67,7 +51,7 @@ struct HomeView: View {
             }
             .onAppear {
                 viewModel.action(.updateScale(scale: scale))
-                viewModel.action(.onAppearRequested)
+               viewModel.action(.onAppearRequested)
             }
             .commonAlert(
                 isPresented: Binding(
@@ -87,11 +71,95 @@ struct HomeView: View {
 }
 
 #Preview {
-    //PreViewHelper.makeHomeView()
+    PreViewHelper.makeHomeView()
 }
 
 
-// MARK: flage Button
+// MARK: New Activity
+extension HomeView {
+    
+    @ViewBuilder
+    private func makeNewActivityView() -> some View {
+        makeNewActivityTitle()
+        makeCarouselImageView()
+
+    }
+    
+    private func makeNewActivityTitle() -> some View {
+        HStack {
+            Text("NEW 액티비티")
+                .appFont(PaperlogyFontStyle.caption)
+                
+            Spacer()
+            
+            Button {
+                
+            } label: {
+                Text("View")
+                    .appFont(PretendardFontStyle.body1, textColor: .deepSeafoam)
+            }
+        }.padding(.horizontal, 10)
+    }
+    
+    
+    private func makeCarouselImageView() -> some View {
+        BasicCarousel(pageCount: viewModel.output.activityNewDetailList.count, visibleEdgeSpace: 40, spacing: 10) { index in
+            GeometryReader { geo in
+                ZStack(alignment: .bottomLeading) {
+                    
+                    Image(uiImage: viewModel.output.activityNewDetailList[index].thumnail)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: geo.size.width, height: geo.size.height)
+                        .clipped()
+   
+                    
+                    VStack(spacing: 10) {
+                        HStack(alignment: .center) {
+                            LocationTag(country: viewModel.output.activityNewDetailList[index].country)
+                            Spacer()
+                        }
+                        Spacer()
+                    }.padding(10)
+                    
+
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(viewModel.output.activityNewDetailList[index].title)
+                            .appFont(PaperlogyFontStyle.title, textColor: .grayScale0)
+                            .shadow(color: .black.opacity(0.6), radius: 2)
+                        
+                        Label {
+                            Text("\(viewModel.output.activityNewDetailList[index].originalPrice)")
+                                .appFont(PaperlogyFontStyle.caption, textColor: .grayScale0)
+                                .shadow(color: .black.opacity(0.6), radius: 2)
+                        } icon: {
+                            Image(.iconWon)
+                                .renderingMode(.template)
+                                .resizable()
+                                .frame(width: 20, height: 20)
+                                .foregroundStyle(.grayScale0)
+                        }
+                        
+                        Text(viewModel.output.activityNewDetailList[index].description)
+                            .appFont(PretendardFontStyle.caption1, textColor: .grayScale30)
+                            .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
+                        
+
+
+                    }
+                    .padding()
+                }
+                .cornerRadius(15)
+               .shadow(radius: 2)
+            }
+        }
+        .frame(height: 300)
+    }
+    
+}
+
+
+// MARK: Flag Button
 extension HomeView {
     
     private func makeFlagSelectionView() -> some View {
@@ -114,8 +182,7 @@ extension HomeView {
                     .frame(width: 50, height: 50)
                 if flag != .all {
                     Text(flag.rawValue)
-                        .appFont(PretendardFontStyle.caption1)
-                        .foregroundStyle(selectedFlag == flag ? .blackSeafoam : .grayScale100)
+                        .appFont(PretendardFontStyle.caption1, textColor: selectedFlag == flag ? .blackSeafoam : .grayScale100)
                 }
                 
             }
@@ -155,8 +222,7 @@ extension HomeView {
             viewModel.action(.selectionChanged(flag: selectedFlag, filter: selectedFilter))
         } label: {
             Text(filter.rawValue)
-                .appFont(PretendardFontStyle.caption1)
-                .foregroundStyle(selectedFilter == filter ? .blackSeafoam : .grayScale100)
+                .appFont(PretendardFontStyle.caption1, textColor: selectedFilter == filter ? .blackSeafoam : .grayScale100)
                 .padding(10)
                 .background(
                     RoundedRectangle(cornerRadius: 17)
@@ -182,8 +248,7 @@ extension HomeView {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(.blackSeafoam)
                 Text("찾으시는 액티비티가 있나요?")
-                    .appFont(PretendardFontStyle.body1)
-                    .foregroundColor(.grayScale75)
+                    .appFont(PretendardFontStyle.body1, textColor: .grayScale75)
                 Spacer()
             }
             .padding(10)

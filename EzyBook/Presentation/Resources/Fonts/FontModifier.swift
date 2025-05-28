@@ -13,14 +13,22 @@ import SwiftUI
 struct AppFontModifier: ViewModifier {
     
     let style: FontStyle
+    let textColor: Color?
 
     func body(content: Content) -> some View {
-         content.font(.custom(style.fontName, size: style.size))
+        if let textColor = textColor {
+            content
+                .font(.custom(style.fontName, size: style.size))
+                .foregroundStyle(textColor)
+        } else {
+            content
+                .font(.custom(style.fontName, size: style.size))
+        }
      }
 }
 
 extension View {
-    func appFont(_ style: FontStyle) -> some View {
-        self.modifier(AppFontModifier(style: style))
+    func appFont(_ style: FontStyle, textColor: Color? = nil) -> some View {
+        self.modifier(AppFontModifier(style: style, textColor: textColor))
     }
 }

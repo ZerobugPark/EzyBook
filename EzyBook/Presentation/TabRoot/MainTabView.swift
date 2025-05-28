@@ -50,8 +50,7 @@ struct MainTabView: View {
     
     var title: some View {
         Text("EzyBook")
-            .appFont(PaperlogyFontStyle.body)
-            .foregroundStyle(.blackSeafoam)
+            .appFont(PaperlogyFontStyle.body, textColor: .blackSeafoam) 
     }
     
     var body: some View {
