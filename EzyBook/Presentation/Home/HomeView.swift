@@ -44,9 +44,6 @@ struct HomeView: View {
                 } else {
                     makeSearchBarButton()
                     makeNewActivityView()
-                        .onAppear {
-                           
-                        }
                     makeFlagSelectionView()
                     makeFilterSelectionView()
                     ActivityIntroduceView(data: $viewModel.output.filterActivityDetailList) { id in
@@ -56,7 +53,7 @@ struct HomeView: View {
         
             }
             .onAppear {
-                viewModel.action(.onAppearRequested)
+                viewModel.action(.onAppearRequested(flag: selectedFlag, filter: selectedFilter))
                 viewModel.action(.updateScale(scale: scale))
             }
             .commonAlert(
@@ -136,7 +133,7 @@ extension HomeView {
     
     private func makeCarouselImageView() -> some View {
         BasicCarousel(pageCount: viewModel.output.activityNewDetailList.count, visibleEdgeSpace: 40, spacing: 10,  onPageChanged: { currentIndex in
-            
+            viewModel.action(.prefetchNewContent(index: currentIndex))
         }
         ) { index in
             GeometryReader { geo in
