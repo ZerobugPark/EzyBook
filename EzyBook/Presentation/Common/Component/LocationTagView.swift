@@ -1,5 +1,5 @@
 //
-//  LocationTag.swift
+//  LocationTagView.swift
 //  EzyBook
 //
 //  Created by youngkyun park on 5/28/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct LocationTag: View {
+struct LocationTagView: View {
     
     private let country: String
     
@@ -34,5 +34,5 @@ struct LocationTag: View {
 }
 
 #Preview {
-    LocationTag(country: "dddd")
+    LocationTagView(country: "dddd")
 }

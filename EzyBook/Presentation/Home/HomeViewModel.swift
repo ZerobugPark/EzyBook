@@ -25,6 +25,14 @@ final class HomeViewModel: ViewModelType {
     private let limit = 5
     private var nextCursor: String?
     
+    
+    /// Result Storage  Property
+    /// 통신을 할 인덱스 관리 및 저장되는 데이터
+    
+    private var newActivitySummaryResult: [ActivitySummaryEntity] = []
+    private var newActivityindicats = Set<Int>()
+    
+    
     init(
         activityListUseCase: DefaultActivityListUseCase,
         activityNewLisUsecaset: DefaultNewActivityListUseCase,
@@ -46,6 +54,8 @@ final class HomeViewModel: ViewModelType {
 extension HomeViewModel {
     
     struct Input {
+        var selectedParams = PassthroughSubject<(Flag, Filter), Never>()
+        
     }
     
     struct Output {
@@ -93,9 +103,52 @@ extension HomeViewModel {
         
     }
     
-    func transform() { }
+    func transform() {
+        
+        
+        /// 필터가 눌렸을 때, 구독 또는 최초 실행시 구독
+        /// 조건1) 기존 필터와 같은 내용인가? -> 통신 X
+        /// 조건2) 기존 필터와 서로 내용이 다른가? -> 통신, 필터가 선택되는거 자체가 신규액티비티도 업데이트 해야하는 상황
+        
+        input.selectedParams.removeDuplicates  {
+            $0 == $1
+        }.sink { [weak self] (flag, filter) in
+            
+            self?.requestActivities(flag, filter)
+
+            
+        }.store(in: &cancellables)
+        
+        
+        
+    }
+    
+    /// 단순 액티비티를 불러오는 함수
+    private func requestNewActivities(_ flag: Flag, _ filter: Filter)
+    {
+        let country = flag.requestValue
+        let category =  filter.requestValue
+        
+        Task {
+            do {
+                let result = try await activityNewLisUseCase.execute(country: country, category: category)
+                
+                
+            }  catch let error as APIError {
+                await MainActor.run {
+                    output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+                }
+            }
+        }
+        
+    }
+    
+    private func 
     
     
+    
+    /// 일회성 단순 최초 호출 용도로 설계를 바꾸자
+    /// 즉 1회성으로 통신할 수있는 범용 함수
     private func requestActivities(_ flag: Flag = .all, _ filter: Filter = .all) {
         
         let country = flag.requestValue
@@ -133,7 +186,8 @@ extension HomeViewModel {
         }
     }
     
-    /// 굳이 순서가 보장되어야할까? 필터로 구분할 수 있을텐데..
+    
+    
     private func  reqeuestActivityDetailList<T: ActivityModelBuildable>(_ data:  [ActivitySummaryEntity], type: T.Type) async throws -> [T] {
         
         return try await withThrowingTaskGroup(of: T.self) { [weak self] group in
@@ -200,7 +254,8 @@ extension HomeViewModel {
     func action(_ action: Action) {
         switch action {
         case let .selectionChanged(flag, filter):
-            requestActivities(flag, filter)
+            
+            //requestActivities(flag, filter)
         case .updateScale(let scale):
             handleUpdateScale(scale)
         case .onAppearRequested:

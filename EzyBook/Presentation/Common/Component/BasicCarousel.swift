@@ -14,16 +14,24 @@ struct BasicCarousel<Content: View>: View {
     let pageCount: Int
     let visibleEdgeSpace: CGFloat
     let spacing: CGFloat
+    let onPageChanged: ((Int) -> Void)?
     let content: (PageIndex) -> Content
-    
+
     @State private var dragOffset: CGFloat = 0
-    @State var currentIndex: Int = 0
+    @State var currentIndex: Int = 0 {
+        didSet {
+            onPageChanged?(currentIndex)
+        }
+    }
     
-    init(pageCount: Int, visibleEdgeSpace: CGFloat, spacing: CGFloat, @ViewBuilder content: @escaping (PageIndex) -> Content) {
+    
+    init(pageCount: Int, visibleEdgeSpace: CGFloat, spacing: CGFloat, onPageChanged: ((Int) -> Void)? = nil, @ViewBuilder content: @escaping (PageIndex) -> Content) {
         self.pageCount = pageCount
         self.visibleEdgeSpace = visibleEdgeSpace
         self.spacing = spacing
+        self.onPageChanged = onPageChanged
         self.content = content
+        
     }
     
     var body: some View {

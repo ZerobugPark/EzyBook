@@ -1,5 +1,5 @@
 //
-//  AdvertisementTag.swift
+//  AdvertisementTagView.swift
 //  EzyBook
 //
 //  Created by youngkyun park on 5/28/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct AdvertisementTag: View {
+struct AdvertisementTagView: View {
     
     
     var body: some View {
@@ -30,5 +30,5 @@ struct AdvertisementTag: View {
 }
 
 #Preview {
-    AdvertisementTag()
+    AdvertisementTagView()
 }

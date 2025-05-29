@@ -12,7 +12,7 @@ enum Tag {
     case new
 }
 
-struct EventTag: View {
+struct EventTagView: View {
     
     private let tag: Tag
     
@@ -48,5 +48,5 @@ struct EventTag: View {
 }
 
 #Preview {
-    EventTag(tag: .hot)
+    EventTagView(tag: .hot)
 }
