@@ -42,6 +42,7 @@ struct MainTabView: View {
     @State private var tabShapePosition: CGPoint = .zero
     @EnvironmentObject var container: DIContainer
     @EnvironmentObject var homeCoordinator: HomeCoordinator
+    @EnvironmentObject var appState: AppState
     
     init() {
         /// TabBar Hidden이 안될 때,
@@ -95,6 +96,7 @@ struct MainTabView: View {
         }
         
         CustomTabbar()
+            .allowsHitTesting(!appState.isLoding)
     }
     
     

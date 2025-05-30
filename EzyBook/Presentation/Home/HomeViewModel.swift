@@ -119,6 +119,10 @@ extension HomeViewModel {
     /// onAppear시 호출 함수
     func requestActivities(_ flag: Flag, _ filter: Filter) {
         Task {
+            await MainActor.run {
+                output.isLoading = true
+                
+            }
             await fetchNewList(flag.requestValue, filter.requestValue)
             await fetchFilterList(flag.requestValue, filter.requestValue)
             

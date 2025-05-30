@@ -16,7 +16,7 @@ struct HomeView: View {
     @State var searchText = ""
     
     @Environment(\.displayScale) var scale
-    
+    @EnvironmentObject var appState: AppState
     /// 버튼 컬럼
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 10), count: 4)
     
@@ -28,46 +28,53 @@ struct HomeView: View {
         ZStack {
             ScrollView(.vertical) {
                 VStack(alignment: .center, spacing: 15) {
- 
-                    if !viewModel.output.isLoading {
-                        makeSearchBarButton()
-                        makeNewActivityView()
-                        makeFlagSelectionView()
-                        makeFilterSelectionView()
-                        ActivityIntroduceView(data: $viewModel.output.filterActivityDetailList) { id in
-                            print("뷰모델 작업")
-                        } currentIndex: { index in
-                            viewModel.action(.prefetchfilterActivityContent(index: index))
-                            viewModel.action(.paginationAcitiviyList(flag: selectedFlag, filter: selectedFilter, index: index))
-                        }
+                    
+                    makeSearchBarButton()
+                    makeNewActivityView()
+                    makeFlagSelectionView()
+                    makeFilterSelectionView()
+                    ActivityIntroduceView(data: $viewModel.output.filterActivityDetailList) { id in
+                        print("뷰모델 작업")
+                    } currentIndex: { index in
+                        viewModel.action(.prefetchfilterActivityContent(index: index))
+                        viewModel.action(.paginationAcitiviyList(flag: selectedFlag, filter: selectedFilter, index: index))
                     }
-                                        
-                    if viewModel.output.isLoading {
-                        Color.black.opacity(0.3)
-                            .ignoresSafeArea()
+                }
+            }
+            .disabled(viewModel.output.isLoading)
+            
+            if viewModel.output.isLoading {
+                Color.white.opacity(0.3)
+                    .ignoresSafeArea(edges: .all)
+                    .overlay(
                         ProgressView()
                             .scaleEffect(1.5)
-                    }
-                    
-                }
-                .onAppear {
-                    viewModel.action(.onAppearRequested(flag: selectedFlag, filter: selectedFilter))
-                    viewModel.action(.updateScale(scale: scale))
-                }
-                .commonAlert(
-                    isPresented: Binding(
-                        get: { viewModel.output.isShowingError },
-                        set: { isPresented in
-                            if !isPresented {
-                                viewModel.action(.resetError)
-                            }
-                        }
-                    ),
-                    title: viewModel.output.presentedError?.message.title,
-                    message: viewModel.output.presentedError?.message.msg
-                )
+                            .progressViewStyle(CircularProgressViewStyle(tint: .grayScale75))
+                    )
+                    .transition(.opacity)
+                    .animation(.easeInOut, value: viewModel.output.isLoading)
             }
         }
+        .onAppear {
+            viewModel.action(.onAppearRequested(flag: selectedFlag, filter: selectedFilter))
+            viewModel.action(.updateScale(scale: scale))
+        }
+        .commonAlert(
+            isPresented: Binding(
+                get: { viewModel.output.isShowingError },
+                set: { isPresented in
+                    if !isPresented {
+                        viewModel.action(.resetError)
+                    }
+                }
+            ),
+            title: viewModel.output.presentedError?.message.title,
+            message: viewModel.output.presentedError?.message.msg
+        )
+        .onAppear {
+            appState.isLoding = viewModel.output.isLoading
+        }
+        .loadingOverlayModify(viewModel.output.isLoading)
     }
     
 }
@@ -185,7 +192,7 @@ extension HomeView {
             }
             .padding()
         }
-       
+        
     }
     
 }
