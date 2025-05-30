@@ -34,6 +34,13 @@ final class DefaultNetworkService: NetworkService {
             .serializingData()
             .response
         
+        if let request = response.request {
+            print("Full URL:", request.url?.absoluteString ?? "nil")
+            print("Full URL:", urlRequest)
+            print("HTTP Method:", request.httpMethod ?? "nil")
+            print("Headers:", request.headers)
+        }
+        
         #if DEBUG
         let urlString = urlRequest.url?.absoluteString ?? "Invalid URL"
         #endif

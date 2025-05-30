@@ -13,14 +13,21 @@ struct ActivityIntroduceView: View {
     @Binding var data: [FilterActivityModel]
     
     var onTapKeep: (String) -> Void
+    var currentIndex: (Int) -> Void
     
     var body: some View {
         LazyVStack {
-            ForEach(data, id: \.activityID) { item in
+            ForEach(Array(zip(data.indices, data)), id: \.1.activityID) { index, item in
+                VStack {
+                    makeFilterImageView(item)
+                    makedescriptionView(item)
+                }
+                .onAppear {
+                    currentIndex(index)
+                }
                 
-                makeFilterImageView(item)
-                makedescriptionView(item)
             }
+       
         }
     }
 }
@@ -40,10 +47,10 @@ extension ActivityIntroduceView {
                 
                 makeBadgeView(item)
                 
-                if item.isNewActiviy {
+                if let tag = item.eventTag {
                     VStack {
                         Spacer()
-                        ActivityOpenDisCountTagView()
+                        ActivityEventLongTagView(tag: tag)
                             .offset(y: 10) // 바텀에서 10 아래로 내리기
                     }
                 }

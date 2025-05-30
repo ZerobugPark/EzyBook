@@ -55,11 +55,11 @@ final class DefaultImageLoader: ImagerLoader {
         
         
 #if DEBUG
-        if let request = response.request {
-            print("Full URL:", request.url?.absoluteString ?? "nil")
-            print("HTTP Method:", request.httpMethod ?? "nil")
-            print("Headers:", request.headers)
-        }
+//        if let request = response.request {
+//            print("Full URL:", request.url?.absoluteString ?? "nil")
+//            print("HTTP Method:", request.httpMethod ?? "nil")
+//            print("Headers:", request.headers)
+//        }
         //TODO: etag랑 캐시정책 고려해보기
         let etag = response.response?.allHeaderFields["Etag"] as? String
         //print(etag)
@@ -98,7 +98,7 @@ extension DefaultImageLoader {
         let kb = Double(bytes) / 1024
         let mb = kb / 1024
 
-        print(String(format: "📦 Data size: %.2f MB (%.0f KB / %d bytes)", mb, kb, bytes))
+        //print(String(format: "📦 Data size: %.2f MB (%.0f KB / %d bytes)", mb, kb, bytes))
     }
 }
 

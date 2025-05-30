@@ -25,49 +25,48 @@ struct HomeView: View {
     
     
     var body: some View {
-        ScrollView(.vertical) {
-            VStack(alignment: .center, spacing: 15) {
-                
-//                makeSearchBarButton()
-//                makeNewActivityView()
-//                makeFlagSelectionView()
-//                makeFilterSelectionView()
-//                makeFilterResultView()
-                
-                
-                /// 추천은 고민좀 해보자.
-                
-                if viewModel.output.isLoading {
-                    Spacer()
-                    ProgressView()
-                    Spacer()
-                } else {
-                    makeSearchBarButton()
-                    makeNewActivityView()
-                    makeFlagSelectionView()
-                    makeFilterSelectionView()
-                    ActivityIntroduceView(data: $viewModel.output.filterActivityDetailList) { id in
-                        print("뷰모델 작업")
-                    }
-                }
-        
-            }
-            .onAppear {
-                viewModel.action(.onAppearRequested(flag: selectedFlag, filter: selectedFilter))
-                viewModel.action(.updateScale(scale: scale))
-            }
-            .commonAlert(
-                isPresented: Binding(
-                    get: { viewModel.output.isShowingError },
-                    set: { isPresented in
-                        if !isPresented {
-                            viewModel.action(.resetError)
+        ZStack {
+            ScrollView(.vertical) {
+                VStack(alignment: .center, spacing: 15) {
+ 
+                    if !viewModel.output.isLoading {
+                        makeSearchBarButton()
+                        makeNewActivityView()
+                        makeFlagSelectionView()
+                        makeFilterSelectionView()
+                        ActivityIntroduceView(data: $viewModel.output.filterActivityDetailList) { id in
+                            print("뷰모델 작업")
+                        } currentIndex: { index in
+                            viewModel.action(.prefetchfilterActivityContent(index: index))
+                            viewModel.action(.paginationAcitiviyList(flag: selectedFlag, filter: selectedFilter, index: index))
                         }
                     }
-                ),
-                title: viewModel.output.presentedError?.message.title,
-                message: viewModel.output.presentedError?.message.msg
-            )
+                                        
+                    if viewModel.output.isLoading {
+                        Color.black.opacity(0.3)
+                            .ignoresSafeArea()
+                        ProgressView()
+                            .scaleEffect(1.5)
+                    }
+                    
+                }
+                .onAppear {
+                    viewModel.action(.onAppearRequested(flag: selectedFlag, filter: selectedFilter))
+                    viewModel.action(.updateScale(scale: scale))
+                }
+                .commonAlert(
+                    isPresented: Binding(
+                        get: { viewModel.output.isShowingError },
+                        set: { isPresented in
+                            if !isPresented {
+                                viewModel.action(.resetError)
+                            }
+                        }
+                    ),
+                    title: viewModel.output.presentedError?.message.title,
+                    message: viewModel.output.presentedError?.message.msg
+                )
+            }
         }
     }
     
@@ -118,15 +117,7 @@ extension HomeView {
         HStack {
             Text("NEW 액티비티")
                 .appFont(PaperlogyFontStyle.caption)
-            
             Spacer()
-            
-            Button {
-                
-            } label: {
-                Text("View")
-                    .appFont(PretendardFontStyle.body1, textColor: .deepSeafoam)
-            }
         }.padding(.horizontal, 10)
     }
     

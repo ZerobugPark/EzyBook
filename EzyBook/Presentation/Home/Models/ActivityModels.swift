@@ -71,19 +71,21 @@ struct FilterActivityModel: ActivityModelBuildable {
         }
     }
     
-    /// New Activity가 마감 임박일 수 있을까?
-    var isNewActiviy: Bool {
+    
+    
+    var eventTag: Tag? {
         
         guard let tag = tag else {
-            return false
+            return nil
         }
-        
-        if tag == "New 오픈특가" {
-            return true
+        if tag.hasPrefix("Hot") {
+            return .hot
+        } else if tag.hasPrefix("New") {
+            return .new
         } else {
-            return false
+            return nil
         }
-  
+         
     }
     
     init(from detail: ActivityDetailEntity, thumbnail: UIImage) {
@@ -102,6 +104,6 @@ struct FilterActivityModel: ActivityModelBuildable {
         self.endDate = detail.endDate
     }
     
-
+    
 }
 

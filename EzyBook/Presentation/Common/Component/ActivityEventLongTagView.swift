@@ -7,17 +7,20 @@
 
 import SwiftUI
 
-struct ActivityOpenDisCountTagView: View {
-
+struct ActivityEventLongTagView: View {
+    
+    var tag: Tag
+    
+    
     var body: some View {
         Label {
-            Text("NEW 액티비티 오픈할인")
+            Text(tag == .new ? "NEW 액티비티 오픈할인" : "Hot 이벤트")
                 .appFont(
                     PaperlogyFontStyle.caption,
                     textColor: .grayScale0
                 )
         } icon: {
-            Image(.iconNoti)
+            Image(tag == .new ? .iconNoti : .iconHot)
                 .renderingMode(.template)
                 .resizable()
                 .frame(width: 16, height: 16)
@@ -37,5 +40,5 @@ struct ActivityOpenDisCountTagView: View {
 }
 
 #Preview {
-    ActivityOpenDisCountTagView()
+    ActivityEventLongTagView(tag: .hot)
 }

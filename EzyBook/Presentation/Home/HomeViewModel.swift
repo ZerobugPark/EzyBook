@@ -22,16 +22,17 @@ final class HomeViewModel: ViewModelType {
     var cancellables = Set<AnyCancellable>()
     
     private var scale: CGFloat = 0
-    private let limit = 5
+    private let limit = 10
     private var nextCursor: String?
+    private var paginationInProgress = false //페이지네이션 진행중 여부
     
     
     /// Result Storage  Property
     /// 통신을 할 인덱스 관리 및 저장되는 데이터
     
-    private var newActivitySummaryList: [ActivitySummaryEntity] = []
+    private var newActivitySummaryList: [ActivitySummaryEntity] = [] // 서버 요청 데이터
     private var newActivityindicats = Set<Int>()
-    private var _activityNewDetailList: [Int: NewActivityModel] = [:] {
+    private var _activityNewDetailList: [Int: NewActivityModel] = [:] { // 화면에 보여줄 실제 상세 정보
         didSet {
             
             let sortedValues = _activityNewDetailList
@@ -43,9 +44,9 @@ final class HomeViewModel: ViewModelType {
     }
     
     
-    private var filterActivitySummaryList: [ActivitySummaryEntity] = []
+    private var filterActivitySummaryList: [ActivitySummaryEntity] = [] // 서버 요청 데이터
     private var filterActivityindicats = Set<Int>()
-    private var _filterActivityDetailList: [Int: FilterActivityModel] = [:] {
+    private var _filterActivityDetailList: [Int: FilterActivityModel] = [:] { // 화면에 보여줄 실제 상세 정보
         didSet {
             let sortedValues = _filterActivityDetailList
                 .sorted { $0.key < $1.key }
@@ -54,6 +55,7 @@ final class HomeViewModel: ViewModelType {
             output.filterActivityDetailList = sortedValues
         }
     }
+    private var pendingFetchIndices = Set<Int>() // 스크롤 펜딩
     
     
     
@@ -94,41 +96,9 @@ extension HomeViewModel {
         
         var activityNewDetailList: [NewActivityModel] = []
         var filterActivityDetailList: [FilterActivityModel] = []
-        
-        //            FilterActivityModel(
-        //                from: ActivityDetailEntity(
-        //                    dto: ActivityDetailResponseDTO(
-        //                        activityID: "123",
-        //                        title: "대한민국에서 신나는 먹방",
-        //                        country: "대한민국",
-        //                        category: "먹방",
-        //                        thumbnails: [],
-        //                        geolocation: ActivityGeolocationDTO(longitude: 1.0, latitude: 1.0),
-        //                        startDate: "",
-        //                        endDate: "2025-08-07",
-        //                        price: ActivityPriceDTO(original: 324000, final: 123000),
-        //                        tags: ["New 오픈특가"],
-        //                        pointReward: 10,
-        //                        restrictions: ActivityRestrictionsDTO(minHeight: 10, minAge: 10, maxParticipants: 10),
-        //                        description: "세계적으로 유명한 대한민국에서 오감을 만족시키는 여정에서 잊지 못할 추억을 체험해보세요. 새로운 시각을 가질 시간이 될 것입니다. 전문 가이드가 함께합니다!",
-        //                        isAdvertisement: true,
-        //                        isKeep: true,
-        //                        keepCount: 100,
-        //                        totalOrderCount: 100,
-        //                        schedule: [],
-        //                        reservationList: [],
-        //                        creator: ActivityCreatorDTO(userID: "123", nick: "123", introduction: "123"),
-        //                        createdAt: nil,
-        //                        updatedAt: nil
-        //                    )
-        //                ),
-        //                thumbnail: UIImage(systemName: "star")!
-        //            )
     }
     
     func transform() {
-        
-        
         /// 필터가 눌렸을 때, 구독 또는 최초 실행시 구독
         /// 조건1) 기존 필터와 같은 내용인가? -> 통신 X
         /// 조건2) 기존 필터와 서로 내용이 다른가? -> 통신, 필터가 선택되는거 자체가 신규액티비티도 업데이트 해야하는 상황
@@ -149,9 +119,8 @@ extension HomeViewModel {
     /// onAppear시 호출 함수
     func requestActivities(_ flag: Flag, _ filter: Filter) {
         Task {
-            async let newList: Void = fetchNewList(flag.requestValue, filter.requestValue)
-            async let filterList: Void = fetchFilterList(flag.requestValue, filter.requestValue)
-            _ = await (newList, filterList)
+            await fetchNewList(flag.requestValue, filter.requestValue)
+            await fetchFilterList(flag.requestValue, filter.requestValue)
             
             await MainActor.run {
                 output.isLoading = false
@@ -190,12 +159,15 @@ extension HomeViewModel {
     /// 필터 데이터 조회
     private func fetchFilterList(_ country: String?, _ category: String?) async {
         
-        let requestDto = ActivitySummaryListRequestDTO(country: country, category: category, limit: "\(limit)", next: nextCursor)
+        let requestDto = ActivitySummaryListRequestDTO(country: country, category: category, limit: "\(limit)", next: nil)
         
         do {
             let summary = try await activityListUseCase.execute(requestDto: requestDto)
+            let uniqueList = removeDuplicatesFromFilterList(filterList: summary.data)
             
-            let details = try await prefetchInitial(for: summary.data, type: FilterActivityModel.self)
+            nextCursor = summary.nextCursor
+            
+            let details = try await prefetchInitial(for: uniqueList, type: FilterActivityModel.self)
             filterActivitySummaryList = summary.data
             
             await MainActor.run {
@@ -216,7 +188,6 @@ extension HomeViewModel {
         
     }
     
-    
     private func prefetchInitial<T: ActivityModelBuildable>(for list: [ActivitySummaryEntity], type: T.Type) async throws -> [Int: T] {
         var result: [Int: T] = [:]
         for i in 0..<min(3, list.count) {
@@ -233,54 +204,18 @@ extension HomeViewModel {
         return result
     }
     
-    private func handleFetchNewDetail(_ index: Int) {
-        Task {
-            await fetchNewDetailIfNeeded(for: index)
+    /// New 있으면 필터에는 보이지 않게 하기 위한 중복제거 함수
+    private func removeDuplicatesFromFilterList(filterList: [ActivitySummaryEntity]) -> [ActivitySummaryEntity] {
+        
+        /// Set으로 만들어 시간복잡도를 줄임 (Set : O(1), Array: O(n)
+        let newIDs = Set(newActivitySummaryList.map { $0.activityID })
+        
+        let filteredList = filterList.filter {
+            !newIDs.contains($0.activityID)
         }
         
+        return filteredList
     }
-    
-    
-    // 캐러셀이 이동하면 호출
-    private func fetchNewDetailIfNeeded(for index: Int) async   {
-        /// +2, 최초 로딩시, 3개의 [0, 1,  2]데이터를 가져옴, 이후 1번 인덱스에도착하면 3번 데이터를 호출
-        print(newActivityindicats)
-        let fetchIndex = index + 2
-        
-        //  여기 동영상 찍어서 비교테스트
-        /// _activityNewDetailList[fetchIndex] == nil
-        /// 통신 중에 스크롤 되는 것은 막지를 못함
-        /// guard _activityNewDetailList[fetchIndex] == nil ,fetchIndex < newActivitySummaryList.count else { return }
-        
-        /// 해결방안 Set 사용
-        guard !newActivityindicats.contains(fetchIndex), fetchIndex < newActivitySummaryList.count else { return }
-        newActivityindicats.insert(fetchIndex)
-        
-        do {
-            let detail = try await reqeuestActivityDetailList(newActivitySummaryList[fetchIndex], type: NewActivityModel.self)
-            await MainActor.run {
-                _activityNewDetailList[fetchIndex] = detail
-            }
-        } catch {
-            // 요청 실패 시 Set에서 제거
-            newActivityindicats.remove(fetchIndex)
-           /// 실패는 조용히 넘긴다. (Silent Fail) 적용
-            print("실패 \(fetchIndex)")
-        }
-        
-        
-    }
-    
-    
-    
-}
-
-
-
-// MARK: Common
-
-extension HomeViewModel {
-    
     
     /// 상세 정보 조회
     private func  reqeuestActivityDetailList<T: ActivityModelBuildable>(_ data:  ActivitySummaryEntity, type: T.Type) async throws -> T {
@@ -291,8 +226,6 @@ extension HomeViewModel {
         return T(from: detail, thumbnail: thumbnailImage)
         
     }
-    
-    
     
     /// 이미지 로드 함수
     private func requestThumbnailImage(_ paths: [String]) async throws -> UIImage {
@@ -320,6 +253,203 @@ extension HomeViewModel {
     
 }
 
+// MARK: New Activity 관련
+extension HomeViewModel {
+    
+    private func triggerNewDetailPrefetch(_ index: Int) {
+        Task {
+            await fetchNewDetailIfNeeded(for: index)
+        }
+    }
+    
+    // 캐러셀이 이동하면 호출
+    private func fetchNewDetailIfNeeded(for index: Int) async   {
+        /// +2, 최초 로딩시, 3개의 [0, 1,  2]데이터를 가져옴, 이후 1번 인덱스에도착하면 3번 데이터를 호출
+        let fetchIndex = index + 1
+        
+        /// 해결방안 Set 사용
+        guard !newActivityindicats.contains(fetchIndex), fetchIndex < newActivitySummaryList.count else { return }
+        newActivityindicats.insert(fetchIndex)
+        
+        do {
+            let detail = try await reqeuestActivityDetailList(newActivitySummaryList[fetchIndex], type: NewActivityModel.self)
+            await MainActor.run {
+                _activityNewDetailList[fetchIndex] = detail
+            }
+        } catch let error as APIError {
+            // 요청 실패 시 Set에서 제거
+            newActivityindicats.remove(fetchIndex)
+            print(error.userMessage)
+        } catch {
+            newActivityindicats.remove(fetchIndex)
+            print(error)
+        }
+        
+    }
+    
+       
+    
+    
+}
+
+// MARK: 필터 데이터 관련
+
+extension HomeViewModel {
+    
+    private func triggerFilterDetailPrefetch(_ index: Int) {
+        Task {
+            await fetchFilterDetailIfNeeded(for: index)
+        }
+    }
+    
+    ///필터가 OnAppear 될 때마다 호출
+    ///prefetch: 상세 데이터 미리 불러오기
+    private func fetchFilterDetailIfNeeded(for index: Int) async   {
+        /// +1, 최초 로딩시, 3개의 [0, 1,  2]데이터를 가져옴, 이후 2번 인덱스에도착하면 3번 데이터를 호출
+        let fetchIndex = index + 1
+         
+        if fetchIndex >= filterActivitySummaryList.count {
+            pendingFetchIndices.insert(fetchIndex)
+            return
+        }
+        
+        guard !paginationInProgress,!filterActivityindicats
+            .contains(fetchIndex), fetchIndex < filterActivitySummaryList.count else { return }
+        filterActivityindicats.insert(fetchIndex)
+        
+        do {
+            let detail = try await reqeuestActivityDetailList(filterActivitySummaryList[fetchIndex], type: FilterActivityModel.self)
+            await MainActor.run {
+                _filterActivityDetailList[fetchIndex] = detail
+            }
+        } catch let error as APIError {
+            // 요청 실패 시 Set에서 제거
+            filterActivityindicats.remove(fetchIndex)
+            print(error.userMessage)
+        } catch {
+            filterActivityindicats.remove(fetchIndex)
+            print(error)
+        }
+        
+    
+        
+    }
+    
+    private func triggerPaginationFilterPrefetch(_ country: String?, _ category: String?, index: Int) {
+        Task {
+            await paginationFilterActivityList(country, category, for: index)
+        }
+    }
+    
+    /// Pagination: 다음 페이지 요청
+    private func paginationFilterActivityList(_ country: String?, _ category: String?, for index: Int) async {
+        
+        let threshold = 2
+     
+        guard !paginationInProgress,
+                index >= filterActivitySummaryList.count - threshold,
+                let nextCursor = self.nextCursor else { return }
+        paginationInProgress = true
+        
+        defer {
+              paginationInProgress = false
+          }
+        
+        let requestDto = ActivitySummaryListRequestDTO(country: country, category: category, limit: "\(limit)", next: nextCursor)
+        
+        do {
+            let summary = try await activityListUseCase.execute(requestDto: requestDto)
+            let uniqueList = removeDuplicatesFromFilterList(filterList: summary.data)
+            filterActivitySummaryList.append(contentsOf: uniqueList)
+            self.nextCursor = summary.nextCursor
+
+            await processPendingPrefetches() /// 데이터를 불러오는동안 스크롤 이벤트에 대한 펜딩 처리
+            
+            
+        } catch let error as APIError {
+            await MainActor.run {
+                output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+            }
+        } catch {   
+            print(error)
+        }
+    }
+    
+    /// 펜딩에 많이 있을 수 있으니 withTaskGroup으로 동시에 데이터 처리
+    private func processPendingPrefetches() async {
+        await withTaskGroup(of: (Int, Result<FilterActivityModel, Error>).self) { group in
+            for index in pendingFetchIndices {
+                guard index < filterActivitySummaryList.count,
+                      !filterActivityindicats.contains(index) else { continue }
+                
+                filterActivityindicats.insert(index)
+
+                group.addTask { [weak self] in
+                    
+                    guard let self else {
+                             return (index, .failure(NSError(domain: "SelfDeallocated", code: -1)))
+                         }
+                    
+                    let result: Result<FilterActivityModel, Error>
+                    
+                    do {
+                        let detail = try await reqeuestActivityDetailList(
+                            filterActivitySummaryList[index],
+                            type: FilterActivityModel.self
+                        )
+                        result = .success(detail)
+                    } catch {
+                        result = .failure(error)
+                    }
+                    return (index, result)
+                }
+            }
+
+            for await (index, result) in group {
+                switch result {
+                case .success(let detail):
+                    await MainActor.run {
+                        _filterActivityDetailList[index] = detail
+                    }
+                case .failure(let error):
+                    filterActivityindicats.remove(index)
+                    
+                    let error = error as? APIError
+                    print("prefetch 실패 \(index): \(error?.userMessage ?? "알수 없는 오류")")
+                }
+            }
+        }
+
+        pendingFetchIndices.removeAll()
+    }
+
+    
+    
+//    private func processPendingPrefetches() async {
+//        for index in pendingFetchIndices {
+//            guard index < filterActivitySummaryList.count,
+//                  !filterActivityindicats.contains(index) else { continue }
+//            
+//            filterActivityindicats.insert(index)
+//
+//            do {
+//                let detail = try await reqeuestActivityDetailList(filterActivitySummaryList[index], type: FilterActivityModel.self)
+//                await MainActor.run {
+//                    _filterActivityDetailList[index] = detail
+//                }
+//            } catch let error as APIError {
+//                filterActivityindicats.remove(index)
+//                print(error.userMessage)
+//            } catch {
+//                filterActivityindicats.remove(index)
+//                print("재시도 실패 \(index)")
+//            }
+//        }
+//
+//        pendingFetchIndices.removeAll()
+//    }
+    
+}
 
 
 // MARK: Action
@@ -330,6 +460,8 @@ extension HomeViewModel {
         case updateScale(scale: CGFloat)
         case selectionChanged(flag: Flag, filter: Filter)
         case prefetchNewContent(index: Int)
+        case prefetchfilterActivityContent(index: Int)
+        case paginationAcitiviyList(flag: Flag, filter: Filter, index: Int)
         case resetError
     }
     
@@ -342,118 +474,16 @@ extension HomeViewModel {
         case .updateScale(let scale):
             handleUpdateScale(scale)
         case .prefetchNewContent(let index):
-            handleFetchNewDetail(index)
+            triggerNewDetailPrefetch(index)
+        case .prefetchfilterActivityContent(let index):
+            triggerFilterDetailPrefetch(index)
+        case let .paginationAcitiviyList(flag, filter, index):
+            triggerPaginationFilterPrefetch(flag.requestValue, filter.requestValue, index: index)
         case .resetError:
             handleResetError()
-            
         }
     }
     
     
 }
 
-
-
-
-
-/// 필터가 눌렸을때만 관리하는 함수 최초 및 로딩
-//    private func requestNewActivities(_ flag: Flag, _ filter: Filter)
-//    {
-//        let country = flag.requestValue
-//        let category =  filter.requestValue
-//
-//        Task {
-//            do {
-//                let result = try await activityNewLisUseCase.execute(country: country, category: category)
-//
-//                if result.isEmpty {
-//                    ///  조회할 데이터가 없다는것 표시
-//                    return
-//                }
-//                newActivitySummaryResult = result
-//
-//                let detailResults = try await prefetchInitial(for: result)
-//
-//                await MainActor.run {
-//
-//
-//
-//                    for (index, detail) in detailResults {
-//                        output.activityNewDetailList[index] = detail
-//                    }
-//                }
-//
-//            }  catch let error as APIError {
-//                await MainActor.run {
-//                    output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
-//                }
-//            }
-//        }
-//
-//    }
-
-
-/// 일회성 단순 최초 호출 용도로 설계를 바꾸자
-/// 즉 1회성으로 통신할 수있는 범용 함수
-//    private func requestActivities(_ flag: Flag = .all, _ filter: Filter = .all) {
-//
-//        let country = flag.requestValue
-//        let category =  filter.requestValue
-//
-//        let requestDto = ActivitySummaryListRequestDTO(country: country, category: category, limit: "\(limit)", next: nextCursor)
-//
-//        Task {
-//            do {
-//                /// async let:    비동기 작업 시작
-//                async let filterListResult = activityListUseCase.execute(requestDto: requestDto)
-//                async let newListResult = activityNewLisUseCase.execute(country: country, category: category)
-//
-//                // 둘 다 성공해야 넘어감
-//                let (filterList, newList) = try await (filterListResult, newListResult)
-//
-//                let newActivitydetails = try await reqeuestActivityDetailList(newList, type: NewActivityModel.self)
-//
-//                let filterListdetails = try await reqeuestActivityDetailList(filterList.data, type: FilterActivityModel.self)
-//
-//                /// 커서 저장
-//                nextCursor = filterList.nextCursor
-//
-//
-//                await MainActor.run {
-//                    output.activityNewDetailList = newActivitydetails
-//                    output.filterActivityDetailList = filterListdetails
-//                    output.isLoading = false
-//                }
-//            } catch let error as APIError {
-//                await MainActor.run {
-//                    output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
-//                }
-//            }
-//        }
-//    }
-//
-//
-
-//    private func  reqeuestActivityDetailList<T: ActivityModelBuildable>(_ data:  [ActivitySummaryEntity], type: T.Type) async throws -> [T] {
-//
-//        return try await withThrowingTaskGroup(of: T.self) { [weak self] group in
-//            guard let self = self else {
-//                throw APIError(localErrorType: .decodingError)
-//            }
-//                for item in data {
-//                    group.addTask {
-//                        let detail = try await self.activityDeatilUseCase.execute(id: item.activityID)
-//                        let thumbnailImage = try await self.requestThumbnailImage(detail.thumbnails)
-//                        /// 아래 for문으로 이동
-//                        return T(from: detail, thumbnail: thumbnailImage)
-//                    }
-//                }
-//
-//                var result: [T] = []
-//                for try await item in group {
-//                    result.append(item)
-//                }
-//
-//                return result
-//            }
-//    }
