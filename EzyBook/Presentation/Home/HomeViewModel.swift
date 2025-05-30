@@ -121,6 +121,8 @@ extension HomeViewModel {
         Task {
             await MainActor.run {
                 output.isLoading = true
+                newActivityindicats.removeAll() // Set indicats 초기화
+                filterActivityindicats.removeAll() // Set indicats 초기화
                 
             }
             await fetchNewList(flag.requestValue, filter.requestValue)

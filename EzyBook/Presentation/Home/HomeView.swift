@@ -49,7 +49,7 @@ struct HomeView: View {
                     .overlay(
                         ProgressView()
                             .scaleEffect(1.5)
-                            .progressViewStyle(CircularProgressViewStyle(tint: .grayScale75))
+                            .progressViewStyle(CircularProgressViewStyle(tint: .grayScale100))
                     )
                     .transition(.opacity)
                     .animation(.easeInOut, value: viewModel.output.isLoading)
@@ -262,8 +262,8 @@ extension HomeView {
         } label: {
             Text(filter.rawValue)
                 .appFont(PretendardFontStyle.caption1, textColor: selectedFilter == filter ? .blackSeafoam : .grayScale100)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
                 .background(
                     RoundedRectangle(cornerRadius: 17)
                         .fill(selectedFilter == filter ? .deepSeafoam.opacity(0.3) : Color.white)

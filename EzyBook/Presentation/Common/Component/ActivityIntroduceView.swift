@@ -16,19 +16,27 @@ struct ActivityIntroduceView: View {
     var currentIndex: (Int) -> Void
     
     var body: some View {
-        LazyVStack {
-            ForEach(Array(zip(data.indices, data)), id: \.1.activityID) { index, item in
-                VStack {
-                    makeFilterImageView(item)
-                    makedescriptionView(item)
-                }
-                .onAppear {
-                    currentIndex(index)
-                }
-                
+        if data.isEmpty {
+            VStack {
+                Text("검색 결과가 없습니다.")
+                    .appFont(PretendardFontStyle.body1)
+                    .padding(.vertical, 30)
             }
-       
+        } else {
+            LazyVStack {
+                ForEach(Array(zip(data.indices, data)), id: \.1.activityID) { index, item in
+                    VStack {
+                        makeFilterImageView(item)
+                        makedescriptionView(item)
+                    }
+                    .onAppear {
+                        currentIndex(index)
+                    }
+                }
+            }
         }
+        
+        
     }
 }
 
