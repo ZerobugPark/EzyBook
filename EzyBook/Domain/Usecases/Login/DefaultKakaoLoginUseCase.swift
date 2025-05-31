@@ -26,30 +26,22 @@ final class DefaultKakaoLoginUseCase {
 // MARK: Login
 extension DefaultKakaoLoginUseCase {
     
-    func execute(completionHandler: @escaping (Result <Void, APIError>) -> Void) {
-        Task {
-            do {
-                let data = try await kakoLoginService.loginWithKakao()
-                let token = try await authRepository.requestKakaoLogin(data)
-                _ = tokenService.saveTokens(accessToken: token.accessToken, refreshToken: token.refreshToken)
-                await MainActor.run {
-                    completionHandler(.success(()))
-                }
-            } catch  {
-                let resolvedError: APIError
-                if let apiError = error as? APIError {
-                    resolvedError = apiError
-                } else {
-                    resolvedError = .unknown
-                }
-                await MainActor.run {
-                    completionHandler(.failure(resolvedError))
-                }
-                
+    func execute() async throws -> Void {
+        
+        do {
+            let data = try await kakoLoginService.loginWithKakao()
+            let token = try await authRepository.requestKakaoLogin(data)
+            _ = tokenService.saveTokens(accessToken: token.accessToken, refreshToken: token.refreshToken)
+        } catch {
+            if let apiError = error as? APIError {
+                throw apiError
+            } else {
+                throw APIError.unknown
             }
         }
     }
 }
+
 
 
 

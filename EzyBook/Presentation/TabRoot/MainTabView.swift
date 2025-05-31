@@ -42,6 +42,7 @@ struct MainTabView: View {
     @State private var tabShapePosition: CGPoint = .zero
     @EnvironmentObject var container: DIContainer
     @EnvironmentObject var homeCoordinator: HomeCoordinator
+    @EnvironmentObject var appState: AppState
     
     init() {
         /// TabBar Hidden이 안될 때,
@@ -50,8 +51,7 @@ struct MainTabView: View {
     
     var title: some View {
         Text("EzyBook")
-            .appFont(PaperlogyFontStyle.body)
-            .foregroundStyle(.blackSeafoam)
+            .appFont(PaperlogyFontStyle.body, textColor: .blackSeafoam) 
     }
     
     var body: some View {
@@ -96,6 +96,7 @@ struct MainTabView: View {
         }
         
         CustomTabbar()
+            .allowsHitTesting(!appState.isLoding)
     }
     
     

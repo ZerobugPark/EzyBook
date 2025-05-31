@@ -12,7 +12,7 @@ enum ActivityRequest: GetRouter {
     
     case activityFiles
     case activityList(param: ActivitySummaryListRequestDTO)
-    case activityDetail(id: String)
+    case activityDetail(param: ActivityDetailRequestDTO)
     case newActivities(param: ActivityNewSummaryListRequestDTO)
     case serachActiviy(param: ActivitySearchListRequestDTO)
     
@@ -26,8 +26,8 @@ enum ActivityRequest: GetRouter {
             ActivityEndPoint.activityFiles.requestURL
         case .activityList:
             ActivityEndPoint.activityList.requestURL
-        case .activityDetail(let id):
-            ActivityEndPoint.activityDetail(id: id).requestURL
+        case .activityDetail(let param):
+            ActivityEndPoint.activityDetail(id: param.activityId).requestURL
         case .newActivities:
             ActivityEndPoint.newActivities.requestURL
         case .serachActiviy:

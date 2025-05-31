@@ -51,7 +51,6 @@ struct ActivitySummaryResponseDTO: Decodable {
     
 }
 
-
 /// 액티비티 상세 조회
 struct ActivityDetailResponseDTO: Decodable, EntityConvertible {
     let activityID: String // 고유 식별자
@@ -71,11 +70,11 @@ struct ActivityDetailResponseDTO: Decodable, EntityConvertible {
     let isKeep: Bool // 현재 유저의 킵 여부
     let keepCount: Int // 이 액티비티의 총 킵 수
     let totalOrderCount: Int // 총 주문 예약
-    let schedule: ActivityScheduleItemDTO // 일정 정보
-    let reservationList: ActivityReservationItemDTO // 예약 리스트
-    let creator: UserInfoResponseDTO // 게시자
-    let createdAt: String
-    let updateddAt: String
+    let schedule: [ActivityScheduleItemDTO] // 일정 정보
+    let reservationList: [ActivityReservationItemDTO] // 예약 리스트
+    let creator: ActivityCreatorDTO // 게시자
+    let createdAt: String?
+    let updatedAt: String?
     
     enum CodingKeys: String, CodingKey {
         case activityID = "activity_id"
@@ -99,7 +98,7 @@ struct ActivityDetailResponseDTO: Decodable, EntityConvertible {
         case reservationList = "reservation_list"
         case creator
         case createdAt
-        case updateddAt
+        case updatedAt
     }
     
 }
@@ -164,7 +163,7 @@ struct ActivityRestrictionsDTO: Decodable {
 /// 액티비티  예약 아이템 정보
 struct ActivityReservationItemDTO: Decodable {
     let itemName: String // 예약 아이템 이름(날짜??)
-    let times: ActivityReservationTimeDTO // 해당 아이템의 시간대별 예약 정보
+    let times: [ActivityReservationTimeDTO] // 해당 아이템의 시간대별 예약 정보
     
     enum CodingKeys: String, CodingKey {
         case itemName = "item_name"
@@ -183,3 +182,16 @@ struct ActivityReservationTimeDTO: Decodable {
     }
 }
 
+
+/// 액티비티 시간대별 예약 정보
+struct ActivityCreatorDTO: Decodable {
+    let userID: String
+    let nick: String
+    let introduction: String
+    
+    enum CodingKeys: String, CodingKey {
+        case userID = "user_id"
+        case nick
+        case introduction
+    }
+}

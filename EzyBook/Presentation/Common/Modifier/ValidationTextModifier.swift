@@ -16,8 +16,7 @@ private struct ValidationTextModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .padding(.top, 5)
-            .foregroundStyle(isVaild ? .grayScale100 : .grayScale60)
-            .font(.system(size: 12))
+            .appFont(PretendardFontStyle.caption1, textColor: isVaild ? .grayScale100 : .grayScale60)
     }
 }
 
