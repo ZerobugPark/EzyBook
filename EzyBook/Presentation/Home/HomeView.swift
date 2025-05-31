@@ -9,19 +9,26 @@ import SwiftUI
 
 struct HomeView: View {
     
+    @Environment(\.displayScale) var scale
+    
+    @EnvironmentObject var appState: AppState
+    
     @State private var selectedFlag: Flag = .all
     @State private var selectedFilter: Filter = .all
-    
     @StateObject var viewModel: HomeViewModel
-    @State var searchText = ""
     
-    @Environment(\.displayScale) var scale
-    @EnvironmentObject var appState: AppState
+    @ObservedObject var coordinator: HomeCoordinator
+    
     /// 버튼 컬럼
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 10), count: 4)
     
     /// 버튼 Rows
     private let rows = [GridItem(.flexible(), spacing: 20)]
+    
+    var title: some View {
+        Text("EzyBook")
+            .appFont(PaperlogyFontStyle.body, textColor: .blackSeafoam)
+    }
     
     
     var body: some View {
@@ -41,6 +48,7 @@ struct HomeView: View {
                     }
                 }
             }
+            .scrollIndicators(.hidden)
             .disabled(viewModel.output.isLoading)
             
             if viewModel.output.isLoading {
@@ -54,6 +62,20 @@ struct HomeView: View {
                     .transition(.opacity)
                     .animation(.easeInOut, value: viewModel.output.isLoading)
             }
+          
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                title
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
+                HStack(alignment: .center, spacing: 0) {
+                    makeAlarmButton()
+                    makeKeppButton()
+                }
+            }
+            
         }
         .onAppear {
             viewModel.action(.onAppearRequested(flag: selectedFlag, filter: selectedFilter))
@@ -87,7 +109,7 @@ struct HomeView: View {
 extension HomeView {
     private func makeSearchBarButton() -> some View {
         Button {
-            //viewModel.action(.searchTapped)
+            coordinator.push(.searchView)
         } label: {
             HStack {
                 Image(systemName: "magnifyingglass")
@@ -276,3 +298,27 @@ extension HomeView {
         }
     }
 }
+
+// MARK: 내용입력
+
+extension HomeView {
+    
+    private func makeAlarmButton() -> some View {
+        Button {
+            print("text heart")
+        } label: {
+            Image(.iconNoti)
+        }
+    }
+    
+    private func makeKeppButton() -> some View {
+        
+        Button {
+            print("test heart")
+        } label: {
+            Image(.iconLikeEmpty)
+        }
+
+    }
+}
+

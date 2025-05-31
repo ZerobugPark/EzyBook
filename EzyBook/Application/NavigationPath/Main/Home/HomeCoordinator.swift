@@ -1,16 +1,14 @@
 //
-//  AuthCoordinator.swift
+//  MainModelObject.swift
 //  EzyBook
 //
 //  Created by youngkyun park on 5/22/25.
 //
 
-import Foundation
-
 import SwiftUI
 
-
-final class AuthCoordinator: ObservableObject {
+final class HomeCoordinator: ObservableObject {
+    
     
     @Published var path = NavigationPath()
     
@@ -18,9 +16,10 @@ final class AuthCoordinator: ObservableObject {
     
     init(container: DIContainer) {
         self.container = container
+
     }
     
-    func push(_ route: AuthRoute) {
+    func push(_ route: HomeRoute) {
         path.append(route)
     }
 
@@ -31,16 +30,16 @@ final class AuthCoordinator: ObservableObject {
     func popToRoot() {
         path = NavigationPath()
     }
-
+    
     
     @ViewBuilder
-    func destinationView(route: AuthRoute) -> some View {
+    func destinationView(route: HomeRoute) -> some View {
         switch route {
-        case .socialLogin:
-            LoginView(coordinator: self, viewModel: self.container.makeSocialLoginViewModel())
-        case .emailLogin:
-            LoginSignUpPagerView(coordinator: self)
+        case .homeView:
+            HomeView(viewModel: self.container.makeHomeViewModel(), coordinator: self)
+        case .searchView:
+            SearchView(viewModel: self.container.makeSearchViewModel(), coordinator: self)
         }
     }
-    
+
 }

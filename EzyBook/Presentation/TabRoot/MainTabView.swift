@@ -41,7 +41,6 @@ struct MainTabView: View {
     @Namespace private var animation
     @State private var tabShapePosition: CGPoint = .zero
     @EnvironmentObject var container: DIContainer
-    @EnvironmentObject var homeCoordinator: HomeCoordinator
     @EnvironmentObject var appState: AppState
     
     init() {
@@ -49,34 +48,15 @@ struct MainTabView: View {
         //UITabBar.appearance().isHidden = true
     }
     
-    var title: some View {
-        Text("EzyBook")
-            .appFont(PaperlogyFontStyle.body, textColor: .blackSeafoam) 
-    }
+
     
     var body: some View {
         VStack(spacing: 0) {
             TabView(selection: $activeTab) {
-                NavigationStack(path: $homeCoordinator.path) {
-                    HomeView(viewModel: container.makeHomeViewModel())
-                        .toolbar {
-                            ToolbarItem(placement: .topBarLeading) {
-                                title
-                            }
-
-                            ToolbarItem(placement: .topBarTrailing) {
-                                HStack(alignment: .center, spacing: 0) {
-                                    makeAlarmButton()
-                                    makeKeppButton()
-                                }
-                            }
-                            
-                        }
-                        .tag(Tab.home)
-                    ///Hiding Native Tab Bar
-                        .toolbar(.hidden, for: .tabBar)
-                }
-                
+                HomeCoordinatorView(coordinator: HomeCoordinator(container: container))
+                    .tag(Tab.home)
+                    .toolbar(.hidden, for: .tabBar) ///Hiding Native Tab Bar
+    
                 Text("Services")
                     .tag(Tab.reviews)
                     ///Hiding Native Tab Bar
@@ -140,22 +120,5 @@ struct MainTabView: View {
 
 
 extension MainTabView {
-    
-    func makeAlarmButton() -> some View {
-        Button {
-            print("text heart")
-        } label: {
-            Image(.iconNoti)
-        }
-    }
-    
-    func makeKeppButton() -> some View {
-        
-        Button {
-            print("test heart")
-        } label: {
-            Image(.iconLikeEmpty)
-        }
-
-    }
+  
 }
