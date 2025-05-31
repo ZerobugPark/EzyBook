@@ -23,8 +23,8 @@ final class AppDIContainer {
     // MARK: - Data Layer
     private let authRepository: DefaultAuthRepository
     private let socialLoginService: DefaultsSocialLoginService
-    
     private let activityRepository: DefaultActivityRepository
+    private let acitvityKeepStatusRepository: DefaultKeepStatusRepository
     
 
 
@@ -41,6 +41,7 @@ final class AppDIContainer {
         socialLoginService = DefaultsSocialLoginService()
         
         activityRepository = DefaultActivityRepository(networkService: networkService)
+        acitvityKeepStatusRepository = DefaultKeepStatusRepository(networkService: networkService)
         
         imageCache = ImageMemoryCache()
         imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache, interceptor: interceptor)
@@ -59,6 +60,7 @@ final class AppDIContainer {
             activityNewListUseCase: makeActivityNewListUseCase(),
             activitySearchUseCase: makeActivityNewListUseCase(),
             activityDetailUseCase: makeActivityDetailUseCase(),
+            activityKeepCommandUseCase: makeActivityKeepCommainUseCase(),
             imageLoader: makeImageLoaderUseCase()
         )
     }
@@ -126,5 +128,9 @@ extension AppDIContainer {
     
     private func makeActivityDetailUseCase() -> DefaultActivityDetailUseCase {
         DefaultActivityDetailUseCase(repo: activityRepository)
+    }
+    
+    private func makeActivityKeepCommainUseCase() -> DefaultActivityKeepCommandUseCase {
+        DefaultActivityKeepCommandUseCase(repo: acitvityKeepStatusRepository)
     }
 }

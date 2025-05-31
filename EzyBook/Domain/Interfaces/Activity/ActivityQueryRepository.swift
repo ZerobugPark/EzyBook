@@ -9,5 +9,5 @@ import Foundation
 
 /// 신규 액티비티 및 액티비티 검색 공용
 protocol ActivityQueryRepository {
-    func requestActivityNewList(_ router: ActivityRequest) async throws -> [ActivitySummaryEntity]
+    func requestActivityNewList(_ router: ActivityGetRequest) async throws -> [ActivitySummaryEntity]
 }

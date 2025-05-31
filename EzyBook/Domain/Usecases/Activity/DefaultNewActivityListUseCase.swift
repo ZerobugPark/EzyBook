@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Combine
 
 final class DefaultNewActivityListUseCase {
     
@@ -16,15 +15,9 @@ final class DefaultNewActivityListUseCase {
         self.repo = repo
     }
     
-    
-}
-
-
-extension DefaultNewActivityListUseCase {
-
     func execute(country: String?, category: String?) async throws -> [ActivitySummaryEntity] {
         let requestDto = ActivityNewSummaryListRequestDTO(country: country, category: category)
-        let router = ActivityRequest.newActivities(param: requestDto)
+        let router = ActivityGetRequest.newActivities(param: requestDto)
 
         do {
             return try await repo.requestActivityNewList(router)
@@ -36,4 +29,6 @@ extension DefaultNewActivityListUseCase {
             }
         }
     }
+    
 }
+

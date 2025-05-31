@@ -8,7 +8,7 @@
 import Foundation
 import Alamofire
 
-enum ActivityRequest: GetRouter {
+enum ActivityGetRequest: GetRouter {
     
     case activityFiles
     case activityList(param: ActivitySummaryListRequestDTO)

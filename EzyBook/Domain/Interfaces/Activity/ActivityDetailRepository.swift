@@ -8,5 +8,5 @@
 import Foundation
 
 protocol ActivityDetailRepository {
-    func requestActivityDetail(_ router: ActivityRequest) async throws -> ActivityDetailEntity
+    func requestActivityDetail(_ router: ActivityGetRequest) async throws -> ActivityDetailEntity
 }
