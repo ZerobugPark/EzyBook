@@ -11,7 +11,7 @@ struct LoginSignUpPagerView: View {
     @State private var selectedIndex = 0
     @State private var bounce = false
     
-    @EnvironmentObject var authModel: AuthCoordinator
+    @ObservedObject var coordinator: AuthCoordinator
     @EnvironmentObject private var container: DIContainer
     
     private let titles = ["로그인", "회원가입"]
@@ -28,10 +28,17 @@ struct LoginSignUpPagerView: View {
                 
             
             TabView(selection: $selectedIndex) {
-                EmailLoginView(selectedIndex: $selectedIndex, viewModel: container.makeEmailLoginViewModel())
+                EmailLoginView(
+                    selectedIndex: $selectedIndex,
+                    viewModel: container.makeEmailLoginViewModel(),
+                    coordinator: coordinator
+                )
                     .padding(.top, 10)
                     .tag(0)
-                CreateAccountView(selectedIndex: $selectedIndex, viewModel: container.makeAccountViewModel())
+                CreateAccountView(
+                    selectedIndex: $selectedIndex,
+                    viewModel: container.makeAccountViewModel()
+                )
                     .padding(.top, 10)
                     .tag(1)
             }
@@ -44,7 +51,7 @@ struct LoginSignUpPagerView: View {
     private var backButton: some View {
         HStack() {
             Button {
-                authModel.pop()
+                coordinator.pop()
             } label: {
                 Image(.iconChevron)
                     
@@ -67,5 +74,5 @@ struct LoginSignUpPagerView: View {
 }
 
 #Preview {
-    PreViewHelper.makeLoginSignUpPagerView()
+    //PreViewHelper.makeLoginSignUpPagerView()
 }

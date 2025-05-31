@@ -37,6 +37,5 @@ final class DefaultActivityRepository: ActivityListRepository, ActivityQueryRepo
         
         return data.toEntity()
     }
-    
 }
 
