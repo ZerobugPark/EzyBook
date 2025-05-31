@@ -65,6 +65,7 @@ struct SearchView: View {
         .searchModify($viewModel.input.query, $isSearching)
         .onSubmit(of: .search, {
             viewModel.action(.searchButtonTapped)
+            isSearching = false
         })
         .commonAlert(
             isPresented: Binding(
