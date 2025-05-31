@@ -12,7 +12,7 @@ struct ActivityIntroduceView: View {
     
     @Binding var data: [FilterActivityModel]
     
-    var onTapKeep: (String) -> Void
+    var onTapKeep: (Int) -> Void
     var currentIndex: (Int) -> Void
     
     var body: some View {
@@ -26,7 +26,8 @@ struct ActivityIntroduceView: View {
             LazyVStack {
                 ForEach(Array(zip(data.indices, data)), id: \.1.activityID) { index, item in
                     VStack {
-                        makeFilterImageView(item)
+                        //Text(item.activityID) // 중복 확인
+                        makeFilterImageView(index, item)
                         makedescriptionView(item)
                     }
                     .onAppear {
@@ -42,7 +43,7 @@ struct ActivityIntroduceView: View {
 
 extension ActivityIntroduceView {
     
-    private func makeFilterImageView(_ item: FilterActivityModel) -> some View {
+    private func makeFilterImageView(_ index: Int, _ item: FilterActivityModel) -> some View {
         GeometryReader { geo in
             ZStack() {
                 Image(uiImage: item.thumnail)
@@ -53,7 +54,7 @@ extension ActivityIntroduceView {
                     .background(.red)
                     .clipShape(RoundedRectangle(cornerRadius: 15))
                 
-                makeBadgeView(item)
+                makeBadgeView(index, item)
                 
                 if let tag = item.eventTag {
                     VStack {
@@ -70,13 +71,14 @@ extension ActivityIntroduceView {
         .padding(.horizontal, 10)
     }
     
-    private func makeBadgeView(_ item: FilterActivityModel) -> some View {
+    private func makeBadgeView(_ index: Int, _ item: FilterActivityModel) -> some View {
         VStack {
             VStack(alignment: .leading, spacing: 10) {
                 
                 HStack(alignment: .center, spacing: 0) {
                     ActivityKeepButtonView(isKeep: item.isKeep) {
-                        onTapKeep(item.activityID)
+                        /// 뷰모델에서 contain보다는, 인덱스 기반으로 찾는게 시간복잡도가 O(1)이기 때문에, 인덱스를 보냄
+                        onTapKeep(index)
                     }
                     Spacer()
                     LocationTagView(country: item.country)

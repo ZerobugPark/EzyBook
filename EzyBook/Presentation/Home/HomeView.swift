@@ -33,8 +33,8 @@ struct HomeView: View {
                     makeNewActivityView()
                     makeFlagSelectionView()
                     makeFilterSelectionView()
-                    ActivityIntroduceView(data: $viewModel.output.filterActivityDetailList) { id in
-                        print("뷰모델 작업")
+                    ActivityIntroduceView(data: $viewModel.output.filterActivityDetailList) { index in
+                        viewModel.action(.keepButtonTapped(index: index))
                     } currentIndex: { index in
                         viewModel.action(.prefetchfilterActivityContent(index: index))
                         viewModel.action(.paginationAcitiviyList(flag: selectedFlag, filter: selectedFilter, index: index))

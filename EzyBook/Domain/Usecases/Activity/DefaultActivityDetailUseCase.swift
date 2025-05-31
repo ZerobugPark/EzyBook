@@ -22,7 +22,7 @@ extension DefaultActivityDetailUseCase {
     func execute(id: String) async throws -> ActivityDetailEntity {
         let requestDto = ActivityDetailRequestDTO(activityId: id)
         
-        let router = ActivityRequest.activityDetail(param: requestDto)
+        let router = ActivityGetRequest.activityDetail(param: requestDto)
         
         do {
             let data = try await repo.requestActivityDetail(router)

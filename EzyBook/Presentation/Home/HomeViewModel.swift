@@ -13,7 +13,7 @@ final class HomeViewModel: ViewModelType {
     private let activityListUseCase: DefaultActivityListUseCase
     private let activityNewLisUseCase: DefaultNewActivityListUseCase
     private let activityDeatilUseCase: DefaultActivityDetailUseCase
-    
+    private let activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase
     private let imageLoader: DefaultLoadImageUseCase
     
     var input = Input()
@@ -53,6 +53,7 @@ final class HomeViewModel: ViewModelType {
                 .map { $0.value }
             
             output.filterActivityDetailList = sortedValues
+            //dump(output.filterActivityDetailList)
         }
     }
     private var pendingFetchIndices = Set<Int>() // 스크롤 펜딩
@@ -64,11 +65,13 @@ final class HomeViewModel: ViewModelType {
         activityListUseCase: DefaultActivityListUseCase,
         activityNewLisUsecaset: DefaultNewActivityListUseCase,
         activityDeatilUseCase: DefaultActivityDetailUseCase,
+        activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase,
         imageLoader: DefaultLoadImageUseCase
     ) {
         self.activityListUseCase = activityListUseCase
         self.activityNewLisUseCase = activityNewLisUsecaset
         self.activityDeatilUseCase = activityDeatilUseCase
+        self.activityKeepCommandUseCase = activityKeepCommandUseCase
         self.imageLoader = imageLoader
         
         transform()
@@ -111,8 +114,6 @@ extension HomeViewModel {
             print("버튼이 눌렸습니다.")
             
         }.store(in: &cancellables)
-        
-        
         
     }
     
@@ -188,7 +189,7 @@ extension HomeViewModel {
                 output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
             }
         } catch {
-            print(error)
+            print(#function, error)
         }
         
         
@@ -285,10 +286,10 @@ extension HomeViewModel {
         } catch let error as APIError {
             // 요청 실패 시 Set에서 제거
             newActivityindicats.remove(fetchIndex)
-            print(error.userMessage)
+            print(#function, error.userMessage)
         } catch {
             newActivityindicats.remove(fetchIndex)
-            print(error)
+            print(#function, error)
         }
         
     }
@@ -331,13 +332,11 @@ extension HomeViewModel {
         } catch let error as APIError {
             // 요청 실패 시 Set에서 제거
             filterActivityindicats.remove(fetchIndex)
-            print(error.userMessage)
+            print(#function, error.userMessage)
         } catch {
             filterActivityindicats.remove(fetchIndex)
-            print(error)
+            print(#function, error)
         }
-        
-    
         
     }
     
@@ -377,7 +376,7 @@ extension HomeViewModel {
                 output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
             }
         } catch {   
-            print(error)
+            print(#function, error)
         }
     }
     
@@ -429,32 +428,54 @@ extension HomeViewModel {
         pendingFetchIndices.removeAll()
     }
 
+}
+
+// MARK:  Keep Status
+
+extension HomeViewModel {
+    private func triggerKeepActivity(_ index: Int) {
+        Task {
+            await requestAcitivityKeep(for: index)
+        }
+    }
     
-    
-//    private func processPendingPrefetches() async {
-//        for index in pendingFetchIndices {
-//            guard index < filterActivitySummaryList.count,
-//                  !filterActivityindicats.contains(index) else { continue }
-//            
-//            filterActivityindicats.insert(index)
-//
-//            do {
-//                let detail = try await reqeuestActivityDetailList(filterActivitySummaryList[index], type: FilterActivityModel.self)
-//                await MainActor.run {
-//                    _filterActivityDetailList[index] = detail
-//                }
-//            } catch let error as APIError {
-//                filterActivityindicats.remove(index)
-//                print(error.userMessage)
-//            } catch {
-//                filterActivityindicats.remove(index)
-//                print("재시도 실패 \(index)")
-//            }
-//        }
-//
-//        pendingFetchIndices.removeAll()
-//    }
-    
+    /// 여기 메인액터로 묶는게 더 좋을까?
+    private func requestAcitivityKeep(for index: Int) async   {
+      
+        let data = _filterActivityDetailList[index]
+        
+        guard let data else {
+            print("존재하지 않는 아이디 입니다.")
+            return
+        }
+        
+        /// 일단 네트워크 통신과 상관없이 상태 변경 (이후 실패시 기존 상태로 변경)
+        /// 유저입장에서 통신전에 상태를 변경하는것을 먼저 인지하게 하고, 만약 실패시, UI를 다시 업데이트 하는 형태로 변경
+        await MainActor.run {
+            _filterActivityDetailList[index]?.isKeep.toggle()
+        }
+  
+        do {
+            var statusChanged =  data.isKeep
+            statusChanged.toggle()
+            print(statusChanged)
+            let detail = try await activityKeepCommandUseCase.execute(id: data.activityID, stauts: statusChanged)
+            await MainActor.run {
+                _filterActivityDetailList[index]?.isKeep = detail.keepStatus
+            }
+        } catch let error as APIError {
+            await MainActor.run {
+                _filterActivityDetailList[index]?.isKeep.toggle()
+            }
+            print(#function, error.userMessage)
+        } catch {
+            /// 실패시 원래대로 상태 변경
+            await MainActor.run {
+                _filterActivityDetailList[index]?.isKeep.toggle()
+            }
+        }
+        
+    }
 }
 
 
@@ -468,6 +489,7 @@ extension HomeViewModel {
         case prefetchNewContent(index: Int)
         case prefetchfilterActivityContent(index: Int)
         case paginationAcitiviyList(flag: Flag, filter: Filter, index: Int)
+        case keepButtonTapped(index: Int)
         case resetError
     }
     
@@ -485,8 +507,11 @@ extension HomeViewModel {
             triggerFilterDetailPrefetch(index)
         case let .paginationAcitiviyList(flag, filter, index):
             triggerPaginationFilterPrefetch(flag.requestValue, filter.requestValue, index: index)
+        case .keepButtonTapped(let index):
+            triggerKeepActivity(index)
         case .resetError:
             handleResetError()
+        
         }
     }
     

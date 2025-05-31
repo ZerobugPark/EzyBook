@@ -22,12 +22,20 @@ struct ActivitySummaryListRequestDTO: Encodable {
 }
 
 /// 액티비티 상세  조회
-/// 액티비티 킵
 struct ActivityDetailRequestDTO: Encodable {
     let activityId: String
     
     enum CodingKeys: String, CodingKey {
          case activityId = "activity_id"
+     }
+}
+
+/// 액티비티 킵
+struct ActivityKeepRequestDTO: Encodable {
+    let status: Bool
+    
+    enum CodingKeys: String, CodingKey {
+         case status = "keep_status"
      }
 }
 

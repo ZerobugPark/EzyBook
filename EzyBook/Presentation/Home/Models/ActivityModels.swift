@@ -53,7 +53,7 @@ struct FilterActivityModel: ActivityModelBuildable {
     let finalPrice: Int
     let pointReward: Int? // 액티비티 포인트 리워드
     let isAdvertisement: Bool //광고 여부
-    let isKeep: Bool // 현재 유저의 킵 여부
+    var isKeep: Bool // 현재 유저의 킵 여부
     let keepCount: Int // 이 액티비티의 총 킵 수
     let endDate: String?
     

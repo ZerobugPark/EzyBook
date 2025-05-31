@@ -24,13 +24,14 @@ final class DIContainer: ObservableObject {
     let activityNewListUseCase: DefaultNewActivityListUseCase
     let activitySearchUseCase: DefaultActivitySearchUseCase
     let activityDetailUseCase: DefaultActivityDetailUseCase
+    let activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase
     
     
     /// Common
     let imageLoader: DefaultLoadImageUseCase
 
-    
-    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, imageLoader: DefaultLoadImageUseCase) {
+
+    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, imageLoader: DefaultLoadImageUseCase) {
         self.kakaoLoginUseCase = kakaoLoginUseCase
         self.createAccountUseCase = createAccountUseCase
         self.emailLoginUseCase = emailLoginUseCase
@@ -39,6 +40,7 @@ final class DIContainer: ObservableObject {
         self.activityNewListUseCase = activityNewListUseCase
         self.activitySearchUseCase = activitySearchUseCase
         self.activityDetailUseCase = activityDetailUseCase
+        self.activityKeepCommandUseCase = activityKeepCommandUseCase
         self.imageLoader = imageLoader
     }
     
@@ -71,6 +73,7 @@ extension DIContainer {
             activityListUseCase: activityListUseCase,
             activityNewLisUsecaset: activityNewListUseCase,
             activityDeatilUseCase: activityDetailUseCase,
+            activityKeepCommandUseCase: activityKeepCommandUseCase,
             imageLoader: imageLoader
         )
     }

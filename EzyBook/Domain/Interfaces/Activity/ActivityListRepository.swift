@@ -9,5 +9,5 @@ import Foundation
 
 /// 액티비티 목록 조회
 protocol ActivityListRepository {
-    func requestActivityList(_ router: ActivityRequest) async throws -> ActivitySummaryListEntity
+    func requestActivityList(_ router: ActivityGetRequest) async throws -> ActivitySummaryListEntity
 }

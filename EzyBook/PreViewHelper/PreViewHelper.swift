@@ -25,13 +25,13 @@ enum PreViewHelper {
     
     static let imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache, interceptor: interceptor)
     
-    static let  authRepository = DefaultAuthRepository(networkService: networkService)
-    static let  socialLoginService = DefaultsSocialLoginService()
+    static let authRepository = DefaultAuthRepository(networkService: networkService)
+    static let socialLoginService = DefaultsSocialLoginService()
     
-    static let  activityRepository = DefaultActivityRepository(networkService: networkService)
+    static let activityRepository = DefaultActivityRepository(networkService: networkService)
     
-    static let  newActivityRepository = DefaultActivityRepository(networkService: networkService)
-    
+    static let newActivityRepository = DefaultActivityRepository(networkService: networkService)
+    static let acitvityKeepStatusRepository =  DefaultKeepStatusRepository(networkService: networkService)
     // MARK: - Data Layer
     
     static let diContainer = DIContainer(
@@ -43,6 +43,7 @@ enum PreViewHelper {
         activityNewListUseCase: makeActivityNewListUseCase(),
         activitySearchUseCase: makeActivitySearchUseCase(),
         activityDetailUseCase: makeActivityDetailUseCase(),
+        activityKeepCommandUseCase: makeActivityKeepCommainUseCase(),
         imageLoader: makeImageLoaderUseCase()
     )
     
@@ -132,6 +133,10 @@ extension PreViewHelper {
     
     static func makeActivityDetailUseCase() -> DefaultActivityDetailUseCase {
         DefaultActivityDetailUseCase(repo: activityRepository)
+    }
+    
+    static func makeActivityKeepCommainUseCase() -> DefaultActivityKeepCommandUseCase {
+        DefaultActivityKeepCommandUseCase(repo: acitvityKeepStatusRepository)
     }
 
 }
