@@ -10,7 +10,7 @@ import AuthenticationServices
 
 struct LoginView: View {
     
-    @EnvironmentObject var authModel: AuthModelObject
+    @EnvironmentObject var authModel: AuthCoordinator
     @StateObject var viewModel: LoginViewModel
     
     var body: some View {
@@ -44,8 +44,7 @@ struct LoginView: View {
                 .frame(width: 250, height: 250)
                 .padding(.top, 50)
             Text("이지북으로 예약하고,\n간편하게 예약 하세요!")
-                .appFont(PaperlogyFontStyle.title)
-                .foregroundStyle(.blackSeafoam)
+                .appFont(PaperlogyFontStyle.title, textColor: .blackSeafoam)
                 .padding(.top, 30)
             
             Spacer()
@@ -114,6 +113,6 @@ extension LoginView {
     
 }
 
-//#Preview {
-//    PreViewHelper.makeLoginView()
-//}
+#Preview {
+    PreViewHelper.makeLoginView()
+}

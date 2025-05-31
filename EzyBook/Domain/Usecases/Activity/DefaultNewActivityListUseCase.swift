@@ -8,45 +8,27 @@
 import Foundation
 
 final class DefaultNewActivityListUseCase {
-
+    
     private let repo: ActivityQueryRepository
     
     init(repo: ActivityQueryRepository) {
         self.repo = repo
     }
     
-    
-}
-
-
-extension DefaultNewActivityListUseCase {
-    
-    func execute(country: String?, category: String?,  completionHandler: @escaping (Result <[ActivitySummaryEntity], APIError>) -> Void) {
-
-        
+    func execute(country: String?, category: String?) async throws -> [ActivitySummaryEntity] {
         let requestDto = ActivityNewSummaryListRequestDTO(country: country, category: category)
-        
-        let router = ActivityRequest.newActivities(param: requestDto)
-        
-        Task {
-            do {
-                let data = try await repo.requestActivityNewList(router)
-                
-                await MainActor.run {
-                    completionHandler(.success((data)))
-                }
-            } catch  {
-                let resolvedError: APIError
-                if let apiError = error as? APIError {
-                    resolvedError = apiError
-                } else {
-                    resolvedError = .unknown
-                }
-                await MainActor.run {
-                    completionHandler(.failure(resolvedError))
-                }
+        let router = ActivityGetRequest.newActivities(param: requestDto)
 
+        do {
+            return try await repo.requestActivityNewList(router)
+        } catch {
+            if let apiError = error as? APIError {
+                throw apiError
+            } else {
+                throw APIError.unknown
             }
         }
     }
+    
 }
+

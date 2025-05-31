@@ -15,17 +15,12 @@ final class DefaultActivitySearchUseCase {
         self.repo = repo
     }
     
-    
-}
-
-extension DefaultActivitySearchUseCase {
-    
     func execute(title: String,  completionHandler: @escaping (Result <[ActivitySummaryEntity], APIError>) -> Void) {
 
         
         let requestDto = ActivitySearchListRequestDTO(title: title)
         
-        let router = ActivityRequest.serachActiviy(param: requestDto)
+        let router = ActivityGetRequest.serachActiviy(param: requestDto)
         
         Task {
             do {
@@ -49,3 +44,4 @@ extension DefaultActivitySearchUseCase {
         }
     }
 }
+

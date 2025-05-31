@@ -8,41 +8,29 @@
 import Foundation
 
 final class DefaultActivityListUseCase {
-
+    
     private let repo: ActivityListRepository
     
     init(repo: ActivityListRepository) {
         self.repo = repo
     }
     
-    
-}
-
-extension DefaultActivityListUseCase {
-    
-    func execute(requestDto: ActivitySummaryListRequestDTO,  completionHandler: @escaping (Result <ActivitySummaryListEntity, APIError>) -> Void) {
-
-        let router = ActivityRequest.activityList(param: requestDto)
+    func execute(requestDto: ActivitySummaryListRequestDTO) async throws -> ActivitySummaryListEntity {
         
-        Task {
-            do {
-                let data = try await repo.requestActivityList(router)
-                
-                await MainActor.run {
-                    completionHandler(.success((data)))
-                }
-            } catch  {
-                let resolvedError: APIError
-                if let apiError = error as? APIError {
-                    resolvedError = apiError
-                } else {
-                    resolvedError = .unknown
-                }
-                await MainActor.run {
-                    completionHandler(.failure(resolvedError))
-                }
-
+        let router = ActivityGetRequest.activityList(param: requestDto)
+        
+        do {
+            /// await: 결과 대기
+            /// try: 결과를 await할 때 오류 감지
+            return try await self.repo.requestActivityList(router)
+            
+        } catch  {
+            if let apiError = error as? APIError {
+                throw apiError
+            } else {
+                throw APIError.unknown
             }
+            
         }
     }
 }

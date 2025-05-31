@@ -13,9 +13,10 @@ import KakaoSDKAuth
 struct EzyBookApp: App {
     
     @StateObject private var container = AppDIContainer().makeDIContainer()
+    @StateObject private var coordinators = AppDIContainer().makeCoordinatorContainer()
     @StateObject private var appState = AppState()
     
-    @StateObject private var authModel = AuthModelObject()
+
     
     init() {
         guard let KaKaoNativeKey = Bundle.main.object(forInfoDictionaryKey: "Kakao_NativeKey") as? String else {
@@ -31,7 +32,7 @@ struct EzyBookApp: App {
             AppEntryView()
                 .environmentObject(container)
                 .environmentObject(appState)
-                .environmentObject(authModel)
+                .environmentObject(coordinators)
                 .onOpenURL(perform: { url in
                     if (AuthApi.isKakaoTalkLoginUrl(url)) {
                         _ = AuthController.handleOpenUrl(url: url)

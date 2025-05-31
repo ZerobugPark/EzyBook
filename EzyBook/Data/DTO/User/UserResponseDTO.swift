@@ -77,7 +77,7 @@ struct UserInfoListResponseDTO: Decodable, EntityConvertible {
     
 }
 
-/// 프로필 조회 및 수정 응답 값 및 액티비티 게시자
+/// 프로필 조회 및 수정 응답 값 
 struct UserInfoResponseDTO: Decodable {
     let userID: String
     let nick: String

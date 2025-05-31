@@ -23,9 +23,15 @@ final class DIContainer: ObservableObject {
     let activityListUseCase: DefaultActivityListUseCase
     let activityNewListUseCase: DefaultNewActivityListUseCase
     let activitySearchUseCase: DefaultActivitySearchUseCase
-
+    let activityDetailUseCase: DefaultActivityDetailUseCase
+    let activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase
     
-    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase) {
+    
+    /// Common
+    let imageLoader: DefaultLoadImageUseCase
+
+
+    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, imageLoader: DefaultLoadImageUseCase) {
         self.kakaoLoginUseCase = kakaoLoginUseCase
         self.createAccountUseCase = createAccountUseCase
         self.emailLoginUseCase = emailLoginUseCase
@@ -33,12 +39,15 @@ final class DIContainer: ObservableObject {
         self.activityListUseCase = activityListUseCase
         self.activityNewListUseCase = activityNewListUseCase
         self.activitySearchUseCase = activitySearchUseCase
+        self.activityDetailUseCase = activityDetailUseCase
+        self.activityKeepCommandUseCase = activityKeepCommandUseCase
+        self.imageLoader = imageLoader
     }
     
         
 }
 
-// MARK: Make ViewModel
+// MARK: Make Auth ViewModel
 extension DIContainer {
     func makeAccountViewModel() -> CreateAccountViewModel {
         return CreateAccountViewModel(createUseCase: createAccountUseCase)
@@ -55,4 +64,17 @@ extension DIContainer {
         )
     }
 
+}
+
+// MARK: Make Home ViewModel
+extension DIContainer {
+    func makeHomeViewModel() -> HomeViewModel {
+        return HomeViewModel(
+            activityListUseCase: activityListUseCase,
+            activityNewLisUsecaset: activityNewListUseCase,
+            activityDeatilUseCase: activityDetailUseCase,
+            activityKeepCommandUseCase: activityKeepCommandUseCase,
+            imageLoader: imageLoader
+        )
+    }
 }

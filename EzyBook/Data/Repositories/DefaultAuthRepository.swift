@@ -35,7 +35,7 @@ extension DefaultAuthRepository {
     
     func requestEmailLogin(_ router: UserPostRequest) async throws -> LoginEntity {
         let data = try await networkService.fetchData(dto: LoginResponseDTO.self, router)
-        
+        print(data)
         return data.toEntity()
     }
     

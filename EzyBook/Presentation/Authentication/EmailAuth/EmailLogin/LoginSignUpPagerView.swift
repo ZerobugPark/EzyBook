@@ -11,7 +11,7 @@ struct LoginSignUpPagerView: View {
     @State private var selectedIndex = 0
     @State private var bounce = false
     
-    @EnvironmentObject var authModel: AuthModelObject
+    @EnvironmentObject var authModel: AuthCoordinator
     @EnvironmentObject private var container: DIContainer
     
     private let titles = ["로그인", "회원가입"]
@@ -66,6 +66,6 @@ struct LoginSignUpPagerView: View {
        }
 }
 
-//#Preview {
-//    PreViewHelper.makeLoginSignUpPagerView()
-//}
+#Preview {
+    PreViewHelper.makeLoginSignUpPagerView()
+}

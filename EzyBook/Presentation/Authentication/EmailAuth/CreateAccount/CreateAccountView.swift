@@ -32,8 +32,7 @@ struct CreateAccountView: View {
                     }
                 } label: {
                     Text("< 로그인 해주세요")
-                        .appFont(PaperlogyFontStyle.caption)
-                        .foregroundColor(.grayScale75)
+                        .appFont(PaperlogyFontStyle.caption, textColor: .grayScale75)
                 }
                 .padding(.top, 20)
                 .padding(.bottom, 20)
@@ -90,7 +89,7 @@ extension CreateAccountView {
             fieldTitle("이메일", required: true)
             TextField("이메일을 입력해주세요.", text: $viewModel.input.emailTextField)
                 .textFieldModify()
-                .appFont(PretendardFontStyle.body1)
+                .appFont(PretendardFontStyle.body1, textColor: .grayScale100)
                 .focused($focusedField, equals: .email)
                 .onSubmit { viewModel.action(.emailEditingCompleted) }
             
@@ -182,7 +181,6 @@ extension CreateAccountView {
                 .focused($focusedField, equals: .nickname)
                 .onSubmit { viewModel.action(.nickNameEditingCompleted) }
             
-            
             Text("✓ , ,, ?, *, -, @는 nick으로 사용할 수 없습니다.")
                 .appFont(PretendardFontStyle.caption1)
                 .vaildTextdModify(viewModel.output.isValidNickname)
@@ -212,9 +210,6 @@ extension CreateAccountView {
             Text("✓ 유효한 형식입니다.")
                 .appFont(PretendardFontStyle.caption1)
                 .vaildTextdModify(viewModel.output.isValidPhoneNumber)
-                
-                
-            
             
         }
         
@@ -235,13 +230,11 @@ extension CreateAccountView {
             viewModel.action(.signUpButtonTapped)
         } label: {
             Text("회원가입")
-                .foregroundColor(.white)
-                .font(.headline)
                 .frame(maxWidth: .infinity)
                 .padding()
                 .background(.deepSeafoam)
                 .clipShape(Capsule())
-                .appFont(PaperlogyFontStyle.caption)
+                .appFont(PaperlogyFontStyle.body, textColor: .white)
         }
         .opacity(viewModel.output.isFormValid ? 1 : 0.5)
         .disabled(!viewModel.output.isFormValid)
@@ -260,7 +253,7 @@ extension CreateAccountView {
         }
     }
     
-   
+    
     private func validateLastFocusedField(_ field: SignUpFocusField) {
         switch field {
         case .email:
@@ -278,6 +271,6 @@ extension CreateAccountView {
     
 }
 
-//#Preview {
-//    PreViewHelper.makeCreateAccountView()
-//}
+#Preview {
+    PreViewHelper.makeCreateAccountView()
+}

@@ -12,7 +12,6 @@ import Alamofire
 /// Post 전용
 protocol PostRouter: NetworkRouter {
     var requestBody: Encodable? { get }
-    //var encoder: URLQueryEncoder { get }
     var bodyEncoder: JSONEncoder { get }
     func encodeBody(for request: URLRequest) throws -> URLRequest
 }
@@ -25,12 +24,12 @@ extension PostRouter {
     
     /// POST 요청 특화 처리 (body)
     func encodeBody(for request: URLRequest) throws -> URLRequest {
-        guard let body = requestBody else {
-            throw APIError(localErrorType: .missingRequestBody)
-        }
 
         var request = request
-        request.httpBody = try bodyEncoder.encode(body)
+        
+        if let body = requestBody {
+            request.httpBody = try bodyEncoder.encode(body)
+        }
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
         return request//try encoder.encode(request: request, with: body)

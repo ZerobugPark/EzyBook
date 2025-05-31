@@ -17,13 +17,16 @@ final class AppDIContainer {
     private let tokenService: DefaultTokenService
     private let interceptor: TokenInterceptor
     private let networkService: DefaultNetworkService
+    private let imageLoader: DefaultImageLoader
+    private let imageCache: ImageMemoryCache
                                                             
     // MARK: - Data Layer
     private let authRepository: DefaultAuthRepository
     private let socialLoginService: DefaultsSocialLoginService
-    
     private let activityRepository: DefaultActivityRepository
-    private let newActivityRepository: DefaultActivityRepository
+    private let acitvityKeepStatusRepository: DefaultKeepStatusRepository
+    
+
 
     
     
@@ -38,8 +41,11 @@ final class AppDIContainer {
         socialLoginService = DefaultsSocialLoginService()
         
         activityRepository = DefaultActivityRepository(networkService: networkService)
+        acitvityKeepStatusRepository = DefaultKeepStatusRepository(networkService: networkService)
         
-        newActivityRepository = DefaultActivityRepository(networkService: networkService)
+        imageCache = ImageMemoryCache()
+        imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache, interceptor: interceptor)
+        
     }
     
     
@@ -52,8 +58,22 @@ final class AppDIContainer {
             appleLoginUseCase: makeAppleLoginUseCase(),
             activityListUseCase: makeActivityListUseCase(),
             activityNewListUseCase: makeActivityNewListUseCase(),
-            activitySearchUseCase: makeActivityNewListUseCase()
+            activitySearchUseCase: makeActivityNewListUseCase(),
+            activityDetailUseCase: makeActivityDetailUseCase(),
+            activityKeepCommandUseCase: makeActivityKeepCommainUseCase(),
+            imageLoader: makeImageLoaderUseCase()
         )
+    }
+    
+    func makeCoordinatorContainer() -> CoordinatorContainer {
+        return CoordinatorContainer()
+    }
+}
+
+// MARK: Common
+extension AppDIContainer {
+    private func makeImageLoaderUseCase() -> DefaultLoadImageUseCase {
+        DefaultLoadImageUseCase(imageLoader: imageLoader)
     }
 }
 
@@ -99,10 +119,18 @@ extension AppDIContainer {
     }
 
     private func makeActivityNewListUseCase() -> DefaultNewActivityListUseCase {
-        DefaultNewActivityListUseCase(repo: newActivityRepository)
+        DefaultNewActivityListUseCase(repo: activityRepository)
     }
     
     private func makeActivityNewListUseCase() -> DefaultActivitySearchUseCase {
-        DefaultActivitySearchUseCase(repo: newActivityRepository)
+        DefaultActivitySearchUseCase(repo: activityRepository)
+    }
+    
+    private func makeActivityDetailUseCase() -> DefaultActivityDetailUseCase {
+        DefaultActivityDetailUseCase(repo: activityRepository)
+    }
+    
+    private func makeActivityKeepCommainUseCase() -> DefaultActivityKeepCommandUseCase {
+        DefaultActivityKeepCommandUseCase(repo: acitvityKeepStatusRepository)
     }
 }

@@ -100,19 +100,23 @@ extension CreateAccountViewModel {
     /// 이메일 유효성 검사 및 중복확인
     private func handleEmailEditingCompleted() {
         output.isVaildEmail =  input.emailTextField.validateEmail()
-        
+
         if output.isVaildEmail {
-            createUseCase.verifyEmail(input.emailTextField) { result in
-                switch result {
-                case .success(_):
-                    self.output.isAvailableEmail = true
-                case .failure(let failure):
-                    self.output.isAvailableEmail = false
-                    self.output.currentError = .error(code: failure.code, msg: failure.userMessage)
+            Task {
+                do {
+                    try await createUseCase.verifyEmail(input.emailTextField)
+                    await MainActor.run {
+                        output.isAvailableEmail = true
+                    }
+                } catch let error as APIError {
+                    await MainActor.run {
+                        output.isAvailableEmail = false
+                        output.currentError = DisplayError.error(code: error.code, msg: error.userMessage)
+                    }
                 }
             }
         }
-        
+            
         updateFormValidation()
     }
     
@@ -148,7 +152,7 @@ extension CreateAccountViewModel {
         output.isValidPhoneNumber = vaildationPhoneNumber
     }
     
-    private func handleSignUp() {
+    private func requestSignUp() {
         
         let body = JoinRequestDTO(
             email: input.emailTextField,
@@ -160,14 +164,20 @@ extension CreateAccountViewModel {
         )
         let router = UserPostRequest.join(body: body)
         
-        createUseCase.signUp(router) { result in
-            switch result {
-            case .success(_):
-                self.output.isAccountCreated = true
-            case .failure(let failure):
-                self.output.currentError = .error(code: failure.code, msg: failure.userMessage)
+        Task {
+            do {
+                try await createUseCase.signUp(router)
+                await MainActor.run {
+                    output.isAccountCreated = true
+                }
+            } catch let error as APIError {
+                await MainActor.run {
+                    output.isAvailableEmail = false
+                    output.currentError = DisplayError.error(code: error.code, msg: error.userMessage)
+                }
             }
         }
+
     }
     
     /// 회원가입 버튼 버튼 상태
@@ -175,7 +185,7 @@ extension CreateAccountViewModel {
         output.isFormValid = output.isVaildEmail && output.isAvailableEmail && output.isValidPassword && output.isValidNickname
     }
     
-    private func handlerResetError() {
+    private func handleResetError() {
         output.currentError = nil
     }
     
@@ -209,9 +219,9 @@ extension CreateAccountViewModel {
         case .phoneNumberEditingCompleted:
             handlerPhoneNumberEditingCompleted()
         case .signUpButtonTapped:
-            handleSignUp()
+            requestSignUp()
         case .resetError:
-            handlerResetError()
+            handleResetError()
         }
     }
     

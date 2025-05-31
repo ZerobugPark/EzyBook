@@ -34,10 +34,9 @@ struct EmailLoginView: View {
                 viewModel.action(.logunButtonTapped)
             }
             .padding()
-            .appFont(PaperlogyFontStyle.caption)
+            .appFont(PaperlogyFontStyle.caption, textColor: .grayScale0)
             .frame(maxWidth: .infinity)
             .background(.blackSeafoam)
-            .foregroundColor(.grayScale0)
             .cornerRadius(15)
             
             Spacer()
@@ -50,8 +49,7 @@ struct EmailLoginView: View {
                     }
                 } label: {
                     Text("지금 가입하세요 >")
-                        .appFont(PaperlogyFontStyle.caption)
-                        .foregroundColor(.grayScale75)
+                        .appFont(PaperlogyFontStyle.caption, textColor: .grayScale75)
                 }
                 .padding(.bottom, 20)
                 .padding(.trailing)
@@ -107,8 +105,10 @@ extension EmailLoginView {
                 // 텍스트필드와 플로팅 레이블
                 VStack(alignment: .leading, spacing: 0) {
                     Text(title)
-                        .appFont(isFocused.wrappedValue == currentField ? PretendardFontStyle.body3 : PretendardFontStyle.body1)
-                        .foregroundColor(isFocused.wrappedValue == currentField ? .deepSeafoam : .grayScale60)
+                        .appFont(
+                            isFocused.wrappedValue == currentField ? PretendardFontStyle.body3 : PretendardFontStyle.body1,
+                            textColor: isFocused.wrappedValue == currentField ? .deepSeafoam : .grayScale60
+                        )
                         .offset(y: isFocused.wrappedValue == currentField || !text.isEmpty ? -10 : 20)
                         .animation(.spring(response: 0.4), value: isFocused.wrappedValue == currentField || !text.isEmpty)
                     
@@ -140,8 +140,10 @@ extension EmailLoginView {
                 
                 VStack(alignment: .leading, spacing: 0) {
                     Text(title)
-                        .appFont(isFocused.wrappedValue == currentField ? PretendardFontStyle.body3 : PretendardFontStyle.body1)
-                        .foregroundColor(isFocused.wrappedValue == currentField ? .deepSeafoam : .grayScale60)
+                        .appFont(
+                            isFocused.wrappedValue == currentField ? PretendardFontStyle.body3 : PretendardFontStyle.body1,
+                            textColor: isFocused.wrappedValue == currentField ? .deepSeafoam : .grayScale60
+                        )
                         .offset(y: isFocused.wrappedValue == currentField || !text.isEmpty ? -10 : 20)
                         .animation(.spring(response: 0.4), value: isFocused.wrappedValue == currentField || !text.isEmpty)
                     
@@ -176,6 +178,6 @@ extension EmailLoginView {
 }
 
 
-//#Preview {
-//    PreViewHelper.makeEmailLoginView()
-//}
+#Preview {
+    PreViewHelper.makeEmailLoginView()
+}

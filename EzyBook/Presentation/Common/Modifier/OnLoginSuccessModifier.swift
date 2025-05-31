@@ -10,7 +10,7 @@ import SwiftUI
 private struct OnLoginSuccessModifier: ViewModifier {
     
     @EnvironmentObject var appState: AppState
-    @EnvironmentObject var authModel: AuthModelObject
+    @EnvironmentObject var authModel: AuthCoordinator
     let loginState: Bool
     
     

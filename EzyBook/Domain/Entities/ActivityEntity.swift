@@ -83,11 +83,11 @@ struct ActivityDetailEntity {
     let isKeep: Bool // 현재 유저의 킵 여부
     let keepCount: Int // 이 액티비티의 총 킵 수
     let totalOrderCount: Int // 총 주문 예약
-    let schedule: ActivityScheduleItemEntity // 일정 정보
-    let reservationList: ActivityReservationItemEntity // 예약 리스트
-    let creator: UserInfoResponseEntity // 게시자
-    let createdAt: String
-    let updateddAt: String
+    let schedule: [ActivityScheduleItemEntity] // 일정 정보
+    let reservationList: [ActivityReservationItemEntity] // 예약 리스트
+    let creator: ActivityCreatorEntity // 게시자
+    let createdAt: String?
+    let updatedAt: String?
     
     init(dto: ActivityDetailResponseDTO) {
         self.activityID = dto.activityID
@@ -107,11 +107,11 @@ struct ActivityDetailEntity {
         self.isKeep = dto.isKeep
         self.keepCount = dto.keepCount
         self.totalOrderCount = dto.totalOrderCount
-        self.schedule = ActivityScheduleItemEntity(dto: dto.schedule)
-        self.reservationList = ActivityReservationItemEntity(dto: dto.reservationList)
-        self.creator = UserInfoResponseEntity(dto: dto.creator)
+        self.schedule = dto.schedule.map {ActivityScheduleItemEntity(dto: $0) }
+        self.reservationList = dto.reservationList.map { ActivityReservationItemEntity(dto: $0)}
+        self.creator = ActivityCreatorEntity(dto: dto.creator)
         self.createdAt = dto.createdAt
-        self.updateddAt = dto.updateddAt
+        self.updatedAt = dto.updatedAt
     }
 
 }
@@ -188,11 +188,11 @@ struct ActivityRestrictionsEntity {
 /// 액티비티  예약 아이템 정보
 struct ActivityReservationItemEntity {
     let itemName: String // 예약 아이템 이름(날짜??)
-    let times: ActivityReservationTimeEntity // 해당 아이템의 시간대별 예약 정보
+    let times: [ActivityReservationTimeEntity] // 해당 아이템의 시간대별 예약 정보
     
     init(dto: ActivityReservationItemDTO) {
         self.itemName = dto.itemName
-        self.times = ActivityReservationTimeEntity(dto: dto.times)
+        self.times = dto.times.map { ActivityReservationTimeEntity(dto: $0) }
     }
     
 }
@@ -205,6 +205,19 @@ struct ActivityReservationTimeEntity {
     init(dto: ActivityReservationTimeDTO) {
         self.time = dto.time
         self.isReserved = dto.isReserved
+    }
+    
+}
+
+struct ActivityCreatorEntity {
+    let userID: String
+    let nick: String
+    let introduction: String
+    
+    init(dto: ActivityCreatorDTO) {
+        self.userID = dto.userID
+        self.nick = dto.nick
+        self.introduction = dto.introduction
     }
     
 }
