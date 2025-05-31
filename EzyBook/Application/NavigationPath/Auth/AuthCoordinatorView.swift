@@ -9,14 +9,15 @@ import SwiftUI
 
 struct AuthCoordinatorView: View {
     
-    @EnvironmentObject var coordinator: AuthCoordinator
     @EnvironmentObject var container: DIContainer
+    @StateObject var coordinator: AuthCoordinator
+    
     var body: some View {
         NavigationStack(path: $coordinator.path) {
             LoginView(
-                viewModel: container.makeSocialLoginViewModel()
+                coordinator: coordinator, viewModel: container.makeSocialLoginViewModel()
             ).navigationDestination(for: AuthRoute.self) { route in
-                route.destinationView(container: container)
+                coordinator.destinationView(route: route)
                 
                 
             }
@@ -25,5 +26,5 @@ struct AuthCoordinatorView: View {
 }
 
 #Preview {
-    AuthCoordinatorView()
+    //AuthCoordinatorView()
 }

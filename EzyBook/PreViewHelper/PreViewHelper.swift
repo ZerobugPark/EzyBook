@@ -43,46 +43,22 @@ enum PreViewHelper {
         activityNewListUseCase: makeActivityNewListUseCase(),
         activitySearchUseCase: makeActivitySearchUseCase(),
         activityDetailUseCase: makeActivityDetailUseCase(),
-        activityKeepCommandUseCase: makeActivityKeepCommainUseCase(),
+        activityKeepCommandUseCase: makeActivityKeepCommandUseCase(),
         imageLoader: makeImageLoaderUseCase()
     )
     
-    static let coordinators = CoordinatorContainer()
     
     static func makeImageLoaderUseCase() -> DefaultLoadImageUseCase {
         DefaultLoadImageUseCase(imageLoader: imageLoader)
     }
 
-    static func makeLoginView(showModal: Binding<Bool> = .constant(false)) -> some View {
-        LoginView(viewModel: diContainer.makeSocialLoginViewModel())
-            .environmentObject(diContainer)
-    }
-    
-    static func makeCreateAccountView(selectedIndex: Binding<Int> = .constant(1)) -> some View {
-        CreateAccountView(selectedIndex: selectedIndex, viewModel: diContainer.makeAccountViewModel())
-    }
-    
-    static func makeEmailLoginView(selectedIndex: Binding<Int> = .constant(0)) -> some View {
-        EmailLoginView(selectedIndex: selectedIndex, viewModel: diContainer.makeEmailLoginViewModel())
-            .environmentObject(diContainer)
-    }
-    
-    static func makeLoginSignUpPagerView() -> some View {
-        LoginSignUpPagerView()
-            .environmentObject(diContainer)
-    }
-    
-    static func makeHomeView() -> some View {
-        HomeView(viewModel: diContainer.makeHomeViewModel())
-            .environmentObject(diContainer)
-    }
     
     static func makeMainTabView() -> some View {
         MainTabView()
             .environmentObject(diContainer)
-            .environmentObject(coordinators.makeHomeCoordinator())
     }
 }
+
 
 // MARK: Auth
 extension PreViewHelper {
@@ -135,9 +111,10 @@ extension PreViewHelper {
         DefaultActivityDetailUseCase(repo: activityRepository)
     }
     
-    static func makeActivityKeepCommainUseCase() -> DefaultActivityKeepCommandUseCase {
+    static func makeActivityKeepCommandUseCase() -> DefaultActivityKeepCommandUseCase {
         DefaultActivityKeepCommandUseCase(repo: acitvityKeepStatusRepository)
     }
+    
 
 }
 

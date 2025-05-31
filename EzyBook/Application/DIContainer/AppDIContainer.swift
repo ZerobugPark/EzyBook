@@ -26,8 +26,7 @@ final class AppDIContainer {
     private let activityRepository: DefaultActivityRepository
     private let acitvityKeepStatusRepository: DefaultKeepStatusRepository
     
-
-
+    
     
     
     init() {
@@ -42,6 +41,7 @@ final class AppDIContainer {
         
         activityRepository = DefaultActivityRepository(networkService: networkService)
         acitvityKeepStatusRepository = DefaultKeepStatusRepository(networkService: networkService)
+
         
         imageCache = ImageMemoryCache()
         imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache, interceptor: interceptor)
@@ -58,16 +58,14 @@ final class AppDIContainer {
             appleLoginUseCase: makeAppleLoginUseCase(),
             activityListUseCase: makeActivityListUseCase(),
             activityNewListUseCase: makeActivityNewListUseCase(),
-            activitySearchUseCase: makeActivityNewListUseCase(),
+            activitySearchUseCase: makeActivitySearchUseCase(),
             activityDetailUseCase: makeActivityDetailUseCase(),
-            activityKeepCommandUseCase: makeActivityKeepCommainUseCase(),
+            activityKeepCommandUseCase: makeActivityKeepCommandUseCase(),
             imageLoader: makeImageLoaderUseCase()
         )
     }
     
-    func makeCoordinatorContainer() -> CoordinatorContainer {
-        return CoordinatorContainer()
-    }
+
 }
 
 // MARK: Common
@@ -122,7 +120,7 @@ extension AppDIContainer {
         DefaultNewActivityListUseCase(repo: activityRepository)
     }
     
-    private func makeActivityNewListUseCase() -> DefaultActivitySearchUseCase {
+    private func makeActivitySearchUseCase() -> DefaultActivitySearchUseCase {
         DefaultActivitySearchUseCase(repo: activityRepository)
     }
     
@@ -130,7 +128,9 @@ extension AppDIContainer {
         DefaultActivityDetailUseCase(repo: activityRepository)
     }
     
-    private func makeActivityKeepCommainUseCase() -> DefaultActivityKeepCommandUseCase {
+    private func makeActivityKeepCommandUseCase() -> DefaultActivityKeepCommandUseCase {
         DefaultActivityKeepCommandUseCase(repo: acitvityKeepStatusRepository)
     }
+    
+
 }

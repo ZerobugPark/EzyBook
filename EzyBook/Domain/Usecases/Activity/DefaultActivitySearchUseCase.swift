@@ -15,31 +15,20 @@ final class DefaultActivitySearchUseCase {
         self.repo = repo
     }
     
-    func execute(title: String,  completionHandler: @escaping (Result <[ActivitySummaryEntity], APIError>) -> Void) {
-
-        
+    
+    func execute(title: String) async throws -> [ActivitySummaryEntity]  {
+    
         let requestDto = ActivitySearchListRequestDTO(title: title)
         
         let router = ActivityGetRequest.serachActiviy(param: requestDto)
         
-        Task {
-            do {
-                let data = try await repo.requestActivityNewList(router)
-                
-                await MainActor.run {
-                    completionHandler(.success((data)))
-                }
-            } catch  {
-                let resolvedError: APIError
-                if let apiError = error as? APIError {
-                    resolvedError = apiError
-                } else {
-                    resolvedError = .unknown
-                }
-                await MainActor.run {
-                    completionHandler(.failure(resolvedError))
-                }
-
+        do {
+            return try await repo.requestActivityNewList(router)
+        } catch {
+            if let apiError = error as? APIError {
+                throw apiError
+            } else {
+                throw APIError.unknown
             }
         }
     }
