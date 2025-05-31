@@ -10,7 +10,7 @@ import AuthenticationServices
 
 struct LoginView: View {
     
-    @ObservedObject var coordinator: AuthCoordinator
+    @EnvironmentObject var authModel: AuthCoordinator
     @StateObject var viewModel: LoginViewModel
     
     var body: some View {
@@ -21,7 +21,7 @@ struct LoginView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(.systemBackground))
-        .onLoginSuccessModify(coordinator, viewModel.output.loginSuccessed)
+        .onLoginSuccessModify(viewModel.output.loginSuccessed)
         .commonAlert(
             isPresented: Binding(
                 get: { viewModel.output.isShowingError },
@@ -58,7 +58,7 @@ struct LoginView: View {
     
     private var joinEmail: some View {
         Button {
-            coordinator.push(.emailLogin)
+            authModel.push(.emailLogin)
         } label: {
             Text("Continue with Email")
                 .font(.headline)
@@ -114,5 +114,5 @@ extension LoginView {
 }
 
 #Preview {
-  //  PreViewHelper.makeLoginView()
+    PreViewHelper.makeLoginView()
 }

@@ -63,13 +63,13 @@ final class HomeViewModel: ViewModelType {
     
     init(
         activityListUseCase: DefaultActivityListUseCase,
-        activityNewLisUseCase: DefaultNewActivityListUseCase,
+        activityNewLisUsecaset: DefaultNewActivityListUseCase,
         activityDeatilUseCase: DefaultActivityDetailUseCase,
         activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase,
         imageLoader: DefaultLoadImageUseCase
     ) {
         self.activityListUseCase = activityListUseCase
-        self.activityNewLisUseCase = activityNewLisUseCase
+        self.activityNewLisUseCase = activityNewLisUsecaset
         self.activityDeatilUseCase = activityDeatilUseCase
         self.activityKeepCommandUseCase = activityKeepCommandUseCase
         self.imageLoader = imageLoader

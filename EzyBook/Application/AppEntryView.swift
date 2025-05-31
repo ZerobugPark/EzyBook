@@ -8,16 +8,17 @@
 import SwiftUI
 
 struct AppEntryView: View {
-    
-    @EnvironmentObject var container: DIContainer
+    @EnvironmentObject var coordinator: CoordinatorContainer
     @EnvironmentObject var appState: AppState
     
     var body: some View {
         
         if appState.isLoggedIn {
             MainTabView()
+                .environmentObject(coordinator.makeHomeCoordinator())
         } else {
-            AuthCoordinatorView(coordinator: AuthCoordinator(container: container))
+            AuthCoordinatorView()
+                .environmentObject(coordinator.makeAuthCoordinator())
         }
         
     }
