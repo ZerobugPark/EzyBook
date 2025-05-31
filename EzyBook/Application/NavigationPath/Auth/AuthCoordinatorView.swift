@@ -7,21 +7,23 @@
 
 import SwiftUI
 
-struct AuthModelView: View {
+struct AuthCoordinatorView: View {
     
-    @EnvironmentObject var auth: AuthModelObject
+    @EnvironmentObject var coordinator: AuthCoordinator
     @EnvironmentObject var container: DIContainer
     var body: some View {
-        NavigationStack(path: $auth.path) {
+        NavigationStack(path: $coordinator.path) {
             LoginView(
                 viewModel: container.makeSocialLoginViewModel()
             ).navigationDestination(for: AuthRoute.self) { route in
                 route.destinationView(container: container)
+                
+                
             }
         }
     }
 }
 
 #Preview {
-    AuthModelView()
+    AuthCoordinatorView()
 }

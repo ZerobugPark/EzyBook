@@ -1,5 +1,5 @@
 //
-//  UserRequest.swift
+//  UserPostRequest.swift
 //  EzyBook
 //
 //  Created by youngkyun park on 5/12/25.
@@ -8,15 +8,19 @@
 import Foundation
 import Alamofire
 
-enum UserRequest: PostRouter {
+enum UserPostRequest: PostRouter {
+   
+    //TODO: 프로필 이미지 업로드는 따로 만들어야 할듯
     
     case emailValidation(body: EmailValidationRequestDTO)
     case join(body: JoinRequestDTO)
     case emailLogin(body: EmailLoginRequestDTO)
     case kakaoLogin(body: KakaoLoginRequestDTO)
     case appleLogin(body: AppleLoginRequestDTO)
-    case profileCheck
     
+    var requiresAuth: Bool {
+        false
+    }
     
     var endpoint: URL? {
         switch self {
@@ -30,24 +34,14 @@ enum UserRequest: PostRouter {
             UserEndPoint.kakaoLogin.requestURL
         case .appleLogin:
             UserEndPoint.appleLogin.requestURL
-        case .profileCheck:
-            UserEndPoint.profileCheck.requestURL
         }
     }
     
     
     var method: HTTPMethod {
-        switch self {
-        case .emailValidation,
-                .join,
-                .emailLogin,
-                .kakaoLogin,
-                .appleLogin:
-            return .post
-        case .profileCheck:
-            return .get
-        }
+        .post
     }
+    
     
     var requestBody: Encodable? {
         switch self {
@@ -61,20 +55,15 @@ enum UserRequest: PostRouter {
             return request
         case .appleLogin(let request):
             return request
-        case .profileCheck: //이거 따로 안빼도 되나? Post 전용인데?..
-            return nil
         }
     }
     
     var headers: HTTPHeaders {
-        switch self {
-        case .emailValidation, .join, .emailLogin, .kakaoLogin, .appleLogin, .profileCheck:
-            return [
-                "SeSACKey": APIConstants.apiKey,
-                "Content-Type": "application/json"
-            ]
-            
-        }
+        [
+            "SeSACKey": APIConstants.apiKey,
+            "Content-Type": "application/json"
+        ]
+        
     }
     
 }

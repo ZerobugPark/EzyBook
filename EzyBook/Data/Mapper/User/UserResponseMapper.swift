@@ -8,24 +8,11 @@
 import Foundation
 
 // MARK: UserRepons Mapper
-extension ProfileCheckResponseDTO {
-    
-    func toEntity() -> ProfileCheckEntity {
-        return ProfileCheckEntity(
-            userID: self.userID,
-            email: self.email,
-            nick: self.nick,
-            profileImage: self.profileImage,
-            phoneNum: self.phoneNum,
-            introduction: self.introduction
-        )
-    }
-}
 
 extension EmailValidationResponseDTO {
     
     func toEntity() -> EmailValidationEntity {
-        return EmailValidationEntity(message: self.message)
+        EmailValidationEntity(message: self.message)
     }
 }
 
@@ -33,13 +20,7 @@ extension EmailValidationResponseDTO {
 extension JoinResponseDTO {
     
     func toEntity() -> JoinEntity {
-        return JoinEntity(
-            userID: self.userID,
-            email: self.email,
-            nick: self.nick,
-            accessToken: self.accessToken,
-            refreshToken: self.refreshToken
-        )
+        JoinEntity.init(dto: self)
     }
 }
 
@@ -47,13 +28,20 @@ extension JoinResponseDTO {
 extension LoginResponseDTO {
     
     func toEntity() -> LoginEntity {
-        return LoginEntity(
-            userID: self.userID,
-            email: self.email,
-            nick: self.nick,
-            accessToken: self.accessToken,
-            refreshToken: self.refreshToken
-        )
+        LoginEntity.init(dto: self)
     }
 }
 
+extension ProfileLookUpResponseDTO {
+    
+    func toEntity() -> ProfileLookUpEntity {
+        ProfileLookUpEntity.init(dto: self)
+    }
+}
+
+extension UserInfoListResponseDTO {
+    
+    func toEntity() -> [UserInfoResponseEntity] {
+        data.map(UserInfoResponseEntity.init)
+    }
+}

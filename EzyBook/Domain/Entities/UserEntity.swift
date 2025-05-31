@@ -7,24 +7,6 @@
 
 import Foundation
 
-
-
-struct ProfileCheckEntity {
-    let userID: String
-    let email: String
-    let nick: String
-    let profileImage: String?
-    let phoneNum: String
-    let introduction: String
-    
-    var profileImageData: Data? {
-        //Todo
-        // Image로 변환하는 작업 필요
-        return nil
-    }
-    
-}
-
 struct EmailValidationEntity {
     let message: String
 }
@@ -38,6 +20,14 @@ struct JoinEntity {
     let accessToken: String
     let refreshToken: String
     
+    init(dto: JoinResponseDTO) {
+        self.userID = dto.userID
+        self.email = dto.email
+        self.nick = dto.nick
+        self.accessToken = dto.accessToken
+        self.refreshToken = dto.refreshToken
+    }
+    
 }
 
 /// 로그인 (이메일, 카카오, 애플 공통)
@@ -48,4 +38,53 @@ struct LoginEntity {
     let accessToken: String
     let refreshToken: String
     
+    init(dto: LoginResponseDTO) {
+        self.userID = dto.userID
+        self.email = dto.email
+        self.nick = dto.nick
+        self.accessToken = dto.accessToken
+        self.refreshToken = dto.refreshToken
+    }
+    
 }
+
+/// 로그인 (이메일, 카카오, 애플 공통)
+struct ProfileLookUpEntity {
+    let userID: String
+    let email: String
+    let nick: String
+    let profileImage: String
+    let phoneNum: String
+    let introduction: String
+    
+    init(dto: ProfileLookUpResponseDTO) {
+        self.userID = dto.userID
+        self.email = dto.email
+        self.nick = dto.nick
+        self.profileImage = dto.profileImage ?? ""
+        self.phoneNum = dto.phoneNum ?? ""
+        self.introduction = dto.introduction ?? ""
+    }
+    
+    var hasProfileImage: Bool {
+        profileImage.isEmpty
+    }
+    
+}
+
+/// 유저검색
+struct UserInfoResponseEntity {
+    let userID: String
+    let nick: String
+    let profileImage: String?
+    let introduction: String?
+    
+    init(dto: UserInfoResponseDTO) {
+        self.userID = dto.userID
+        self.nick = dto.nick
+        self.profileImage = dto.profileImage
+        self.introduction = dto.introduction
+    }
+    
+}
+

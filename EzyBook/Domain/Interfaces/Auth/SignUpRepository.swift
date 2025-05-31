@@ -9,5 +9,5 @@ import Foundation
 
 protocol SignUpRepository {
     func verifyEmailAvailability(_ email: String) async throws
-    func signUp(_ router: UserRequest) async throws
+    func signUp(_ router: UserPostRequest) async throws
 }

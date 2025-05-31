@@ -10,7 +10,7 @@ import Foundation
 final class DefaultCreateAccountUseCase {
     
     private let authRepository: SignUpRepository
-
+    
     init(authRepository: SignUpRepository) {
         self.authRepository = authRepository
     }
@@ -19,41 +19,32 @@ final class DefaultCreateAccountUseCase {
 // MARK: Login
 extension DefaultCreateAccountUseCase {
     
-    func verifyEmail(_ email: String, completionHandler: @escaping (Result <Void, APIError>) -> Void) {
-        Task {
-            do {
-                let _ = try await authRepository.verifyEmailAvailability(email)
-                await MainActor.run {
-                    completionHandler(.success(()))
-                }
-            } catch  {
-
-
+    func verifyEmail(_ email: String) async throws -> Void {
+        
+        do {
+            try await authRepository.verifyEmailAvailability(email)
+        } catch {
+            if let apiError = error as? APIError {
+                throw apiError
+            } else {
+                throw APIError.unknown
             }
         }
+        
     }
     
-    func signUp(_ rotuer: UserRequest, completionHandler: @escaping (Result <Void, APIError>) -> Void) {
-        Task {
-            do {
-                let _ = try await authRepository.signUp(rotuer)
-                await MainActor.run {
-                    completionHandler(.success(()))
-                }
-            } catch  {
-                let resolvedError: APIError
-                if let apiError = error as? APIError {
-                    resolvedError = apiError
-                } else {
-                    resolvedError = .unknown
-                }
-                await MainActor.run {
-                    completionHandler(.failure(resolvedError))
-                }
-
+    func signUp(_ rotuer: UserPostRequest) async throws -> Void {
+        
+        do {
+            try await authRepository.signUp(rotuer)
+        }
+        catch {
+            if let apiError = error as? APIError {
+                throw apiError
+            } else {
+                throw APIError.unknown
             }
         }
+        
     }
-    
-
 }

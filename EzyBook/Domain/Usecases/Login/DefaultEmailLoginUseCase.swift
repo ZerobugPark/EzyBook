@@ -8,11 +8,11 @@
 import Foundation
 
 final class DefaultEmailLoginUseCase {
-
-    private let authRepository: EmailLoginRepository
-    private let tokenService: TokenService
     
-    init(authRepository: EmailLoginRepository, tokenService: TokenService) {
+    private let authRepository: EmailLoginRepository
+    private let tokenService: TokenWritable
+    
+    init(authRepository: EmailLoginRepository, tokenService: TokenWritable) {
         self.authRepository = authRepository
         self.tokenService = tokenService
     }
@@ -23,31 +23,25 @@ final class DefaultEmailLoginUseCase {
 
 extension DefaultEmailLoginUseCase {
     
-    func emailLogin (email: String, password: String, completionHandler: @escaping (Result <Void, APIError>) -> Void) {
+    
+    func execute(email: String, password: String) async throws -> Void {
         
         let requestDto = EmailLoginRequestDTO(email: email, password: password, deviceToken: nil)
-
-        let router = UserRequest.emailLogin(body: requestDto)
         
-        Task {
-            do {
-               let token = try await authRepository.requestEmailLogin(router)
-                _ = tokenService.saveTokens(accessToken: token.accessToken, refreshToken: token.refreshToken)
-                await MainActor.run {
-                    completionHandler(.success(()))
-                }
-            } catch  {
-                let resolvedError: APIError
-                if let apiError = error as? APIError {
-                    resolvedError = apiError
-                } else {
-                    resolvedError = .unknown
-                }
-                await MainActor.run {
-                    completionHandler(.failure(resolvedError))
-                }
-
+        let router = UserPostRequest.emailLogin(body: requestDto)
+        do {
+            let token = try await authRepository.requestEmailLogin(router)
+            _ = tokenService.saveTokens(accessToken: token.accessToken, refreshToken: token.refreshToken)
+            return ()
+        } catch  {
+            if let apiError = error as? APIError {
+                throw apiError
+            } else {
+                throw APIError.unknown
             }
+            
         }
+        
     }
 }
+

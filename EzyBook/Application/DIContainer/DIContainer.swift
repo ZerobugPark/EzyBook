@@ -12,24 +12,42 @@ import Foundation
 /// 네트워크 서비스?, 저장소 패턴, 또 뭐가 있을끼?
 final class DIContainer: ObservableObject {
 
-    
+    /// Auth
     private let kakaoLoginUseCase: DefaultKakaoLoginUseCase
     private let createAccountUseCase : DefaultCreateAccountUseCase
     private let emailLoginUseCase : DefaultEmailLoginUseCase
     private let appleLoginUseCase: DefaultAppleLoginUseCase
-
     
-    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase) {
+    
+    /// Activity
+    let activityListUseCase: DefaultActivityListUseCase
+    let activityNewListUseCase: DefaultNewActivityListUseCase
+    let activitySearchUseCase: DefaultActivitySearchUseCase
+    let activityDetailUseCase: DefaultActivityDetailUseCase
+    let activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase
+    
+    
+    /// Common
+    let imageLoader: DefaultLoadImageUseCase
+
+
+    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, imageLoader: DefaultLoadImageUseCase) {
         self.kakaoLoginUseCase = kakaoLoginUseCase
         self.createAccountUseCase = createAccountUseCase
         self.emailLoginUseCase = emailLoginUseCase
         self.appleLoginUseCase = appleLoginUseCase
+        self.activityListUseCase = activityListUseCase
+        self.activityNewListUseCase = activityNewListUseCase
+        self.activitySearchUseCase = activitySearchUseCase
+        self.activityDetailUseCase = activityDetailUseCase
+        self.activityKeepCommandUseCase = activityKeepCommandUseCase
+        self.imageLoader = imageLoader
     }
     
         
 }
 
-// MARK: Make ViewModel
+// MARK: Make Auth ViewModel
 extension DIContainer {
     func makeAccountViewModel() -> CreateAccountViewModel {
         return CreateAccountViewModel(createUseCase: createAccountUseCase)
@@ -46,4 +64,17 @@ extension DIContainer {
         )
     }
 
+}
+
+// MARK: Make Home ViewModel
+extension DIContainer {
+    func makeHomeViewModel() -> HomeViewModel {
+        return HomeViewModel(
+            activityListUseCase: activityListUseCase,
+            activityNewLisUsecaset: activityNewListUseCase,
+            activityDeatilUseCase: activityDetailUseCase,
+            activityKeepCommandUseCase: activityKeepCommandUseCase,
+            imageLoader: imageLoader
+        )
+    }
 }

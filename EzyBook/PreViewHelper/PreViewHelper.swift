@@ -11,25 +11,48 @@ enum PreViewHelper {
     
     // MARK: - Infrastructure
     static let decoder = ResponseDecoder()
-    static let networkService = DefaultNetworkService(decodingManager: decoder)
-    
-
-    static let refreshScheduler = DefaultTokenRefreshScheduler()
     static let storage = KeyChainTokenStorage()
-    static let tokenService = TokenService(storage: storage, scheduler: refreshScheduler)
     
-    // MARK: - Data Layer
+    static let tokenNetworkService = DefaultNetworkService(decodingService: decoder, interceptor: nil)
+    
+    static let tokenService = DefaultTokenService(storage: storage, networkService: tokenNetworkService)
+    
+    
+    static let interceptor = TokenInterceptor(tokenService: tokenService)
+    static let  networkService = DefaultNetworkService(decodingService: decoder, interceptor: interceptor)
+    
+    static let imageCache = ImageMemoryCache()
+    
+    static let imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache, interceptor: interceptor)
+    
     static let authRepository = DefaultAuthRepository(networkService: networkService)
     static let socialLoginService = DefaultsSocialLoginService()
+    
+    static let activityRepository = DefaultActivityRepository(networkService: networkService)
+    
+    static let newActivityRepository = DefaultActivityRepository(networkService: networkService)
+    static let acitvityKeepStatusRepository =  DefaultKeepStatusRepository(networkService: networkService)
+    // MARK: - Data Layer
     
     static let diContainer = DIContainer(
         kakaoLoginUseCase: makeKakaoLoginUseCase(),
         createAccountUseCase: makeCreateAccountUseCase(),
         emailLoginUseCase: makeEmailLoginUseCase(),
-        appleLoginUseCase: makeAppleLoginUseCase()
+        appleLoginUseCase: makeAppleLoginUseCase(),
+        activityListUseCase: makeActivityListUseCase(),
+        activityNewListUseCase: makeActivityNewListUseCase(),
+        activitySearchUseCase: makeActivitySearchUseCase(),
+        activityDetailUseCase: makeActivityDetailUseCase(),
+        activityKeepCommandUseCase: makeActivityKeepCommainUseCase(),
+        imageLoader: makeImageLoaderUseCase()
     )
-        
     
+    static let coordinators = CoordinatorContainer()
+    
+    static func makeImageLoaderUseCase() -> DefaultLoadImageUseCase {
+        DefaultLoadImageUseCase(imageLoader: imageLoader)
+    }
+
     static func makeLoginView(showModal: Binding<Bool> = .constant(false)) -> some View {
         LoginView(viewModel: diContainer.makeSocialLoginViewModel())
             .environmentObject(diContainer)
@@ -48,8 +71,20 @@ enum PreViewHelper {
         LoginSignUpPagerView()
             .environmentObject(diContainer)
     }
+    
+    static func makeHomeView() -> some View {
+        HomeView(viewModel: diContainer.makeHomeViewModel())
+            .environmentObject(diContainer)
+    }
+    
+    static func makeMainTabView() -> some View {
+        MainTabView()
+            .environmentObject(diContainer)
+            .environmentObject(coordinators.makeHomeCoordinator())
+    }
 }
 
+// MARK: Auth
 extension PreViewHelper {
     
     static func makeKakaoLoginUseCase() -> DefaultKakaoLoginUseCase {
@@ -77,6 +112,31 @@ extension PreViewHelper {
 
     static func makeCreateAccountUseCase() -> DefaultCreateAccountUseCase {
         return DefaultCreateAccountUseCase(authRepository: authRepository)
+    }
+
+}
+
+// MARK: Activity
+extension PreViewHelper {
+
+    static func makeActivityListUseCase() -> DefaultActivityListUseCase {
+        DefaultActivityListUseCase(repo: activityRepository)
+    }
+
+    static func makeActivityNewListUseCase() -> DefaultNewActivityListUseCase {
+        DefaultNewActivityListUseCase(repo: activityRepository)
+    }
+    
+    static func makeActivitySearchUseCase() -> DefaultActivitySearchUseCase {
+        DefaultActivitySearchUseCase(repo: activityRepository)
+    }
+    
+    static func makeActivityDetailUseCase() -> DefaultActivityDetailUseCase {
+        DefaultActivityDetailUseCase(repo: activityRepository)
+    }
+    
+    static func makeActivityKeepCommainUseCase() -> DefaultActivityKeepCommandUseCase {
+        DefaultActivityKeepCommandUseCase(repo: acitvityKeepStatusRepository)
     }
 
 }

@@ -10,9 +10,9 @@ import Foundation
 // MARK: AuthResponse Mapper
 extension AuthResponseDTO {
     func toEntity() -> RefreshEntity {
-        return RefreshEntity(
-            accessToken: self.accessToken,
-            refreshToken: self.refreshToken
-        )
+        RefreshEntity.init(dto: self)
     }
 }
+
+
+

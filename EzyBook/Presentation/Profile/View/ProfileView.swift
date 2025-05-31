@@ -7,19 +7,36 @@
 
 import SwiftUI
 
+
+
+
+
 struct ProfileView: View {
     
 
+
     var body: some View {
-        VStack {
-            Text("View A")
-        } .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.red) // 원하는 색상
-        
+        VStack(spacing: 15) {
+            
+            
+        }
+        .padding([.horizontal, .top], 15)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background {
+            GeometryReader { proxy in
+            
+                LinearGradient(colors: [.blackSeafoam ,.deepSeafoam, .blackSeafoam], startPoint: .top, endPoint: .bottom)
+            }
+        }
+       
+
             
     }
-  
+
+
 }
+
+
 
 #Preview {
     ProfileView()

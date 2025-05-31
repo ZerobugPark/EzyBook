@@ -42,33 +42,43 @@ extension LoginViewModel {
     
     func transform() { }
     
-    private func handleKakaoLoginResult() {
-        kakaoLoginUseCase.execute { result in
-            switch result {
-            case .success(_):
-                self.output.loginSuccessed = true
-            case .failure(let failure):
-                self.output.loginError = .kakaoLoginError(code: failure.code)
+    private func requestKakaoLogin() {
+        
+        Task {
+            do {
+                try await kakaoLoginUseCase.execute()
+                await MainActor.run {
+                    output.loginSuccessed = true
+                }
+            } catch let error as APIError {
+                await MainActor.run {
+                    self.output.loginError = .kakaoLoginError(code: error.code)
+                }
             }
         }
     }
     
+    /// 애플 로그인 권한 설정
     private func configureAppleLoginRequest(_ request: ASAuthorizationAppleIDRequest) {
         request.requestedScopes = [.email, .fullName]
     }
     
-    private func handleAppleLoginResult(_ result: Result<ASAuthorization, any Error>) {
-        appleLoginUseCase.execute(result) { result in
-            switch result {
-            case .success(_):
-                self.output.loginSuccessed = true
-            case .failure(let failure):
-                self.output.loginError = .appleLoginError(code: failure.code)
+    private func requestAppleLogin(_ result: Result<ASAuthorization, any Error>) {
+        Task {
+            do {
+                try await appleLoginUseCase.execute(result)
+                await MainActor.run {
+                    output.loginSuccessed = true
+                }
+            } catch let error as APIError {
+                await MainActor.run {
+                    self.output.loginError = .kakaoLoginError(code: error.code)
+                }
             }
         }
     }
     
-    private func handlerResetError() {
+    private func handleResetError() {
         output.loginError = nil
     }
 }
@@ -87,13 +97,13 @@ extension LoginViewModel {
     func action(_ action: Action) {
         switch action {
         case .kakaoLoginButtonTapped:
-            handleKakaoLoginResult()
+            requestKakaoLogin()
         case .appleLoginButtonTapped(let request):
             configureAppleLoginRequest(request)
         case .appleLoginCompleted(let result):
-            handleAppleLoginResult(result)
+            requestAppleLogin(result)
         case .resetError:
-            handlerResetError()
+            handleResetError()
         }
     }
 }
