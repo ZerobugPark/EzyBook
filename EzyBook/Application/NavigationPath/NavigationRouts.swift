@@ -13,8 +13,6 @@ enum AuthRoute {
 
 }
 
-
-
 enum HomeRoute {
     case homeView
     case searchView

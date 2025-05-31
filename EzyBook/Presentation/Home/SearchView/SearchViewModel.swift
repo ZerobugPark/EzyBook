@@ -35,7 +35,7 @@ final class SearchViewModel: ViewModelType {
                 .map { $0.value }
             
             output.activitySearchDetailList = sortedValues
-            print(output.activitySearchDetailList)
+           
         }
     }
     
@@ -70,7 +70,7 @@ extension SearchViewModel {
     
     struct Output {
         
-        var isLoading = true
+        var isLoading = false
         
         var presentedError: DisplayError? = nil
         var isShowingError: Bool {

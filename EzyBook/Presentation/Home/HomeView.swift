@@ -48,6 +48,7 @@ struct HomeView: View {
                     }
                 }
             }
+            .scrollIndicators(.hidden)
             .disabled(viewModel.output.isLoading)
             
             if viewModel.output.isLoading {
