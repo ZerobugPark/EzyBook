@@ -13,6 +13,7 @@ import KakaoSDKAuth
 struct EzyBookApp: App {
     
     @StateObject private var container = AppDIContainer().makeDIContainer()
+    @StateObject private var coordinators = AppDIContainer().makeCoordinatorContainer()
     @StateObject private var appState = AppState()
     
 
@@ -22,9 +23,6 @@ struct EzyBookApp: App {
             fatalError("API_KEY not found in Info.plist")
         }
         KakaoSDK.initSDK(appKey: KaKaoNativeKey)
-        setupNavigationBarApperance()
-        
-        
     }
     
     
@@ -34,6 +32,7 @@ struct EzyBookApp: App {
             AppEntryView()
                 .environmentObject(container)
                 .environmentObject(appState)
+                .environmentObject(coordinators)
                 .onOpenURL(perform: { url in
                     if (AuthApi.isKakaoTalkLoginUrl(url)) {
                         _ = AuthController.handleOpenUrl(url: url)
@@ -42,19 +41,3 @@ struct EzyBookApp: App {
         }
     }
 }
-
-
-extension EzyBookApp {
-    
-    
-    private func setupNavigationBarApperance() {
-        let appearance = UINavigationBarAppearance()
-        //appearance.configureWithTransparentBackground() // 배경 투명하게
-        appearance.shadowColor = .clear // 하단 줄 제거
-
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
-    }
-}
-
-

@@ -30,6 +30,7 @@ final class DIContainer: ObservableObject {
     /// Common
     let imageLoader: DefaultLoadImageUseCase
 
+
     init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, imageLoader: DefaultLoadImageUseCase) {
         self.kakaoLoginUseCase = kakaoLoginUseCase
         self.createAccountUseCase = createAccountUseCase
@@ -42,21 +43,22 @@ final class DIContainer: ObservableObject {
         self.activityKeepCommandUseCase = activityKeepCommandUseCase
         self.imageLoader = imageLoader
     }
+    
         
 }
 
 // MARK: Make Auth ViewModel
 extension DIContainer {
     func makeAccountViewModel() -> CreateAccountViewModel {
-        CreateAccountViewModel(createUseCase: createAccountUseCase)
+        return CreateAccountViewModel(createUseCase: createAccountUseCase)
     }
     
     func makeEmailLoginViewModel() -> EmailLoginViewModel {
-        EmailLoginViewModel(emailLoginUseCase: emailLoginUseCase)
+        return EmailLoginViewModel(emailLoginUseCase: emailLoginUseCase)
     }
     
     func makeSocialLoginViewModel() -> LoginViewModel {
-        LoginViewModel(
+        return LoginViewModel(
             kakaoLoginUseCase: kakaoLoginUseCase,
             appleLoginUseCase: appleLoginUseCase
         )
@@ -67,22 +69,12 @@ extension DIContainer {
 // MARK: Make Home ViewModel
 extension DIContainer {
     func makeHomeViewModel() -> HomeViewModel {
-        HomeViewModel(
+        return HomeViewModel(
             activityListUseCase: activityListUseCase,
-            activityNewLisUseCase: activityNewListUseCase,
+            activityNewLisUsecaset: activityNewListUseCase,
             activityDeatilUseCase: activityDetailUseCase,
             activityKeepCommandUseCase: activityKeepCommandUseCase,
             imageLoader: imageLoader
         )
     }
-    
-    func makeSearchViewModel() -> SearchViewModel {
-        SearchViewModel(
-            activitySearchLisUseCase: activitySearchUseCase,
-            activityDeatilUseCase: activityDetailUseCase,
-            activityKeepCommandUseCase: activityKeepCommandUseCase,
-            imageLoader: imageLoader
-        )
-    }
-    
 }

@@ -7,7 +7,6 @@
 
 import Foundation
 
-/// 필터 조건에 따른 액티비티 목록 조회
 final class DefaultActivityListUseCase {
     
     private let repo: ActivityListRepository

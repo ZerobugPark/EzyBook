@@ -10,11 +10,33 @@ import SwiftUI
 enum AuthRoute {
     case socialLogin
     case emailLogin
-
+    
+    
+    @ViewBuilder
+    func destinationView(container: DIContainer) -> some View {
+        switch self {
+        case .socialLogin:
+            LoginView(viewModel: container.makeSocialLoginViewModel())
+        case .emailLogin:
+            LoginSignUpPagerView()
+        }
+    }
+    
 }
 
-enum HomeRoute {
+enum MainRoute {
     case homeView
-    case searchView
+    case emailLogin
+    
+    
+    @ViewBuilder
+    func destinationView(container: DIContainer) -> some View {
+        switch self {
+        case .homeView:
+            LoginView(viewModel: container.makeSocialLoginViewModel())
+        case .emailLogin:
+            LoginSignUpPagerView()
+        }
+    }
     
 }

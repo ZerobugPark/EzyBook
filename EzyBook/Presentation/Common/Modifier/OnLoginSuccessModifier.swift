@@ -10,7 +10,7 @@ import SwiftUI
 private struct OnLoginSuccessModifier: ViewModifier {
     
     @EnvironmentObject var appState: AppState
-    @ObservedObject var coordinator: AuthCoordinator
+    @EnvironmentObject var authModel: AuthCoordinator
     let loginState: Bool
     
     
@@ -22,14 +22,14 @@ private struct OnLoginSuccessModifier: ViewModifier {
                         Color.clear.onChange(of: loginState) { _, newValue in
                             if newValue {
                                 appState.isLoggedIn = true
-                                coordinator.popToRoot()
+                                authModel.popToRoot()
                             }
                         }
                     } else {
                         Color.clear.onChange(of: loginState) { newValue in
                             if newValue {
                                 appState.isLoggedIn = true
-                                coordinator.popToRoot()
+                                authModel.popToRoot()
                             }
                         }
                     }
@@ -41,7 +41,7 @@ private struct OnLoginSuccessModifier: ViewModifier {
 
 extension View {
     
-    func onLoginSuccessModify(_ coordinator: AuthCoordinator, _ state: Bool) -> some View {
-        modifier(OnLoginSuccessModifier(coordinator: coordinator, loginState: state))
+    func onLoginSuccessModify(_ state: Bool) -> some View {
+        modifier(OnLoginSuccessModifier(loginState: state))
     }
 }

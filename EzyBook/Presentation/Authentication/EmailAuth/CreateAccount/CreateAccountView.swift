@@ -271,3 +271,6 @@ extension CreateAccountView {
     
 }
 
+#Preview {
+    PreViewHelper.makeCreateAccountView()
+}

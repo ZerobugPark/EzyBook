@@ -11,8 +11,6 @@ struct EmailLoginView: View {
     
     @Binding var selectedIndex: Int
     @StateObject var viewModel: EmailLoginViewModel
-
-    @ObservedObject var coordinator: AuthCoordinator
     
     @FocusState private var isFocused: LoginInputFieldType?
     var body: some View {
@@ -61,7 +59,7 @@ struct EmailLoginView: View {
             
         }
       
-        .onLoginSuccessModify(coordinator, viewModel.output.loginSuccessed)
+        .onLoginSuccessModify(viewModel.output.loginSuccessed)
         .padding(.horizontal)
         .commonAlert(
             isPresented: Binding(
@@ -181,5 +179,5 @@ extension EmailLoginView {
 
 
 #Preview {
-    //PreViewHelper.makeEmailLoginView()
+    PreViewHelper.makeEmailLoginView()
 }
