@@ -39,6 +39,8 @@ final class HomeCoordinator: ObservableObject {
             HomeView(viewModel: self.container.makeHomeViewModel(), coordinator: self)
         case .searchView:
             SearchView(viewModel: self.container.makeSearchViewModel(), coordinator: self)
+        case .detailView(let id):
+            DetailView(viewModel: self.container.makeDetailViewModel(), coordinator: self, activityID: id)
         }
     }
 

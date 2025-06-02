@@ -45,7 +45,10 @@ struct HomeView: View {
                     } currentIndex: { index in
                         viewModel.action(.prefetchfilterActivityContent(index: index))
                         viewModel.action(.paginationAcitiviyList(flag: selectedFlag, filter: selectedFilter, index: index))
+                    } onItemTapped: { id in
+                        coordinator.push(.detailView(activityID: id))
                     }
+             
                 }
             }
             .scrollIndicators(.hidden)

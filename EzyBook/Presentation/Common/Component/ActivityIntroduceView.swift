@@ -14,6 +14,7 @@ struct ActivityIntroduceView: View {
     
     var onTapKeep: (Int) -> Void
     var currentIndex: (Int) -> Void
+    var onItemTapped: (String) -> Void
     
     var body: some View {
         if data.isEmpty {
@@ -32,6 +33,9 @@ struct ActivityIntroduceView: View {
                     }
                     .onAppear {
                         currentIndex(index)
+                    }
+                    .onTapGesture {
+                        onItemTapped(item.activityID)
                     }
                 }
             }

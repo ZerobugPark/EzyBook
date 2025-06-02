@@ -315,7 +315,7 @@ extension SearchViewModel {
             handleRequestQuery()
         case .prefetchSearchContent(let index):
             triggerSearchListPrefetch(index)
-        case .keepButtonTapped(index: let index):
+        case .keepButtonTapped(let index):
             triggerKeepActivity(index)
         case .resetError:
             handleResetError()

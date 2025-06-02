@@ -458,7 +458,7 @@ extension HomeViewModel {
         do {
             var statusChanged =  data.isKeep
             statusChanged.toggle()
-            print(statusChanged)
+
             let detail = try await activityKeepCommandUseCase.execute(id: data.activityID, stauts: statusChanged)
             await MainActor.run {
                 _filterActivityDetailList[index]?.isKeep = detail.keepStatus

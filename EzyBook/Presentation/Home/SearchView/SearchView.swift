@@ -27,6 +27,8 @@ struct SearchView: View {
                         viewModel.action(.keepButtonTapped(index: index))
                     } currentIndex: { index in
                         viewModel.action(.prefetchSearchContent(index: index))
+                    } onItemTapped: { id in
+                        print("TODO: DetailView ")
                     }
                     
                 }
