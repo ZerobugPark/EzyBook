@@ -52,7 +52,7 @@ extension DetailViewModel {
             presentedError != nil
         }
         
-        var activityDetailInfo: FilterActivityModel? = nil
+        var activityDetailInfo: ActivityDetailEntity? = nil
     }
     
     func transform() {}
@@ -62,7 +62,7 @@ extension DetailViewModel {
         
         Task {
             do {
-                let detail = try await reqeuestActivityDetailList(activityID, type: FilterActivityModel.self)
+                let detail = try await reqeuestActivityDetailList(activityID)
                 await MainActor.run {
                     output.activityDetailInfo = detail
                     dump(output.activityDetailInfo)
@@ -77,12 +77,12 @@ extension DetailViewModel {
     
     
         
-    private func  reqeuestActivityDetailList<T: ActivityModelBuildable>(_ activityID:  String, type: T.Type) async throws -> T {
+    private func  reqeuestActivityDetailList(_ activityID:  String) async throws -> ActivityDetailEntity {
         
         let detail = try await self.activityDeatilUseCase.execute(id: activityID)
-        let thumbnailImage = try await self.requestThumbnailImage(detail.thumbnails)
+        //let thumbnailImage = try await self.requestThumbnailImage(detail.thumbnails)
         
-        return T(from: detail, thumbnail: thumbnailImage)
+        return detail
         
     }
     

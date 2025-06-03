@@ -40,7 +40,8 @@ final class HomeCoordinator: ObservableObject {
         case .searchView:
             SearchView(viewModel: self.container.makeSearchViewModel(), coordinator: self)
         case .detailView(let id):
-            DetailView(viewModel: self.container.makeDetailViewModel(), coordinator: self, activityID: id)
+            SearchView(viewModel: self.container.makeSearchViewModel(), coordinator: self)
+            //DetailView(viewModel: self.container.makeDetailViewModel(), coordinator: self, activityID: id)
         }
     }
 

@@ -80,7 +80,7 @@ struct ActivityDetailEntity {
     let restrictions: ActivityRestrictionsEntity // 제한 사항
     let description: String //설명
     let isAdvertisement: Bool //광고 여부
-    let isKeep: Bool // 현재 유저의 킵 여부
+    var isKeep: Bool // 현재 유저의 킵 여부
     let keepCount: Int // 이 액티비티의 총 킵 수
     let totalOrderCount: Int // 총 주문 예약
     let schedule: [ActivityScheduleItemEntity] // 일정 정보
