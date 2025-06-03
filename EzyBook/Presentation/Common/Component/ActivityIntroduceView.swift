@@ -121,12 +121,12 @@ extension ActivityIntroduceView {
     }
     
     
-    private func makeFirstSection(_ title: String, _ heartCount: Int, _ pointReward :Int?) -> some View {
+    private func makeFirstSection(_ title: String, _ keepCount: Int, _ pointReward :Int?) -> some View {
         
         HStack(alignment: .bottom, spacing: 10) {
             Text(title)
                 .appFont(PretendardFontStyle.title1, textColor: .grayScale100)
-            ActivityKeepLabel(heartCount: heartCount)
+            ActivityKeepLabel(keepCount: keepCount)
             if let pointReward {
                 ActivityPointMoneyLabel(pointReward: pointReward)
             }
