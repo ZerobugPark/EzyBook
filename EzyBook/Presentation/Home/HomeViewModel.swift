@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Combine
+import UniformTypeIdentifiers
 
 final class HomeViewModel: ViewModelType {
     
@@ -237,17 +238,30 @@ extension HomeViewModel {
     /// 이미지 로드 함수
     private func requestThumbnailImage(_ paths: [String]) async throws -> UIImage {
         
-        let imagePaths = paths.filter {
-            $0.hasSuffix(".jpg") || $0.hasSuffix(".png")
-        }
-        
-        guard let path = imagePaths.first else {
+        guard !paths.isEmpty else {
             let fallback = UIImage(systemName: "star")!
             return fallback
         }
-        return try await imageLoader.execute(path, scale: scale)
+        
+        return try await imageLoader.execute(paths[0], scale: scale)
         
     }
+//  상세뷰에서만 관리하자
+//    private func getMediatype(from path: String) ->  MediaType   {
+//        let fileExtension = URL(fileURLWithPath: path).pathExtension.lowercased()
+//
+//        if let utType = UTType(filenameExtension: fileExtension) {
+//            if utType.conforms(to: .image) {
+//                return .image
+//            } else if utType.conforms(to: .movie) {
+//                return .media
+//            } else {
+//                return .unknown
+//            }
+//        } else {
+//            return .unknown
+//        }
+//    }
     
     
     private func handleResetError() {

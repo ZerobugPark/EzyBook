@@ -86,12 +86,11 @@ extension DIContainer {
     }
     
     func makeDetailViewModel() -> DetailViewModel {
-        DetailViewModel()
-//        DetailViewModel(
-//            activityDeatilUseCase: activityDetailUseCase,
-//            activityKeepCommandUseCase: activityKeepCommandUseCase,
-//            imageLoader: imageLoader
-//        )
+        DetailViewModel(
+            activityDeatilUseCase: activityDetailUseCase,
+            activityKeepCommandUseCase: activityKeepCommandUseCase,
+            imageLoader: imageLoader
+        )
     }
     
 }

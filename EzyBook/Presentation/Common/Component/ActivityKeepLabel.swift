@@ -25,7 +25,7 @@ struct ActivityKeepLabel: View {
                 .foregroundStyle(.rosyPunch)
 
             Text("\(keepCount)개")
-                .appFont(PretendardFontStyle.body3)
+                .appFont(PaperlogyFontStyle.caption)
         }
         .padding(.vertical, 2) 
 

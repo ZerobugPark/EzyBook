@@ -7,6 +7,8 @@
 
 import SwiftUI
 import Alamofire
+import AVFoundation
+import UniformTypeIdentifiers
 
 
 final class DefaultImageLoader: ImagerLoader {
@@ -22,7 +24,21 @@ final class DefaultImageLoader: ImagerLoader {
     }
     
     
-    func loadImage(from path: String, scale: CGFloat) async throws ->  UIImage {
+    func loadMediaPreview(from path: String, scale: CGFloat) async throws -> UIImage {
+        let fileExtension = URL(fileURLWithPath: path).pathExtension.lowercased()
+
+        if let utType = UTType(filenameExtension: fileExtension) {
+            if utType.conforms(to: .image) {
+                return try await loadImage(from: path, scale: scale)
+            } else if utType.conforms(to: .movie) {
+                return try await loadVideoThumbnail(from: path, scale: scale)
+            }
+        }
+
+        throw APIError.localError(type: .invalidMediaType, message: nil)
+    }
+    
+    private func loadImage(from path: String, scale: CGFloat) async throws ->  UIImage {
         
         
         let fullURL = APIConstants.baseURL + "/v1" + path
@@ -88,6 +104,65 @@ final class DefaultImageLoader: ImagerLoader {
         
     }
     
+    private func loadVideoThumbnail(from path: String, scale: CGFloat) async throws -> UIImage {
+        let fullURL = APIConstants.baseURL + "/v1" + path
+
+        guard let token = tokenService.accessToken else {
+            throw APIError.localError(type: .tokenNotFound, message: nil)
+        }
+
+        let header: HTTPHeaders = [
+            "SeSACKey": APIConstants.apiKey,
+            "Authorization": token
+        ]
+
+        let response = await AF.request(fullURL, headers: header, interceptor: interceptor)
+            .validate(statusCode: 200...304)
+            .serializingData()
+            .response
+
+        switch response.result {
+        case .success(let data):
+            printDataSize(data)
+            guard let thumbnail = await generateThumbnail(fromVideoData: data, scale: scale) else {
+                throw APIError.localError(type: .thumbnailFailed, message: "비디오 썸네일 생성 실패")
+            }
+            let downsampled = await loadAndDownsampleImage(thumbnail.jpegData(compressionQuality: 1.0) ?? Data(), scale)
+            return downsampled
+
+        case .failure(let failure):
+            let responseData = response.data
+            let statusCode = response.response?.statusCode
+            if let code = statusCode {
+                throw APIError(statusCode: code, data: responseData)
+            } else {
+                let errorCode = (failure as NSError).code
+                throw APIError(statusCode: errorCode, data: responseData)
+            }
+        }
+    }
+    
+    private func generateThumbnail(fromVideoData data: Data, scale: CGFloat) async -> UIImage? {
+        let tempURL = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension("mp4")
+
+        do {
+            try data.write(to: tempURL)
+
+            let asset = AVAsset(url: tempURL)
+            let generator = AVAssetImageGenerator(asset: asset)
+            generator.appliesPreferredTrackTransform = true
+            generator.maximumSize = CGSize(width: 512 * scale, height: 512 * scale)
+
+            let time = CMTime(seconds: 0.5, preferredTimescale: 600)
+            let cgImage = try generator.copyCGImage(at: time, actualTime: nil)
+            return UIImage(cgImage: cgImage)
+        } catch {
+            print("썸네일 생성 실패: \(error.localizedDescription)")
+            return nil
+        }
+    }
 
     
 }

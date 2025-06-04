@@ -161,7 +161,7 @@ extension HomeView {
         ) { index in
             GeometryReader { geo in
                 ZStack(alignment: .bottomLeading) {
-                    
+           
                     Image(uiImage: viewModel.output.activityNewDetailList[index].thumnail)
                         .resizable()
                         .scaledToFill()

@@ -8,5 +8,5 @@
 import SwiftUI
 
 protocol ImagerLoader {
-    func loadImage(from path: String, scale: CGFloat) async throws ->  UIImage
+    func loadMediaPreview(from path: String, scale: CGFloat) async throws -> UIImage
 }

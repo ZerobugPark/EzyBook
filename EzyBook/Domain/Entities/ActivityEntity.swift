@@ -89,6 +89,14 @@ struct ActivityDetailEntity {
     let createdAt: String?
     let updatedAt: String?
     
+    var discountRate: String {
+        
+        let discountRate = 100 - ceil(Double(price.final) / Double(price.original) * 100)
+        let formatted = discountRate.formattedPercentage()
+        return "\(formatted)%"
+        
+    }
+    
     init(dto: ActivityDetailResponseDTO) {
         self.activityID = dto.activityID
         self.title = dto.title ?? ""
@@ -193,6 +201,11 @@ struct ActivityReservationItemEntity {
     let itemName: String // 예약 아이템 이름(날짜??)
     let times: [ActivityReservationTimeEntity] // 해당 아이템의 시간대별 예약 정보
     
+    var soldOut: Bool {
+        let data = times.map { $0 }.filter { $0.isReserved != true }
+        return data.isEmpty
+    }
+    
     init(dto: ActivityReservationItemDTO) {
         self.itemName = dto.itemName
         self.times = dto.times.map { ActivityReservationTimeEntity(dto: $0) }
@@ -242,7 +255,7 @@ extension ActivityDetailEntity {
             geolocation: ActivityGeolocationDTO(longitude: 139.6503, latitude: 35.6762),
             startDate: "2025-12-06",
             endDate: "2025-12-09",
-            price: ActivityPriceDTO(original: 805, final: 600),
+            price: ActivityPriceDTO(original: 341000, final: 123000),
             tags: [],
             pointReward: 220,
             restrictions: ActivityRestrictionsDTO(minHeight: 148, minAge: 19, maxParticipants: 8),
@@ -276,7 +289,7 @@ extension ActivityDetailEntity {
                 ActivityReservationItemDTO(
                     itemName: "2025-12-08",
                     times: (10...17).map { hour in
-                        ActivityReservationTimeDTO(time: "\(hour):00", isReserved: false)
+                        ActivityReservationTimeDTO(time: "\(hour):00", isReserved: true)
                     }
                 ),
                 ActivityReservationItemDTO(

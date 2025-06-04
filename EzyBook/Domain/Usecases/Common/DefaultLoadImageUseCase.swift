@@ -18,7 +18,7 @@ struct DefaultLoadImageUseCase {
     
     func execute(_ path: String, scale: CGFloat) async throws -> UIImage {
         do {
-            let image = try await imageLoader.loadImage(from: path, scale: scale)
+            let image = try await imageLoader.loadMediaPreview(from: path, scale: scale)
             return image
         } catch {
             if let apiError = error as? APIError {

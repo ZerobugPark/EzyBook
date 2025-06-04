@@ -33,6 +33,8 @@ enum APIError: Error {
         case decodingError
         case tokenNotFound
         case seifIsNil
+        case invalidMediaType
+        case thumbnailFailed
         // 기타 로컬 에러 타입
     }
     
@@ -71,6 +73,10 @@ enum APIError: Error {
             self = .localError(type: localErrorType, message: "토큰을 불러올 수 없습니다")
         case .seifIsNil:
             self = .localError(type: localErrorType, message: "self가 없습니다.")
+        case .invalidMediaType:
+            self = .localError(type: localErrorType, message: "지원하지 않는 미디어 타입")
+        case .thumbnailFailed:
+            self = .localError(type: localErrorType, message: "썸네일 생성 실패")
         }
     }
     
