@@ -70,7 +70,7 @@ struct ActivityDetailEntity {
     let title: String // 제목
     let country: String // 국가
     let category: String // 투어
-    let thumbnails: [String] // 썸네일 이미지 경로
+    var thumbnails: [String] // 썸네일 이미지 경로
     let geolocation: ActivityGeolocationEntity // 위치
     let startDate: String // 액비비티 운영 기간(시작)
     let endDate: String? // 액비비티 운영 기간(종료)
@@ -192,7 +192,7 @@ struct ActivityRestrictionsEntity {
         self.maxParticipants = dto.maxParticipants
     }
     
-  
+    
     
 }
 
@@ -241,6 +241,36 @@ struct ActivityCreatorEntity {
 
 // MARK:  Mock Data
 extension ActivityDetailEntity {
+    
+    static let skeleton = ActivityDetailEntity(
+        dto: ActivityDetailResponseDTO(
+            activityID: "",
+            title: "로딩 중...",
+            country: "",
+            category: "",
+            thumbnails: Array(repeating: "", count: 3), // 썸네일 개수만큼 빈 이미지
+            geolocation: ActivityGeolocationDTO(longitude: 0, latitude: 0),
+            startDate: "",
+            endDate: "",
+            price: ActivityPriceDTO(original: 0, final: 0),
+            tags: [],
+            pointReward: 0,
+            restrictions: ActivityRestrictionsDTO(minHeight: 0, minAge: 0, maxParticipants: 0),
+            description: "잠시만 기다려주세요...",
+            isAdvertisement: false,
+            isKeep: false,
+            keepCount: 0,
+            totalOrderCount: 0,
+            schedule: [],
+            reservationList: [],
+            creator: ActivityCreatorDTO(userID: "", nick: "로딩 중", introduction: ""),
+            createdAt: "",
+            updatedAt: ""
+        )
+    )
+    
+    
+    
     static let mock = ActivityDetailEntity(
         dto: ActivityDetailResponseDTO(
             activityID: "683ac1df0b936fc974845bf1",
@@ -269,35 +299,35 @@ extension ActivityDetailEntity {
             keepCount: 2,
             totalOrderCount: 0,
             schedule: [
-            //    ActivityScheduleItemDTO(duration: "1일차", description: "도착 및 숙소 체크인, 환영 만찬"),
-            //    ActivityScheduleItemDTO(duration: "2일차", description: "자유 시간 및 출발"),
-            //    ActivityScheduleItemDTO(duration: "3일차", description: "복귀")
+                //    ActivityScheduleItemDTO(duration: "1일차", description: "도착 및 숙소 체크인, 환영 만찬"),
+                //    ActivityScheduleItemDTO(duration: "2일차", description: "자유 시간 및 출발"),
+                //    ActivityScheduleItemDTO(duration: "3일차", description: "복귀")
             ],
             reservationList: [
-//                ActivityReservationItemDTO(
-//                    itemName: "2025-12-06",
-//                    times: (10...17).map { hour in
-//                        ActivityReservationTimeDTO(time: "\(hour):00", isReserved: false)
-//                    }
-//                ),
-//                ActivityReservationItemDTO(
-//                    itemName: "2025-12-07",
-//                    times: (10...17).map { hour in
-//                        ActivityReservationTimeDTO(time: "\(hour):00", isReserved: false)
-//                    }
-//                ),
-//                ActivityReservationItemDTO(
-//                    itemName: "2025-12-08",
-//                    times: (10...17).map { hour in
-//                        ActivityReservationTimeDTO(time: "\(hour):00", isReserved: true)
-//                    }
-//                ),
-//                ActivityReservationItemDTO(
-//                    itemName: "2025-12-09",
-//                    times: (10...17).map { hour in
-//                        ActivityReservationTimeDTO(time: "\(hour):00", isReserved: false)
-//                    }
-//                )
+                //                ActivityReservationItemDTO(
+                //                    itemName: "2025-12-06",
+                //                    times: (10...17).map { hour in
+                //                        ActivityReservationTimeDTO(time: "\(hour):00", isReserved: false)
+                //                    }
+                //                ),
+                //                ActivityReservationItemDTO(
+                //                    itemName: "2025-12-07",
+                //                    times: (10...17).map { hour in
+                //                        ActivityReservationTimeDTO(time: "\(hour):00", isReserved: false)
+                //                    }
+                //                ),
+                //                ActivityReservationItemDTO(
+                //                    itemName: "2025-12-08",
+                //                    times: (10...17).map { hour in
+                //                        ActivityReservationTimeDTO(time: "\(hour):00", isReserved: true)
+                //                    }
+                //                ),
+                //                ActivityReservationItemDTO(
+                //                    itemName: "2025-12-09",
+                //                    times: (10...17).map { hour in
+                //                        ActivityReservationTimeDTO(time: "\(hour):00", isReserved: false)
+                //                    }
+                //                )
             ],
             creator: ActivityCreatorDTO(userID: "683a9ed50b936fc97483b4b3", nick: "bran", introduction: "안녕하세요!"),
             createdAt: "2025-05-31T08:46:23.687Z",

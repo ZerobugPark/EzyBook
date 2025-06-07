@@ -62,7 +62,8 @@ final class AppDIContainer {
             activityDetailUseCase: makeActivityDetailUseCase(),
             activityKeepCommandUseCase: makeActivityKeepCommandUseCase(),
             reviewLookupUseCase: makeReviewRatingUseCase(),
-            imageLoader: makeImageLoaderUseCase()
+            imageLoader: makeImageLoaderUseCase(),
+            viewLoader: makeVidoeLoaderDelegate()
         )
     }
     
@@ -73,6 +74,14 @@ final class AppDIContainer {
 extension AppDIContainer {
     private func makeImageLoaderUseCase() -> DefaultLoadImageUseCase {
         DefaultLoadImageUseCase(imageLoader: imageLoader)
+    }
+    
+    
+    private func makeVidoeLoaderDelegate() -> VideoLoaderDelegate {
+        VideoLoaderDelegate(
+            tokenService: tokenService,
+            interceptor: interceptor
+        )
     }
 }
 

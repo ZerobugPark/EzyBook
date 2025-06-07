@@ -36,17 +36,7 @@ struct SearchView: View {
             .disabled(viewModel.output.isLoading)
             .scrollIndicators(.hidden)
             
-            if viewModel.output.isLoading {
-                Color.white.opacity(0.3)
-                    .ignoresSafeArea(edges: .all)
-                    .overlay(
-                        ProgressView()
-                            .scaleEffect(1.5)
-                            .progressViewStyle(CircularProgressViewStyle(tint: .grayScale100))
-                    )
-                    .transition(.opacity)
-                    .animation(.easeInOut, value: viewModel.output.isLoading)
-            }
+            LoadingOverlayView(isLoading: viewModel.output.isLoading)
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)

@@ -54,7 +54,7 @@ extension DetailViewModel {
             presentedError != nil
         }
         
-        var activityDetailInfo: ActivityDetailEntity = .mock
+        var activityDetailInfo: ActivityDetailEntity = .skeleton
         var thumbnails: [UIImage] = []
         var reviews: ReviewRatingListEntity? = nil
 
@@ -87,11 +87,12 @@ extension DetailViewModel {
         
     private func  reqeuestActivityDetailList(_ activityID:  String) async throws -> ActivityDetailEntity {
         
-        let detail = try await self.activityDeatilUseCase.execute(id: activityID)
+        var detail = try await self.activityDeatilUseCase.execute(id: activityID)
         
         let sortedThumbnails = detail.thumbnails.sorted {
             $0.hasSuffix(".mp4") && !$1.hasSuffix(".mp4")
         }
+        detail.thumbnails = sortedThumbnails
         let images = try await requestThumbnailImages(sortedThumbnails)
         let hasMovie = detail.thumbnails.contains { $0.hasSuffix(".mp4") }
         let reviews = try await requestReviews(activityID)

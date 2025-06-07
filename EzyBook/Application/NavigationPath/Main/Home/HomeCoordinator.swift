@@ -41,7 +41,17 @@ final class HomeCoordinator: ObservableObject {
             SearchView(viewModel: self.container.makeSearchViewModel(), coordinator: self)
         case .detailView(let id):
             DetailView(viewModel: self.container.makeDetailViewModel(), coordinator: self, activityID: id)
+        case .reviewView(let id):
+            ReviewView(activityID: id)
         }
     }
 
+}
+
+
+extension HomeCoordinator {
+    func makeVideoPlayerView(path: String) -> some View {
+        let viewModel = container.makeVideoPlayerViewModel()
+        return VideoPlayerView(path: path, viewModel: viewModel)
+    }
 }

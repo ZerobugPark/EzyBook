@@ -21,6 +21,9 @@ struct DetailView: View {
     @State private var selectedDate: String? = nil
     @State private var selectedTime: String? = nil
     
+    /// 화면전환 트리거
+    @State private var isPresentingVideoPlayer = false
+    
     private var data: ActivityDetailEntity {
         viewModel.output.activityDetailInfo
     }
@@ -29,7 +32,7 @@ struct DetailView: View {
     
     var body: some View {
         
-        ZStack {
+        ZStack(alignment: .bottom) {
             ScrollView(.vertical) {
                 VStack(alignment: .leading) {
                     ZStack(alignment: .top) {
@@ -39,23 +42,18 @@ struct DetailView: View {
                     makeActivityDetailIntoView()
                     makeScheduleView()
                     makeReservationView()
+                    
+                    Spacer().frame(height: 80)
                 }
                 
             }
             .scrollIndicators(.hidden)
             .disabled(viewModel.output.isLoading)
             
-            if viewModel.output.isLoading {
-                Color.white.opacity(0.3)
-                    .ignoresSafeArea(edges: .all)
-                    .overlay(
-                        ProgressView()
-                            .scaleEffect(1.5)
-                            .progressViewStyle(CircularProgressViewStyle(tint: .grayScale100))
-                    )
-                    .transition(.opacity)
-                    .animation(.easeInOut, value: viewModel.output.isLoading)
-            }
+            makePayView()
+            
+            
+            LoadingOverlayView(isLoading: viewModel.output.isLoading)
         }
         .ignoresSafeArea(.container, edges: .top)
         .background(.grayScale15)
@@ -89,9 +87,13 @@ struct DetailView: View {
         .onAppear {
             viewModel.action(.onAppearRequested(id: activityID))
             /// 탭바 터치 못하게 하게 위한 것
-            appState.isLoding = viewModel.output.isLoading
+            ///appState.isLoding = viewModel.output.isLoading
+            withAnimation {
+                appState.isCustomTabbarHidden = true
+            }
         }
         .onDisappear {
+            appState.isCustomTabbarHidden = false
             selectedDate = nil
         }
         .loadingOverlayModify(viewModel.output.isLoading)
@@ -124,8 +126,16 @@ extension DetailView {
                                 .shadow(radius: 10)
                         }
                     }
+                    .onTapGesture {
+                        if index == 0 && viewModel.output.hasMovieThumbnail {
+                            isPresentingVideoPlayer = true
+                        }
+                    }
                     .tag(index)
                     /// 화면 전환시 이미지가 끊기는 문제
+                }
+                .fullScreenCover(isPresented: $isPresentingVideoPlayer) {
+                    coordinator.makeVideoPlayerView(path: data.thumbnails[0])
                 }
                 
             }
@@ -238,7 +248,7 @@ extension DetailView {
     private func makeReviewView() -> some View {
         
         Button {
-            print("button Tapped")
+            coordinator.push(.reviewView(activityID: activityID))
         } label: {
             HStack(spacing: 4) {
                 Image(.iconStarFill)
@@ -703,6 +713,34 @@ extension DetailView {
     
 }
 
+// MARK: Bottom
+extension DetailView {
+    
+    @ViewBuilder
+    private func makePayView() -> some View {
+        if appState.isCustomTabbarHidden {
+            HStack(alignment: .center) {
+                Text("\(data.price.final)원")
+                    .appFont(PaperlogyFontStyle.body, textColor: .grayScale100)
+                    .padding(.leading, 10)
+                
+                  Spacer()
+                  Button(action: {
+                      // 예: 예약하기
+                  }) {
+                      Text("결제하기")
+                          .frame(width: 100)
+                          .padding()
+                          .background(.blackSeafoam)
+                          .appFont(PaperlogyFontStyle.body, textColor: .grayScale0)
+                          .cornerRadius(7)
+                  }
+              }
+              .padding()
+              .background(Color.grayScale0.ignoresSafeArea(edges: .bottom)) // 배경이 바닥까지 닿게
+          }
+    }
+}
 
 
 #Preview {

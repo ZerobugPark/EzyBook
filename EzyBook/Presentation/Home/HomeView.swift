@@ -54,17 +54,8 @@ struct HomeView: View {
             .scrollIndicators(.hidden)
             .disabled(viewModel.output.isLoading)
             
-            if viewModel.output.isLoading {
-                Color.white.opacity(0.3)
-                    .ignoresSafeArea(edges: .all)
-                    .overlay(
-                        ProgressView()
-                            .scaleEffect(1.5)
-                            .progressViewStyle(CircularProgressViewStyle(tint: .grayScale100))
-                    )
-                    .transition(.opacity)
-                    .animation(.easeInOut, value: viewModel.output.isLoading)
-            }
+            LoadingOverlayView(isLoading: viewModel.output.isLoading)
+ 
           
         }
         .toolbar {
@@ -102,9 +93,6 @@ struct HomeView: View {
     
 }
 
-#Preview {
-    //PreViewHelper.makeHomeView()
-}
 
 // MARK: Custom SearchBar
 extension HomeView {

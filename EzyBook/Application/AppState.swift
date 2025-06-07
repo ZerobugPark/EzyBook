@@ -8,6 +8,7 @@
 import SwiftUI
 
 final class AppState: ObservableObject {
-    @Published var isLoggedIn: Bool = false
-    @Published var isLoding: Bool = false
+    @Published var isLoggedIn = false
+    @Published var isLoding = false
+    @Published var isCustomTabbarHidden = false
 }
