@@ -11,7 +11,7 @@ enum ActivityEndPoint: APIEndPoint {
 
     case activityFiles //액티비피 파일 업로드
     case activityList //액티비피 목록 조회
-    case activityDetail(id: String) //액티비피 킵/킵취소
+    case activityDetail(id: String) //액티비티 킵/킵취소
     case activityKeep(id: String) //액티비피 킵/킵취소
     case newActivities //새로운 액티비미 목록 조회
     case activitySearch // 액티비티 검색

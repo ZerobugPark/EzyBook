@@ -12,6 +12,7 @@ final class DetailViewModel: ViewModelType {
     
     private let activityDeatilUseCase: DefaultActivityDetailUseCase
     private let activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase
+    private let reviewLookupUseCase: DefaultReviewLookUpUseCase
     private let imageLoader: DefaultLoadImageUseCase
     
     var input = Input()
@@ -24,11 +25,13 @@ final class DetailViewModel: ViewModelType {
     init(
         activityDeatilUseCase: DefaultActivityDetailUseCase,
         activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase,
+        reviewLookupUseCase: DefaultReviewLookUpUseCase,
         imageLoader: DefaultLoadImageUseCase
     ) {
 
         self.activityDeatilUseCase = activityDeatilUseCase
         self.activityKeepCommandUseCase = activityKeepCommandUseCase
+        self.reviewLookupUseCase = reviewLookupUseCase
         self.imageLoader = imageLoader
         
         transform()
@@ -53,6 +56,8 @@ extension DetailViewModel {
         
         var activityDetailInfo: ActivityDetailEntity = .mock
         var thumbnails: [UIImage] = []
+        var reviews: ReviewRatingListEntity? = nil
+
         
         var hasMovieThumbnail = false
         
@@ -87,12 +92,14 @@ extension DetailViewModel {
         let sortedThumbnails = detail.thumbnails.sorted {
             $0.hasSuffix(".mp4") && !$1.hasSuffix(".mp4")
         }
-        let images = try await self.requestThumbnailImages(sortedThumbnails)
+        let images = try await requestThumbnailImages(sortedThumbnails)
         let hasMovie = detail.thumbnails.contains { $0.hasSuffix(".mp4") }
-
+        let reviews = try await requestReviews(activityID)
+        
         await MainActor.run {
             output.hasMovieThumbnail = hasMovie
             output.thumbnails = images
+            output.reviews = reviews
         }
 
         return detail
@@ -130,6 +137,10 @@ extension DetailViewModel {
         
     }
     
+    
+    private func requestReviews(_ id: String) async throws -> ReviewRatingListEntity {
+        return try await reviewLookupUseCase.execute(id: id)
+    }
     
     private func handleResetError() {
         output.presentedError = nil

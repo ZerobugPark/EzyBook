@@ -246,9 +246,9 @@ extension DetailView {
                     .resizable()
                     .frame(width: 16, height: 16)
                     .foregroundStyle(.rosyPunch)
-                Text("4.8")
+                Text(String(format: "%.1f", viewModel.output.reviews?.rating ?? 0.0))
                     .appFont(PaperlogyFontStyle.caption, textColor: .grayScale100)
-                Text("(122)")
+                Text("(\(viewModel.output.reviews?.totalCount ?? 0))")
                     .appFont(PretendardFontStyle.body2, textColor: .grayScale100)
                 
                 Image(.iconChevron)
