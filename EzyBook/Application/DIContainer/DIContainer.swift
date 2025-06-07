@@ -27,10 +27,14 @@ final class DIContainer: ObservableObject {
     let activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase
     
     
+    /// Review
+    let reviewLookupUseCase: DefaultReviewLookUpUseCase
+    
+    
     /// Common
     let imageLoader: DefaultLoadImageUseCase
 
-    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, imageLoader: DefaultLoadImageUseCase) {
+    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, reviewLookupUseCase: DefaultReviewLookUpUseCase, imageLoader: DefaultLoadImageUseCase) {
         self.kakaoLoginUseCase = kakaoLoginUseCase
         self.createAccountUseCase = createAccountUseCase
         self.emailLoginUseCase = emailLoginUseCase
@@ -40,6 +44,7 @@ final class DIContainer: ObservableObject {
         self.activitySearchUseCase = activitySearchUseCase
         self.activityDetailUseCase = activityDetailUseCase
         self.activityKeepCommandUseCase = activityKeepCommandUseCase
+        self.reviewLookupUseCase = reviewLookupUseCase
         self.imageLoader = imageLoader
     }
         
@@ -89,6 +94,7 @@ extension DIContainer {
         DetailViewModel(
             activityDeatilUseCase: activityDetailUseCase,
             activityKeepCommandUseCase: activityKeepCommandUseCase,
+            reviewLookupUseCase: reviewLookupUseCase,
             imageLoader: imageLoader
         )
     }

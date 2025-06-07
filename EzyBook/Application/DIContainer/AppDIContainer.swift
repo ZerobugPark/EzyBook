@@ -25,7 +25,7 @@ final class AppDIContainer {
     private let socialLoginService: DefaultsSocialLoginService
     private let activityRepository: DefaultActivityRepository
     private let acitvityKeepStatusRepository: DefaultKeepStatusRepository
-    
+    private let reviewRatingLookUpRepository: DefaultReviewRepository
     
     
     
@@ -41,7 +41,7 @@ final class AppDIContainer {
         
         activityRepository = DefaultActivityRepository(networkService: networkService)
         acitvityKeepStatusRepository = DefaultKeepStatusRepository(networkService: networkService)
-
+        reviewRatingLookUpRepository = DefaultReviewRepository(networkService: networkService)
         
         imageCache = ImageMemoryCache()
         imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache, interceptor: interceptor)
@@ -61,6 +61,7 @@ final class AppDIContainer {
             activitySearchUseCase: makeActivitySearchUseCase(),
             activityDetailUseCase: makeActivityDetailUseCase(),
             activityKeepCommandUseCase: makeActivityKeepCommandUseCase(),
+            reviewLookupUseCase: makeReviewRatingUseCase(),
             imageLoader: makeImageLoaderUseCase()
         )
     }
@@ -134,3 +135,12 @@ extension AppDIContainer {
     
 
 }
+
+// MARK: Review
+extension AppDIContainer {
+    
+    private func makeReviewRatingUseCase() -> DefaultReviewLookUpUseCase {
+        DefaultReviewLookUpUseCase(repo: reviewRatingLookUpRepository)
+    }
+}
+

@@ -112,13 +112,3 @@ struct MainTabView: View {
     }
 }
 
-
-
-#Preview {
-    PreViewHelper.makeMainTabView()
-}
-
-
-extension MainTabView {
-  
-}
