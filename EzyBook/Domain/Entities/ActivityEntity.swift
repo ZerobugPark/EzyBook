@@ -269,35 +269,35 @@ extension ActivityDetailEntity {
             keepCount: 2,
             totalOrderCount: 0,
             schedule: [
-                ActivityScheduleItemDTO(duration: "1일차", description: "도착 및 숙소 체크인, 환영 만찬"),
-                ActivityScheduleItemDTO(duration: "2일차", description: "자유 시간 및 출발"),
-                ActivityScheduleItemDTO(duration: "3일차", description: "복귀")
+            //    ActivityScheduleItemDTO(duration: "1일차", description: "도착 및 숙소 체크인, 환영 만찬"),
+            //    ActivityScheduleItemDTO(duration: "2일차", description: "자유 시간 및 출발"),
+            //    ActivityScheduleItemDTO(duration: "3일차", description: "복귀")
             ],
             reservationList: [
-                ActivityReservationItemDTO(
-                    itemName: "2025-12-06",
-                    times: (10...17).map { hour in
-                        ActivityReservationTimeDTO(time: "\(hour):00", isReserved: false)
-                    }
-                ),
-                ActivityReservationItemDTO(
-                    itemName: "2025-12-07",
-                    times: (10...17).map { hour in
-                        ActivityReservationTimeDTO(time: "\(hour):00", isReserved: false)
-                    }
-                ),
-                ActivityReservationItemDTO(
-                    itemName: "2025-12-08",
-                    times: (10...17).map { hour in
-                        ActivityReservationTimeDTO(time: "\(hour):00", isReserved: true)
-                    }
-                ),
-                ActivityReservationItemDTO(
-                    itemName: "2025-12-09",
-                    times: (10...17).map { hour in
-                        ActivityReservationTimeDTO(time: "\(hour):00", isReserved: false)
-                    }
-                )
+//                ActivityReservationItemDTO(
+//                    itemName: "2025-12-06",
+//                    times: (10...17).map { hour in
+//                        ActivityReservationTimeDTO(time: "\(hour):00", isReserved: false)
+//                    }
+//                ),
+//                ActivityReservationItemDTO(
+//                    itemName: "2025-12-07",
+//                    times: (10...17).map { hour in
+//                        ActivityReservationTimeDTO(time: "\(hour):00", isReserved: false)
+//                    }
+//                ),
+//                ActivityReservationItemDTO(
+//                    itemName: "2025-12-08",
+//                    times: (10...17).map { hour in
+//                        ActivityReservationTimeDTO(time: "\(hour):00", isReserved: true)
+//                    }
+//                ),
+//                ActivityReservationItemDTO(
+//                    itemName: "2025-12-09",
+//                    times: (10...17).map { hour in
+//                        ActivityReservationTimeDTO(time: "\(hour):00", isReserved: false)
+//                    }
+//                )
             ],
             creator: ActivityCreatorDTO(userID: "683a9ed50b936fc97483b4b3", nick: "bran", introduction: "안녕하세요!"),
             createdAt: "2025-05-31T08:46:23.687Z",

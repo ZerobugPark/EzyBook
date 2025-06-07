@@ -44,7 +44,7 @@ extension DetailViewModel {
     
     struct Output {
         
-        var isLoading = false
+        var isLoading = true
         
         var presentedError: DisplayError? = nil
         var isShowingError: Bool {
@@ -52,7 +52,9 @@ extension DetailViewModel {
         }
         
         var activityDetailInfo: ActivityDetailEntity = .mock
-        var images: [UIImage] = []
+        var thumbnails: [UIImage] = []
+        
+        var hasMovieThumbnail = false
         
     }
     
@@ -66,7 +68,7 @@ extension DetailViewModel {
                 let detail = try await reqeuestActivityDetailList(activityID)
                 await MainActor.run {
                     output.activityDetailInfo = detail
-                    dump(output.activityDetailInfo)
+                    output.isLoading = false
                 }
             } catch let error as APIError {
                 await MainActor.run {
@@ -81,22 +83,49 @@ extension DetailViewModel {
     private func  reqeuestActivityDetailList(_ activityID:  String) async throws -> ActivityDetailEntity {
         
         let detail = try await self.activityDeatilUseCase.execute(id: activityID)
-        let thumbnailImage = try await self.requestThumbnailImage(detail.thumbnails)
         
+        let sortedThumbnails = detail.thumbnails.sorted {
+            $0.hasSuffix(".mp4") && !$1.hasSuffix(".mp4")
+        }
+        let images = try await self.requestThumbnailImages(sortedThumbnails)
+        let hasMovie = detail.thumbnails.contains { $0.hasSuffix(".mp4") }
+
+        await MainActor.run {
+            output.hasMovieThumbnail = hasMovie
+            output.thumbnails = images
+        }
+
         return detail
         
     }
     
-    private func requestThumbnailImage(_ paths: [String]) async throws -> UIImage {
-        
-        let imagePaths = paths.filter {
-            $0.hasSuffix(".jpg") || $0.hasSuffix(".png")
+    private func requestThumbnailImages(_ paths: [String]) async throws -> [UIImage] {
+        try await withThrowingTaskGroup(of: (String, UIImage).self) { group in
+            var results: [(String, UIImage)] = []
+            
+            for path in paths {
+                group.addTask {
+                    let image = try await self.requestThumbnailImage(path)
+                    return (path, image)
+                }
+            }
+
+            for try await result in group {
+                results.append(result)
+            }
+
+            // .mp4 먼저 오도록 정렬
+            let sortedImages = results.sorted {
+                $0.0.hasSuffix(".mp4") && !$1.0.hasSuffix(".mp4")
+            }.map { $0.1 }
+
+            return sortedImages
         }
+    }
+
+    
+    private func requestThumbnailImage(_ path: String) async throws -> UIImage {
         
-        guard let path = imagePaths.first else {
-            let fallback = UIImage(systemName: "star")!
-            return fallback
-        }
         return try await imageLoader.execute(path, scale: scale)
         
     }
@@ -170,13 +199,11 @@ extension DetailViewModel {
     func action(_ action: Action) {
         switch action {
         case .onAppearRequested(let id):
-            break
-            //handleRequestActivityDetail(id)
+            handleRequestActivityDetail(id)
         case .updateScale(let scale):
             handleUpdateScale(scale)
         case .keepButtonTapped:
-            break
-            //triggerKeepActivity()
+            triggerKeepActivity()
         case .resetError:
             handleResetError()
             

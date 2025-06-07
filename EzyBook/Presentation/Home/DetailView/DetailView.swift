@@ -20,7 +20,6 @@ struct DetailView: View {
     
     @State private var selectedDate: String? = nil
     @State private var selectedTime: String? = nil
-    let imageNames: [ImageResource] = [.test, .test, .test, .test]
     
     private var data: ActivityDetailEntity {
         viewModel.output.activityDetailInfo
@@ -30,7 +29,7 @@ struct DetailView: View {
     
     var body: some View {
         
-        NavigationStack {
+        ZStack {
             ScrollView(.vertical) {
                 VStack(alignment: .leading) {
                     ZStack(alignment: .top) {
@@ -43,28 +42,62 @@ struct DetailView: View {
                 }
                 
             }
-            .background(.grayScale15)
-            .navigationBarBackButtonHidden(true)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(.hidden, for: .navigationBar)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    BackButtonView {
-                        
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    ActivityKeepButtonView(isKeep: data.isKeep) {
-                        print("좋아요")
-                    }
-                }
-            }
-            .onAppear {
-                // viewModel.action(.onAppearRequested(id: activityID))
+            .scrollIndicators(.hidden)
+            .disabled(viewModel.output.isLoading)
+            
+            if viewModel.output.isLoading {
+                Color.white.opacity(0.3)
+                    .ignoresSafeArea(edges: .all)
+                    .overlay(
+                        ProgressView()
+                            .scaleEffect(1.5)
+                            .progressViewStyle(CircularProgressViewStyle(tint: .grayScale100))
+                    )
+                    .transition(.opacity)
+                    .animation(.easeInOut, value: viewModel.output.isLoading)
             }
         }
+        .ignoresSafeArea(.container, edges: .top)
+        .background(.grayScale15)
+        .navigationBarBackButtonHidden(true)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(.hidden, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                BackButtonView {
+                    coordinator.pop()
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                ActivityKeepButtonView(isKeep: data.isKeep) {
+                    viewModel.action(.keepButtonTapped)
+                }
+            }
+        }
+        .commonAlert(
+            isPresented: Binding(
+                get: { viewModel.output.isShowingError },
+                set: { isPresented in
+                    if !isPresented {
+                        viewModel.action(.resetError)
+                    }
+                }
+            ),
+            title: viewModel.output.presentedError?.message.title,
+            message: viewModel.output.presentedError?.message.msg
+        )
+        .onAppear {
+            viewModel.action(.onAppearRequested(id: activityID))
+            /// 탭바 터치 못하게 하게 위한 것
+            appState.isLoding = viewModel.output.isLoading
+        }
+        .onDisappear {
+            selectedDate = nil
+        }
+        .loadingOverlayModify(viewModel.output.isLoading)
     }
     
+
     
 }
 
@@ -72,20 +105,33 @@ struct DetailView: View {
 /// 메인 섹션
 extension DetailView {
     
-    private func makeTapImageView() -> some View{
+    private func makeTapImageView() -> some View {
         ZStack(alignment: .bottom) {
             // 이미지 페이징
             TabView(selection: $selectedIndex) {
-                ForEach(imageNames.indices, id: \.self) { index in
-                    Image(imageNames[index])
-                        .resizable()
-                        .scaledToFill()
-                        .tag(index)
-                        .clipped()
+                ForEach(Array(viewModel.output.thumbnails.enumerated()), id: \.0) { index, image in
+                    ZStack {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .clipped()
+
+                        
+                        if index == 0 && viewModel.output.hasMovieThumbnail {
+                            Image(.playButton)
+                                .resizable()
+                                .frame(width: 30, height: 30)
+                                .shadow(radius: 10)
+                        }
+                    }
+                    .tag(index)
+                    /// 화면 전환시 이미지가 끊기는 문제
                 }
+                
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never)) // ✅ 기본 인디케이터 숨김
-            .frame(height: 400)
+            .frame(maxWidth: .infinity)
+            .frame(height: 500)
             
             // 하단 오버레이 (텍스트 + 그라데이션 + 커스텀 인디케이터)
             VStack(spacing: 8) {
@@ -97,8 +143,9 @@ extension DetailView {
             .background(
                 LinearGradient(
                     gradient: Gradient(stops: [
-                        .init(color: Color.grayScale60.opacity(0.05), location: 0.0),
-                        .init(color: Color.grayScale60.opacity(0.15), location: 0.2),
+                        .init(color: Color.grayScale60.opacity(0.0), location: 0.0),
+                        .init(color: Color.grayScale60.opacity(0.3), location: 0.3),
+                        .init(color: Color.grayScale60.opacity(0.5), location: 0.5),
                         .init(color: Color.clear, location: 1.0)
                     ]),
                     startPoint: .bottom,
@@ -111,10 +158,11 @@ extension DetailView {
         }
     }
     
+    
     private func makeIndicator() -> some View {
         // 커스텀 인디케이터
         HStack(spacing: 6) {
-            ForEach(imageNames.indices, id: \.self) { index in
+            ForEach(Array(viewModel.output.thumbnails.enumerated()), id: \.0) { index, _ in
                 if index == selectedIndex {
                     Capsule()
                         .fill(.grayScale45)
@@ -156,10 +204,10 @@ extension DetailView {
     private func makeThumnailView() -> some View {
         
         VStack(spacing: 10) {
-            ForEach(imageNames.indices, id: \.self) { index in
+            ForEach(Array(viewModel.output.thumbnails.enumerated()), id: \.0) { index, image in
                 let isSelected = index == selectedIndex
                 
-                Image(imageNames[index])
+                Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
                     .frame(width: 50, height: 50)
@@ -184,6 +232,7 @@ extension DetailView {
         )
         .frame(maxWidth: .infinity, alignment: .trailing)
         .padding(.trailing, 12)
+        .padding(.top, 100)
     }
     
     private func makeReviewView() -> some View {
@@ -200,13 +249,13 @@ extension DetailView {
                 Text("4.8")
                     .appFont(PaperlogyFontStyle.caption, textColor: .grayScale100)
                 Text("(122)")
-                    .appFont(PretendardFontStyle.body2, textColor: .grayScale60)
+                    .appFont(PretendardFontStyle.body2, textColor: .grayScale100)
                 
                 Image(.iconChevron)
                     .renderingMode(.template)
                     .resizable()
                     .frame(width: 20, height: 20)
-                    .foregroundStyle(.grayScale60)
+                    .foregroundStyle(.grayScale100)
                     .rotationEffect(.degrees(180))
                     .padding(.top, 1)
             }
@@ -361,7 +410,7 @@ extension DetailView {
         }
         .padding()
     }
- 
+    
     
     private func makeScheduleSection() -> some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -431,7 +480,7 @@ extension DetailView {
             // 시간
             Text(item.duration)
                 .appFont(PretendardFontStyle.caption1, textColor: .grayScale75)
-                
+            
             // 제목
             Text(item.description)
                 .appFont(PretendardFontStyle.body1, textColor: .grayScale90)
@@ -449,196 +498,203 @@ extension DetailView {
         
         VStack(alignment: .leading) {
             // 헤더
-              reservationHeader()
-              
-              // 날짜 선택
-              dateSelectionSection()
-              
-              // 선택된 날짜의 시간 선택
-              if let selectedDate = selectedDate {
-                  timeSelectionSection(for: selectedDate)
-              }
+            reservationHeader()
+            
+            // 날짜 선택
+            dateSelectionSection()
+            
+            // 선택된 날짜의 시간 선택
+            if let selectedDate = selectedDate {
+                timeSelectionSection(for: selectedDate)
+            }
         }
+        .onChange(of: viewModel.output.isLoading) { isLoading in
+            if !isLoading, selectedDate == nil, !data.reservationList.isEmpty {
+                selectedDate = data.reservationList[0].itemName
+            }
+        }
+
+        
         .padding()
         
     }
     
     
     // MARK: - 헤더
-      @ViewBuilder
-      private func reservationHeader() -> some View {
-          Text("액티비티 예약설정")
-              .appFont(PaperlogyFontStyle.caption, textColor: .grayScale45)
-      }
-      
-      // MARK: - 날짜 선택 섹션
-      @ViewBuilder
-      private func dateSelectionSection() -> some View {
-          ScrollView(.horizontal, showsIndicators: false) {
-              HStack(spacing: 12) {
-                  ForEach(data.reservationList, id: \.itemName) { item in
-                      dateButton(
-                          date: item.itemName,
-                          isSelected: selectedDate == item.itemName,
-                          soldOut: item.soldOut
-                      )
-                  }
-              }
-              .padding(.horizontal, 20)
-          }
-          .padding(.horizontal, -20)
-      }
-      
-      // MARK: - 개별 날짜 버튼
+    @ViewBuilder
+    private func reservationHeader() -> some View {
+        Text("액티비티 예약설정")
+            .appFont(PaperlogyFontStyle.caption, textColor: .grayScale45)
+    }
+    
+    // MARK: - 날짜 선택 섹션
+    @ViewBuilder
+    private func dateSelectionSection() -> some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 12) {
+                ForEach(data.reservationList, id: \.itemName) { item in
+                    dateButton(
+                        date: item.itemName,
+                        isSelected: selectedDate == item.itemName,
+                        soldOut: item.soldOut
+                    )
+                }
+            }
+            .padding(.horizontal, 20)
+        }
+        .padding(.horizontal, -20)
+    }
+    
+    // MARK: - 개별 날짜 버튼
     private func dateButton(date: String, isSelected: Bool, soldOut: Bool) -> some View {
-          Button(action: {
-              selectedDate = date
-              selectedTime = nil // 날짜 변경시 선택된 시간 초기화
-          }) {
-              Text(formatDateString(date))
-                  .appFont(
+        Button(action: {
+            selectedDate = date
+            selectedTime = nil // 날짜 변경시 선택된 시간 초기화
+        }) {
+            Text(formatDateString(date))
+                .appFont(
                     PretendardFontStyle.body3,
                     textColor: soldOut ? .grayScale60 : isSelected ? .deepSeafoam : .grayScale75)
-                  
-                  .padding(.horizontal, 20)
-                  .padding(.vertical, 12)
-                  .background(
-                      RoundedRectangle(cornerRadius: 20)
+            
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
                         .fill(soldOut ? Color.grayScale30.opacity(0.5) : isSelected ? Color.deepSeafoam.opacity(0.1) : Color.grayScale0)
-                  )
-                  .overlay {
-                      RoundedRectangle(cornerRadius: 20)
-                          .stroke(soldOut ? Color.grayScale45.opacity(0.5) : isSelected ? Color.deepSeafoam.opacity(0.1) : Color.grayScale30, lineWidth: 2)
-                  }
-          }
-      }
-      
-      // MARK: - 시간 선택 섹션
-      @ViewBuilder
-      private func timeSelectionSection(for date: String) -> some View {
-          if let reservation = data.reservationList.first(where: { $0.itemName == date }) {
-              VStack(alignment: .leading, spacing: 16) {
-                  // 오전 시간
-                  timeSection(
-                      title: "오전",
-                      times: reservation.times.filter { isAM($0.time) }
-                  )
-                  
-                  // 오후 시간
-                  timeSection(
-                      title: "오후",
-                      times: reservation.times.filter { isPM($0.time) }
-                  )
-              }
-              .padding()
-              .background(
-                  RoundedRectangle(cornerRadius: 10)
-                      .fill(Color.white.opacity(0.8))
-              )
-              .overlay(
-                  RoundedRectangle(cornerRadius: 10)
-                      .stroke(Color.grayScale45, lineWidth: 1)
-              )
-          }
-      }
-      
-      /// 시간대별 섹션 (오전/오후)
-      @ViewBuilder
-      private func timeSection(title: String, times: [ActivityReservationTimeEntity]) -> some View {
-          if !times.isEmpty {
-              VStack(alignment: .leading, spacing: 12) {
-                  Text(title)
-                      .appFont(PretendardFontStyle.body3, textColor: .grayScale60)
-                  timeGrid(times: times)
-              }
-          }
-      }
-      
-      /// 시간 그리드
-      @ViewBuilder
-      private func timeGrid(times: [ActivityReservationTimeEntity]) -> some View {
-          let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
-          
-          LazyVGrid(columns: columns, spacing: 12) {
-              ForEach(times, id: \.time) { timeItem in
-                  timeButton(timeItem: timeItem)
-              }
-          }
-      }
-      
-      // MARK: - 개별 시간 버튼
-      private func timeButton(timeItem: ActivityReservationTimeEntity) -> some View {
-          Button(action: {
-              if !timeItem.isReserved {
-                  selectedTime = timeItem.time
-              }
-          }) {
-              Text(timeItem.time)
-                  .font(.system(size: 14, weight: .medium))
-                  .foregroundColor(getTimeButtonTextColor(timeItem: timeItem))
-                  .frame(maxWidth: .infinity)
-                  .padding(.vertical, 12)
-                  .background(
-                      RoundedRectangle(cornerRadius: 20)
-                          .fill(getTimeButtonBackgroundColor(timeItem: timeItem))
-                  )
-                  .overlay {
-                      RoundedRectangle(cornerRadius: 20)
-                          .stroke(getTimeButtonBorderColor(timeItem: timeItem), lineWidth: 1)
-                  }
-          }
-          .disabled(timeItem.isReserved)
-      }
-      
-      // MARK: - Helper Functions
-      private func formatDateString(_ dateString: String) -> String {
-          // "2025-12-06" -> "5월 6일" 형태로 변환
-          let components = dateString.split(separator: "-")
-          if components.count == 3,
-             let month = Int(components[1]),
-             let day = Int(components[2]) {
-              return "\(month)월 \(day)일"
-          }
-          return dateString
-      }
-      
-      private func isAM(_ time: String) -> Bool {
-          let hour = Int(time.split(separator: ":")[0]) ?? 0
-          return hour < 12
-      }
-      
-      private func isPM(_ time: String) -> Bool {
-          let hour = Int(time.split(separator: ":")[0]) ?? 0
-          return hour >= 12
-      }
-      
-      private func getTimeButtonTextColor(timeItem: ActivityReservationTimeEntity) -> Color {
-          if timeItem.isReserved {
-              return .grayScale60
-          } else if selectedTime == timeItem.time {
-              return .deepSeafoam
-          } else {
-              return .grayScale100
-          }
-      }
-      
-      private func getTimeButtonBackgroundColor(timeItem: ActivityReservationTimeEntity) -> Color {
-          if timeItem.isReserved {
-              return .grayScale60.opacity(0.1)
-          } else if selectedTime == timeItem.time {
-              return .deepSeafoam.opacity(0.3)
-          } else {
-              return .grayScale0
-          }
-      }
-      
-      private func getTimeButtonBorderColor(timeItem: ActivityReservationTimeEntity) -> Color {
-          if selectedTime == timeItem.time && !timeItem.isReserved {
-              return .deepSeafoam
-          } else {
-              return .grayScale45
-          }
-      }
+                )
+                .overlay {
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(soldOut ? Color.grayScale45.opacity(0.5) : isSelected ? Color.deepSeafoam.opacity(0.1) : Color.grayScale30, lineWidth: 2)
+                }
+        }
+    }
+    
+    // MARK: - 시간 선택 섹션
+    @ViewBuilder
+    private func timeSelectionSection(for date: String) -> some View {
+        if let reservation = data.reservationList.first(where: { $0.itemName == date }) {
+            VStack(alignment: .leading, spacing: 16) {
+                // 오전 시간
+                timeSection(
+                    title: "오전",
+                    times: reservation.times.filter { isAM($0.time) }
+                )
+                
+                // 오후 시간
+                timeSection(
+                    title: "오후",
+                    times: reservation.times.filter { isPM($0.time) }
+                )
+            }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color.white.opacity(0.8))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.grayScale45, lineWidth: 1)
+            )
+        }
+    }
+    
+    /// 시간대별 섹션 (오전/오후)
+    @ViewBuilder
+    private func timeSection(title: String, times: [ActivityReservationTimeEntity]) -> some View {
+        if !times.isEmpty {
+            VStack(alignment: .leading, spacing: 12) {
+                Text(title)
+                    .appFont(PretendardFontStyle.body3, textColor: .grayScale60)
+                timeGrid(times: times)
+            }
+        }
+    }
+    
+    /// 시간 그리드
+    @ViewBuilder
+    private func timeGrid(times: [ActivityReservationTimeEntity]) -> some View {
+        let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
+        
+        LazyVGrid(columns: columns, spacing: 12) {
+            ForEach(times, id: \.time) { timeItem in
+                timeButton(timeItem: timeItem)
+            }
+        }
+    }
+    
+    // MARK: - 개별 시간 버튼
+    private func timeButton(timeItem: ActivityReservationTimeEntity) -> some View {
+        Button(action: {
+            if !timeItem.isReserved {
+                selectedTime = timeItem.time
+            }
+        }) {
+            Text(timeItem.time)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(getTimeButtonTextColor(timeItem: timeItem))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(getTimeButtonBackgroundColor(timeItem: timeItem))
+                )
+                .overlay {
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(getTimeButtonBorderColor(timeItem: timeItem), lineWidth: 1)
+                }
+        }
+        .disabled(timeItem.isReserved)
+    }
+    
+    // MARK: - Helper Functions
+    private func formatDateString(_ dateString: String) -> String {
+        // "2025-12-06" -> "5월 6일" 형태로 변환
+        let components = dateString.split(separator: "-")
+        if components.count == 3,
+           let month = Int(components[1]),
+           let day = Int(components[2]) {
+            return "\(month)월 \(day)일"
+        }
+        return dateString
+    }
+    
+    private func isAM(_ time: String) -> Bool {
+        let hour = Int(time.split(separator: ":")[0]) ?? 0
+        return hour < 12
+    }
+    
+    private func isPM(_ time: String) -> Bool {
+        let hour = Int(time.split(separator: ":")[0]) ?? 0
+        return hour >= 12
+    }
+    
+    private func getTimeButtonTextColor(timeItem: ActivityReservationTimeEntity) -> Color {
+        if timeItem.isReserved {
+            return .grayScale60
+        } else if selectedTime == timeItem.time {
+            return .deepSeafoam
+        } else {
+            return .grayScale100
+        }
+    }
+    
+    private func getTimeButtonBackgroundColor(timeItem: ActivityReservationTimeEntity) -> Color {
+        if timeItem.isReserved {
+            return .grayScale60.opacity(0.1)
+        } else if selectedTime == timeItem.time {
+            return .deepSeafoam.opacity(0.3)
+        } else {
+            return .grayScale0
+        }
+    }
+    
+    private func getTimeButtonBorderColor(timeItem: ActivityReservationTimeEntity) -> Color {
+        if selectedTime == timeItem.time && !timeItem.isReserved {
+            return .deepSeafoam
+        } else {
+            return .grayScale45
+        }
+    }
 }
 
 
@@ -650,6 +706,6 @@ extension DetailView {
 
 
 #Preview {
-  //  DetailView(viewModel: DetailViewModel())
+    //  DetailView(viewModel: DetailViewModel())
 }
 
