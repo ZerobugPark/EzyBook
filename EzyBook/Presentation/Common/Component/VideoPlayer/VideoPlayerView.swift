@@ -14,8 +14,10 @@ struct VideoPlayerView: View {
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        ZStack {
+        ZStack(alignment: .topTrailing) {
             if let player = viewModel.output.player {
+                /// resourceLoader 실행
+                /// 즉 로딩을 시작해라
                 VideoPlayer(player: player)
                     .ignoresSafeArea()
             } else {
@@ -25,13 +27,25 @@ struct VideoPlayerView: View {
             Button(action: {
                 dismiss() // 전체화면 닫기
             }) {
-                Image(systemName: "xmark.circle.fill")
-                    .font(.system(size: 30))
-                    .padding()
-                    .foregroundColor(.white)
-                    .shadow(radius: 10)
+                Image(systemName: "xmark")
+                    .font(.system(size: 20))
+                    .foregroundColor(.grayScale0)
             }
+            .padding(.top, 60)
+            .padding(.trailing, 20)
         }
+        .commonAlert(
+            isPresented: Binding(
+                get: { viewModel.output.isShowingError },
+                set: { isPresented in
+                    if !isPresented {
+                        dismiss()
+                    }
+                }
+            ),
+            title: viewModel.output.presentedError?.message.title,
+            message: viewModel.output.presentedError?.message.msg
+        )
         .onAppear {
             viewModel.action(.onAppearRequested(path: path))
         }
