@@ -17,8 +17,13 @@ struct LoginSignUpPagerView: View {
     private let titles = ["로그인", "회원가입"]
     
     var body: some View {
-        VStack(spacing: 10) {
-            backButton
+        VStack(alignment: .leading, spacing: 10) {
+            BackButtonView {
+                coordinator.pop()
+            }
+            .padding(.leading, 5)
+            .padding(.top, 10)
+            
             Text(titles[selectedIndex])
                 .font(.title3)
                 .bold()
@@ -46,20 +51,6 @@ struct LoginSignUpPagerView: View {
             Spacer()
         }
         .navigationBarHidden(true)
-    }
-    
-    private var backButton: some View {
-        HStack() {
-            Button {
-                coordinator.pop()
-            } label: {
-                Image(.iconChevron)
-                    
-            }
-            Spacer()
-        }
-        .padding(.leading, 5)
-        .padding(.bottom, 20)
     }
     
     private func triggerBounce() {

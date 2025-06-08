@@ -159,6 +159,9 @@ extension HomeView {
                 }
                 .cornerRadius(15)
                 .shadow(radius: 2)
+                .onTapGesture {
+                    coordinator.push(.detailView(activityID: viewModel.output.activityNewDetailList[index].activityID))
+                }
             }
         }
         .frame(height: 300)

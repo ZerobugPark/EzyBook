@@ -42,7 +42,9 @@ struct SearchView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                backButton
+                BackButtonView {
+                    coordinator.pop()
+                }
             }
             ToolbarItem(placement: .principal) {
                 Text("EXCITING")
@@ -79,19 +81,7 @@ struct SearchView: View {
             
     }
     
-    private var backButton: some View {
-        HStack() {
-            Button {
-                coordinator.pop()
-            } label: {
-                Image(.iconChevron)
-                    .renderingMode(.template)
-                    .foregroundStyle(.blackSeafoam)
-                    
-            }
-            Spacer()
-        }
-    }
+
 }
 
 
