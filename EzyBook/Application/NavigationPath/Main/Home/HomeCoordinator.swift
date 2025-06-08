@@ -60,4 +60,8 @@ extension HomeCoordinator {
         return ZoomableImageFullScreenView(path: path, viewModel: viewModel)
 
     }
+    
+    func makePostsView() -> some View {
+        return PostsView()
+    }
 }
