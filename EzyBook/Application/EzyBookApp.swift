@@ -11,7 +11,7 @@ import KakaoSDKAuth
 
 @main
 struct EzyBookApp: App {
-    
+    @Environment(\.scenePhase) private var scenePhase
     @StateObject private var container = AppDIContainer().makeDIContainer()
     @StateObject private var appState = AppState()
     
@@ -28,7 +28,6 @@ struct EzyBookApp: App {
     }
     
     
-    
     var body: some Scene {
         WindowGroup {
             AppEntryView()
@@ -39,6 +38,13 @@ struct EzyBookApp: App {
                         _ = AuthController.handleOpenUrl(url: url)
                     }
                 })
+                .onChange(of: scenePhase) { phase in
+                    if phase == .active {
+                        Task {
+                            await container.imageLoader.cleanUpDiskCache()
+                        }
+                    }
+                }
         }
     }
 }

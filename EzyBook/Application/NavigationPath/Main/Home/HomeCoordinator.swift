@@ -56,7 +56,8 @@ extension HomeCoordinator {
     }
     
     func makeImageViewer(path: String) -> some View {
-     //   let viewModel = container.makeVideoPlayerViewModel()
-        return ZoomableImageFullScreenView(path: path)
+        let viewModel = container.makeZoomableImageFullScreenViewModel()
+        return ZoomableImageFullScreenView(path: path, viewModel: viewModel)
+
     }
 }

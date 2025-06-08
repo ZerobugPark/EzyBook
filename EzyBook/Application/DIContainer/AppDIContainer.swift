@@ -18,7 +18,7 @@ final class AppDIContainer {
     private let interceptor: TokenInterceptor
     private let networkService: DefaultNetworkService
     private let imageLoader: DefaultImageLoader
-    private let imageCache: ImageMemoryCache
+    private let imageCache: ImageCache
                                                             
     // MARK: - Data Layer
     private let authRepository: DefaultAuthRepository
@@ -43,7 +43,7 @@ final class AppDIContainer {
         acitvityKeepStatusRepository = DefaultKeepStatusRepository(networkService: networkService)
         reviewRatingLookUpRepository = DefaultReviewRepository(networkService: networkService)
         
-        imageCache = ImageMemoryCache()
+        imageCache = ImageCache()
         imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache, interceptor: interceptor)
         
     }
