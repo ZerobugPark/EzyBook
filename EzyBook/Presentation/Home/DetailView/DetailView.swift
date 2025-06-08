@@ -22,7 +22,10 @@ struct DetailView: View {
     @State private var selectedTime: String? = nil
     
     /// 화면전환 트리거
+    /// 화면이 닫히면 자동으로 False
     @State private var isPresentingVideoPlayer = false
+    @State private var isPresentingImageViewer = false
+    @State private var selectedMediaIndex: Int? = nil
     
     private var data: ActivityDetailEntity {
         viewModel.output.activityDetailInfo
@@ -127,15 +130,25 @@ extension DetailView {
                         }
                     }
                     .onTapGesture {
+                        selectedMediaIndex = index
                         if index == 0 && viewModel.output.hasMovieThumbnail {
                             isPresentingVideoPlayer = true
+                        } else {
+                            isPresentingImageViewer = true
                         }
                     }
                     .tag(index)
                     /// 화면 전환시 이미지가 끊기는 문제
                 }
                 .fullScreenCover(isPresented: $isPresentingVideoPlayer) {
-                    coordinator.makeVideoPlayerView(path: data.thumbnails[0])
+                    if let index = selectedMediaIndex {
+                        coordinator.makeVideoPlayerView(path: data.thumbnails[index])
+                    }
+                }
+                .fullScreenCover(isPresented: $isPresentingImageViewer) {
+                    if let index = selectedMediaIndex {
+                          coordinator.makeImageViewer(path: data.thumbnails[index])
+                      }
                 }
                 
             }
