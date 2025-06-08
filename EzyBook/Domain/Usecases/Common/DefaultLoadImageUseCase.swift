@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-
+/// 나중에 추상화 필요, 캐시 관련
 struct DefaultLoadImageUseCase {
     
     private let imageLoader: ImagerLoader
@@ -16,10 +16,15 @@ struct DefaultLoadImageUseCase {
         self.imageLoader = imageLoader
     }
     
-    func execute(_ path: String, scale: CGFloat) async throws -> UIImage {
+    func execute(_ path: String, scale: CGFloat = 0.0, isOriginal: Bool = false) async throws -> UIImage {
         do {
-            let image = try await imageLoader.loadMediaPreview(from: path, scale: scale)
-            return image
+            if isOriginal {
+                let image = try await imageLoader.loadOriginalImage(from: path)
+                return image
+            } else {
+                let image = try await imageLoader.loadMediaPreview(from: path, scale: scale)
+                return image
+            }
         } catch {
             if let apiError = error as? APIError {
                 throw apiError
@@ -29,5 +34,15 @@ struct DefaultLoadImageUseCase {
         }
     }
     
+}
+
+extension DefaultLoadImageUseCase {
+    func clearCache() {
+        imageLoader.imageCache.clearAll()
+    }
+
+    func cleanUpDiskCache() async {
+        await imageLoader.imageCache.cleanUpDiskCache()
+    }
 }
 

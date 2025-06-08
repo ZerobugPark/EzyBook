@@ -92,7 +92,9 @@ extension DetailViewModel {
         let sortedThumbnails = detail.thumbnails.sorted {
             $0.hasSuffix(".mp4") && !$1.hasSuffix(".mp4")
         }
+        
         detail.thumbnails = sortedThumbnails
+        
         let images = try await requestThumbnailImages(sortedThumbnails)
         let hasMovie = detail.thumbnails.contains { $0.hasSuffix(".mp4") }
         let reviews = try await requestReviews(activityID)
@@ -108,9 +110,9 @@ extension DetailViewModel {
     }
     
     private func requestThumbnailImages(_ paths: [String]) async throws -> [UIImage] {
+        var imageDict: [String: UIImage] = [:]
+        
         try await withThrowingTaskGroup(of: (String, UIImage).self) { group in
-            var results: [(String, UIImage)] = []
-            
             for path in paths {
                 group.addTask {
                     let image = try await self.requestThumbnailImage(path)
@@ -118,17 +120,14 @@ extension DetailViewModel {
                 }
             }
 
-            for try await result in group {
-                results.append(result)
+            for try await (path, image) in group {
+                imageDict[path] = image
             }
-
-            // .mp4 먼저 오도록 정렬
-            let sortedImages = results.sorted {
-                $0.0.hasSuffix(".mp4") && !$1.0.hasSuffix(".mp4")
-            }.map { $0.1 }
-
-            return sortedImages
         }
+
+        // original order 기반으로 정렬
+        let sortedImages = paths.compactMap { imageDict[$0] }
+        return sortedImages
     }
 
     

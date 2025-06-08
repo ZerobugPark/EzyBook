@@ -59,6 +59,10 @@ extension DIContainer {
     func makeVideoPlayerViewModel() -> VideoPlayerViewModel {
         VideoPlayerViewModel(videoLoader: viewLoader)
     }
+    
+    func makeZoomableImageFullScreenViewModel() -> ZoomableImageFullScreenViewModel {
+        ZoomableImageFullScreenViewModel(imageLoader: imageLoader)
+    }
 }
 
 
