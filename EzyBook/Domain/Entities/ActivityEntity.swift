@@ -70,7 +70,7 @@ struct ActivityDetailEntity {
     let title: String // 제목
     let country: String // 국가
     let category: String // 투어
-    let thumbnails: [String] // 썸네일 이미지 경로
+    var thumbnails: [String] // 썸네일 이미지 경로
     let geolocation: ActivityGeolocationEntity // 위치
     let startDate: String // 액비비티 운영 기간(시작)
     let endDate: String? // 액비비티 운영 기간(종료)
@@ -80,7 +80,7 @@ struct ActivityDetailEntity {
     let restrictions: ActivityRestrictionsEntity // 제한 사항
     let description: String //설명
     let isAdvertisement: Bool //광고 여부
-    let isKeep: Bool // 현재 유저의 킵 여부
+    var isKeep: Bool // 현재 유저의 킵 여부
     let keepCount: Int // 이 액티비티의 총 킵 수
     let totalOrderCount: Int // 총 주문 예약
     let schedule: [ActivityScheduleItemEntity] // 일정 정보
@@ -88,6 +88,14 @@ struct ActivityDetailEntity {
     let creator: ActivityCreatorEntity // 게시자
     let createdAt: String?
     let updatedAt: String?
+    
+    var discountRate: String {
+        
+        let discountRate = 100 - ceil(Double(price.final) / Double(price.original) * 100)
+        let formatted = discountRate.formattedPercentage()
+        return "\(formatted)%"
+        
+    }
     
     init(dto: ActivityDetailResponseDTO) {
         self.activityID = dto.activityID
@@ -113,8 +121,11 @@ struct ActivityDetailEntity {
         self.createdAt = dto.createdAt
         self.updatedAt = dto.updatedAt
     }
-
+    
+    
 }
+
+
 
 
 /// // 액티비티 킵/ 킵 취소 작업 후 상태
@@ -181,7 +192,7 @@ struct ActivityRestrictionsEntity {
         self.maxParticipants = dto.maxParticipants
     }
     
-  
+    
     
 }
 
@@ -189,6 +200,11 @@ struct ActivityRestrictionsEntity {
 struct ActivityReservationItemEntity {
     let itemName: String // 예약 아이템 이름(날짜??)
     let times: [ActivityReservationTimeEntity] // 해당 아이템의 시간대별 예약 정보
+    
+    var soldOut: Bool {
+        let data = times.map { $0 }.filter { $0.isReserved != true }
+        return data.isEmpty
+    }
     
     init(dto: ActivityReservationItemDTO) {
         self.itemName = dto.itemName
@@ -220,4 +236,102 @@ struct ActivityCreatorEntity {
         self.introduction = dto.introduction
     }
     
+}
+
+
+// MARK:  Mock Data
+extension ActivityDetailEntity {
+    
+    static let skeleton = ActivityDetailEntity(
+        dto: ActivityDetailResponseDTO(
+            activityID: "",
+            title: "로딩 중...",
+            country: "",
+            category: "",
+            thumbnails: Array(repeating: "", count: 3), // 썸네일 개수만큼 빈 이미지
+            geolocation: ActivityGeolocationDTO(longitude: 0, latitude: 0),
+            startDate: "",
+            endDate: "",
+            price: ActivityPriceDTO(original: 0, final: 0),
+            tags: [],
+            pointReward: 0,
+            restrictions: ActivityRestrictionsDTO(minHeight: 0, minAge: 0, maxParticipants: 0),
+            description: "잠시만 기다려주세요...",
+            isAdvertisement: false,
+            isKeep: false,
+            keepCount: 0,
+            totalOrderCount: 0,
+            schedule: [],
+            reservationList: [],
+            creator: ActivityCreatorDTO(userID: "", nick: "로딩 중", introduction: ""),
+            createdAt: "",
+            updatedAt: ""
+        )
+    )
+    
+    
+    
+    static let mock = ActivityDetailEntity(
+        dto: ActivityDetailResponseDTO(
+            activityID: "683ac1df0b936fc974845bf1",
+            title: "환상적인 휴양 체험",
+            country: "일본",
+            category: "익사이팅",
+            thumbnails: [
+                "/data/activities/rachel-cook-mOcdke2ZQoE_1747149083412.jpg",
+                "/data/activities/12834714_540_960_60fps_1747149190516.mp4",
+                "/data/activities/jieun-lim-oMsXE4kIKC8_1747149006794.jpg"
+            ],
+            geolocation: ActivityGeolocationDTO(longitude: 139.6503, latitude: 35.6762),
+            startDate: "2025-12-06",
+            endDate: "2025-12-09",
+            price: ActivityPriceDTO(original: 341000, final: 123000),
+            tags: [],
+            pointReward: 220,
+            restrictions: ActivityRestrictionsDTO(minHeight: 148, minAge: 19, maxParticipants: 8),
+            description: """
+            스포츠의 즐거움을 만끽할 수 있는 액티비티입니다!
+            초보자도 쉽게 따라할 수 있는 친절한 지도가 제공됩니다.
+            건강한 몸과 마음을 만들어가는 시간이 될 것입니다.
+            """,
+            isAdvertisement: false,
+            isKeep: true,
+            keepCount: 2,
+            totalOrderCount: 0,
+            schedule: [
+                //    ActivityScheduleItemDTO(duration: "1일차", description: "도착 및 숙소 체크인, 환영 만찬"),
+                //    ActivityScheduleItemDTO(duration: "2일차", description: "자유 시간 및 출발"),
+                //    ActivityScheduleItemDTO(duration: "3일차", description: "복귀")
+            ],
+            reservationList: [
+                //                ActivityReservationItemDTO(
+                //                    itemName: "2025-12-06",
+                //                    times: (10...17).map { hour in
+                //                        ActivityReservationTimeDTO(time: "\(hour):00", isReserved: false)
+                //                    }
+                //                ),
+                //                ActivityReservationItemDTO(
+                //                    itemName: "2025-12-07",
+                //                    times: (10...17).map { hour in
+                //                        ActivityReservationTimeDTO(time: "\(hour):00", isReserved: false)
+                //                    }
+                //                ),
+                //                ActivityReservationItemDTO(
+                //                    itemName: "2025-12-08",
+                //                    times: (10...17).map { hour in
+                //                        ActivityReservationTimeDTO(time: "\(hour):00", isReserved: true)
+                //                    }
+                //                ),
+                //                ActivityReservationItemDTO(
+                //                    itemName: "2025-12-09",
+                //                    times: (10...17).map { hour in
+                //                        ActivityReservationTimeDTO(time: "\(hour):00", isReserved: false)
+                //                    }
+                //                )
+            ],
+            creator: ActivityCreatorDTO(userID: "683a9ed50b936fc97483b4b3", nick: "bran", introduction: "안녕하세요!"),
+            createdAt: "2025-05-31T08:46:23.687Z",
+            updatedAt: "2025-05-31T08:46:23.687Z"
+        )
+    )
 }

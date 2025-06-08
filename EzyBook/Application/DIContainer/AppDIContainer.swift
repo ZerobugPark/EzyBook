@@ -18,14 +18,14 @@ final class AppDIContainer {
     private let interceptor: TokenInterceptor
     private let networkService: DefaultNetworkService
     private let imageLoader: DefaultImageLoader
-    private let imageCache: ImageMemoryCache
+    private let imageCache: ImageCache
                                                             
     // MARK: - Data Layer
     private let authRepository: DefaultAuthRepository
     private let socialLoginService: DefaultsSocialLoginService
     private let activityRepository: DefaultActivityRepository
     private let acitvityKeepStatusRepository: DefaultKeepStatusRepository
-    
+    private let reviewRatingLookUpRepository: DefaultReviewRepository
     
     
     
@@ -41,9 +41,9 @@ final class AppDIContainer {
         
         activityRepository = DefaultActivityRepository(networkService: networkService)
         acitvityKeepStatusRepository = DefaultKeepStatusRepository(networkService: networkService)
-
+        reviewRatingLookUpRepository = DefaultReviewRepository(networkService: networkService)
         
-        imageCache = ImageMemoryCache()
+        imageCache = ImageCache()
         imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache, interceptor: interceptor)
         
     }
@@ -61,7 +61,9 @@ final class AppDIContainer {
             activitySearchUseCase: makeActivitySearchUseCase(),
             activityDetailUseCase: makeActivityDetailUseCase(),
             activityKeepCommandUseCase: makeActivityKeepCommandUseCase(),
-            imageLoader: makeImageLoaderUseCase()
+            reviewLookupUseCase: makeReviewRatingUseCase(),
+            imageLoader: makeImageLoaderUseCase(),
+            viewLoader: makeVidoeLoaderDelegate()
         )
     }
     
@@ -72,6 +74,14 @@ final class AppDIContainer {
 extension AppDIContainer {
     private func makeImageLoaderUseCase() -> DefaultLoadImageUseCase {
         DefaultLoadImageUseCase(imageLoader: imageLoader)
+    }
+    
+    
+    private func makeVidoeLoaderDelegate() -> VideoLoaderDelegate {
+        VideoLoaderDelegate(
+            tokenService: tokenService,
+            interceptor: interceptor
+        )
     }
 }
 
@@ -134,3 +144,12 @@ extension AppDIContainer {
     
 
 }
+
+// MARK: Review
+extension AppDIContainer {
+    
+    private func makeReviewRatingUseCase() -> DefaultReviewLookUpUseCase {
+        DefaultReviewLookUpUseCase(repo: reviewRatingLookUpRepository)
+    }
+}
+

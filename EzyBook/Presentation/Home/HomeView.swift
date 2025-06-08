@@ -45,23 +45,17 @@ struct HomeView: View {
                     } currentIndex: { index in
                         viewModel.action(.prefetchfilterActivityContent(index: index))
                         viewModel.action(.paginationAcitiviyList(flag: selectedFlag, filter: selectedFilter, index: index))
+                    } onItemTapped: { id in
+                        coordinator.push(.detailView(activityID: id))
                     }
+             
                 }
             }
             .scrollIndicators(.hidden)
             .disabled(viewModel.output.isLoading)
             
-            if viewModel.output.isLoading {
-                Color.white.opacity(0.3)
-                    .ignoresSafeArea(edges: .all)
-                    .overlay(
-                        ProgressView()
-                            .scaleEffect(1.5)
-                            .progressViewStyle(CircularProgressViewStyle(tint: .grayScale100))
-                    )
-                    .transition(.opacity)
-                    .animation(.easeInOut, value: viewModel.output.isLoading)
-            }
+            LoadingOverlayView(isLoading: viewModel.output.isLoading)
+ 
           
         }
         .toolbar {
@@ -80,6 +74,7 @@ struct HomeView: View {
         .onAppear {
             viewModel.action(.onAppearRequested(flag: selectedFlag, filter: selectedFilter))
             viewModel.action(.updateScale(scale: scale))
+            /// 탭바 터치 못하게 하게 위한 것
         }
         .commonAlert(
             isPresented: Binding(
@@ -93,17 +88,11 @@ struct HomeView: View {
             title: viewModel.output.presentedError?.message.title,
             message: viewModel.output.presentedError?.message.msg
         )
-        .onAppear {
-            appState.isLoding = viewModel.output.isLoading
-        }
         .loadingOverlayModify(viewModel.output.isLoading)
     }
     
 }
 
-#Preview {
-    //PreViewHelper.makeHomeView()
-}
 
 // MARK: Custom SearchBar
 extension HomeView {
@@ -158,7 +147,7 @@ extension HomeView {
         ) { index in
             GeometryReader { geo in
                 ZStack(alignment: .bottomLeading) {
-                    
+           
                     Image(uiImage: viewModel.output.activityNewDetailList[index].thumnail)
                         .resizable()
                         .scaledToFill()
@@ -170,6 +159,9 @@ extension HomeView {
                 }
                 .cornerRadius(15)
                 .shadow(radius: 2)
+                .onTapGesture {
+                    coordinator.push(.detailView(activityID: viewModel.output.activityNewDetailList[index].activityID))
+                }
             }
         }
         .frame(height: 300)

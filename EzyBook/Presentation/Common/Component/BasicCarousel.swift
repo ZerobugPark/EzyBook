@@ -57,7 +57,7 @@ struct BasicCarousel<Content: View>: View {
                 .contentShape(Rectangle())
             }
             .offset(x: offsetX)
-            .gesture(
+            .simultaneousGesture(
                 DragGesture()
                     .onChanged { value in
                         dragOffset = value.translation.width

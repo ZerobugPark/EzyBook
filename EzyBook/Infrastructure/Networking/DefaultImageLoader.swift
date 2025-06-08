@@ -7,31 +7,45 @@
 
 import SwiftUI
 import Alamofire
+import AVFoundation
+import UniformTypeIdentifiers
 
 
 final class DefaultImageLoader: ImagerLoader {
     
     private let tokenService: TokenLoadable
-    private let imageCache: ImageMemoryCache
+    let imageCache: ImageCache
     private let interceptor: TokenInterceptor?
     
-    init(tokenService: TokenLoadable, imageCache: ImageMemoryCache, interceptor: TokenInterceptor?) {
+    init(tokenService: TokenLoadable, imageCache: ImageCache, interceptor: TokenInterceptor?) {
         self.tokenService = tokenService
         self.imageCache = imageCache
         self.interceptor = interceptor
     }
     
     
-    func loadImage(from path: String, scale: CGFloat) async throws ->  UIImage {
-        
-        
+    /// 썸네일 및 비디오 이미지 로드
+    func loadMediaPreview(from path: String, scale: CGFloat) async throws -> UIImage {
+        let fileExtension = URL(fileURLWithPath: path).pathExtension.lowercased()
+
+        if let utType = UTType(filenameExtension: fileExtension) {
+            if utType.conforms(to: .image) {
+                return try await loadImage(from: path, scale: scale)
+            } else if utType.conforms(to: .movie) {
+                return try await loadVideoThumbnail(from: path, scale: scale)
+            }
+        }
+
+        throw APIError.localError(type: .invalidMediaType, message: nil)
+    }
+    
+    /// 원본 이미지 로드
+    func loadOriginalImage(from path: String) async throws -> UIImage {
         let fullURL = APIConstants.baseURL + "/v1" + path
         
-        /// 캐시에 데이터 여부 판단
-//        if let cached = imageCache.get(forKey: fullURL) {
-//            return cached
-//        }
-        
+        if let data = imageCache.getData(forKey: fullURL), let image = UIImage(data: data) {
+            return image
+        }
         
         guard let token = tokenService.accessToken else {
             throw APIError.localError(type: .tokenNotFound, message: nil)
@@ -41,12 +55,41 @@ final class DefaultImageLoader: ImagerLoader {
             "SeSACKey" : APIConstants.apiKey,
             "Authorization" : token
         ]
+
+        let response = await AF.request(fullURL, headers: header, interceptor: interceptor)
+            .validate(statusCode: 200...304)
+            .serializingData()
+            .response
+
         
-//        let header: HTTPHeaders = [
-//            "SeSACKey" : APIConstants.apiKey,
-//            "Authorization" : token,
-//            "If-None-Match" : etag
-//        ]
+        switch response.result {
+        case.success(let data):
+            imageCache.setData(data, forKey: fullURL)
+            return UIImage(data: data) ?? UIImage(systemName: "star")!
+        case .failure(_):
+            let code = response.response?.statusCode ?? -1
+            throw APIError(statusCode: code, data: response.data)
+        }
+    }
+
+    
+    private func loadImage(from path: String, scale: CGFloat) async throws ->  UIImage {
+        
+        let fullURL = APIConstants.baseURL + "/v1" + path
+            
+        guard let token = tokenService.accessToken else {
+            throw APIError.localError(type: .tokenNotFound, message: nil)
+        }
+        
+        var header: HTTPHeaders = [
+            "SeSACKey" : APIConstants.apiKey,
+            "Authorization" : token
+        ]
+        
+        /// etag 추가
+        if let etag = UserDefaultManager.etag[fullURL] {
+            header.add(name: "If-None-Match", value: etag)
+        }
         
         let response = await AF.request(fullURL, headers: header, interceptor: interceptor)
             .validate(statusCode: 200...304)
@@ -54,40 +97,102 @@ final class DefaultImageLoader: ImagerLoader {
             .response
         
         
-#if DEBUG
-//        if let request = response.request {
-//            print("Full URL:", request.url?.absoluteString ?? "nil")
-//            print("HTTP Method:", request.httpMethod ?? "nil")
-//            print("Headers:", request.headers)
-//        }
-        //TODO: etag랑 캐시정책 고려해보기
-        let etag = response.response?.allHeaderFields["Etag"] as? String
-        //print(etag)
-        
-        //print(response.response?.statusCode)
-#endif
-        
-        switch response.result {
-        case.success(let data):
-            printDataSize(data)
-            //imageCache.set(data, forKey: fullURL)
-            let image = await loadAndDownsampleImage(data, scale)
-            return image
-        case .failure(let failure):
-            let responseData = response.data
-            let statusCode = response.response?.statusCode
-            if let code = statusCode {
-                throw APIError(statusCode: code, data: responseData)
-            } else {
-                let errorCode = (failure as NSError).code
-                throw APIError(statusCode: errorCode, data: responseData)
+        let statusCode = response.response?.statusCode ?? -1
+        let etagFromHeader = response.response?.allHeaderFields["Etag"] as? String
+
+
+        //// 리소스 데이터가 없으면 실패로 처리하넹
+        switch statusCode {
+        case 304:
+            if let image = imageCache.get(forKey: fullURL) {
+                return image
             }
-            
+            if let data = imageCache.getData(forKey: fullURL) {
+                let image = await loadAndDownsampleImage(data, scale)
+                imageCache.set(image, forKey: fullURL)
+                return image
+            }
+            // 캐시 불일치
+            UserDefaultManager.etag.removeValue(forKey: fullURL)
+            return try await reloadImageWithoutETag(url: fullURL, scale: scale, token: token)
+
+        case 200:
+            if let newETag = etagFromHeader {
+                var etags = UserDefaultManager.etag
+                etags[fullURL] = newETag
+                UserDefaultManager.etag = etags
+            }
+
+            switch response.result {
+            case .success(let data):
+                imageCache.setData(data, forKey: fullURL)
+                let image = await loadAndDownsampleImage(data, scale)
+                imageCache.set(image, forKey: fullURL)
+                return image
+
+            case .failure:
+                throw APIError(statusCode: statusCode, data: response.data)
+            }
+
+        default:
+            throw APIError(statusCode: statusCode, data: response.data)
         }
-        
+
         
     }
     
+    private func loadVideoThumbnail(from path: String, scale: CGFloat) async throws -> UIImage {
+        let fullURL = APIConstants.baseURL + "/v1" + path
+
+        guard let token = tokenService.accessToken else {
+            throw APIError.localError(type: .tokenNotFound, message: nil)
+        }
+
+        let header: HTTPHeaders = [
+            "SeSACKey": APIConstants.apiKey,
+            "Authorization": token
+        ]
+
+        let response = await AF.request(fullURL, headers: header, interceptor: interceptor)
+            .validate(statusCode: 200...304)
+            .serializingData()
+            .response
+
+        switch response.result {
+        case .success(let data):
+            guard let thumbnail = await generateThumbnail(fromVideoData: data, scale: scale) else {
+                throw APIError.localError(type: .thumbnailFailed, message: "비디오 썸네일 생성 실패")
+            }
+            let downsampled = await loadAndDownsampleImage(thumbnail.jpegData(compressionQuality: 1.0) ?? Data(), scale)
+            return downsampled
+
+        case .failure(_):
+            let code = response.response?.statusCode ?? -1
+            throw APIError(statusCode: code, data: response.data)
+        }
+    }
+    
+    private func generateThumbnail(fromVideoData data: Data, scale: CGFloat) async -> UIImage? {
+        let tempURL = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension("mp4")
+
+        do {
+            try data.write(to: tempURL)
+
+            let asset = AVAsset(url: tempURL)
+            let generator = AVAssetImageGenerator(asset: asset)
+            generator.appliesPreferredTrackTransform = true
+            generator.maximumSize = CGSize(width: 512 * scale, height: 512 * scale)
+
+            let time = CMTime(seconds: 0.5, preferredTimescale: 600)
+            let cgImage = try generator.copyCGImage(at: time, actualTime: nil)
+            return UIImage(cgImage: cgImage)
+        } catch {
+            return nil
+       
+        }
+    }
 
     
 }
@@ -97,31 +202,52 @@ extension DefaultImageLoader {
         let bytes = data.count
         let kb = Double(bytes) / 1024
         let mb = kb / 1024
-
-        //print(String(format: "📦 Data size: %.2f MB (%.0f KB / %d bytes)", mb, kb, bytes))
+        print(String(format: "📦 Data size: %.2f MB (%.0f KB / %d bytes)", mb, kb, bytes))
     }
 }
 
 
+
 extension DefaultImageLoader {
     
+    /// 304일 때, retry 함수
+    private func reloadImageWithoutETag(url: String, scale: CGFloat, token: String) async throws -> UIImage {
+
+        let header: HTTPHeaders = [
+            "SeSACKey": APIConstants.apiKey,
+            "Authorization": token
+        ]
+
+        let response = await AF.request(url, headers: header, interceptor: interceptor)
+            .validate(statusCode: 200...304)
+            .serializingData()
+            .response
+
+        switch response.result {
+        case.success(let data):
+            
+            if let newETag = response.response?.allHeaderFields["Etag"] as? String {
+                var etags = UserDefaultManager.etag
+                etags[url] = newETag
+                UserDefaultManager.etag = etags
+            }
+            
+            imageCache.setData(data, forKey: url)
+            let image = await loadAndDownsampleImage(data, scale)
+            
+            imageCache.set(image, forKey: url)
+            return image
+        case .failure(_):
+            let code = response.response?.statusCode ?? -1
+            throw APIError(statusCode: code, data: response.data)
+        }
+
+    }
+
     
     private func loadAndDownsampleImage(_ data: Data, _ scale: CGFloat) async -> UIImage {
-            /// 우선순위
-            /// utility:  데이터처리, 이미지 디코딩
-            /// 메인쓰레드가 혹시나 디코딩 작업을 할 수도 있기 때문에, 성능 차원에서 백그라운드 쓰레드로 전환
-            let downSamplingImage = await Task(priority: .utility) {
-                return downsample(imageData: data, to: CGSize(width: 100, height: 100), scale: scale)
-            }.value
-
-            guard let image = downSamplingImage else {
-                let fallback = UIImage(systemName: "star")!
-                return fallback
-            }
-        
-            return image
-        }
-    
+        downsample(imageData: data, to: CGSize(width: 100, height: 100), scale: scale) ?? UIImage(systemName: "star")!
+    }
     
     ///Create a smaller version of the full image, optimized for quick display or preview
     /// 다운샘플링된 이미지 == “썸네일”
@@ -159,5 +285,5 @@ extension DefaultImageLoader {
         
         return UIImage(cgImage: cgImage)
     }
+    
 }
-

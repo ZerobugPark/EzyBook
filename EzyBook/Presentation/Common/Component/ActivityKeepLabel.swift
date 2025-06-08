@@ -11,8 +11,8 @@ struct ActivityKeepLabel: View {
     
     let keepCount: Int
     
-    init(heartCount: Int) {
-        self.keepCount = heartCount
+    init(keepCount: Int) {
+        self.keepCount = keepCount
     }
     
     var body: some View {
@@ -25,7 +25,7 @@ struct ActivityKeepLabel: View {
                 .foregroundStyle(.rosyPunch)
 
             Text("\(keepCount)개")
-                .appFont(PretendardFontStyle.body3)
+                .appFont(PaperlogyFontStyle.caption)
         }
         .padding(.vertical, 2) 
 
@@ -34,5 +34,5 @@ struct ActivityKeepLabel: View {
 }
 
 #Preview {
-    ActivityKeepLabel(heartCount: 155)
+    ActivityKeepLabel(keepCount: 155)
 }

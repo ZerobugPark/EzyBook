@@ -27,10 +27,16 @@ final class DIContainer: ObservableObject {
     let activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase
     
     
+    /// Review
+    let reviewLookupUseCase: DefaultReviewLookUpUseCase
+
+    
+    
     /// Common
     let imageLoader: DefaultLoadImageUseCase
+    let viewLoader: VideoLoaderDelegate
 
-    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, imageLoader: DefaultLoadImageUseCase) {
+    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, reviewLookupUseCase: DefaultReviewLookUpUseCase, imageLoader: DefaultLoadImageUseCase, viewLoader: VideoLoaderDelegate) {
         self.kakaoLoginUseCase = kakaoLoginUseCase
         self.createAccountUseCase = createAccountUseCase
         self.emailLoginUseCase = emailLoginUseCase
@@ -40,10 +46,25 @@ final class DIContainer: ObservableObject {
         self.activitySearchUseCase = activitySearchUseCase
         self.activityDetailUseCase = activityDetailUseCase
         self.activityKeepCommandUseCase = activityKeepCommandUseCase
+        self.reviewLookupUseCase = reviewLookupUseCase
         self.imageLoader = imageLoader
+        self.viewLoader = viewLoader
     }
         
 }
+
+// MARK: Common
+extension DIContainer {
+    
+    func makeVideoPlayerViewModel() -> VideoPlayerViewModel {
+        VideoPlayerViewModel(videoLoader: viewLoader)
+    }
+    
+    func makeZoomableImageFullScreenViewModel() -> ZoomableImageFullScreenViewModel {
+        ZoomableImageFullScreenViewModel(imageLoader: imageLoader)
+    }
+}
+
 
 // MARK: Make Auth ViewModel
 extension DIContainer {
@@ -84,5 +105,15 @@ extension DIContainer {
             imageLoader: imageLoader
         )
     }
+    
+    func makeDetailViewModel() -> DetailViewModel {
+        DetailViewModel(
+            activityDeatilUseCase: activityDetailUseCase,
+            activityKeepCommandUseCase: activityKeepCommandUseCase,
+            reviewLookupUseCase: reviewLookupUseCase,
+            imageLoader: imageLoader
+        )
+    }
+
     
 }

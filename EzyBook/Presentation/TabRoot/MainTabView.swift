@@ -75,8 +75,13 @@ struct MainTabView: View {
             .background(.red)
         }
         
-        CustomTabbar()
-            .allowsHitTesting(!appState.isLoding)
+        if !appState.isCustomTabbarHidden {
+            CustomTabbar()
+                .allowsHitTesting(!appState.isLoding)
+                //.transition(.move(edge: .bottom).combined(with: .opacity))
+                .animation(.easeInOut(duration: 0.25), value: appState.isCustomTabbarHidden)
+        }
+
     }
     
     
@@ -101,7 +106,7 @@ struct MainTabView: View {
             /// For Shape Smoothening (Shadow)
             /// radius 번짐 정도
                 .shadow(color: tint.opacity(0.5), radius: 5, x: 0, y: -5)
-                .padding(.top, 25)
+                .padding(.top, 25) // 탭바 백그라운드 색상 위치
         })
         /// Adding Animation( Animation with Cricle)
         /// response: 반응속도
@@ -112,13 +117,3 @@ struct MainTabView: View {
     }
 }
 
-
-
-#Preview {
-    PreViewHelper.makeMainTabView()
-}
-
-
-extension MainTabView {
-  
-}

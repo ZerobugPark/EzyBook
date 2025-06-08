@@ -13,8 +13,10 @@ enum AuthRoute {
 
 }
 
-enum HomeRoute {
+enum HomeRoute: Hashable {
     case homeView
     case searchView
+    case detailView(activityID: String)
+    case reviewView(activityID: String)
     
 }

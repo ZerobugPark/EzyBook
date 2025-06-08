@@ -25,7 +25,7 @@ struct ActivityPointMoneyLabel: View {
                 .foregroundStyle(.blackSeafoam)
             
             Text("\(pointReward)P")
-                .appFont(PretendardFontStyle.body3)
+                .appFont(PaperlogyFontStyle.caption)
         }
         .padding(.vertical, 2)
         

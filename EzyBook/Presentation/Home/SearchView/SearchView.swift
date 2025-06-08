@@ -27,6 +27,8 @@ struct SearchView: View {
                         viewModel.action(.keepButtonTapped(index: index))
                     } currentIndex: { index in
                         viewModel.action(.prefetchSearchContent(index: index))
+                    } onItemTapped: { id in
+                        print("TODO: DetailView ")
                     }
                     
                 }
@@ -34,23 +36,15 @@ struct SearchView: View {
             .disabled(viewModel.output.isLoading)
             .scrollIndicators(.hidden)
             
-            if viewModel.output.isLoading {
-                Color.white.opacity(0.3)
-                    .ignoresSafeArea(edges: .all)
-                    .overlay(
-                        ProgressView()
-                            .scaleEffect(1.5)
-                            .progressViewStyle(CircularProgressViewStyle(tint: .grayScale100))
-                    )
-                    .transition(.opacity)
-                    .animation(.easeInOut, value: viewModel.output.isLoading)
-            }
+            LoadingOverlayView(isLoading: viewModel.output.isLoading)
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                backButton
+                BackButtonView {
+                    coordinator.pop()
+                }
             }
             ToolbarItem(placement: .principal) {
                 Text("EXCITING")
@@ -87,19 +81,7 @@ struct SearchView: View {
             
     }
     
-    private var backButton: some View {
-        HStack() {
-            Button {
-                coordinator.pop()
-            } label: {
-                Image(.iconChevron)
-                    .renderingMode(.template)
-                    .foregroundStyle(.blackSeafoam)
-                    
-            }
-            Spacer()
-        }
-    }
+
 }
 
 
