@@ -36,7 +36,7 @@ final class ProfileCoordinator: ObservableObject {
     func destinationView(route: ProfileRoute) -> some View {
         switch route {
         case .profileView:
-            ProfileView(coordinator: self)
+            ProfileView(viewModel: self.container.makeProfileViewModel(), coordinator: self)
         }
     }
 

@@ -74,7 +74,7 @@ struct HomeView: View {
         .onAppear {
             viewModel.action(.onAppearRequested(flag: selectedFlag, filter: selectedFilter))
             viewModel.action(.updateScale(scale: scale))
-            /// 탭바 터치 못하게 하게 위한 것
+            
         }
         .commonAlert(
             isPresented: Binding(

@@ -26,7 +26,7 @@ final class AppDIContainer {
     private let activityRepository: DefaultActivityRepository
     private let acitvityKeepStatusRepository: DefaultKeepStatusRepository
     private let reviewRatingLookUpRepository: DefaultReviewRepository
-    
+    private let profileRepository: DefaultProfileRepository
     
     
     init() {
@@ -43,6 +43,7 @@ final class AppDIContainer {
         acitvityKeepStatusRepository = DefaultKeepStatusRepository(networkService: networkService)
         reviewRatingLookUpRepository = DefaultReviewRepository(networkService: networkService)
         
+        profileRepository = DefaultProfileRepository(networkService: networkService)
         imageCache = ImageCache()
         imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache, interceptor: interceptor)
         
@@ -62,6 +63,7 @@ final class AppDIContainer {
             activityDetailUseCase: makeActivityDetailUseCase(),
             activityKeepCommandUseCase: makeActivityKeepCommandUseCase(),
             reviewLookupUseCase: makeReviewRatingUseCase(),
+            profileLookUpUseCase: makeProfileLookUpUseCase(),
             imageLoader: makeImageLoaderUseCase(),
             viewLoader: makeVidoeLoaderDelegate()
         )
@@ -69,6 +71,16 @@ final class AppDIContainer {
     
 
 }
+
+
+// MARK: Profile
+extension AppDIContainer {
+    private func makeProfileLookUpUseCase() -> DefaultProfileLookUpUseCase {
+        DefaultProfileLookUpUseCase(repo: profileRepository)
+    }
+    
+}
+
 
 // MARK: Common
 extension AppDIContainer {

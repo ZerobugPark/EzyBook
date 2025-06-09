@@ -11,6 +11,7 @@ import Alamofire
 enum UserGetRequest: GetRouter {
     
     case profileLookUp
+    case searchUser(id: String)
     
     var requiresAuth: Bool {
         true
@@ -20,6 +21,8 @@ enum UserGetRequest: GetRouter {
         switch self {
         case .profileLookUp:
             UserEndPoint.profileLookUp.requestURL
+        case .searchUser:
+            UserEndPoint.searchUser.requestURL
         }
     }
     
@@ -31,6 +34,15 @@ enum UserGetRequest: GetRouter {
         [
             "SeSACKey": APIConstants.apiKey
         ]
+    }
+    
+    var parameters: Parameters? {
+        switch self {
+        case .searchUser(let id):
+            return ["nick": id]
+        default:
+            return nil
+        }
     }
     
 
