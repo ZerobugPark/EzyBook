@@ -51,10 +51,7 @@ struct ProfileModifyRequestDTO: Encodable {
     let introduction: String?
 }
 
-/// 프로필 이미지 등록
-struct ProfileImageUploadRequestDTO: Encodable {
-    let profileImage: String
-}
+
 
 /// 유저 검색
 struct UserSearchRequestDTO: Encodable {

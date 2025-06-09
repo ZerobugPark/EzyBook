@@ -1,5 +1,5 @@
 //
-//  ProfileViewModels.swift
+//  ProfileModels.swift
 //  EzyBook
 //
 //  Created by youngkyun park on 6/9/25.
@@ -12,13 +12,13 @@ struct ProfileLookUpModel {
     let userID: String
     let email: String
     let nick: String
-    let profileImage: UIImage
+    var profileImage: UIImage?
     let phoneNum: String
     let introduction: String
     
     // 금액이 다를 경우 어떻게 비교를 해줄까?
     
-    init (from detail: ProfileLookUpEntity, profile: UIImage) {
+    init (from detail: ProfileLookUpEntity, profile: UIImage?) {
         self.userID = detail.userID
         self.email = detail.email
         self.nick = detail.nick
@@ -45,9 +45,10 @@ extension ProfileLookUpModel {
                 introduction: "사용자 소개를 불러오는 중입니다..."
             )
         ),
-        profile: UIImage(resource: .tabBarProfileFill)
+        profile: nil
         
     )
     
     
 }
+

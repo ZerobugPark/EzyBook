@@ -12,7 +12,7 @@ final class ProfileViewModel: ViewModelType {
     
     private let profileLookUpUseCase: DefaultProfileLookUpUseCase
     private let imageLoader: DefaultLoadImageUseCase
-    
+    private let uploadImageUsecase: DefaultUploadFileUseCase
     var input = Input()
     @Published var output = Output()
         
@@ -22,10 +22,12 @@ final class ProfileViewModel: ViewModelType {
     
     init(
         profileLookUpUseCase: DefaultProfileLookUpUseCase,
-        imageLoader: DefaultLoadImageUseCase
+        imageLoader: DefaultLoadImageUseCase,
+        uploadImageUsecase: DefaultUploadFileUseCase
     ) {
         self.profileLookUpUseCase = profileLookUpUseCase
         self.imageLoader = imageLoader
+        self.uploadImageUsecase = uploadImageUsecase
         transform()
     }
     
@@ -33,9 +35,7 @@ final class ProfileViewModel: ViewModelType {
 
 extension ProfileViewModel {
     
-    struct Input {
-        
-    }
+    struct Input { }
     
     struct Output {
         var isLoading = false
@@ -72,7 +72,7 @@ extension ProfileViewModel {
             let data = try await profileLookUpUseCase.execute()
             
             let profileImage: UIImage
-           
+        
             if !data.profileImage.isEmpty {
                 profileImage = try await imageLoader.execute(data.profileImage)
             } else  {
@@ -98,6 +98,43 @@ extension ProfileViewModel {
         
     }
     
+    private func handleDidSelectedImageData(_ image: UIImage) {
+        Task {
+            await MainActor.run {
+                output.isLoading = true
+            }
+            
+          
+            do {
+                let path = try await requestUploadProfileImage(image)
+                
+                let image = try await imageLoader.execute(path.profileImage)
+                
+                await MainActor.run {
+                    output.profile.profileImage = image
+                }
+
+              } catch let error as APIError {
+                  await MainActor.run {
+                      output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+                  }
+              } catch {
+                  print(error)
+              }
+            
+            await MainActor.run {
+                output.isLoading = false
+                
+            }
+        }
+    }
+    
+    private func requestUploadProfileImage(_ image: UIImage) async throws ->  UserImageUploadEntity {
+        
+        return try await uploadImageUsecase.execute(image)
+        
+    }
+    
     private func handleResetError() {
         output.presentedError = nil
     }
@@ -114,6 +151,7 @@ extension ProfileViewModel {
     enum Action {
         case onAppearRequested
         case updateScale(scale: CGFloat)
+        case didSelectedImageData(image: UIImage)
         case resetError
     }
     
@@ -124,8 +162,11 @@ extension ProfileViewModel {
             handleProfileData()
         case .updateScale(let scale):
             handleUpdateScale(scale)
+        case .didSelectedImageData(let image):
+            handleDidSelectedImageData(image)
         case .resetError:
             handleResetError()
+ 
         }
     }
     

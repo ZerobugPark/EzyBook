@@ -88,4 +88,17 @@ struct UserInfoResponseEntity {
     
 }
 
+/// 유저검색
+struct UserImageUploadEntity {
+
+    let profileImage: String
+   
+    
+    init(dto: ProfileImageUploadResponseDTO) {
+        self.profileImage = dto.profileImage
+    }
+    
+}
+
+
 

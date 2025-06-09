@@ -14,9 +14,12 @@ protocol PostRouter: NetworkRouter {
     var requestBody: Encodable? { get }
     var bodyEncoder: JSONEncoder { get }
     func encodeBody(for request: URLRequest) throws -> URLRequest
+ 
 }
 
 extension PostRouter {
+    
+ 
     
     var bodyEncoder: JSONEncoder {
         JSONEncoder()
@@ -29,9 +32,9 @@ extension PostRouter {
         
         if let body = requestBody {
             request.httpBody = try bodyEncoder.encode(body)
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         }
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
+        
         return request//try encoder.encode(request: request, with: body)
     }
     

@@ -34,13 +34,14 @@ final class DIContainer: ObservableObject {
     
     /// Profile
     let profileLookUpUseCase: DefaultProfileLookUpUseCase
+    let profileImageUpLoadUseCase: DefaultUploadFileUseCase
     
     
     /// Common
     let imageLoader: DefaultLoadImageUseCase
     let viewLoader: VideoLoaderDelegate
 
-    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, reviewLookupUseCase: DefaultReviewLookUpUseCase, profileLookUpUseCase: DefaultProfileLookUpUseCase, imageLoader: DefaultLoadImageUseCase, viewLoader: VideoLoaderDelegate) {
+    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, reviewLookupUseCase: DefaultReviewLookUpUseCase, profileLookUpUseCase: DefaultProfileLookUpUseCase, profileImageUpLoadUseCase: DefaultUploadFileUseCase, imageLoader: DefaultLoadImageUseCase, viewLoader: VideoLoaderDelegate) {
         self.kakaoLoginUseCase = kakaoLoginUseCase
         self.createAccountUseCase = createAccountUseCase
         self.emailLoginUseCase = emailLoginUseCase
@@ -52,6 +53,7 @@ final class DIContainer: ObservableObject {
         self.activityKeepCommandUseCase = activityKeepCommandUseCase
         self.reviewLookupUseCase = reviewLookupUseCase
         self.profileLookUpUseCase = profileLookUpUseCase
+        self.profileImageUpLoadUseCase = profileImageUpLoadUseCase
         self.imageLoader = imageLoader
         self.viewLoader = viewLoader
     }
@@ -62,7 +64,8 @@ extension DIContainer {
     func makeProfileViewModel() -> ProfileViewModel {
         ProfileViewModel(
             profileLookUpUseCase: profileLookUpUseCase,
-            imageLoader: imageLoader
+            imageLoader: imageLoader,
+            uploadImageUsecase: profileImageUpLoadUseCase
         )
     }
 }

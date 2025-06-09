@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct ProfileView: View {
     
@@ -13,6 +14,12 @@ struct ProfileView: View {
     @ObservedObject var coordinator: ProfileCoordinator
     @EnvironmentObject var appState: AppState
     @Environment(\.displayScale) var scale
+    
+    
+    /// 이미지 피커
+    @State private var isImagePickerPresented = false
+    @State private var photoItems: [PhotosPickerItem] = []
+    @State private var selectedImage: IdentifiableImage?
     
     var data: ProfileLookUpModel {
         viewModel.output.profile
@@ -45,9 +52,45 @@ struct ProfileView: View {
                 }
             }
         }
-        .onAppear() {
+        .photosPicker(
+            isPresented: $isImagePickerPresented,
+            selection: $photoItems,
+            maxSelectionCount: 1,
+            matching: .images,
+            photoLibrary: .shared()
+        )
+        .onAppear {
             viewModel.action(.onAppearRequested)
         }
+        .onChange(of: photoItems) { newItems in
+            guard let firstItem = newItems.first else {
+                selectedImage = nil
+                return
+            }
+            
+            Task {
+                if let data = try? await firstItem.loadTransferable(type: Data.self),
+                   let image = UIImage(data: data) {
+                    selectedImage = IdentifiableImage(image: image)
+                    
+                }
+            }
+        }
+        .fullScreenCover(item: $selectedImage) { identifiable in
+            ConfirmImageView(
+                image: identifiable.image,
+                onConfirm: { image in
+                    viewModel.action(.didSelectedImageData(image: image))
+                    selectedImage = nil
+                    photoItems = []
+                },
+                onCancel: {
+                    selectedImage = nil
+                    photoItems = []
+                }
+            )
+        }
+        
         .commonAlert(
             isPresented: Binding(
                 get: { viewModel.output.isShowingError },
@@ -95,12 +138,26 @@ extension ProfileView {
                 )
                 .frame(width: 120, height: 120)
                 .overlay {
-                    Image(uiImage: data.profileImage)
-                        .renderingMode(.template)
-                        .resizable()
-                        .frame(width: 80, height: 80)
-                        .foregroundStyle(.grayScale0)
+                    /// 업로드했는데, 서버에서 다시 받아오면 왜 URL이 없을까?.
+                    if let image = viewModel.output.profile.profileImage {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .clipShape(Circle())
+                            .frame(width: 120, height: 120)
+                    } else {
+                        Image(.tabBarProfileFill)
+                            .renderingMode(.template)
+                            .resizable()
+                            .frame(width: 80, height: 80)
+                            .foregroundStyle(.grayScale0)
+                    }
                     
+                    
+                    
+                }
+                .onTapGesture {
+                    //TODO: 미리보기
                 }
             
             
@@ -116,7 +173,7 @@ extension ProfileView {
                 Spacer()
                 Button {
                     //TODO: 이미지 수정으로 이동
-                    print("camera tap")
+                    isImagePickerPresented = true
                 } label: {
                     Circle()
                         .fill(Color.blackSeafoam.opacity(1.0))
@@ -339,6 +396,11 @@ extension ProfileView {
                 ]
             )
         ]
+    }
+    
+    struct IdentifiableImage: Identifiable {
+        let id = UUID()
+        let image: UIImage
     }
     
     struct MenuItem: Identifiable {

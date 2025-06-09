@@ -5,7 +5,7 @@
 //  Created by youngkyun park on 5/12/25.
 //
 
-import Foundation
+import SwiftUI
 import Alamofire
 
 enum UserPostRequest: PostRouter {
@@ -17,6 +17,7 @@ enum UserPostRequest: PostRouter {
     case emailLogin(body: EmailLoginRequestDTO)
     case kakaoLogin(body: KakaoLoginRequestDTO)
     case appleLogin(body: AppleLoginRequestDTO)
+    case profileImageUpload(image: UIImage)
     
     var requiresAuth: Bool {
         false
@@ -34,6 +35,8 @@ enum UserPostRequest: PostRouter {
             UserEndPoint.kakaoLogin.requestURL
         case .appleLogin:
             UserEndPoint.appleLogin.requestURL
+        case .profileImageUpload:
+            UserEndPoint.profileImageUpload.requestURL
         }
     }
     
@@ -55,15 +58,30 @@ enum UserPostRequest: PostRouter {
             return request
         case .appleLogin(let request):
             return request
+        case .profileImageUpload:
+            return nil
         }
     }
     
     var headers: HTTPHeaders {
         [
-            "SeSACKey": APIConstants.apiKey,
-            "Content-Type": "application/json"
+            "SeSACKey": APIConstants.apiKey
         ]
-        
     }
     
+    var multipartFormData: ((MultipartFormData) -> Void)? {
+        switch self {
+        case .profileImageUpload(let image):
+            return { form in
+                if let data = image.compressedJPEGData(maxSizeInBytes: 1_000_000) {
+                    form.append(data,
+                                withName: "profile",
+                                fileName: "profile.jpg",
+                                mimeType: "image/jpeg")
+                }
+            }
+        default:
+            return nil
+        }
+    }
 }
