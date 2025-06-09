@@ -77,7 +77,7 @@ struct ProfileView: View {
             }
         }
         .fullScreenCover(item: $selectedImage) { identifiable in
-            ConfirmImageView(
+            coordinator.makeConfirmImageView(
                 image: identifiable.image,
                 onConfirm: { image in
                     viewModel.action(.didSelectedImageData(image: image))
