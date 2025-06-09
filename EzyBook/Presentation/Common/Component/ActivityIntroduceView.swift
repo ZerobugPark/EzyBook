@@ -34,6 +34,7 @@ struct ActivityIntroduceView: View {
                     .onAppear {
                         currentIndex(index)
                     }
+                    .contentShape(Rectangle()) // 히팅박스 설정 (보인 뷰까지만 히트가 가능하도록)
                     .onTapGesture {
                         onItemTapped(item.activityID)
                     }
