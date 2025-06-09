@@ -20,3 +20,7 @@ enum HomeRoute: Hashable {
     case reviewView(activityID: String)
     
 }
+
+enum CommunityRoute: Hashable {
+    case communityView
+}

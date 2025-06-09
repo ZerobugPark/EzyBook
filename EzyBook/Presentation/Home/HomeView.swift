@@ -55,8 +55,8 @@ struct HomeView: View {
             .disabled(viewModel.output.isLoading)
             
             LoadingOverlayView(isLoading: viewModel.output.isLoading)
- 
-          
+        
+         
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -292,7 +292,6 @@ extension HomeView {
 }
 
 // MARK: 내용입력
-
 extension HomeView {
     
     private func makeAlarmButton() -> some View {

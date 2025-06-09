@@ -25,6 +25,3 @@ struct HomeCoordinatorView: View {
     }
 }
 
-#Preview {
-//    /HomeCoordinatorView()
-}

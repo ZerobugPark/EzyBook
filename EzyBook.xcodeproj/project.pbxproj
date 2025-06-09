@@ -299,6 +299,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = EzyBook/Application/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = EzyBook;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "\"상품 사진을 선택하기 위해 사진 라이브러리 접근이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -338,6 +339,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = EzyBook/Application/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = EzyBook;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "\"상품 사진을 선택하기 위해 사진 라이브러리 접근이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

@@ -60,4 +60,6 @@ extension HomeCoordinator {
         return ZoomableImageFullScreenView(path: path, viewModel: viewModel)
 
     }
+    
+
 }
