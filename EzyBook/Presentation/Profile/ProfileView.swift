@@ -15,6 +15,9 @@ struct MenuItem: Identifiable {
 }
 
 struct ProfileView: View {
+    
+    @ObservedObject var coordinator: ProfileCoordinator
+    
     var body: some View {
         ZStack {
             NavigationStack {
@@ -241,7 +244,3 @@ struct ProfileView: View {
 }
 
 
-
-#Preview {
-    ProfileView()
-}

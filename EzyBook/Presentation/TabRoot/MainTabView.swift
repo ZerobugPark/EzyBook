@@ -67,7 +67,7 @@ struct MainTabView: View {
                     ///Hiding Native Tab Bar
                     .toolbar(.hidden, for: .tabBar)
                 
-                ProfileView()
+                ProfileViewCoordinatorView(coordinator: ProfileCoordinator(container: container))
                     .tag(Tab.profile)
                     ///Hiding Native Tab Bar
                     .toolbar(.hidden, for: .tabBar)
