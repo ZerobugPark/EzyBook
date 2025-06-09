@@ -10,7 +10,7 @@ import SwiftUI
 
 enum Tab: String, CaseIterable {
     case home = "Home"
-    case reviews = "Reviews"
+    case community = "Community"
     case chat = "Chat"
     case profile = "Profile"
     
@@ -18,7 +18,7 @@ enum Tab: String, CaseIterable {
         switch self {
         case .home:
                 .init(.tabBarHomeEmpty)
-        case .reviews:
+        case .community:
                 .init(.tabBarFrameEmpty)
         case .chat:
                 .init(.tabBarKeepEmpty)
@@ -57,8 +57,8 @@ struct MainTabView: View {
                     .tag(Tab.home)
                     .toolbar(.hidden, for: .tabBar) ///Hiding Native Tab Bar
     
-                Text("Services")
-                    .tag(Tab.reviews)
+                CommunityCoordinatorView(coordinator: CommunityCoordinator(container: container))
+                    .tag(Tab.community)
                     ///Hiding Native Tab Bar
                     .toolbar(.hidden, for: .tabBar)
                 
@@ -67,7 +67,7 @@ struct MainTabView: View {
                     ///Hiding Native Tab Bar
                     .toolbar(.hidden, for: .tabBar)
                 
-                ProfileView()
+                ProfileViewCoordinatorView(coordinator: ProfileCoordinator(container: container))
                     .tag(Tab.profile)
                     ///Hiding Native Tab Bar
                     .toolbar(.hidden, for: .tabBar)
