@@ -61,7 +61,5 @@ extension HomeCoordinator {
 
     }
     
-    func makePostsView() -> some View {
-        return PostsView()
-    }
+
 }

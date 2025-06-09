@@ -17,7 +17,6 @@ struct HomeView: View {
     @State private var selectedFilter: Filter = .all
     @StateObject var viewModel: HomeViewModel
     
-    @State private var selectedPost = false
     @ObservedObject var coordinator: HomeCoordinator
     
     /// 버튼 컬럼
@@ -56,12 +55,8 @@ struct HomeView: View {
             .disabled(viewModel.output.isLoading)
             
             LoadingOverlayView(isLoading: viewModel.output.isLoading)
-            makePostButton()
+        
          
-          
-        }
-        .sheet(isPresented: $selectedPost) {
-            coordinator.makePostsView()
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -318,33 +313,3 @@ extension HomeView {
     }
 }
 
-// MARK: Post View
-extension HomeView {
-
-    private func makePostButton() -> some View {
-        VStack {
-            Spacer()
-            HStack {
-                Spacer()
-                Button(action: {
-                    selectedPost = true
-                }) {
-                    Label {
-                        Text("글쓰기")
-                            .appFont(PaperlogyFontStyle.caption, textColor: .grayScale0)
-                    } icon: {
-                        Image(systemName: "plus")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(.grayScale0)
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .background(RoundedRectangle(cornerRadius: 12).fill(Color.blackSeafoam))
-                }
-                .shadow(radius: 5)
-                .padding(.trailing, 20)
-                .padding(.bottom, 30)
-            }
-        }
-    }
-}
