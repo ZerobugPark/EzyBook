@@ -12,7 +12,9 @@ final class ProfileViewModel: ViewModelType {
     
     private let profileLookUpUseCase: DefaultProfileLookUpUseCase
     private let imageLoader: DefaultLoadImageUseCase
-    private let uploadImageUsecase: DefaultUploadFileUseCase
+    private let uploadImageUseCase: DefaultUploadFileUseCase
+    private let profileModifyUseCase: DefaultProfileModifyUseCase
+    
     var input = Input()
     @Published var output = Output()
         
@@ -23,11 +25,13 @@ final class ProfileViewModel: ViewModelType {
     init(
         profileLookUpUseCase: DefaultProfileLookUpUseCase,
         imageLoader: DefaultLoadImageUseCase,
-        uploadImageUsecase: DefaultUploadFileUseCase
+        uploadImageUsecase: DefaultUploadFileUseCase,
+        profileModifyUseCase: DefaultProfileModifyUseCase
     ) {
         self.profileLookUpUseCase = profileLookUpUseCase
         self.imageLoader = imageLoader
-        self.uploadImageUsecase = uploadImageUsecase
+        self.uploadImageUseCase = uploadImageUsecase
+        self.profileModifyUseCase = profileModifyUseCase
         transform()
     }
     
@@ -70,7 +74,7 @@ extension ProfileViewModel {
         
         do {
             let data = try await profileLookUpUseCase.execute()
-            
+            print("profile",data)
             let profileImage: UIImage
         
             if !data.profileImage.isEmpty {
@@ -108,7 +112,13 @@ extension ProfileViewModel {
             do {
                 let path = try await requestUploadProfileImage(image)
                 
-                let image = try await imageLoader.execute(path.profileImage)
+                
+                let data = try await profileModifyUseCase.execute(
+                    ProfileModifyRequestDTO(nick: nil, profileImage: path.profileImage, phoneNum: nil, introduction: nil)
+                )
+                
+                // 패스 기반 프로필 수정 추가
+                let image = try await imageLoader.execute(data.profileImage)
                 
                 await MainActor.run {
                     output.profile.profileImage = image
@@ -131,7 +141,7 @@ extension ProfileViewModel {
     
     private func requestUploadProfileImage(_ image: UIImage) async throws ->  UserImageUploadEntity {
         
-        return try await uploadImageUsecase.execute(image)
+        return try await uploadImageUseCase.execute(image)
         
     }
     

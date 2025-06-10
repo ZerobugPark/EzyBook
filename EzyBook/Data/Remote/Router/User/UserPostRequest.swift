@@ -9,8 +9,6 @@ import SwiftUI
 import Alamofire
 
 enum UserPostRequest: PostRouter {
-   
-    //TODO: 프로필 이미지 업로드는 따로 만들어야 할듯
     
     case emailValidation(body: EmailValidationRequestDTO)
     case join(body: JoinRequestDTO)
@@ -18,9 +16,15 @@ enum UserPostRequest: PostRouter {
     case kakaoLogin(body: KakaoLoginRequestDTO)
     case appleLogin(body: AppleLoginRequestDTO)
     case profileImageUpload(image: UIImage)
+    case profileModify(body: ProfileModifyRequestDTO)
     
     var requiresAuth: Bool {
-        false
+        switch self {
+        case .profileModify:
+            return true
+        default:
+            return false
+        }
     }
     
     var endpoint: URL? {
@@ -37,12 +41,20 @@ enum UserPostRequest: PostRouter {
             UserEndPoint.appleLogin.requestURL
         case .profileImageUpload:
             UserEndPoint.profileImageUpload.requestURL
+        case .profileModify:
+            UserEndPoint.profileModify.requestURL
         }
     }
     
     
     var method: HTTPMethod {
-        .post
+        switch self {
+        case .profileModify:
+                .put
+        default:
+                .post
+        }
+
     }
     
     
@@ -60,6 +72,8 @@ enum UserPostRequest: PostRouter {
             return request
         case .profileImageUpload:
             return nil
+        case .profileModify(let request):
+            return request
         }
     }
     
@@ -67,6 +81,23 @@ enum UserPostRequest: PostRouter {
         [
             "SeSACKey": APIConstants.apiKey
         ]
+    }
+    
+    var parameters: Parameters? {
+        switch self {
+        case .profileModify(let param):
+            let result: [String: Any?] = [
+                "nick": param.nick,
+                "profileImage": param.profileImage,
+                "phoneNum": param.phoneNum,
+                "introduction": param.introduction
+            ]
+            let filtered = result.compactMapValues { $0 } // 옵셔널 제거
+            return filtered.isEmpty ? nil : filtered as Parameters // 업캐스팅
+        default:
+            return nil
+            
+        }
     }
     
     var multipartFormData: ((MultipartFormData) -> Void)? {
@@ -85,3 +116,4 @@ enum UserPostRequest: PostRouter {
         }
     }
 }
+

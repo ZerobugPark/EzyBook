@@ -47,6 +47,7 @@ final class AppDIContainer {
         profileRepository = DefaultProfileRepository(networkService: networkService)
         uploadRepository = DefaultUploadFileRepository(networkService: networkService)
         
+        
         imageCache = ImageCache()
         imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache, interceptor: interceptor)
         
@@ -67,7 +68,8 @@ final class AppDIContainer {
             activityKeepCommandUseCase: makeActivityKeepCommandUseCase(),
             reviewLookupUseCase: makeReviewRatingUseCase(),
             profileLookUpUseCase: makeProfileLookUpUseCase(),
-            profileImageUpLoadUseCase: makeProfileLookUpUseCase(),
+            profileImageUpLoadUseCase: makeProfileUpLoadFileUseCase(),
+            profileModifyUseCase: makeProfileModifyUseCase(),
             imageLoader: makeImageLoaderUseCase(),
             viewLoader: makeVidoeLoaderDelegate()
         )
@@ -83,8 +85,12 @@ extension AppDIContainer {
         DefaultProfileLookUpUseCase(repo: profileRepository)
     }
     
-    private func makeProfileLookUpUseCase() -> DefaultUploadFileUseCase {
+    private func makeProfileUpLoadFileUseCase() -> DefaultUploadFileUseCase {
         DefaultUploadFileUseCase(repo: uploadRepository)
+    }
+    
+    private func makeProfileModifyUseCase() -> DefaultProfileModifyUseCase {
+        DefaultProfileModifyUseCase(repo: profileRepository)
     }
     
 }
