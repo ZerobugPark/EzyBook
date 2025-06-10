@@ -29,7 +29,9 @@ struct VideoPlayerView: View {
             }) {
                 Image(systemName: "xmark")
                     .font(.system(size: 20))
+                    .padding(12) // 터치 영역 확보
                     .foregroundColor(.grayScale0)
+                    .contentShape(Rectangle())
             }
             .padding(.top, 60)
             .padding(.trailing, 20)

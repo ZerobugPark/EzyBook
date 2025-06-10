@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct DefaultProfileRepository: ProfileLookupRepository {
+struct DefaultProfileRepository: ProfileLookupRepository, ProfileModifyRepository {
     
     private let networkService: NetworkService
     
@@ -17,6 +17,14 @@ struct DefaultProfileRepository: ProfileLookupRepository {
     
     
     func requestProfileLookUp(_ router: UserGetRequest) async throws -> ProfileLookUpEntity  {
+        
+        let data = try await networkService.fetchData(dto: ProfileLookUpResponseDTO.self, router)
+        
+        return data.toEntity()
+        
+    }
+    
+    func requestModifyProfile(_ router: UserPostRequest) async throws -> ProfileLookUpEntity {
         
         let data = try await networkService.fetchData(dto: ProfileLookUpResponseDTO.self, router)
         

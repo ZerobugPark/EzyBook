@@ -69,14 +69,7 @@ extension VideoPlayerViewModel {
         let item = AVPlayerItem(asset: asset)
         
         let player = AVPlayer(playerItem: item)
-        
-//        | 구독 대상                        | 왜 구독할까?                       |
-//        | ---------------------------- | ----------------------------- |
-//        | `AVPlayerItem.status`        | 영상 준비 여부 확인용 (`.readyToPlay`) |
-//        | `AVPlayer.timeControlStatus` | 재생 상태 (재생 중/정지/버퍼링 등)         |
-//        | `AVPlayerItem.error`         | 개별 영상 실패 정보 확인                |
 
-        
          item.publisher(for: \.status)
              .sink { [weak self] status in
                  switch status {

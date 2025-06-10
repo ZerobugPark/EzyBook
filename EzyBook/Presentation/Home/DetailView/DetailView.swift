@@ -132,7 +132,7 @@ extension DetailView {
                             .frame(maxWidth: .infinity)
                             .clipped()
 
-                        
+                        //TODO: 첫번째 뿐마 아니라, 두번째나 세번째도 동영상일 수 있음, 수정 필요
                         if index == 0 && viewModel.output.hasMovieThumbnail {
                             Image(.playButton)
                                 .resizable()

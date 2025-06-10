@@ -12,6 +12,8 @@ final class ProfileViewModel: ViewModelType {
     
     private let profileLookUpUseCase: DefaultProfileLookUpUseCase
     private let imageLoader: DefaultLoadImageUseCase
+    private let uploadImageUseCase: DefaultUploadFileUseCase
+    private let profileModifyUseCase: DefaultProfileModifyUseCase
     
     var input = Input()
     @Published var output = Output()
@@ -22,10 +24,14 @@ final class ProfileViewModel: ViewModelType {
     
     init(
         profileLookUpUseCase: DefaultProfileLookUpUseCase,
-        imageLoader: DefaultLoadImageUseCase
+        imageLoader: DefaultLoadImageUseCase,
+        uploadImageUsecase: DefaultUploadFileUseCase,
+        profileModifyUseCase: DefaultProfileModifyUseCase
     ) {
         self.profileLookUpUseCase = profileLookUpUseCase
         self.imageLoader = imageLoader
+        self.uploadImageUseCase = uploadImageUsecase
+        self.profileModifyUseCase = profileModifyUseCase
         transform()
     }
     
@@ -33,9 +39,7 @@ final class ProfileViewModel: ViewModelType {
 
 extension ProfileViewModel {
     
-    struct Input {
-        
-    }
+    struct Input { }
     
     struct Output {
         var isLoading = false
@@ -70,9 +74,9 @@ extension ProfileViewModel {
         
         do {
             let data = try await profileLookUpUseCase.execute()
-            
+            print("profile",data)
             let profileImage: UIImage
-           
+        
             if !data.profileImage.isEmpty {
                 profileImage = try await imageLoader.execute(data.profileImage)
             } else  {
@@ -98,6 +102,50 @@ extension ProfileViewModel {
         
     }
     
+    private func handleDidSelectedImageData(_ image: UIImage) {
+        Task {
+            await MainActor.run {
+                output.isLoading = true
+            }
+            
+          
+            do {
+                
+                let path = try await requestUploadProfileImage(image)
+                
+                
+                let data = try await profileModifyUseCase.execute(
+                    ProfileModifyRequestDTO(nick: nil, profileImage: path.profileImage, phoneNum: nil, introduction: nil)
+                )
+                
+                // 패스 기반 프로필 수정 추가
+                let image = try await imageLoader.execute(data.profileImage)
+                
+                await MainActor.run {
+                    output.profile.profileImage = image
+                }
+
+              } catch let error as APIError {
+                  await MainActor.run {
+                      output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+                  }
+              } catch {
+                  print(error)
+              }
+            
+            await MainActor.run {
+                output.isLoading = false
+                
+            }
+        }
+    }
+    
+    private func requestUploadProfileImage(_ image: UIImage) async throws ->  UserImageUploadEntity {
+        
+        return try await uploadImageUseCase.execute(image)
+        
+    }
+    
     private func handleResetError() {
         output.presentedError = nil
     }
@@ -114,6 +162,7 @@ extension ProfileViewModel {
     enum Action {
         case onAppearRequested
         case updateScale(scale: CGFloat)
+        case didSelectedImageData(image: UIImage)
         case resetError
     }
     
@@ -124,8 +173,11 @@ extension ProfileViewModel {
             handleProfileData()
         case .updateScale(let scale):
             handleUpdateScale(scale)
+        case .didSelectedImageData(let image):
+            handleDidSelectedImageData(image)
         case .resetError:
             handleResetError()
+ 
         }
     }
     

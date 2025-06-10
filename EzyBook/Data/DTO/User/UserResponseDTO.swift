@@ -92,3 +92,8 @@ struct UserInfoResponseDTO: Decodable {
     }
     
 }
+
+/// 프로필 리턴
+struct ProfileImageUploadResponseDTO: Decodable, EntityConvertible {
+    let profileImage: String
+}

@@ -15,12 +15,14 @@ final class DefaultImageLoader: ImagerLoader {
     
     private let tokenService: TokenLoadable
     let imageCache: ImageCache
-    private let interceptor: TokenInterceptor?
+    private let interceptor: TokenInterceptor
+    private let session: Session
     
-    init(tokenService: TokenLoadable, imageCache: ImageCache, interceptor: TokenInterceptor?) {
+    init(tokenService: TokenLoadable, imageCache: ImageCache, interceptor: TokenInterceptor) {
         self.tokenService = tokenService
         self.imageCache = imageCache
         self.interceptor = interceptor
+        self.session = Session(interceptor: interceptor)
     }
     
     
@@ -56,7 +58,7 @@ final class DefaultImageLoader: ImagerLoader {
             "Authorization" : token
         ]
 
-        let response = await AF.request(fullURL, headers: header, interceptor: interceptor)
+        let response = await session.request(fullURL, headers: header)
             .validate(statusCode: 200...304)
             .serializingData()
             .response
@@ -91,7 +93,7 @@ final class DefaultImageLoader: ImagerLoader {
             header.add(name: "If-None-Match", value: etag)
         }
         
-        let response = await AF.request(fullURL, headers: header, interceptor: interceptor)
+        let response = await session.request(fullURL, headers: header)
             .validate(statusCode: 200...304)
             .serializingData()
             .response
@@ -153,7 +155,7 @@ final class DefaultImageLoader: ImagerLoader {
             "Authorization": token
         ]
 
-        let response = await AF.request(fullURL, headers: header, interceptor: interceptor)
+        let response = await session.request(fullURL, headers: header)
             .validate(statusCode: 200...304)
             .serializingData()
             .response
@@ -218,7 +220,7 @@ extension DefaultImageLoader {
             "Authorization": token
         ]
 
-        let response = await AF.request(url, headers: header, interceptor: interceptor)
+        let response = await session.request(url, headers: header)
             .validate(statusCode: 200...304)
             .serializingData()
             .response

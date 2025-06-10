@@ -9,7 +9,7 @@ import Foundation
 
 import Alamofire
 
-/// Post 전용
+/// Post / PUT전용
 protocol PostRouter: NetworkRouter {
     var requestBody: Encodable? { get }
     var bodyEncoder: JSONEncoder { get }
@@ -29,9 +29,9 @@ extension PostRouter {
         
         if let body = requestBody {
             request.httpBody = try bodyEncoder.encode(body)
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         }
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
+        
         return request//try encoder.encode(request: request, with: body)
     }
     

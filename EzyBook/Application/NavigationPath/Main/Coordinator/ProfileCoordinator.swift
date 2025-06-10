@@ -41,3 +41,10 @@ final class ProfileCoordinator: ObservableObject {
     }
 
 }
+
+extension ProfileCoordinator {
+    func makeConfirmImageView(image: UIImage, onConfirm: @escaping (UIImage) -> Void, onCancel: @escaping () -> Void) -> some View {
+            ConfirmImageView(image: image, onConfirm: onConfirm, onCancel: onCancel)
+    }
+    
+}
