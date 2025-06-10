@@ -36,8 +36,7 @@ enum ActivityPostRequest: PostRouter {
     
     var headers: HTTPHeaders {
         [
-            "SeSACKey": APIConstants.apiKey,
-            "Content-Type": "application/json"
+            "SeSACKey": APIConstants.apiKey
         ]
         
     }

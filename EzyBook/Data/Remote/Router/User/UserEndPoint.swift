@@ -39,9 +39,10 @@ enum UserEndPoint: APIEndPoint {
         case .deviceTokenUpdate:
             return "/v1/users/me/deviceToken"
         case .profileImageUpload:
-            return "/v1/users/me/profile/image"
+            return "/v1/users/profile/image"
         case .searchUser:
             return "/v1/users/search"
+    
         }
     }
 

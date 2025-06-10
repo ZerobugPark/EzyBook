@@ -26,7 +26,8 @@ final class AppDIContainer {
     private let activityRepository: DefaultActivityRepository
     private let acitvityKeepStatusRepository: DefaultKeepStatusRepository
     private let reviewRatingLookUpRepository: DefaultReviewRepository
-    
+    private let profileRepository: DefaultProfileRepository
+    private let uploadRepository :DefaultUploadFileRepository
     
     
     init() {
@@ -42,6 +43,10 @@ final class AppDIContainer {
         activityRepository = DefaultActivityRepository(networkService: networkService)
         acitvityKeepStatusRepository = DefaultKeepStatusRepository(networkService: networkService)
         reviewRatingLookUpRepository = DefaultReviewRepository(networkService: networkService)
+        
+        profileRepository = DefaultProfileRepository(networkService: networkService)
+        uploadRepository = DefaultUploadFileRepository(networkService: networkService)
+        
         
         imageCache = ImageCache()
         imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache, interceptor: interceptor)
@@ -62,6 +67,9 @@ final class AppDIContainer {
             activityDetailUseCase: makeActivityDetailUseCase(),
             activityKeepCommandUseCase: makeActivityKeepCommandUseCase(),
             reviewLookupUseCase: makeReviewRatingUseCase(),
+            profileLookUpUseCase: makeProfileLookUpUseCase(),
+            profileImageUpLoadUseCase: makeProfileUpLoadFileUseCase(),
+            profileModifyUseCase: makeProfileModifyUseCase(),
             imageLoader: makeImageLoaderUseCase(),
             viewLoader: makeVidoeLoaderDelegate()
         )
@@ -69,6 +77,24 @@ final class AppDIContainer {
     
 
 }
+
+
+// MARK: Profile
+extension AppDIContainer {
+    private func makeProfileLookUpUseCase() -> DefaultProfileLookUpUseCase {
+        DefaultProfileLookUpUseCase(repo: profileRepository)
+    }
+    
+    private func makeProfileUpLoadFileUseCase() -> DefaultUploadFileUseCase {
+        DefaultUploadFileUseCase(repo: uploadRepository)
+    }
+    
+    private func makeProfileModifyUseCase() -> DefaultProfileModifyUseCase {
+        DefaultProfileModifyUseCase(repo: profileRepository)
+    }
+    
+}
+
 
 // MARK: Common
 extension AppDIContainer {

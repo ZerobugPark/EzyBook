@@ -5,21 +5,26 @@
 //  Created by youngkyun park on 5/12/25.
 //
 
-import Foundation
+import SwiftUI
 import Alamofire
 
 enum UserPostRequest: PostRouter {
-   
-    //TODO: 프로필 이미지 업로드는 따로 만들어야 할듯
     
     case emailValidation(body: EmailValidationRequestDTO)
     case join(body: JoinRequestDTO)
     case emailLogin(body: EmailLoginRequestDTO)
     case kakaoLogin(body: KakaoLoginRequestDTO)
     case appleLogin(body: AppleLoginRequestDTO)
+    case profileImageUpload(image: UIImage)
+    case profileModify(body: ProfileModifyRequestDTO)
     
     var requiresAuth: Bool {
-        false
+        switch self {
+        case .profileModify:
+            return true
+        default:
+            return false
+        }
     }
     
     var endpoint: URL? {
@@ -34,12 +39,22 @@ enum UserPostRequest: PostRouter {
             UserEndPoint.kakaoLogin.requestURL
         case .appleLogin:
             UserEndPoint.appleLogin.requestURL
+        case .profileImageUpload:
+            UserEndPoint.profileImageUpload.requestURL
+        case .profileModify:
+            UserEndPoint.profileModify.requestURL
         }
     }
     
     
     var method: HTTPMethod {
-        .post
+        switch self {
+        case .profileModify:
+                .put
+        default:
+                .post
+        }
+
     }
     
     
@@ -55,15 +70,50 @@ enum UserPostRequest: PostRouter {
             return request
         case .appleLogin(let request):
             return request
+        case .profileImageUpload:
+            return nil
+        case .profileModify(let request):
+            return request
         }
     }
     
     var headers: HTTPHeaders {
         [
-            "SeSACKey": APIConstants.apiKey,
-            "Content-Type": "application/json"
+            "SeSACKey": APIConstants.apiKey
         ]
-        
     }
     
+    var parameters: Parameters? {
+        switch self {
+        case .profileModify(let param):
+            let result: [String: Any?] = [
+                "nick": param.nick,
+                "profileImage": param.profileImage,
+                "phoneNum": param.phoneNum,
+                "introduction": param.introduction
+            ]
+            let filtered = result.compactMapValues { $0 } // 옵셔널 제거
+            return filtered.isEmpty ? nil : filtered as Parameters // 업캐스팅
+        default:
+            return nil
+            
+        }
+    }
+    
+    var multipartFormData: ((MultipartFormData) -> Void)? {
+        switch self {
+        case .profileImageUpload(let image):
+            return { form in
+                if let data = image.compressedJPEGData(maxSizeInBytes: 1_000_000) {
+                    form.append(data,
+                                withName: "profile",
+                                fileName: "profile.jpg",
+                                mimeType: "image/jpeg")
+                }
+            }
+        default:
+            return nil
+        }
+    }
 }
+

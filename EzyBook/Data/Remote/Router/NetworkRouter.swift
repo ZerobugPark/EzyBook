@@ -15,11 +15,18 @@ protocol NetworkRouter: URLRequestConvertible {
     var method: HTTPMethod { get }
     var parameters: Parameters? { get }
     var headers: HTTPHeaders { get }
+    /// 멀티파트 전송용
+    var multipartFormData: ((MultipartFormData) -> Void)? { get }
 }
 
 extension NetworkRouter {
     
     var parameters: Parameters? {
+        nil
+    }
+    
+    
+    var multipartFormData: ((MultipartFormData) -> Void)?  {
         nil
     }
     

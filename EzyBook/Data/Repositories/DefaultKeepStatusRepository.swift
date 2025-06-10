@@ -8,7 +8,6 @@
 import Foundation
 
 
-/// 해당 상태는 문제
 struct DefaultKeepStatusRepository: ActivityKeepCommandRepository,  ActivityKeepQueryRepository {
     
     private let networkService: NetworkService

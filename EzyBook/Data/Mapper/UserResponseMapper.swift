@@ -45,3 +45,9 @@ extension UserInfoListResponseDTO {
         data.map(UserInfoResponseEntity.init)
     }
 }
+
+extension ProfileImageUploadResponseDTO {
+    func toEntity() -> UserImageUploadEntity {
+        UserImageUploadEntity(dto: self)
+    }
+}

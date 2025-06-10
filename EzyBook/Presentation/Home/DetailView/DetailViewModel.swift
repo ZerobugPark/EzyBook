@@ -166,6 +166,7 @@ extension DetailViewModel {
         }
     }
     
+    /// 이거 채팅 생기면 Combine으로 처리 해야함 onAppear가 두번 발생할 수 있음
     /// 여기 메인액터로 묶는게 더 좋을까?
     private func requestAcitivityKeep() async   {
       

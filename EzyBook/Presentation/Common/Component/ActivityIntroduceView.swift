@@ -25,19 +25,22 @@ struct ActivityIntroduceView: View {
             }
         } else {
             LazyVStack {
-                ForEach(Array(zip(data.indices, data)), id: \.1.activityID) { index, item in
+                
+                ForEach(Array(data.enumerated()), id: \.element.activityID) { index, item in
                     VStack {
-                        //Text(item.activityID) // 중복 확인
                         makeFilterImageView(index, item)
                         makedescriptionView(item)
                     }
                     .onAppear {
                         currentIndex(index)
                     }
+                    .contentShape(Rectangle())  // 히팅박스 설정 (보인 뷰까지만 히트가 가능하도록)
+
                     .onTapGesture {
                         onItemTapped(item.activityID)
                     }
                 }
+                
             }
         }
         
