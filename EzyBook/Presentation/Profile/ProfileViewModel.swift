@@ -110,6 +110,7 @@ extension ProfileViewModel {
             
           
             do {
+                
                 let path = try await requestUploadProfileImage(image)
                 
                 
