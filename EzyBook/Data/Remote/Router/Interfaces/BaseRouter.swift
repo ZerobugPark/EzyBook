@@ -8,6 +8,7 @@
 import Foundation
 import Alamofire
 
+//기본 구현 제공 (공통 동작 처리)
 protocol BaseRouter: NetworkRouter {
     var method: HTTPMethod { get }
     var headers: HTTPHeaders { get }

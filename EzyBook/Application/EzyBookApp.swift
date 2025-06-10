@@ -42,6 +42,14 @@ struct EzyBookApp: App {
                     if phase == .active {
                         Task {
                             await container.imageLoader.cleanUpDiskCache()
+                            
+                            do {
+                                try await container.refreshAccessTokenIfNeeded()
+                                appState.isLoggedIn = true
+                            } catch {
+                                appState.isLoggedIn = false
+                            }
+                            
                         }
                     }
                 }

@@ -71,7 +71,8 @@ final class AppDIContainer {
             profileImageUpLoadUseCase: makeProfileUpLoadFileUseCase(),
             profileModifyUseCase: makeProfileModifyUseCase(),
             imageLoader: makeImageLoaderUseCase(),
-            viewLoader: makeVidoeLoaderDelegate()
+            viewLoader: makeVidoeLoaderDelegate(),
+            tokenService: tokenService
         )
     }
     
@@ -178,4 +179,6 @@ extension AppDIContainer {
         DefaultReviewLookUpUseCase(repo: reviewRatingLookUpRepository)
     }
 }
+
+
 
