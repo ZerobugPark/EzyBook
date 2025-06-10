@@ -18,13 +18,13 @@ final class DefaultAuthRepository: SignUpRepository, EmailLoginRepository, Kakao
     /// 이메일 중복확인
     func verifyEmailAvailability(_ email: String) async throws {
         let body = EmailValidationRequestDTO(email: email)
-        let router = UserPostRequest.emailValidation(body: body)
+        let router = UserRequest.Post.emailValidation(body: body)
         
         _ = try await networkService.fetchData(dto: EmailValidationResponseDTO.self, router)
         
     }
     
-    func signUp(_ router: UserPostRequest) async throws {
+    func signUp(_ router: UserRequest.Post) async throws {
         _ = try await networkService.fetchData(dto: JoinResponseDTO.self, router)
     }
     
@@ -33,7 +33,7 @@ final class DefaultAuthRepository: SignUpRepository, EmailLoginRepository, Kakao
 // MARK:  Login
 extension DefaultAuthRepository {
     
-    func requestEmailLogin(_ router: UserPostRequest) async throws -> LoginEntity {
+    func requestEmailLogin(_ router: UserRequest.Post) async throws -> LoginEntity {
         let data = try await networkService.fetchData(dto: LoginResponseDTO.self, router)
         print(data)
         return data.toEntity()
@@ -43,7 +43,7 @@ extension DefaultAuthRepository {
     func requestKakaoLogin(_ token: String) async throws -> LoginEntity {
         
         let requestDto = KakaoLoginRequestDTO(oauthToken: token, deviceToken: nil)
-        let router = UserPostRequest.kakaoLogin(body: requestDto)
+        let router = UserRequest.Post.kakaoLogin(body: requestDto)
         
         let data = try await networkService.fetchData(dto: LoginResponseDTO.self, router)
         
@@ -52,7 +52,7 @@ extension DefaultAuthRepository {
     
     func requestAppleLogin(_ token: String, _ name: String?) async throws -> LoginEntity {
         let requestDto = AppleLoginRequestDTO(idToken: token, deviceToken: nil, nick: name)
-        let router = UserPostRequest.appleLogin(body: requestDto)
+        let router = UserRequest.Post.appleLogin(body: requestDto)
         
         let data = try await networkService.fetchData(dto: LoginResponseDTO.self, router)
         

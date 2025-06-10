@@ -18,19 +18,19 @@ final class DefaultActivityRepository: ActivityListRepository, ActivityQueryRepo
     }
     
     /// 액티비티 목록 조회
-    func requestActivityList(_ router: ActivityGetRequest) async throws -> ActivitySummaryListEntity {
+    func requestActivityList(_ router: ActivityRequest.Get) async throws -> ActivitySummaryListEntity {
         let data = try await networkService.fetchData(dto: ActivitySummaryListResponseDTO.self, router)
         return data.toEntity()
     }
     
     /// 신규 액티비티 목록 조회
     /// 액티비티 검색 결과
-    func requestActivityNewList(_ router: ActivityGetRequest) async throws -> [ActivitySummaryEntity] {
+    func requestActivityNewList(_ router: ActivityRequest.Get) async throws -> [ActivitySummaryEntity] {
         let data = try await networkService.fetchData(dto: ActivityListResponseDTO.self, router)
         return data.toEntity()
     }
     
-    func requestActivityDetail(_ router: ActivityGetRequest) async throws -> ActivityDetailEntity {
+    func requestActivityDetail(_ router: ActivityRequest.Get) async throws -> ActivityDetailEntity {
         let data = try await networkService.fetchData(dto: ActivityDetailResponseDTO.self, router)
         
         return data.toEntity()

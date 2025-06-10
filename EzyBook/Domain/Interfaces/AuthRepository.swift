@@ -13,7 +13,7 @@ protocol AppleLoginRepository {
 }
 
 protocol EmailLoginRepository {
-    func requestEmailLogin(_ router: UserPostRequest) async throws -> LoginEntity
+    func requestEmailLogin(_ router: UserRequest.Post) async throws -> LoginEntity
 }
 
 protocol KakaoLoginRepository {
@@ -22,7 +22,7 @@ protocol KakaoLoginRepository {
 
 protocol SignUpRepository {
     func verifyEmailAvailability(_ email: String) async throws
-    func signUp(_ router: UserPostRequest) async throws
+    func signUp(_ router: UserRequest.Post) async throws
 }
 
 protocol SocialLoginService {

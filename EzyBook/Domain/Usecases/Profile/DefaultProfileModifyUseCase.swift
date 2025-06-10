@@ -22,7 +22,7 @@ extension DefaultProfileModifyUseCase {
     
     func execute(_ dto: ProfileModifyRequestDTO) async throws -> ProfileLookUpEntity {
     
-        let router = UserPostRequest.profileModify(body: dto)
+        let router = UserRequest.Put.profileModify(body: dto)
         
         do {
             let data = try await repo.requestModifyProfile(router)

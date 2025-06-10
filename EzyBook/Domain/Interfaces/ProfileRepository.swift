@@ -8,13 +8,13 @@
 import Foundation
 
 protocol ProfileLookupRepository {
-    func requestProfileLookUp(_ router: UserGetRequest) async throws -> ProfileLookUpEntity
+    func requestProfileLookUp(_ router: UserRequest.Get) async throws -> ProfileLookUpEntity
 }
 
 protocol ProfileUploadRepository {
-    func requestUploadImage(_ router: UserPostRequest) async throws -> UserImageUploadEntity
+    func requestUploadImage(_ router: UserRequest.Multipart) async throws -> UserImageUploadEntity
 }
 
 protocol ProfileModifyRepository {
-    func requestModifyProfile(_ router: UserPostRequest) async throws -> ProfileLookUpEntity
+    func requestModifyProfile(_ router: UserRequest.Put) async throws -> ProfileLookUpEntity
 }

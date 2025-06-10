@@ -18,7 +18,7 @@ struct DefaultUploadFileUseCase {
 
     func execute(_ image: UIImage) async throws -> UserImageUploadEntity {
         
-        let router = UserPostRequest.profileImageUpload(image: image)
+        let router = UserRequest.Multipart.profileImageUpload(image: image)
         
         do {
             

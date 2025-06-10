@@ -8,6 +8,7 @@
 import Foundation
 import Alamofire
 
+/// 모든 라우터가 갖춰야할 최소 조건
 protocol NetworkRouter: URLRequestConvertible {
     var endpoint: URL? { get }
     var parameterEncoder: ParameterEncoding { get }
@@ -15,8 +16,6 @@ protocol NetworkRouter: URLRequestConvertible {
     var method: HTTPMethod { get }
     var parameters: Parameters? { get }
     var headers: HTTPHeaders { get }
-    /// 멀티파트 전송용
-    var multipartFormData: ((MultipartFormData) -> Void)? { get }
 }
 
 extension NetworkRouter {
@@ -25,16 +24,12 @@ extension NetworkRouter {
         nil
     }
     
-    
-    var multipartFormData: ((MultipartFormData) -> Void)?  {
-        nil
-    }
-    
     var parameterEncoder: ParameterEncoding {
         URLEncoding.default
     }
     
     /// Helper Function (프로토콜 추가할 필요가 없음)
+    /// 요청의 기본 형태 (URL, method, headers까지)
     func makeURLRequest() throws -> URLRequest {
         guard let url = endpoint else {
             throw APIError(localErrorType: .missingEndpoint)

@@ -162,7 +162,7 @@ extension CreateAccountViewModel {
             introduction: input.introduceTextField.isEmpty ? nil : input.introduceTextField,
             deviceToken: nil
         )
-        let router = UserPostRequest.join(body: body)
+        let router = UserRequest.Post.join(body: body)
         
         Task {
             do {

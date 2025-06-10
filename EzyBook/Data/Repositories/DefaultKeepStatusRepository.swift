@@ -17,7 +17,7 @@ struct DefaultKeepStatusRepository: ActivityKeepCommandRepository,  ActivityKeep
     }
     
     /// 킵 요청
-    func requestToggleKeep(_ router: ActivityPostRequest) async throws -> ActivityKeepEntity  {
+    func requestToggleKeep(_ router: ActivityRequest.Post) async throws -> ActivityKeepEntity  {
         
         let data = try await networkService.fetchData(dto: ActivityKeepResponseDTO.self, router)
         

@@ -17,7 +17,7 @@ final class DefaultReviewRepository: ReviewRatingListRepository {
     }
     
     /// 리뷰 별정 조회
-    func requestReviewRatingist(_ router: ReviewGetRequest) async throws -> ReviewRatingListEntity {
+    func requestReviewRatingist(_ router: ReViewRequest.Get) async throws -> ReviewRatingListEntity {
         let data = try await networkService.fetchData(dto: ReViewRatingListResponseDTO.self, router)
         return data.toEntity()
     }
