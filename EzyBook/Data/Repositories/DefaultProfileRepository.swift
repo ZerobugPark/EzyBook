@@ -16,7 +16,7 @@ struct DefaultProfileRepository: ProfileLookupRepository, ProfileModifyRepositor
     }
     
     
-    func requestProfileLookUp(_ router: UserGetRequest) async throws -> ProfileLookUpEntity  {
+    func requestProfileLookUp(_ router: UserRequest.Get) async throws -> ProfileLookUpEntity  {
         
         let data = try await networkService.fetchData(dto: ProfileLookUpResponseDTO.self, router)
         
@@ -24,7 +24,7 @@ struct DefaultProfileRepository: ProfileLookupRepository, ProfileModifyRepositor
         
     }
     
-    func requestModifyProfile(_ router: UserPostRequest) async throws -> ProfileLookUpEntity {
+    func requestModifyProfile(_ router: UserRequest.Put) async throws -> ProfileLookUpEntity {
         
         let data = try await networkService.fetchData(dto: ProfileLookUpResponseDTO.self, router)
         

@@ -28,7 +28,7 @@ extension DefaultEmailLoginUseCase {
         
         let requestDto = EmailLoginRequestDTO(email: email, password: password, deviceToken: nil)
         
-        let router = UserPostRequest.emailLogin(body: requestDto)
+        let router = UserRequest.Post.emailLogin(body: requestDto)
         do {
             let token = try await authRepository.requestEmailLogin(router)
             _ = tokenService.saveTokens(accessToken: token.accessToken, refreshToken: token.refreshToken)

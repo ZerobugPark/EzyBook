@@ -17,7 +17,7 @@ final class DefaultNewActivityListUseCase {
     
     func execute(country: String?, category: String?) async throws -> [ActivitySummaryEntity] {
         let requestDto = ActivityNewSummaryListRequestDTO(country: country, category: category)
-        let router = ActivityGetRequest.newActivities(param: requestDto)
+        let router = ActivityRequest.Get.newActivities(param: requestDto)
 
         do {
             return try await repo.requestActivityNewList(router)

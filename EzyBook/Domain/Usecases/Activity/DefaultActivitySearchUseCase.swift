@@ -20,7 +20,7 @@ final class DefaultActivitySearchUseCase {
     
         let requestDto = ActivitySearchListRequestDTO(title: title)
         
-        let router = ActivityGetRequest.serachActiviy(param: requestDto)
+        let router = ActivityRequest.Get.serachActiviy(param: requestDto)
         
         do {
             return try await repo.requestActivityNewList(router)

@@ -17,7 +17,7 @@ final class DefaultReviewLookUpUseCase {
     
     func execute(id: String) async throws -> ReviewRatingListEntity {
         
-        let router = ReviewGetRequest.reviewRatingList(id: id)
+        let router = ReViewRequest.Get.reviewRatingList(id: id)
 
         do {
             return try await repo.requestReviewRatingist(router)

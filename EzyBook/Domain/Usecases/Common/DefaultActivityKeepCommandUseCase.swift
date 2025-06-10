@@ -18,7 +18,7 @@ final class DefaultActivityKeepCommandUseCase {
     func execute(id: String, stauts: Bool) async throws -> ActivityKeepEntity {
 
         let dto = ActivityKeepRequestDTO(status: stauts)
-        let router = ActivityPostRequest.activityKeep(id: id, param: dto)
+        let router = ActivityRequest.Post.activityKeep(id: id, param: dto)
         do {
             return try await repo.requestToggleKeep(router)
         } catch {

@@ -60,7 +60,7 @@ extension DefaultTokenService {
             throw APIError(localErrorType: .tokenNotFound)
         }
     
-        let router = AuthRequest.refresh(accessToken: accessToken, refreshToken: refreshToken)
+        let router = AuthRequest.Get.refresh(accessToken: accessToken, refreshToken: refreshToken)
   
         let data = try await networkService.fetchData(dto: AuthResponseDTO.self, router)
    

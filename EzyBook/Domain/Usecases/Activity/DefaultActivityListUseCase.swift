@@ -18,7 +18,7 @@ final class DefaultActivityListUseCase {
     
     func execute(requestDto: ActivitySummaryListRequestDTO) async throws -> ActivitySummaryListEntity {
         
-        let router = ActivityGetRequest.activityList(param: requestDto)
+        let router = ActivityRequest.Get.activityList(param: requestDto)
         
         do {
             /// await: 결과 대기

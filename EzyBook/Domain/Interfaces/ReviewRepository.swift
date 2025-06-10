@@ -8,5 +8,5 @@
 import Foundation
 
 protocol ReviewRatingListRepository {
-    func requestReviewRatingist(_ router: ReviewGetRequest) async throws ->  ReviewRatingListEntity
+    func requestReviewRatingist(_ router: ReViewRequest.Get) async throws ->  ReviewRatingListEntity
 }

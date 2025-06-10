@@ -9,15 +9,15 @@ import Foundation
 
 final class DefaultUploadFileRepository: ProfileUploadRepository {
 
-    private let networkService: MultiPartNetworkSevice
+    private let networkService: NetworkService
     
-    init(networkService: MultiPartNetworkSevice) {
+    init(networkService: NetworkService) {
         self.networkService = networkService
     }
     
     /// 이미지 업로드
-    func requestUploadImage(_ router: UserPostRequest) async throws -> UserImageUploadEntity {
-        let data = try await networkService.fetchMultiPartData(dto: ProfileImageUploadResponseDTO.self, router)
+    func requestUploadImage(_ router: UserRequest.Multipart) async throws -> UserImageUploadEntity {
+        let data = try await networkService.fetchData(dto: ProfileImageUploadResponseDTO.self, router)
         
         return data.toEntity()
     }

@@ -23,7 +23,7 @@ extension DefaultProfileLookUpUseCase {
     
     func execute() async throws -> ProfileLookUpEntity {
     
-        let router = UserGetRequest.profileLookUp
+        let router = UserRequest.Get.profileLookUp
         
         do {
             let data = try await repo.requestProfileLookUp(router)

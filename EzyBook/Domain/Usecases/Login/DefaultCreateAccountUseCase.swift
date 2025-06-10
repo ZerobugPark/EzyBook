@@ -33,7 +33,7 @@ extension DefaultCreateAccountUseCase {
         
     }
     
-    func signUp(_ rotuer: UserPostRequest) async throws -> Void {
+    func signUp(_ rotuer: UserRequest.Post) async throws -> Void {
         
         do {
             try await authRepository.signUp(rotuer)
