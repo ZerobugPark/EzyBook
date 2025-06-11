@@ -61,5 +61,11 @@ extension HomeCoordinator {
 
     }
     
+    
+    func makePaymentView() -> some View {
+        let viewModel = PayMentViewModel()
+        return PaymentView(viewModel: viewModel)
+    }
+    
 
 }

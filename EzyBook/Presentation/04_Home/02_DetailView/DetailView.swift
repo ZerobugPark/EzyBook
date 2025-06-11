@@ -28,6 +28,7 @@ struct DetailView: View {
     
     /// 화면전환 트리거
     @State private var selectedMedia: SelectedMedia?
+    @State private var selectedPay = false
     
     private var data: ActivityDetailEntity {
         viewModel.output.activityDetailInfo
@@ -68,6 +69,10 @@ struct DetailView: View {
                 coordinator.makeImageViewer(path: data.thumbnails[media.id])
             }
         }
+        .fullScreenCover(isPresented: $selectedPay) {
+            coordinator.makePaymentView()
+        }
+        
         .ignoresSafeArea(.container, edges: .top)
         .background(.grayScale15)
         .navigationBarBackButtonHidden(true)
@@ -731,7 +736,7 @@ extension DetailView {
                 
                   Spacer()
                   Button(action: {
-                      // 예: 예약하기
+                      //selectedPay = true
                   }) {
                       Text("결제하기")
                           .frame(width: 100)
