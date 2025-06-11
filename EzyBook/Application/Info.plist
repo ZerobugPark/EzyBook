@@ -4,6 +4,8 @@
 <dict>
 	<key>API_KEY</key>
 	<string>$(API_KEY)</string>
+	<key>App Transport Security</key>
+	<string>YES</string>
 	<key>Base_URL</key>
 	<string>$(Base_URL)</string>
 	<key>CFBundleURLTypes</key>
@@ -14,6 +16,16 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>kakao3fa3e00e3eb2c85849dde6cada1b9569</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>proj.ezbook</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>ezbook</string>
 			</array>
 		</dict>
 	</array>
@@ -27,6 +39,8 @@
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+		<key>NSAllowsArbitraryLoadsInWebContent</key>
 		<true/>
 	</dict>
 	<key>UIAppFonts</key>
