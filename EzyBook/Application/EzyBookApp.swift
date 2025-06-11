@@ -6,15 +6,26 @@
 //
 
 import SwiftUI
+import FirebaseCore
 import KakaoSDKCommon
 import KakaoSDKAuth
+
+class AppDelegate: NSObject, UIApplicationDelegate {
+  func application(_ application: UIApplication,
+                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+    FirebaseApp.configure()
+
+    return true
+  }
+}
+
 
 @main
 struct EzyBookApp: App {
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var container = AppDIContainer().makeDIContainer()
     @StateObject private var appState = AppState()
-    
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
     
     init() {
