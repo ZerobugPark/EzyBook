@@ -8,7 +8,7 @@
 import Foundation
 
 /// 주문생성
-struct MakeOrderRequestDTO: Encodable {
+struct OrderCreateRequestDTO: Encodable {
     let activityId: String
     let reservationItemName: String
     let reservationItemTime: String
