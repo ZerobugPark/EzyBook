@@ -8,14 +8,14 @@
 import Foundation
 
 struct OrderCreateResponseDTO: Decodable {
-    let order_Id: String
+    let orderId: String
     let orderCode: String
     let totalPrice: String
     let createdAt: String
     let updatedAt: String
    
     enum CodingKeys: String, CodingKey {
-        case order_Id = "order_id"
+        case orderId = "order_id"
         case orderCode = "order_code"
         case totalPrice = "total_price"
         case createdAt
@@ -31,8 +31,34 @@ struct OrderListResponseDTO: Decodable {
     let data: OrderResponseDTO
 }
 
+
 /// 리뷰랑 별점이 작성되어있다면, 함께 표시
-///
 struct OrderResponseDTO: Decodable {
+    let orderId: String
+    let orderCode: String
+    let totalPrice: Int
+    let review: ReviewRatingResponseDTO
+    let reservationItemName: String
+    let reservationItemTime: String
+    let participantCount: Int
+    let activity :ActivitySummaryResponseDTO
+    let paidAt: String
+    let createdAt: String
+    let updatedAt: String
+    
+    
+    enum CodingKeys: String, CodingKey {
+        case orderId = "order_id"
+        case orderCode = "order_code"
+        case totalPrice = "total_price"
+        case review
+        case reservationItemName = "reservation_item_name"
+        case reservationItemTime = "reservation_item_time"
+        case participantCount = "participant_count"
+        case activity
+        case paidAt
+        case createdAt
+        case updatedAt
+     }
     
 }
