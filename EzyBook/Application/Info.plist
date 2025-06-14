@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
 	<key>API_KEY</key>
 	<string>$(API_KEY)</string>
 	<key>App Transport Security</key>
@@ -36,26 +38,25 @@
 		<string>kakaokompassauth</string>
 		<string>kakaolink</string>
 	</array>
-    <key>NSAppTransportSecurity</key>
-    <dict>
-        <key>NSAllowsArbitraryLoads</key>
-        <true/>
-        <key>NSAllowsArbitraryLoadsInWebContent</key>
-        <true/>
-        <key>NSExceptionDomains</key>
-        <dict>
-            <key>activity.sesac.kr</key>
-            <dict>
-                <key>NSIncludesSubdomains</key>
-                <true/>
-                <key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
-                <true/>
-                <key>NSTemporaryExceptionMinimumTLSVersion</key>
-                <string>TLSv1.0</string>
-            </dict>
-        </dict>
-    </dict>
-
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+		<key>NSAllowsArbitraryLoadsInWebContent</key>
+		<true/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>activity.sesac.kr</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSTemporaryExceptionMinimumTLSVersion</key>
+				<string>TLSv1.0</string>
+			</dict>
+		</dict>
+	</dict>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Pretendard-Bold.otf</string>
@@ -67,6 +68,7 @@
 	<array>
 		<string>fetch</string>
 		<string>processing</string>
+		<string>remote-notification</string>
 	</array>
 </dict>
 </plist>
