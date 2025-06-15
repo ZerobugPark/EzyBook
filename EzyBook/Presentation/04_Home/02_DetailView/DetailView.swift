@@ -386,7 +386,7 @@ extension DetailView {
                 .resizable()
                 .frame(width: 15, height: 15)
                 .foregroundStyle(.grayScale60)
-            Text("KEEP \(data.totalOrderCount)회")
+            Text("KEEP \(data.keepCount)회")
                 .appFont(PretendardFontStyle.caption1, textColor: .grayScale60)
         }
     }
