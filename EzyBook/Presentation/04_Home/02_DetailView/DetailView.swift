@@ -14,7 +14,7 @@ struct SelectedMedia: Identifiable {
 }
 
 struct DetailView: View {
-    
+    @State private var adultCount = 1
     @Environment(\.displayScale) var scale
     @EnvironmentObject var appState: AppState
     
@@ -117,7 +117,7 @@ struct DetailView: View {
         .loadingOverlayModify(viewModel.output.isLoading)
     }
     
-
+    
     
 }
 
@@ -136,7 +136,7 @@ extension DetailView {
                             .scaledToFill()
                             .frame(maxWidth: .infinity)
                             .clipped()
-
+                        
                         //TODO: 첫번째 뿐마 아니라, 두번째나 세번째도 동영상일 수 있음, 수정 필요
                         if index == 0 && viewModel.output.hasMovieThumbnail {
                             Image(.playButton)
@@ -527,13 +527,15 @@ extension DetailView {
             if let selectedDate = selectedDate {
                 timeSelectionSection(for: selectedDate)
             }
+            
+            makeSelectedPersonSection()
         }
         .onChange(of: viewModel.output.isLoading) { isLoading in
             if !isLoading, selectedDate == nil, !data.reservationList.isEmpty {
                 selectedDate = data.reservationList[0].itemName
             }
         }
-
+        
         
         .padding()
         
@@ -715,6 +717,60 @@ extension DetailView {
             return .grayScale45
         }
     }
+    
+    private func makeSelectedPersonSection() -> some View {
+        
+        HStack(alignment: .center) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("예약 인원")
+                    .appFont(PaperlogyFontStyle.caption, textColor: .grayScale100)
+            }
+            
+            Spacer()
+            
+            HStack(spacing: 16) {
+                Button(action: {
+                    if adultCount > 0 {
+                        adultCount -= 1
+                    }
+                }) {
+                    Image(systemName: "minus")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white)
+                        .frame(width: 32, height: 32)
+                        .background(.blackSeafoam)
+                        .clipShape(Circle())
+                }
+                
+                Text("\(adultCount)")
+                    .appFont(PaperlogyFontStyle.caption, textColor: .grayScale100)
+                    .frame(minWidth: 20)
+                
+                Button(action: {
+                    adultCount += 1
+                }) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white)
+                        .frame(width: 32, height: 32)
+                        .background(.blackSeafoam)
+                        .clipShape(Circle())
+                }
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.white.opacity(0.8))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.grayScale45, lineWidth: 1)
+        )
+    }
+    
+    
 }
 
 
@@ -734,21 +790,21 @@ extension DetailView {
                     .appFont(PaperlogyFontStyle.body, textColor: .grayScale100)
                     .padding(.leading, 10)
                 
-                  Spacer()
-                  Button(action: {
-                      //selectedPay = true
-                  }) {
-                      Text("결제하기")
-                          .frame(width: 100)
-                          .padding()
-                          .background(.blackSeafoam)
-                          .appFont(PaperlogyFontStyle.body, textColor: .grayScale0)
-                          .cornerRadius(7)
-                  }
-              }
-              .padding()
-              .background(Color.grayScale0.ignoresSafeArea(edges: .bottom)) // 배경이 바닥까지 닿게
-          }
+                Spacer()
+                Button(action: {
+                    //selectedPay = true
+                }) {
+                    Text("결제하기")
+                        .frame(width: 100)
+                        .padding()
+                        .background(.blackSeafoam)
+                        .appFont(PaperlogyFontStyle.body, textColor: .grayScale0)
+                        .cornerRadius(7)
+                }
+            }
+            .padding()
+            .background(Color.grayScale0.ignoresSafeArea(edges: .bottom)) // 배경이 바닥까지 닿게
+        }
     }
 }
 
