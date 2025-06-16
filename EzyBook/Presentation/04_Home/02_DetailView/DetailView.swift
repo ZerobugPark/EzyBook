@@ -14,7 +14,7 @@ struct SelectedMedia: Identifiable {
 }
 
 struct DetailView: View {
-    @State private var adultCount = 1
+    @State private var personCount = 1
     @Environment(\.displayScale) var scale
     @EnvironmentObject var appState: AppState
     
@@ -730,8 +730,8 @@ extension DetailView {
             
             HStack(spacing: 16) {
                 Button(action: {
-                    if adultCount > 0 {
-                        adultCount -= 1
+                    if personCount > 0 {
+                        personCount -= 1
                     }
                 }) {
                     Image(systemName: "minus")
@@ -742,12 +742,14 @@ extension DetailView {
                         .clipShape(Circle())
                 }
                 
-                Text("\(adultCount)")
+                Text("\(personCount)")
                     .appFont(PaperlogyFontStyle.caption, textColor: .grayScale100)
                     .frame(minWidth: 20)
                 
                 Button(action: {
-                    adultCount += 1
+                    if personCount <= data.restrictions.maxParticipants {
+                        personCount += 1
+                    }
                 }) {
                     Image(systemName: "plus")
                         .font(.system(size: 16, weight: .medium))
@@ -791,16 +793,32 @@ extension DetailView {
                     .padding(.leading, 10)
                 
                 Spacer()
-                Button(action: {
-                    //selectedPay = true
-                }) {
+                Button {
+                    
+                    guard let selectedDate, let selectedTime else { return }
+                    
+                    let dto = OrderCreateRequestDTO(
+                        activityId: activityID,
+                        reservationItemName: selectedDate,
+                        reservationItemTime: selectedTime,
+                        participantCount: personCount,
+                        totalPrice: data.price.final * personCount
+                    )
+                
+                viewModel.action(.makeOrder(dto: dto))
+
+                //selectedPay = true
+                } label: {
                     Text("결제하기")
                         .frame(width: 100)
                         .padding()
-                        .background(.blackSeafoam)
+                        .background(
+                            (selectedDate == nil || selectedTime == nil) ? .grayScale45 : 
+                            .blackSeafoam)
                         .appFont(PaperlogyFontStyle.body, textColor: .grayScale0)
                         .cornerRadius(7)
                 }
+                .disabled(selectedDate == nil || selectedTime == nil)
             }
             .padding()
             .background(Color.grayScale0.ignoresSafeArea(edges: .bottom)) // 배경이 바닥까지 닿게

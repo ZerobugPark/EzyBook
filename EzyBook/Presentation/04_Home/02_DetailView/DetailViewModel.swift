@@ -13,7 +13,9 @@ final class DetailViewModel: ViewModelType {
     private let activityDeatilUseCase: DefaultActivityDetailUseCase
     private let activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase
     private let reviewLookupUseCase: DefaultReviewLookUpUseCase
+    private let orderUseCase: DefaultCreateOrderUseCase
     private let imageLoader: DefaultLoadImageUseCase
+    
     
     var input = Input()
     @Published var output = Output()
@@ -26,12 +28,14 @@ final class DetailViewModel: ViewModelType {
         activityDeatilUseCase: DefaultActivityDetailUseCase,
         activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase,
         reviewLookupUseCase: DefaultReviewLookUpUseCase,
+        orderUseCaes: DefaultCreateOrderUseCase,
         imageLoader: DefaultLoadImageUseCase
     ) {
 
         self.activityDeatilUseCase = activityDeatilUseCase
         self.activityKeepCommandUseCase = activityKeepCommandUseCase
         self.reviewLookupUseCase = reviewLookupUseCase
+        self.orderUseCase = orderUseCaes
         self.imageLoader = imageLoader
         
         transform()
@@ -150,8 +154,6 @@ extension DetailViewModel {
         self.scale = scale
     }
     
-    
-    
 }
 
 
@@ -195,6 +197,25 @@ extension DetailViewModel {
         }
         
     }
+    
+    
+    private func handleRequestCreateOrder(_  dto:  OrderCreateRequestDTO) {
+        
+        Task {
+            do {
+                let detail = try await orderUseCase.execute(dto: dto)
+                await MainActor.run {
+                    dump(detail)
+                    output.isLoading = false
+                }
+            } catch let error as APIError {
+                await MainActor.run {
+                    output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+                }
+            }
+        }
+    }
+    
 }
 
 //// MARK: Action
@@ -204,6 +225,7 @@ extension DetailViewModel {
         case onAppearRequested(id: String)
         case updateScale(scale: CGFloat)
         case keepButtonTapped
+        case makeOrder(dto: OrderCreateRequestDTO)
         case resetError
     }
     
@@ -218,8 +240,8 @@ extension DetailViewModel {
             triggerKeepActivity()
         case .resetError:
             handleResetError()
-            
-      
+        case .makeOrder(let dto):
+            handleRequestCreateOrder(dto)
         }
     }
     

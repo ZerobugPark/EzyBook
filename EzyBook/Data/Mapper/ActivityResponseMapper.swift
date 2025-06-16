@@ -9,7 +9,6 @@ import Foundation
 
 
 extension ActivitySummaryListResponseDTO {
-    
     func toEntity() -> ActivitySummaryListEntity {
         ActivitySummaryListEntity(dto: self)
     }

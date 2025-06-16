@@ -27,8 +27,8 @@ final class AppDIContainer {
     private let acitvityKeepStatusRepository: DefaultKeepStatusRepository
     private let reviewRatingLookUpRepository: DefaultReviewRepository
     private let profileRepository: DefaultProfileRepository
-    private let uploadRepository :DefaultUploadFileRepository
-    
+    private let uploadRepository: DefaultUploadFileRepository
+    private let orderRepository: DefaultOrderRepository
     
     init() {
         tokenNetworkService = DefaultNetworkService(decodingService: decoder, interceptor: nil)
@@ -46,7 +46,7 @@ final class AppDIContainer {
         
         profileRepository = DefaultProfileRepository(networkService: networkService)
         uploadRepository = DefaultUploadFileRepository(networkService: networkService)
-        
+        orderRepository = DefaultOrderRepository(networkService: networkService)
         
         imageCache = ImageCache()
         imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache, interceptor: interceptor)
@@ -70,6 +70,7 @@ final class AppDIContainer {
             profileLookUpUseCase: makeProfileLookUpUseCase(),
             profileImageUpLoadUseCase: makeProfileUpLoadFileUseCase(),
             profileModifyUseCase: makeProfileModifyUseCase(),
+            orderCreateUseCase: makeOoderCreateUseCase(),
             imageLoader: makeImageLoaderUseCase(),
             viewLoader: makeVidoeLoaderDelegate(),
             tokenService: tokenService
@@ -77,6 +78,13 @@ final class AppDIContainer {
     }
     
 
+}
+
+// MARK: Order
+extension AppDIContainer {
+    private func makeOoderCreateUseCase() -> DefaultCreateOrderUseCase {
+        DefaultCreateOrderUseCase(repo: orderRepository)
+    }
 }
 
 

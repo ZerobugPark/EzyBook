@@ -7,10 +7,10 @@
 
 import Foundation
 
-struct OrderCreateResponseDTO: Decodable {
+struct OrderCreateResponseDTO: Decodable, EntityConvertible {
     let orderId: String
     let orderCode: String
-    let totalPrice: String
+    let totalPrice: Int
     let createdAt: String
     let updatedAt: String
    

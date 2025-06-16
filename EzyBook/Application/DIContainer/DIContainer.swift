@@ -37,13 +37,16 @@ final class DIContainer: ObservableObject {
     let profileImageUpLoadUseCase: DefaultUploadFileUseCase
     let profileModifyUseCase: DefaultProfileModifyUseCase
     
+    /// OIrder
+    let orderCreateUseCase: DefaultCreateOrderUseCase
+
     
     /// Common
     let imageLoader: DefaultLoadImageUseCase
     let viewLoader: VideoLoaderDelegate
     let tokenService: DefaultTokenService // 리프레시 갱신 시점 때문에 DI에서 추가 관리
 
-    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, reviewLookupUseCase: DefaultReviewLookUpUseCase, profileLookUpUseCase: DefaultProfileLookUpUseCase, profileImageUpLoadUseCase: DefaultUploadFileUseCase, profileModifyUseCase: DefaultProfileModifyUseCase, imageLoader: DefaultLoadImageUseCase, viewLoader: VideoLoaderDelegate, tokenService: DefaultTokenService) {
+    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, reviewLookupUseCase: DefaultReviewLookUpUseCase, profileLookUpUseCase: DefaultProfileLookUpUseCase, profileImageUpLoadUseCase: DefaultUploadFileUseCase, profileModifyUseCase: DefaultProfileModifyUseCase, orderCreateUseCase: DefaultCreateOrderUseCase, imageLoader: DefaultLoadImageUseCase, viewLoader: VideoLoaderDelegate, tokenService: DefaultTokenService) {
         self.kakaoLoginUseCase = kakaoLoginUseCase
         self.createAccountUseCase = createAccountUseCase
         self.emailLoginUseCase = emailLoginUseCase
@@ -57,6 +60,7 @@ final class DIContainer: ObservableObject {
         self.profileLookUpUseCase = profileLookUpUseCase
         self.profileImageUpLoadUseCase = profileImageUpLoadUseCase
         self.profileModifyUseCase = profileModifyUseCase
+        self.orderCreateUseCase = orderCreateUseCase
         self.imageLoader = imageLoader
         self.viewLoader = viewLoader
         self.tokenService = tokenService
@@ -133,6 +137,7 @@ extension DIContainer {
             activityDeatilUseCase: activityDetailUseCase,
             activityKeepCommandUseCase: activityKeepCommandUseCase,
             reviewLookupUseCase: reviewLookupUseCase,
+            orderUseCaes: orderCreateUseCase,
             imageLoader: imageLoader
         )
     }

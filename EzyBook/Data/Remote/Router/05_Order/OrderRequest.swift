@@ -40,7 +40,7 @@ enum OrderRequest {
 extension OrderRequest {
     
     enum Post: PostRouter {
-        case order(dto: String)
+        case order(dto: OrderCreateRequestDTO)
      
         var requiresAuth: Bool {
             true
