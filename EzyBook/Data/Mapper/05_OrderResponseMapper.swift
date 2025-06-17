@@ -14,6 +14,10 @@ extension OrderCreateResponseDTO {
     }
 }
 
-
+extension OrderResponseDTO {
+    func toEntity() -> OrderEntity {
+        OrderEntity.init(dto: self)
+    }
+}
 
 
