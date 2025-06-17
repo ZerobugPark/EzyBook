@@ -29,6 +29,8 @@ struct PaymentView: UIViewRepresentable {
     func updateUIView(_ uiView: WKWebView, context: Context) {}
     
     private func startIamportPayment(in webView: WKWebView) {
+        
+        /// INIpayTest - 아임포트가 제공하는 이니시스 테스트 상점 ID
         let payment = IamportPayment(
             pg: PG.html5_inicis.makePgRawName(pgId: "INIpayTest"),
             merchant_uid: item.orderCode,
