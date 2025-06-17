@@ -15,7 +15,6 @@ struct DefaultOrderRepository: OrderCreateRepository {
         self.networkService = networkService
     }
     
-    /// 킵 요청
     func requestOrderCreate(_ router: OrderRequest.Post) async throws -> OrderCreateEntity  {
         
         let data = try await networkService.fetchData(dto: OrderCreateResponseDTO.self, router)

@@ -71,13 +71,12 @@ struct DetailView: View {
         }
         .fullScreenCover(isPresented: $viewModel.output.payButtonTapped) {
             if let payItem = viewModel.output.payItem {
-                coordinator.makePaymentView(item: payItem) {
-                    print("테스트")
+                coordinator.makePaymentView(item: payItem) { msg in
+                    viewModel.action(.showPaymentResult(message: msg))
                 }
             }
             
         }
-        
         .ignoresSafeArea(.container, edges: .top)
         .background(.grayScale15)
         .navigationBarBackButtonHidden(true)

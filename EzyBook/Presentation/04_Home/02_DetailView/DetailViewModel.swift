@@ -78,12 +78,15 @@ extension DetailViewModel {
                 let detail = try await reqeuestActivityDetailList(activityID)
                 await MainActor.run {
                     output.activityDetailInfo = detail
-                    output.isLoading = false
                 }
             } catch let error as APIError {
                 await MainActor.run {
                     output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
                 }
+            }
+            
+            await MainActor.run {
+                output.isLoading = false
             }
         }
     }
@@ -199,15 +202,13 @@ extension DetailViewModel {
         
     }
     
-    
+    /// 주문생성
     private func handleRequestCreateOrder(_  dto:  OrderCreateRequestDTO) {
         
         Task {
             do {
                 let detail = try await orderUseCase.execute(dto: dto)
                 await MainActor.run {
-                    dump(detail)
-                    output.isLoading = false
                     output.payItem = PayItem(orderCode: detail.orderCode, price: "\(detail.totalPrice)", name: output.activityDetailInfo.title)
                     output.payButtonTapped = true
                 }
@@ -216,6 +217,18 @@ extension DetailViewModel {
                     output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
                 }
             }
+            
+            await MainActor.run {
+                output.isLoading = false
+            }
+        }
+    }
+    
+    private func handleShowPaymentReulst(_ msg: DisplayError?) {
+        if let msg {
+            output.presentedError = msg
+        } else {
+            output.presentedError = DisplayError.error(code: 0, msg: "결제가 완료되었습니다.")
         }
     }
     
@@ -229,6 +242,7 @@ extension DetailViewModel {
         case updateScale(scale: CGFloat)
         case keepButtonTapped
         case makeOrder(dto: OrderCreateRequestDTO)
+        case showPaymentResult(message: DisplayError?)
         case resetError
     }
     
@@ -243,8 +257,11 @@ extension DetailViewModel {
             triggerKeepActivity()
         case .resetError:
             handleResetError()
+        case .showPaymentResult(let message):
+            handleShowPaymentReulst(message)
         case .makeOrder(let dto):
             handleRequestCreateOrder(dto)
+ 
         }
     }
     

@@ -26,14 +26,13 @@ struct OrderCreateResponseDTO: Decodable, EntityConvertible {
 }
 
 
-
 struct OrderListResponseDTO: Decodable {
     let data: OrderResponseDTO
 }
 
 
 /// 리뷰랑 별점이 작성되어있다면, 함께 표시
-struct OrderResponseDTO: Decodable {
+struct OrderResponseDTO: Decodable, EntityConvertible {
     let orderId: String
     let orderCode: String
     let totalPrice: Int
@@ -61,4 +60,28 @@ struct OrderResponseDTO: Decodable {
         case updatedAt
      }
     
+}
+
+struct ActivitySummaryResponseDTO_Order: Decodable {
+    let id: String                // 액티비티 ID
+    let title: String?             // 액티비티 제목
+    let country: String?           // 국가
+    let category: String?          // 카테고리
+    let thumbnails: [String]        //썸네일
+    let geolocation: ActivityGeolocationDTO   // 위치 정보
+    let price: ActivityPriceDTO             // 가격 정보
+    let tags: [String]            // 태그 목록
+    let pointReward: String?       // 포인트 적립 정보
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case title
+        case country
+        case category
+        case thumbnails
+        case geolocation
+        case price
+        case tags
+        case pointReward = "point_reward"
+    }
 }

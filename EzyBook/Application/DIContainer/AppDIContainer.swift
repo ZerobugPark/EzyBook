@@ -29,6 +29,7 @@ final class AppDIContainer {
     private let profileRepository: DefaultProfileRepository
     private let uploadRepository: DefaultUploadFileRepository
     private let orderRepository: DefaultOrderRepository
+    private let paymentRepository: DefaultPaymentRepository
     
     init() {
         tokenNetworkService = DefaultNetworkService(decodingService: decoder, interceptor: nil)
@@ -47,6 +48,7 @@ final class AppDIContainer {
         profileRepository = DefaultProfileRepository(networkService: networkService)
         uploadRepository = DefaultUploadFileRepository(networkService: networkService)
         orderRepository = DefaultOrderRepository(networkService: networkService)
+        paymentRepository = DefaultPaymentRepository(networkService: networkService)
         
         imageCache = ImageCache()
         imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache, interceptor: interceptor)
@@ -71,6 +73,7 @@ final class AppDIContainer {
             profileImageUpLoadUseCase: makeProfileUpLoadFileUseCase(),
             profileModifyUseCase: makeProfileModifyUseCase(),
             orderCreateUseCase: makeOoderCreateUseCase(),
+            paymentValidationUseCase: makePaymentVaildationUseCase(),
             imageLoader: makeImageLoaderUseCase(),
             viewLoader: makeVidoeLoaderDelegate(),
             tokenService: tokenService
@@ -79,6 +82,14 @@ final class AppDIContainer {
     
 
 }
+
+// MARK: Order
+extension AppDIContainer {
+    private func makePaymentVaildationUseCase() -> DefaultPaymentValidationUseCase {
+        DefaultPaymentValidationUseCase(repo: paymentRepository)
+    }
+}
+
 
 // MARK: Order
 extension AppDIContainer {
