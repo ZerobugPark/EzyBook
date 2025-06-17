@@ -62,9 +62,10 @@ extension DetailViewModel {
         var thumbnails: [UIImage] = []
         var reviews: ReviewRatingListEntity? = nil
 
-        
         var hasMovieThumbnail = false
         
+        var payItem: PayItem? = nil
+        var payButtonTapped = false
     }
     
     func transform() {}
@@ -207,6 +208,8 @@ extension DetailViewModel {
                 await MainActor.run {
                     dump(detail)
                     output.isLoading = false
+                    output.payItem = PayItem(orderCode: detail.orderCode, price: "\(detail.totalPrice)", name: output.activityDetailInfo.title)
+                    output.payButtonTapped = true
                 }
             } catch let error as APIError {
                 await MainActor.run {

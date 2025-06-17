@@ -14,7 +14,7 @@ struct SelectedMedia: Identifiable {
 }
 
 struct DetailView: View {
-    @State private var personCount = 1
+    
     @Environment(\.displayScale) var scale
     @EnvironmentObject var appState: AppState
     
@@ -23,12 +23,12 @@ struct DetailView: View {
     
     private(set) var activityID: String
     
+    @State private var personCount = 1
     @State private var selectedDate: String? = nil
     @State private var selectedTime: String? = nil
     
     /// 화면전환 트리거
     @State private var selectedMedia: SelectedMedia?
-    @State private var selectedPay = false
     
     private var data: ActivityDetailEntity {
         viewModel.output.activityDetailInfo
@@ -69,8 +69,13 @@ struct DetailView: View {
                 coordinator.makeImageViewer(path: data.thumbnails[media.id])
             }
         }
-        .fullScreenCover(isPresented: $selectedPay) {
-            coordinator.makePaymentView()
+        .fullScreenCover(isPresented: $viewModel.output.payButtonTapped) {
+            if let payItem = viewModel.output.payItem {
+                coordinator.makePaymentView(item: payItem) {
+                    print("테스트")
+                }
+            }
+            
         }
         
         .ignoresSafeArea(.container, edges: .top)
@@ -804,17 +809,17 @@ extension DetailView {
                         participantCount: personCount,
                         totalPrice: data.price.final * personCount
                     )
-                
-                viewModel.action(.makeOrder(dto: dto))
-
-                //selectedPay = true
+                    
+                    viewModel.action(.makeOrder(dto: dto))
+                    
+                    //selectedPay = true
                 } label: {
                     Text("결제하기")
                         .frame(width: 100)
                         .padding()
                         .background(
-                            (selectedDate == nil || selectedTime == nil) ? .grayScale45 : 
-                            .blackSeafoam)
+                            (selectedDate == nil || selectedTime == nil) ? .grayScale45 :
+                                    .blackSeafoam)
                         .appFont(PaperlogyFontStyle.body, textColor: .grayScale0)
                         .cornerRadius(7)
                 }

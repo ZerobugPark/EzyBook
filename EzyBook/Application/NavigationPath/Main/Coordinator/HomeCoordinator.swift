@@ -62,9 +62,8 @@ extension HomeCoordinator {
     }
     
     
-    func makePaymentView() -> some View {
-        let viewModel = PayMentViewModel()
-        return PaymentView(viewModel: viewModel)
+    func makePaymentView(item: PayItem, onFinish: @escaping () -> Void) -> some View {
+        return PaymentView(item: item, onFinish: onFinish)
     }
     
 
