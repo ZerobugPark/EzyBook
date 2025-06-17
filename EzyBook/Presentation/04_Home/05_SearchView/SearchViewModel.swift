@@ -94,13 +94,11 @@ extension SearchViewModel {
     func requestSearchList(query: String) {
         Task {
             await MainActor.run {
-                output.isLoading = true
                 searchActivityindicats.removeAll() // Set indicats 초기화
             }
             
             await fetchSearchList(query)
     
-            
             await MainActor.run {
                 output.isLoading = false
                 

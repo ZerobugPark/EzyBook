@@ -13,7 +13,9 @@ final class DetailViewModel: ViewModelType {
     private let activityDeatilUseCase: DefaultActivityDetailUseCase
     private let activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase
     private let reviewLookupUseCase: DefaultReviewLookUpUseCase
+    private let orderUseCase: DefaultCreateOrderUseCase
     private let imageLoader: DefaultLoadImageUseCase
+    
     
     var input = Input()
     @Published var output = Output()
@@ -26,12 +28,14 @@ final class DetailViewModel: ViewModelType {
         activityDeatilUseCase: DefaultActivityDetailUseCase,
         activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase,
         reviewLookupUseCase: DefaultReviewLookUpUseCase,
+        orderUseCaes: DefaultCreateOrderUseCase,
         imageLoader: DefaultLoadImageUseCase
     ) {
 
         self.activityDeatilUseCase = activityDeatilUseCase
         self.activityKeepCommandUseCase = activityKeepCommandUseCase
         self.reviewLookupUseCase = reviewLookupUseCase
+        self.orderUseCase = orderUseCaes
         self.imageLoader = imageLoader
         
         transform()
@@ -58,9 +62,10 @@ extension DetailViewModel {
         var thumbnails: [UIImage] = []
         var reviews: ReviewRatingListEntity? = nil
 
-        
         var hasMovieThumbnail = false
         
+        var payItem: PayItem? = nil
+        var payButtonTapped = false
     }
     
     func transform() {}
@@ -73,12 +78,15 @@ extension DetailViewModel {
                 let detail = try await reqeuestActivityDetailList(activityID)
                 await MainActor.run {
                     output.activityDetailInfo = detail
-                    output.isLoading = false
                 }
             } catch let error as APIError {
                 await MainActor.run {
                     output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
                 }
+            }
+            
+            await MainActor.run {
+                output.isLoading = false
             }
         }
     }
@@ -150,8 +158,6 @@ extension DetailViewModel {
         self.scale = scale
     }
     
-    
-    
 }
 
 
@@ -195,6 +201,37 @@ extension DetailViewModel {
         }
         
     }
+    
+    /// 주문생성
+    private func handleRequestCreateOrder(_  dto:  OrderCreateRequestDTO) {
+        
+        Task {
+            do {
+                let detail = try await orderUseCase.execute(dto: dto)
+                await MainActor.run {
+                    output.payItem = PayItem(orderCode: detail.orderCode, price: "\(detail.totalPrice)", name: output.activityDetailInfo.title)
+                    output.payButtonTapped = true
+                }
+            } catch let error as APIError {
+                await MainActor.run {
+                    output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+                }
+            }
+            
+            await MainActor.run {
+                output.isLoading = false
+            }
+        }
+    }
+    
+    private func handleShowPaymentReulst(_ msg: DisplayError?) {
+        if let msg {
+            output.presentedError = msg
+        } else {
+            output.presentedError = DisplayError.error(code: 0, msg: "결제가 완료되었습니다.")
+        }
+    }
+    
 }
 
 //// MARK: Action
@@ -204,6 +241,8 @@ extension DetailViewModel {
         case onAppearRequested(id: String)
         case updateScale(scale: CGFloat)
         case keepButtonTapped
+        case makeOrder(dto: OrderCreateRequestDTO)
+        case showPaymentResult(message: DisplayError?)
         case resetError
     }
     
@@ -218,8 +257,11 @@ extension DetailViewModel {
             triggerKeepActivity()
         case .resetError:
             handleResetError()
-            
-      
+        case .showPaymentResult(let message):
+            handleShowPaymentReulst(message)
+        case .makeOrder(let dto):
+            handleRequestCreateOrder(dto)
+ 
         }
     }
     

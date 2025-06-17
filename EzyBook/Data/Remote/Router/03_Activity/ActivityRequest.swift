@@ -94,10 +94,7 @@ extension ActivityRequest {
             }
         }
         
-        var method: HTTPMethod {
-            .post
-        }
-        
+  
         var requestBody: Encodable? {
             switch self {
             case .activityKeep(_, let param):

@@ -36,6 +36,7 @@ enum UserRequest {
             ]
         }
         
+        /// 쿼리중 ? 뒤에 오는것들
         var parameters: Parameters? {
             switch self {
             case .searchUser(let id):
@@ -60,15 +61,9 @@ extension UserRequest {
         case emailLogin(body: EmailLoginRequestDTO)
         case kakaoLogin(body: KakaoLoginRequestDTO)
         case appleLogin(body: AppleLoginRequestDTO)
-        case profileModify(body: ProfileModifyRequestDTO)
         
         var requiresAuth: Bool {
-            switch self {
-            case .profileModify:
-                return true
-            default:
-                return false
-            }
+            false
         }
         
         var endpoint: URL? {
@@ -83,8 +78,6 @@ extension UserRequest {
                 UserEndPoint.kakaoLogin.requestURL
             case .appleLogin:
                 UserEndPoint.appleLogin.requestURL
-            case .profileModify:
-                UserEndPoint.profileModify.requestURL
             }
         }
         
@@ -100,8 +93,6 @@ extension UserRequest {
                 return request
             case .appleLogin(let request):
                 return request
-            case .profileModify(let request):
-                return request
             }
         }
         
@@ -111,25 +102,7 @@ extension UserRequest {
             ]
         }
         
-        var parameters: Parameters? {
-            switch self {
-            case .profileModify(let param):
-                let result: [String: Any?] = [
-                    "nick": param.nick,
-                    "profileImage": param.profileImage,
-                    "phoneNum": param.phoneNum,
-                    "introduction": param.introduction
-                ]
-                let filtered = result.compactMapValues { $0 } // 옵셔널 제거
-                return filtered.isEmpty ? nil : filtered as Parameters // 업캐스팅
-            default:
-                return nil
-                
-            }
-        }
-        
 
-        
     }
 }
 

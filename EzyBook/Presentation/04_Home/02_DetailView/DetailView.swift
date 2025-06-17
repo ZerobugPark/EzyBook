@@ -23,6 +23,7 @@ struct DetailView: View {
     
     private(set) var activityID: String
     
+    @State private var personCount = 1
     @State private var selectedDate: String? = nil
     @State private var selectedTime: String? = nil
     
@@ -68,6 +69,14 @@ struct DetailView: View {
                 coordinator.makeImageViewer(path: data.thumbnails[media.id])
             }
         }
+        .fullScreenCover(isPresented: $viewModel.output.payButtonTapped) {
+            if let payItem = viewModel.output.payItem {
+                coordinator.makePaymentView(item: payItem) { msg in
+                    viewModel.action(.showPaymentResult(message: msg))
+                }
+            }
+            
+        }
         .ignoresSafeArea(.container, edges: .top)
         .background(.grayScale15)
         .navigationBarBackButtonHidden(true)
@@ -112,7 +121,7 @@ struct DetailView: View {
         .loadingOverlayModify(viewModel.output.isLoading)
     }
     
-
+    
     
 }
 
@@ -131,7 +140,7 @@ extension DetailView {
                             .scaledToFill()
                             .frame(maxWidth: .infinity)
                             .clipped()
-
+                        
                         //TODO: 첫번째 뿐마 아니라, 두번째나 세번째도 동영상일 수 있음, 수정 필요
                         if index == 0 && viewModel.output.hasMovieThumbnail {
                             Image(.playButton)
@@ -381,7 +390,7 @@ extension DetailView {
                 .resizable()
                 .frame(width: 15, height: 15)
                 .foregroundStyle(.grayScale60)
-            Text("KEEP \(data.totalOrderCount)회")
+            Text("KEEP \(data.keepCount)회")
                 .appFont(PretendardFontStyle.caption1, textColor: .grayScale60)
         }
     }
@@ -522,13 +531,15 @@ extension DetailView {
             if let selectedDate = selectedDate {
                 timeSelectionSection(for: selectedDate)
             }
+            
+            makeSelectedPersonSection()
         }
         .onChange(of: viewModel.output.isLoading) { isLoading in
             if !isLoading, selectedDate == nil, !data.reservationList.isEmpty {
                 selectedDate = data.reservationList[0].itemName
             }
         }
-
+        
         
         .padding()
         
@@ -710,6 +721,62 @@ extension DetailView {
             return .grayScale45
         }
     }
+    
+    private func makeSelectedPersonSection() -> some View {
+        
+        HStack(alignment: .center) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("예약 인원")
+                    .appFont(PaperlogyFontStyle.caption, textColor: .grayScale100)
+            }
+            
+            Spacer()
+            
+            HStack(spacing: 16) {
+                Button(action: {
+                    if personCount > 0 {
+                        personCount -= 1
+                    }
+                }) {
+                    Image(systemName: "minus")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white)
+                        .frame(width: 32, height: 32)
+                        .background(.blackSeafoam)
+                        .clipShape(Circle())
+                }
+                
+                Text("\(personCount)")
+                    .appFont(PaperlogyFontStyle.caption, textColor: .grayScale100)
+                    .frame(minWidth: 20)
+                
+                Button(action: {
+                    if personCount <= data.restrictions.maxParticipants {
+                        personCount += 1
+                    }
+                }) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white)
+                        .frame(width: 32, height: 32)
+                        .background(.blackSeafoam)
+                        .clipShape(Circle())
+                }
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.white.opacity(0.8))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.grayScale45, lineWidth: 1)
+        )
+    }
+    
+    
 }
 
 
@@ -729,21 +796,37 @@ extension DetailView {
                     .appFont(PaperlogyFontStyle.body, textColor: .grayScale100)
                     .padding(.leading, 10)
                 
-                  Spacer()
-                  Button(action: {
-                      // 예: 예약하기
-                  }) {
-                      Text("결제하기")
-                          .frame(width: 100)
-                          .padding()
-                          .background(.blackSeafoam)
-                          .appFont(PaperlogyFontStyle.body, textColor: .grayScale0)
-                          .cornerRadius(7)
-                  }
-              }
-              .padding()
-              .background(Color.grayScale0.ignoresSafeArea(edges: .bottom)) // 배경이 바닥까지 닿게
-          }
+                Spacer()
+                Button {
+                    
+                    guard let selectedDate, let selectedTime else { return }
+                    
+                    let dto = OrderCreateRequestDTO(
+                        activityId: activityID,
+                        reservationItemName: selectedDate,
+                        reservationItemTime: selectedTime,
+                        participantCount: personCount,
+                        totalPrice: data.price.final * personCount
+                    )
+                    
+                    viewModel.action(.makeOrder(dto: dto))
+                    
+                    //selectedPay = true
+                } label: {
+                    Text("결제하기")
+                        .frame(width: 100)
+                        .padding()
+                        .background(
+                            (selectedDate == nil || selectedTime == nil) ? .grayScale45 :
+                                    .blackSeafoam)
+                        .appFont(PaperlogyFontStyle.body, textColor: .grayScale0)
+                        .cornerRadius(7)
+                }
+                .disabled(selectedDate == nil || selectedTime == nil)
+            }
+            .padding()
+            .background(Color.grayScale0.ignoresSafeArea(edges: .bottom)) // 배경이 바닥까지 닿게
+        }
     }
 }
 
