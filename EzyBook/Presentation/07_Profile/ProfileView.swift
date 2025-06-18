@@ -11,6 +11,7 @@ import PhotosUI
 struct ProfileView: View {
     
     @StateObject var viewModel: ProfileViewModel
+    @StateObject var supplementviewModel: ProfileSupplementaryViewModel
     @ObservedObject var coordinator: ProfileCoordinator
     @EnvironmentObject var appState: AppState
     @Environment(\.displayScale) var scale
@@ -61,6 +62,7 @@ struct ProfileView: View {
         )
         .onAppear {
             viewModel.action(.onAppearRequested)
+            supplementviewModel.action(.onAppearRequested)
         }
         .onChange(of: photoItems) { newItems in
             guard let firstItem = newItems.first else {
@@ -102,6 +104,18 @@ struct ProfileView: View {
             ),
             title: viewModel.output.presentedError?.message.title,
             message: viewModel.output.presentedError?.message.msg
+        )
+        .commonAlert(
+            isPresented: Binding(
+                get: { supplementviewModel.output.isShowingError },
+                set: { isPresented in
+                    if !isPresented {
+                        supplementviewModel.action(.resetError)
+                    }
+                }
+            ),
+            title: supplementviewModel.output.presentedError?.message.title,
+            message: supplementviewModel.output.presentedError?.message.msg
         )
         .loadingOverlayModify(viewModel.output.isLoading)
     }

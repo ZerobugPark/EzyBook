@@ -17,7 +17,7 @@ struct PaymentView: UIViewRepresentable {
     let onFinish: (DisplayError?) -> Void
     
     @Environment(\.dismiss) var dismiss
-    @StateObject var viewModel: PayMentViewModel
+    @StateObject var viewModel: PaymentViewModel
     
     
     func makeUIView(context: Context) -> WKWebView {

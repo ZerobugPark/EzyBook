@@ -1,5 +1,5 @@
 //
-//  PayMentViewModel.swift
+//  PaymentViewModel.swift
 //  EzyBook
 //
 //  Created by youngkyun park on 6/11/25.
@@ -9,7 +9,7 @@
 import SwiftUI
 import Combine
 
-final class PayMentViewModel: ViewModelType {
+final class PaymentViewModel: ViewModelType {
     
     private let vaildationUseCase: DefaultPaymentValidationUseCase
         
@@ -30,7 +30,7 @@ final class PayMentViewModel: ViewModelType {
 }
 
 // MARK: Input/Output
-extension PayMentViewModel {
+extension PaymentViewModel {
     
     struct Input {  }
     
@@ -65,9 +65,8 @@ extension PayMentViewModel {
     
 }
 
-
-//// MARK: Action
-extension PayMentViewModel {
+// MARK: Action
+extension PaymentViewModel {
     
     enum Action {
         case vaildation(impUid: String, merchantUid: String)

@@ -71,3 +71,9 @@ struct ReviewRatingResponseDTO: Decodable {
     let rating: Int
     let count: Int
 }
+
+
+struct ReviewInfoResponseDTO: Decodable {
+    let id: String
+    let rating: Int
+}

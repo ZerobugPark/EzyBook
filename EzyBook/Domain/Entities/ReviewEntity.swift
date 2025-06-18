@@ -92,3 +92,16 @@ struct ReviewRatingEntity {
         self.count = dto.count
     }
 }
+
+
+
+struct ReviewInfoEntity {
+    let id: String
+    let rating: Int
+    
+    init(dto: ReviewInfoResponseDTO) {
+        self.id = dto.id
+        self.rating = dto.rating
+    }
+    
+}
