@@ -75,5 +75,5 @@ struct ReviewRatingResponseDTO: Decodable {
 
 struct ReviewInfoResponseDTO: Decodable {
     let id: String
-    let rating: Int
+    let rating: Double
 }

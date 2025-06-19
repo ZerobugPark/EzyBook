@@ -76,8 +76,16 @@ final class DIContainer: ObservableObject {
 
 // MARK:  Payment
 extension DIContainer {
-    func makePaymentViewModl() -> PaymentViewModel {
+    func makePaymentViewModel() -> PaymentViewModel {
         PaymentViewModel(vaildationUseCase: paymentValidationUseCase)
+    }
+}
+
+
+// MARK: Order
+extension DIContainer {
+    func makeOrderListViewModel() -> OrderListViewModel {
+        OrderListViewModel(imageLoader: imageLoader)
     }
 }
 

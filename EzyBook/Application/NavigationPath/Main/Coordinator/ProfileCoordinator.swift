@@ -19,7 +19,7 @@ final class ProfileCoordinator: ObservableObject {
 
     }
     
-    func push(_ route: HomeRoute) {
+    func push(_ route: ProfileRoute) {
         path.append(route)
     }
 
@@ -41,6 +41,8 @@ final class ProfileCoordinator: ObservableObject {
                 supplementviewModel: self.container.makeProfileSupplementaryViewModel(),
                 coordinator: self
             )
+        case .orderListView(let list):
+            OrderListView(orderList: list, viewModel: self.container.makeOrderListViewModel(), coordinator: self)
         }
     }
 
@@ -52,3 +54,4 @@ extension ProfileCoordinator {
     }
     
 }
+ 

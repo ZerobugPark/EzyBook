@@ -394,6 +394,8 @@ extension HomeViewModel {
         }
     }
     
+    // MARK: TODO: 에러처리 시퀀스 추가 해야함 withTaskGroup은 에러처리가 불가능
+
     /// 펜딩에 많이 있을 수 있으니 withTaskGroup으로 동시에 데이터 처리
     private func processPendingPrefetches() async {
         await withTaskGroup(of: (Int, Result<FilterActivityModel, Error>).self) { group in
@@ -424,6 +426,8 @@ extension HomeViewModel {
                 }
             }
 
+            
+            ///그룹에서 리턴되면 오는 곳
             for await (index, result) in group {
                 switch result {
                 case .success(let detail):

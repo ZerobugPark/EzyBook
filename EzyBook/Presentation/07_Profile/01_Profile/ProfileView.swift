@@ -28,7 +28,7 @@ struct ProfileView: View {
     
     var body: some View {
         ZStack {
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 0) {
                     makeProfileSection()
                     makeMenuView()
@@ -402,7 +402,7 @@ extension ProfileView {
                 title: "나의 결제",
                 items: [
                     MenuItem(icon: "square.3.layers.3d", title: "주문 내역 조회") {
-                        print("주문 내역 조회")
+                        coordinator.push(.orderListView(list: supplementviewModel.output.orderList))
                     },
                     MenuItem(icon: "creditcard", title: "결제 영수증 조회") {
                         print("결제 영수증 조회")

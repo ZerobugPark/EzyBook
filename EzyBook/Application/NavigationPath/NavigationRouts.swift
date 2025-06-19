@@ -27,4 +27,6 @@ enum CommunityRoute: Hashable {
 
 enum ProfileRoute: Hashable {
     case profileView
+    case orderListView(list: [OrderEntity])
+    
 }

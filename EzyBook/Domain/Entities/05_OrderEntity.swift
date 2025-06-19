@@ -25,7 +25,7 @@ struct OrderCreateEntity {
 }
 
 /// 주문내역 조회
-struct OrderEntity {
+struct OrderEntity: Equatable, Hashable {
     let orderId: String
     let orderCode: String
     let totalPrice: Int
@@ -41,7 +41,7 @@ struct OrderEntity {
     
     init(dto: OrderResponseDTO) {
         self.orderId = dto.orderId
-        self.orderCode = dto.orderCode
+        self.orderCode = dto.orderCode 
         self.totalPrice = dto.totalPrice
         self.review = dto.review.map { ReviewInfoEntity(dto: $0) }
         self.reservationItemName = dto.reservationItemName
@@ -56,7 +56,7 @@ struct OrderEntity {
 }
 
 
-struct ActivitySummaryOrderEntity {
+struct ActivitySummaryOrderEntity: Equatable, Hashable {
     let id: String                // 액티비티 ID
     let title: String?             // 액티비티 제목
     let country: String?           // 국가

@@ -95,9 +95,9 @@ struct ReviewRatingEntity {
 
 
 
-struct ReviewInfoEntity {
+struct ReviewInfoEntity: Equatable, Hashable {
     let id: String
-    let rating: Int
+    let rating: Double
     
     init(dto: ReviewInfoResponseDTO) {
         self.id = dto.id

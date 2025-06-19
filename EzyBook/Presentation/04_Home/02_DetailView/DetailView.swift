@@ -39,7 +39,7 @@ struct DetailView: View {
     var body: some View {
         
         ZStack(alignment: .bottom) {
-            ScrollView(.vertical) {
+            ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading) {
                     ZStack(alignment: .top) {
                         makeTapImageView()
@@ -53,7 +53,6 @@ struct DetailView: View {
                 }
                 
             }
-            .scrollIndicators(.hidden)
             .disabled(viewModel.output.isLoading)
             
             makePayView()
