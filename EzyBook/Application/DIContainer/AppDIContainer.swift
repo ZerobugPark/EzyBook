@@ -73,6 +73,7 @@ final class AppDIContainer {
             profileImageUpLoadUseCase: makeProfileUpLoadFileUseCase(),
             profileModifyUseCase: makeProfileModifyUseCase(),
             orderCreateUseCase: makeOoderCreateUseCase(),
+            orderListLookUpUseCase: makeOrderListLookUpUseCase(),
             paymentValidationUseCase: makePaymentVaildationUseCase(),
             imageLoader: makeImageLoaderUseCase(),
             viewLoader: makeVidoeLoaderDelegate(),
@@ -88,6 +89,7 @@ extension AppDIContainer {
     private func makePaymentVaildationUseCase() -> DefaultPaymentValidationUseCase {
         DefaultPaymentValidationUseCase(repo: paymentRepository)
     }
+    
 }
 
 
@@ -95,6 +97,10 @@ extension AppDIContainer {
 extension AppDIContainer {
     private func makeOoderCreateUseCase() -> DefaultCreateOrderUseCase {
         DefaultCreateOrderUseCase(repo: orderRepository)
+    }
+    
+    private func makeOrderListLookUpUseCase() -> DefaultOrderListLookupUseCase {
+        DefaultOrderListLookupUseCase(repo: orderRepository)
     }
 }
 

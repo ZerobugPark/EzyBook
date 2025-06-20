@@ -228,7 +228,7 @@ extension DetailViewModel {
         if let msg {
             output.presentedError = msg
         } else {
-            output.presentedError = DisplayError.error(code: 0, msg: "결제가 완료되었습니다.")
+            output.presentedError = DisplayError.sucess(msg: "결제가 완료되었습니다.")
         }
     }
     

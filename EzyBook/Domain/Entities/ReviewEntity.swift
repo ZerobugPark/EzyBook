@@ -92,3 +92,16 @@ struct ReviewRatingEntity {
         self.count = dto.count
     }
 }
+
+
+
+struct ReviewInfoEntity: Equatable, Hashable {
+    let id: String
+    let rating: Double
+    
+    init(dto: ReviewInfoResponseDTO) {
+        self.id = dto.id
+        self.rating = dto.rating
+    }
+    
+}

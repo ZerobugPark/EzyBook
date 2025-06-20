@@ -11,6 +11,7 @@ import PhotosUI
 struct ProfileView: View {
     
     @StateObject var viewModel: ProfileViewModel
+    @StateObject var supplementviewModel: ProfileSupplementaryViewModel
     @ObservedObject var coordinator: ProfileCoordinator
     @EnvironmentObject var appState: AppState
     @Environment(\.displayScale) var scale
@@ -27,7 +28,7 @@ struct ProfileView: View {
     
     var body: some View {
         ZStack {
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 0) {
                     makeProfileSection()
                     makeMenuView()
@@ -61,6 +62,7 @@ struct ProfileView: View {
         )
         .onAppear {
             viewModel.action(.onAppearRequested)
+            supplementviewModel.action(.onAppearRequested)
         }
         .onChange(of: photoItems) { newItems in
             guard let firstItem = newItems.first else {
@@ -102,6 +104,18 @@ struct ProfileView: View {
             ),
             title: viewModel.output.presentedError?.message.title,
             message: viewModel.output.presentedError?.message.msg
+        )
+        .commonAlert(
+            isPresented: Binding(
+                get: { supplementviewModel.output.isShowingError },
+                set: { isPresented in
+                    if !isPresented {
+                        supplementviewModel.action(.resetError)
+                    }
+                }
+            ),
+            title: supplementviewModel.output.presentedError?.message.title,
+            message: supplementviewModel.output.presentedError?.message.msg
         )
         .loadingOverlayModify(viewModel.output.isLoading)
     }
@@ -388,7 +402,7 @@ extension ProfileView {
                 title: "나의 결제",
                 items: [
                     MenuItem(icon: "square.3.layers.3d", title: "주문 내역 조회") {
-                        print("주문 내역 조회")
+                        coordinator.push(.orderListView(list: supplementviewModel.output.orderList))
                     },
                     MenuItem(icon: "creditcard", title: "결제 영수증 조회") {
                         print("결제 영수증 조회")

@@ -139,7 +139,7 @@ struct ActivityKeepEntity {
 // MARK: 공통 Entity
 
 /// 액티비티 위치
-struct ActivityGeolocationEntity {
+struct ActivityGeolocationEntity: Equatable, Hashable {
     let longitude: Double // 경도
     let latitude: Double // 위도
     
@@ -154,7 +154,7 @@ struct ActivityGeolocationEntity {
 }
 
 /// 액티비티 가격
-struct ActivityPriceEntity {
+struct ActivityPriceEntity: Equatable, Hashable {
     let original: Int // 원래 가격
     let final: Int // 최종 결제 가격
     

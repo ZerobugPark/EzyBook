@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct DefaultOrderRepository: OrderCreateRepository {
+struct DefaultOrderRepository: OrderCreateRepository, OrderListLookUpRepository {
     
     private let networkService: NetworkService
     
@@ -18,6 +18,15 @@ struct DefaultOrderRepository: OrderCreateRepository {
     func requestOrderCreate(_ router: OrderRequest.Post) async throws -> OrderCreateEntity  {
         
         let data = try await networkService.fetchData(dto: OrderCreateResponseDTO.self, router)
+        
+        return data.toEntity()
+        
+    }
+    
+    
+    func requestOrderListLookUp(_ router: OrderRequest.Get) async throws -> [OrderEntity]  {
+        
+        let data = try await networkService.fetchData(dto: OrderListResponseDTO.self, router)
         
         return data.toEntity()
         

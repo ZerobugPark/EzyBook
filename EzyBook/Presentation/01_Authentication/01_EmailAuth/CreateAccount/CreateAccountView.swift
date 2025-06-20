@@ -17,7 +17,7 @@ struct CreateAccountView: View {
     
     
     var body: some View {
-        ScrollView {
+        ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 10) {
                 emailField()
                 passwordField()
