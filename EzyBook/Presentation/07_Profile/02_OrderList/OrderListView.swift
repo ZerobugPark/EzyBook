@@ -90,14 +90,8 @@ extension OrderListView {
                         Text("\(data.date) \(data.time)")
                             .appFont(PretendardFontStyle.body3, textColor: .grayScale60)
                         
-                        HStack(spacing: 4) {
-                            Text(data.country)
-                                .appFont(PretendardFontStyle.body3, textColor: .grayScale75)
-                            
-                            Text("\(data.price)")
-                                .appFont(PretendardFontStyle.body3, textColor: .blackSeafoam)
-                            
-                        }
+                        Text(data.country)
+                            .appFont(PretendardFontStyle.body3, textColor: .grayScale75)
                     }
                 }
                 
@@ -107,6 +101,7 @@ extension OrderListView {
                     .resizable()
                     .frame(width: 80, height: 80)
                     .foregroundColor(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
             
         
             }

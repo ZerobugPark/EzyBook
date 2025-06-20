@@ -102,7 +102,6 @@ extension OrderListViewModel {
                         date: item.reservationItemName,
                         time: item.reservationItemTime,
                         rating: item.review?.rating,
-                        price: item.activity.price.final,
                         image: image
                     )
                 )

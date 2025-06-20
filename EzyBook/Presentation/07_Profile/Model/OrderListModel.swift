@@ -17,7 +17,6 @@ struct OrderList {
     let date: String
     let time: String
     let rating: Double? // 리뷰 ID가 있어야 할까??
-    let price: Int
     let image: UIImage
 
     
@@ -29,7 +28,6 @@ struct OrderList {
         date: String,
         time: String,
         rating: Double?,
-        price: Int,
         image: UIImage
     ) {
         self.orderID = orderID
@@ -39,7 +37,6 @@ struct OrderList {
         self.date = date
         self.time = time
         self.rating = rating
-        self.price = price
         self.image = image
     }
     
