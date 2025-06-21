@@ -1,5 +1,5 @@
 //
-//  WriteReviewView.swift
+//  WriteReViewView.swift
 //  EzyBook
 //
 //  Created by youngkyun park on 6/20/25.
@@ -8,40 +8,50 @@
 import SwiftUI
 import PhotosUI
 
-struct WriteReviewView: View {
+struct WriteReViewView: View {
     
+    @Environment(\.dismiss) private var dismiss
+    /// 어디까지 뷰모델에서 관리해줘야할까?
     @State private var rating = 0
-    @State private var text = ""
     @State private var selectedPhotos: [PhotosPickerItem] = []
     @State private var selectedImages: [UIImage] = []
     
-    //@StateObject var viewModel = Wr
+    @StateObject var viewModel = WriteReviewViewModel()
+    
+    @FocusState private var isTextEditorFocused: Bool
+    
     //let ordercode: String
     
     var body: some View {
-        VStack(spacing: 0) {
-            // 상단 네비게이션 바
-            makeNavigationBar()
+        ZStack {
+            // 키보드 해제용 배경 (키보드가 올라왔을 때만)
+            // 투명한 뷰를 뒤에 배치해서 버튼이 눌릴 수 있게 해줌
+            if isTextEditorFocused {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        isTextEditorFocused = false
+                    }
+                    .zIndex(-1) // 다른 뷰들보다 뒤에 배치
+            }
             
-            
-                VStack {
-                    makePhotoSelectionView()
-                    makeReviewTextField()
-                    makeStarRatingView()
-                    Spacer()
-                    makeCompleteButton()
-                    
-                }
-            
+            VStack(spacing: 0) {
+                makeNavigationBar()
+                makePhotoSelectionView()
+                makeReviewTextField()
+                makeStarRatingView()
+                Spacer()
+                makeCompleteButton()
+            }
         }
     }
-    
     private func makeCompleteButton() -> some View {
         VStack {
             
             
             Button(action: {
                 // 작성 완료 액션
+                
                 
             }) {
                 Text("작성 완료")
@@ -56,24 +66,23 @@ struct WriteReviewView: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 15)
         }
-        .background(Color.white)
+        .background(.grayScale0)
     }
     
     // 폼 유효성 검사
     private var isFormValid: Bool {
-        return !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && rating > 0
+        return !viewModel.input.reviewText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && rating > 0
     }
-          
-  
+    
+    
 }
 
-extension WriteReviewView {
+extension WriteReViewView {
     
     private func makeNavigationBar() -> some View {
         HStack(alignment: .center) {
             Button(action: {
-                // 닫기 액션
-                // 여기에 dismiss 로직을 추가하세요
+                dismiss()
             }) {
                 Image(systemName: "xmark")
                     .font(.title2)
@@ -83,7 +92,7 @@ extension WriteReviewView {
             Spacer()
             
             Text("리뷰 작성")
-                .appFont(PretendardFontStyle.body3)
+                .appFont(PaperlogyFontStyle.body, textColor: .blackSeafoam)
             
             Spacer()
             
@@ -166,10 +175,11 @@ extension WriteReviewView {
         VStack(alignment: .leading, spacing: 10) {
             Text("리뷰")
                 .appFont(PretendardFontStyle.body1)
-            TextEditor(text: $text)
+            TextEditor(text: $viewModel.input.reviewText)
                 .frame(height: 150) // Set the height for the text input area
                 .cornerRadius(15) // 모서리 둥글게 하기
                 .border(Color.grayScale60.opacity(0.5), width: 1) // 테두리 추가
+                .focused($isTextEditorFocused)
         }
         .padding(20)
     }
@@ -182,7 +192,7 @@ extension WriteReviewView {
             StarRatingView(rating: $rating)
                 .frame(maxWidth: .infinity)
                 .multilineTextAlignment(.center) // 혹은
-                //.frame(maxWidth: .infinity, alignment: .center)
+            //.frame(maxWidth: .infinity, alignment: .center)
         }
         .padding(20)
     }
@@ -220,6 +230,6 @@ extension WriteReviewView {
 }
 
 #Preview {
-    WriteReviewView()
+    WriteReViewView()
 }
 

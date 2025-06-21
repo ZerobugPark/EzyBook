@@ -53,5 +53,9 @@ extension ProfileCoordinator {
             ConfirmImageView(image: image, onConfirm: onConfirm, onCancel: onCancel)
     }
     
+    func makeWriteReviewView() -> some View {
+        WriteReViewView()
+    }
+    
 }
  

@@ -15,7 +15,7 @@ struct OrderListView: View {
     
     @StateObject var viewModel: OrderListViewModel
     @ObservedObject var coordinator: ProfileCoordinator
-    
+    @State private var reviewButtonTapped = false
     var body: some View {
         
         ZStack {
@@ -40,6 +40,9 @@ struct OrderListView: View {
                 Text("주문 내역")
                     .appFont(PaperlogyFontStyle.body, textColor: .blackSeafoam)
             }
+        }
+        .fullScreenCover(isPresented:  $reviewButtonTapped) {
+            coordinator.makeWriteReviewView()
         }
         .onAppear {
             viewModel.action(.onAppearRequested(data: orderList))
@@ -67,8 +70,6 @@ extension OrderListView {
         VStack(spacing: 0) {
             makeMainContent(data)
             makeRatingView(data)
-            
-  
         }
         .background(.grayScale0)
         .cornerRadius(12)
@@ -138,7 +139,7 @@ extension OrderListView {
         } else {
             // Placeholder for activities without rating
             Button {
-                
+                reviewButtonTapped = true
             } label: {
                 Text("리뷰 작성를 작성해주세요")
             }
