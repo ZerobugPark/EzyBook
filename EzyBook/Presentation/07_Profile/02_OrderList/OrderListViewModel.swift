@@ -24,6 +24,7 @@ final class OrderListViewModel: ViewModelType {
     ) {
         self.imageLoader = imageLoader
         transform()
+        
     }
     
 }
