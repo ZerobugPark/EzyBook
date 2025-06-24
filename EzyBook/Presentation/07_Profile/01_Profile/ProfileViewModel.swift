@@ -12,7 +12,7 @@ final class ProfileViewModel: ViewModelType {
     
     private let profileLookUpUseCase: DefaultProfileLookUpUseCase
     private let imageLoader: DefaultLoadImageUseCase
-    private let uploadImageUseCase: DefaultUploadFileUseCase
+    private let uploadImageUseCase: DefaultUploadProfileFileUseCase
     private let profileModifyUseCase: DefaultProfileModifyUseCase
     
     var input = Input()
@@ -25,7 +25,7 @@ final class ProfileViewModel: ViewModelType {
     init(
         profileLookUpUseCase: DefaultProfileLookUpUseCase,
         imageLoader: DefaultLoadImageUseCase,
-        uploadImageUsecase: DefaultUploadFileUseCase,
+        uploadImageUsecase: DefaultUploadProfileFileUseCase,
         profileModifyUseCase: DefaultProfileModifyUseCase
     ) {
         self.profileLookUpUseCase = profileLookUpUseCase

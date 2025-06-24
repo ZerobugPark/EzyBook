@@ -24,6 +24,7 @@ final class OrderListViewModel: ViewModelType {
     ) {
         self.imageLoader = imageLoader
         transform()
+        
     }
     
 }
@@ -96,6 +97,7 @@ extension OrderListViewModel {
                 output.orderList.append(
                     OrderList(
                         orderID: item.orderId,
+                        orderCode: item.orderCode,
                         activityID: item.activity.id,
                         title: item.activity.title,
                         country: item.activity.country,
@@ -127,6 +129,17 @@ extension OrderListViewModel {
             print("❌ 실패 \(index): 알 수 없는 오류")
         }
     }
+    
+    private func handleUpdateReviewRating(_ orderCode: String, _ rating: Int) {
+        
+        if let index = output.orderList.firstIndex(where: { $0.orderCode == orderCode }) {
+            var updated = output.orderList[index]
+            updated.rating = rating
+            output.orderList[index] = updated
+        }
+
+        
+    }
 
     
     
@@ -146,6 +159,7 @@ extension OrderListViewModel {
     enum Action {
         case onAppearRequested(data: [OrderEntity])
         case updateScale(scale: CGFloat)
+        case updateRating(orderCode: String, rating: Int)
         case resetError
     }
     
@@ -156,6 +170,8 @@ extension OrderListViewModel {
             handleProfileData(data)
         case .updateScale(let scale):
             handleUpdateScale(scale)
+        case let .updateRating(orderCode, rating):
+            handleUpdateReviewRating(orderCode, rating)
         case .resetError:
             handleResetError()
             

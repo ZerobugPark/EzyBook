@@ -8,7 +8,7 @@
 import Foundation
 
 
-final class DefaultReviewRepository: ReviewRatingListRepository {
+final class DefaultReviewRepository: ReviewRatingListRepository, ReviewWriteRepository {
 
     private let networkService: NetworkService
     
@@ -20,6 +20,13 @@ final class DefaultReviewRepository: ReviewRatingListRepository {
     func requestReviewRatingist(_ router: ReViewRequest.Get) async throws -> ReviewRatingListEntity {
         let data = try await networkService.fetchData(dto: ReViewRatingListResponseDTO.self, router)
         return data.toEntity()
+    }
+    
+    /// 리뷰 작성
+    func requestWriteReivew(_ router: ReViewRequest.Post) async throws -> UserReviewEntity {
+        let data = try await networkService.fetchData(dto: UserReviewResponseDTO.self, router)
+        return data.toEntity()
+        
     }
     
 

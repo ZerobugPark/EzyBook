@@ -16,6 +16,9 @@ struct OrderListView: View {
     @StateObject var viewModel: OrderListViewModel
     @ObservedObject var coordinator: ProfileCoordinator
     
+    @State private var selectedOrder: OrderList?
+    
+    
     var body: some View {
         
         ZStack {
@@ -41,6 +44,12 @@ struct OrderListView: View {
                     .appFont(PaperlogyFontStyle.body, textColor: .blackSeafoam)
             }
         }
+        .fullScreenCover(item: $selectedOrder) { order in
+            coordinator.makeWriteReviewView(order.activityID, order.orderCode) { (orderCode, rating) in
+                viewModel.action(.updateRating(orderCode: orderCode, rating: rating))
+            }
+        }
+ 
         .onAppear {
             viewModel.action(.onAppearRequested(data: orderList))
         }
@@ -67,8 +76,6 @@ extension OrderListView {
         VStack(spacing: 0) {
             makeMainContent(data)
             makeRatingView(data)
-            
-  
         }
         .background(.grayScale0)
         .cornerRadius(12)
@@ -126,7 +133,7 @@ extension OrderListView {
                     .foregroundColor(.rosyPunch)
                 
                 
-                Text(String(format: "%.1f", data.rating!))
+                Text("\(data.rating!)")
                     .appFont(PretendardFontStyle.body2, textColor: .grayScale100)
                 
                 Spacer()
@@ -138,7 +145,7 @@ extension OrderListView {
         } else {
             // Placeholder for activities without rating
             Button {
-                
+                selectedOrder = data
             } label: {
                 Text("리뷰 작성를 작성해주세요")
             }
