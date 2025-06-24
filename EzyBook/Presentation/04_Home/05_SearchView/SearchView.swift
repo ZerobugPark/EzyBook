@@ -19,7 +19,7 @@ struct SearchView: View {
     
     var body: some View {
         ZStack {
-            ScrollView(.vertical) {
+            ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .center, spacing: 15) {
                     makeAdvertiseView()
                     makeRecommendView()
@@ -34,7 +34,6 @@ struct SearchView: View {
                 }
             }
             .disabled(viewModel.output.isLoading)
-            .scrollIndicators(.hidden)
             
             LoadingOverlayView(isLoading: viewModel.output.isLoading)
         }

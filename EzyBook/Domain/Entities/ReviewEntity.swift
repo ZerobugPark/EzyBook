@@ -92,3 +92,75 @@ struct ReviewRatingEntity {
         self.count = dto.count
     }
 }
+
+
+
+struct ReviewInfoEntity: Equatable, Hashable {
+    let id: String
+    let rating: Int
+    
+    init(dto: ReviewInfoResponseDTO) {
+        self.id = dto.id
+        self.rating = dto.rating
+    }
+    
+}
+
+
+struct UserReviewEntity {
+    let reviewID: String
+    let content: String
+    let rating: Int
+    let activity: ActivitySummaryEntity_Post
+    let reviewImageURLs: [String]
+    let reservationItemName: String
+    let reservationItemTime: String
+    let creator: UserInfoResponseEntity
+    let createdAt: String
+    let updatedAt: String
+    
+    init(dto: UserReviewResponseDTO) {
+        self.reviewID = dto.reviewID
+        self.content = dto.content
+        self.rating = dto.rating
+        self.activity =  ActivitySummaryEntity_Post.init(dto: dto.activity)
+        self.reviewImageURLs = dto.reviewImageURLs
+        self.reservationItemName = dto.reservationItemName
+        self.reservationItemTime = dto.reservationItemTime
+        self.creator =  UserInfoResponseEntity(dto: dto.creator)
+        self.createdAt = dto.createdAt
+        self.updatedAt = dto.updatedAt
+    }
+}
+
+
+struct ActivitySummaryEntity_Post {
+    let id: String
+    let title: String?
+    let country: String?
+    let category: String?
+    let thumbnails: [String]
+    let geolocation: ActivityGeolocationEntity
+    let price: ActivityPriceEntity
+    let tags: [String]
+    let pointReward: Int
+    let isAdvertisement: Bool
+    let isKeep: Bool
+    let keepCount: Int
+    
+    init(dto: ActivitySummaryResponseDTO_Post) {
+        self.id = dto.id
+        self.title = dto.title
+        self.country = dto.country
+        self.category = dto.category
+        self.thumbnails = dto.thumbnails
+        self.geolocation =  ActivityGeolocationEntity(dto: dto.geolocation)
+        self.price = ActivityPriceEntity(dto: dto.price)
+        self.tags = dto.tags
+        self.pointReward = dto.pointReward
+        self.isAdvertisement = dto.isAdvertisement
+        self.isKeep = dto.isKeep
+        self.keepCount = dto.keepCount
+    }
+
+}

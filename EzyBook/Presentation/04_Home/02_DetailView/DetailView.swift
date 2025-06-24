@@ -39,7 +39,7 @@ struct DetailView: View {
     var body: some View {
         
         ZStack(alignment: .bottom) {
-            ScrollView(.vertical) {
+            ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading) {
                     ZStack(alignment: .top) {
                         makeTapImageView()
@@ -53,7 +53,6 @@ struct DetailView: View {
                 }
                 
             }
-            .scrollIndicators(.hidden)
             .disabled(viewModel.output.isLoading)
             
             makePayView()
@@ -107,9 +106,12 @@ struct DetailView: View {
             message: viewModel.output.presentedError?.message.msg
         )
         .onAppear {
+            /// 최초 한번만 되게? 수정해야할거 같은데. (그 다음은 강제 업데이트)
+            /// onAppear를 하다보니까, 알라모가 1~2초 이내에 들어온것은 같은 통신인줄 알고 걍 304 해버리는 듯
+            /// 즉, 결제 -> OnAppear -> 결제가 성공되면 다시 onAppearRequested 호출
             viewModel.action(.onAppearRequested(id: activityID))
+            
             /// 탭바 터치 못하게 하게 위한 것
-            ///appState.isLoding = viewModel.output.isLoading
             withAnimation {
                 appState.isCustomTabbarHidden = true
             }
@@ -810,8 +812,7 @@ extension DetailView {
                     )
                     
                     viewModel.action(.makeOrder(dto: dto))
-                    
-                    //selectedPay = true
+                
                 } label: {
                     Text("결제하기")
                         .frame(width: 100)

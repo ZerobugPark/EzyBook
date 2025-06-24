@@ -26,21 +26,21 @@ struct OrderCreateResponseDTO: Decodable, EntityConvertible {
 }
 
 
-struct OrderListResponseDTO: Decodable {
-    let data: OrderResponseDTO
+struct OrderListResponseDTO: Decodable, EntityConvertible {
+    let data: [OrderResponseDTO]
 }
 
 
 /// 리뷰랑 별점이 작성되어있다면, 함께 표시
-struct OrderResponseDTO: Decodable, EntityConvertible {
+struct OrderResponseDTO: Decodable {
     let orderId: String
     let orderCode: String
     let totalPrice: Int
-    let review: ReviewRatingResponseDTO
+    let review: ReviewInfoResponseDTO?
     let reservationItemName: String
     let reservationItemTime: String
     let participantCount: Int
-    let activity :ActivitySummaryResponseDTO
+    let activity :ActivitySummaryResponseDTO_Order
     let paidAt: String
     let createdAt: String
     let updatedAt: String
@@ -71,7 +71,7 @@ struct ActivitySummaryResponseDTO_Order: Decodable {
     let geolocation: ActivityGeolocationDTO   // 위치 정보
     let price: ActivityPriceDTO             // 가격 정보
     let tags: [String]            // 태그 목록
-    let pointReward: String?       // 포인트 적립 정보
+    let pointReward: Int?       // 포인트 적립 정보
 
     enum CodingKeys: String, CodingKey {
         case id

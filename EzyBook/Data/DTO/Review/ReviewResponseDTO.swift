@@ -71,3 +71,67 @@ struct ReviewRatingResponseDTO: Decodable {
     let rating: Int
     let count: Int
 }
+
+
+struct ReviewInfoResponseDTO: Decodable {
+    let id: String
+    let rating: Int
+}
+
+struct UserReviewResponseDTO: Decodable, EntityConvertible {
+    let reviewID: String
+    let content: String
+    let rating: Int
+    let activity: ActivitySummaryResponseDTO_Post
+    let reviewImageURLs: [String]
+    let reservationItemName: String
+    let reservationItemTime: String
+    let creator: UserInfoResponseDTO
+    let createdAt: String
+    let updatedAt: String
+
+    enum CodingKeys: String, CodingKey {
+        case reviewID = "review_id"
+        case content
+        case rating
+        case activity
+        case reviewImageURLs = "review_image_urls"
+        case reservationItemName = "reservation_item_name"
+        case reservationItemTime = "reservation_item_time"
+        case creator
+        case createdAt
+        case updatedAt
+    }
+}
+
+
+struct ActivitySummaryResponseDTO_Post: Decodable {
+    let id: String
+    let title: String?
+    let country: String?
+    let category: String?
+    let thumbnails: [String]
+    let geolocation: ActivityGeolocationDTO
+    let price: ActivityPriceDTO
+    let tags: [String]
+    let pointReward: Int
+    let isAdvertisement: Bool
+    let isKeep: Bool
+    let keepCount: Int
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case title
+        case country
+        case category
+        case thumbnails
+        case geolocation
+        case price
+        case tags
+        case pointReward = "point_reward"
+        case isAdvertisement = "is_advertisement"
+        case isKeep = "is_keep"
+        case keepCount = "keep_count"
+    }
+}
+

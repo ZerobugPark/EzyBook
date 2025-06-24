@@ -25,11 +25,14 @@ final class AppDIContainer {
     private let socialLoginService: DefaultsSocialLoginService
     private let activityRepository: DefaultActivityRepository
     private let acitvityKeepStatusRepository: DefaultKeepStatusRepository
-    private let reviewRatingLookUpRepository: DefaultReviewRepository
+    private let reviewRepository: DefaultReviewRepository
     private let profileRepository: DefaultProfileRepository
     private let uploadRepository: DefaultUploadFileRepository
     private let orderRepository: DefaultOrderRepository
     private let paymentRepository: DefaultPaymentRepository
+    
+    
+    
     
     init() {
         tokenNetworkService = DefaultNetworkService(decodingService: decoder, interceptor: nil)
@@ -43,12 +46,15 @@ final class AppDIContainer {
         
         activityRepository = DefaultActivityRepository(networkService: networkService)
         acitvityKeepStatusRepository = DefaultKeepStatusRepository(networkService: networkService)
-        reviewRatingLookUpRepository = DefaultReviewRepository(networkService: networkService)
+        reviewRepository = DefaultReviewRepository(networkService: networkService)
         
         profileRepository = DefaultProfileRepository(networkService: networkService)
         uploadRepository = DefaultUploadFileRepository(networkService: networkService)
         orderRepository = DefaultOrderRepository(networkService: networkService)
         paymentRepository = DefaultPaymentRepository(networkService: networkService)
+        
+        
+        
         
         imageCache = ImageCache()
         imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache, interceptor: interceptor)
@@ -72,7 +78,10 @@ final class AppDIContainer {
             profileLookUpUseCase: makeProfileLookUpUseCase(),
             profileImageUpLoadUseCase: makeProfileUpLoadFileUseCase(),
             profileModifyUseCase: makeProfileModifyUseCase(),
+            reviewImageUploadUseCase: makeReviewImageUpload(),
+            reviewWriteUseCase: makeReviewWirteUseCase(),
             orderCreateUseCase: makeOoderCreateUseCase(),
+            orderListLookUpUseCase: makeOrderListLookUpUseCase(),
             paymentValidationUseCase: makePaymentVaildationUseCase(),
             imageLoader: makeImageLoaderUseCase(),
             viewLoader: makeVidoeLoaderDelegate(),
@@ -88,15 +97,17 @@ extension AppDIContainer {
     private func makePaymentVaildationUseCase() -> DefaultPaymentValidationUseCase {
         DefaultPaymentValidationUseCase(repo: paymentRepository)
     }
-}
-
-
-// MARK: Order
-extension AppDIContainer {
+    
     private func makeOoderCreateUseCase() -> DefaultCreateOrderUseCase {
         DefaultCreateOrderUseCase(repo: orderRepository)
     }
+    
+    private func makeOrderListLookUpUseCase() -> DefaultOrderListLookupUseCase {
+        DefaultOrderListLookupUseCase(repo: orderRepository)
+    }
+    
 }
+
 
 
 // MARK: Profile
@@ -105,12 +116,20 @@ extension AppDIContainer {
         DefaultProfileLookUpUseCase(repo: profileRepository)
     }
     
-    private func makeProfileUpLoadFileUseCase() -> DefaultUploadFileUseCase {
-        DefaultUploadFileUseCase(repo: uploadRepository)
+    private func makeProfileUpLoadFileUseCase() -> DefaultUploadProfileFileUseCase {
+        DefaultUploadProfileFileUseCase(repo: uploadRepository)
     }
     
     private func makeProfileModifyUseCase() -> DefaultProfileModifyUseCase {
         DefaultProfileModifyUseCase(repo: profileRepository)
+    }
+    
+    private func makeReviewWirteUseCase() -> DefaultReViewWriteUseCase {
+        DefaultReViewWriteUseCase(repo: reviewRepository)
+    }
+    
+    private func makeReviewImageUpload() -> DefaultUploadReviewImages {
+        DefaultUploadReviewImages(repo: uploadRepository)
     }
     
 }
@@ -195,7 +214,7 @@ extension AppDIContainer {
 extension AppDIContainer {
     
     private func makeReviewRatingUseCase() -> DefaultReviewLookUpUseCase {
-        DefaultReviewLookUpUseCase(repo: reviewRatingLookUpRepository)
+        DefaultReviewLookUpUseCase(repo: reviewRepository)
     }
 }
 

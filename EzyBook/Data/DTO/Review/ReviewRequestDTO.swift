@@ -11,7 +11,7 @@ import Foundation
 struct ReviewWriteRequestDTO: Encodable {
     let content: String
     let rating: Int
-    let reviewImageUrls: String
+    let reviewImageUrls: [String]?
     let orderCode: String
     
     enum CodingKeys: String, CodingKey {
@@ -35,3 +35,5 @@ struct ReviewModifyRequestDTO: Encodable {
         case reviewImageUrls = "review_image_urls"
      }
 }
+
+

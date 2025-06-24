@@ -16,8 +16,6 @@ struct ProfileLookUpModel {
     let phoneNum: String
     let introduction: String
     
-    // 금액이 다를 경우 어떻게 비교를 해줄까?
-    
     init (from detail: ProfileLookUpEntity, profile: UIImage?) {
         self.userID = detail.userID
         self.email = detail.email

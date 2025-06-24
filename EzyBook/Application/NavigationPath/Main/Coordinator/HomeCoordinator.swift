@@ -63,7 +63,7 @@ extension HomeCoordinator {
     
     
     func makePaymentView(item: PayItem, onFinish: @escaping (DisplayError?) -> Void) -> some View {
-        let viewModel = container.makePaymentViewModl()
+        let viewModel = container.makePaymentViewModel()
         return PaymentView(item: item, onFinish: onFinish, viewModel: viewModel)
     }
     

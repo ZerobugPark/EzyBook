@@ -34,3 +34,15 @@ extension ReViewRatingListResponseDTO {
         return ReviewRatingListEntity(dto: self)
     }
 }
+
+extension ReviewInfoResponseDTO {
+    func toEntity() -> ReviewInfoEntity {
+        return ReviewInfoEntity(dto: self)
+    }
+}
+
+extension UserReviewResponseDTO {
+    func toEntity() -> UserReviewEntity {
+        return UserReviewEntity(dto: self)
+    }
+}

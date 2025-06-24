@@ -14,10 +14,8 @@ extension OrderCreateResponseDTO {
     }
 }
 
-extension OrderResponseDTO {
-    func toEntity() -> OrderEntity {
-        OrderEntity.init(dto: self)
+extension OrderListResponseDTO {
+    func toEntity() -> [OrderEntity] {
+        self.data.map { OrderEntity(dto: $0) }
     }
 }
-
-

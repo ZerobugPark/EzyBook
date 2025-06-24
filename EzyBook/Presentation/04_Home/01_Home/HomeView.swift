@@ -33,7 +33,7 @@ struct HomeView: View {
     
     var body: some View {
         ZStack {
-            ScrollView(.vertical) {
+            ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .center, spacing: 15) {
                     
                     makeSearchBarButton()
@@ -51,7 +51,6 @@ struct HomeView: View {
              
                 }
             }
-            .scrollIndicators(.hidden)
             .disabled(viewModel.output.isLoading)
             
             LoadingOverlayView(isLoading: viewModel.output.isLoading)
@@ -258,7 +257,7 @@ extension HomeView {
 extension HomeView {
     
     private func makeFilterSelectionView() -> some View {
-        ScrollView(.horizontal) {
+        ScrollView(.horizontal, showsIndicators: false) {
             LazyHGrid(rows: rows) {
                 ForEach(Filter.allCases) { filter in
                     makeFilterButton(filter)
@@ -266,7 +265,6 @@ extension HomeView {
             }
             .padding(.horizontal, 10)
         }
-        .scrollIndicators(.hidden)
     }
     
     private func makeFilterButton(_ filter: Filter) -> some View {
