@@ -8,29 +8,34 @@
 import SwiftUI
 
 
-struct OrderList {
+struct OrderList: Identifiable {
+    
+    var id: String { orderID } 
     
     let orderID: String
+    let orderCode: String
     let activityID: String
     let title: String
     let country: String
     let date: String
     let time: String
-    let rating: Double? // 리뷰 ID가 있어야 할까??
+    var rating: Int?
     let image: UIImage
 
     
     init(
         orderID: String,
+        orderCode: String,
         activityID: String,
         title: String?,
         country: String?,
         date: String,
         time: String,
-        rating: Double?,
+        rating: Int?,
         image: UIImage
     ) {
         self.orderID = orderID
+        self.orderCode = orderCode
         self.activityID = activityID
         self.title = title ?? ""
         self.country = country ?? ""

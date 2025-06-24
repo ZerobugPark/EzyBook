@@ -34,8 +34,10 @@ final class DIContainer: ObservableObject {
     
     /// Profile
     let profileLookUpUseCase: DefaultProfileLookUpUseCase
-    let profileImageUpLoadUseCase: DefaultUploadFileUseCase
+    let profileImageUpLoadUseCase: DefaultUploadProfileFileUseCase
     let profileModifyUseCase: DefaultProfileModifyUseCase
+    let reviewImageUploadUseCase: DefaultUploadReviewImages
+    let reviewWriteUseCase: DefaultReViewWriteUseCase
     
     /// Order
     let orderCreateUseCase: DefaultCreateOrderUseCase
@@ -50,7 +52,7 @@ final class DIContainer: ObservableObject {
     let viewLoader: VideoLoaderDelegate
     let tokenService: DefaultTokenService // 리프레시 갱신 시점 때문에 DI에서 추가 관리
 
-    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, reviewLookupUseCase: DefaultReviewLookUpUseCase, profileLookUpUseCase: DefaultProfileLookUpUseCase, profileImageUpLoadUseCase: DefaultUploadFileUseCase, profileModifyUseCase: DefaultProfileModifyUseCase, orderCreateUseCase: DefaultCreateOrderUseCase, orderListLookUpUseCase: DefaultOrderListLookupUseCase, paymentValidationUseCase: DefaultPaymentValidationUseCase, imageLoader: DefaultLoadImageUseCase, viewLoader: VideoLoaderDelegate, tokenService: DefaultTokenService) {
+    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, reviewLookupUseCase: DefaultReviewLookUpUseCase, profileLookUpUseCase: DefaultProfileLookUpUseCase, profileImageUpLoadUseCase: DefaultUploadProfileFileUseCase, profileModifyUseCase: DefaultProfileModifyUseCase, reviewImageUploadUseCase: DefaultUploadReviewImages, reviewWriteUseCase: DefaultReViewWriteUseCase, orderCreateUseCase: DefaultCreateOrderUseCase, orderListLookUpUseCase: DefaultOrderListLookupUseCase, paymentValidationUseCase: DefaultPaymentValidationUseCase, imageLoader: DefaultLoadImageUseCase, viewLoader: VideoLoaderDelegate, tokenService: DefaultTokenService) {
         self.kakaoLoginUseCase = kakaoLoginUseCase
         self.createAccountUseCase = createAccountUseCase
         self.emailLoginUseCase = emailLoginUseCase
@@ -64,6 +66,8 @@ final class DIContainer: ObservableObject {
         self.profileLookUpUseCase = profileLookUpUseCase
         self.profileImageUpLoadUseCase = profileImageUpLoadUseCase
         self.profileModifyUseCase = profileModifyUseCase
+        self.reviewImageUploadUseCase = reviewImageUploadUseCase
+        self.reviewWriteUseCase = reviewWriteUseCase
         self.orderCreateUseCase = orderCreateUseCase
         self.orderListLookUpUseCase = orderListLookUpUseCase
         self.paymentValidationUseCase = paymentValidationUseCase
@@ -103,6 +107,13 @@ extension DIContainer {
     
     func makeProfileSupplementaryViewModel() -> ProfileSupplementaryViewModel {
         ProfileSupplementaryViewModel(orderListUseCase: orderListLookUpUseCase)
+    }
+    
+    func makeWriteReviewViewModel() -> WriteReviewViewModel {
+        WriteReviewViewModel(
+            reviewImageUploadUseCase: reviewImageUploadUseCase,
+            reviewWriteUseCase: reviewWriteUseCase
+        )
     }
 }
 

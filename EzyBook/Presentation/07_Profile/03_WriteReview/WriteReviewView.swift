@@ -16,11 +16,13 @@ struct WriteReViewView: View {
     @State private var selectedPhotos: [PhotosPickerItem] = []
     @State private var selectedImages: [UIImage] = []
     
-    @StateObject var viewModel = WriteReviewViewModel()
+    let activityId: String
+    let orderCode: String
+    let onConfirm: (String, Int) -> Void
     
     @FocusState private var isTextEditorFocused: Bool
     
-    //let ordercode: String
+    @StateObject var viewModel: WriteReviewViewModel
     
     var body: some View {
         ZStack {
@@ -44,6 +46,31 @@ struct WriteReViewView: View {
                 makeCompleteButton()
             }
         }
+        .commonAlert(
+            isPresented: Binding(
+                get: { viewModel.output.isShowingError },
+                set: { isPresented in
+                    if !isPresented {
+                        viewModel.action(.resetError)
+                    }
+                }
+            ),
+            title: viewModel.output.presentedError?.message.title,
+            message: viewModel.output.presentedError?.message.msg
+        )
+        .commonAlert(
+            isPresented: Binding(
+                get: { viewModel.output.writeSuccess },
+                set: { isPresented in
+                    if !isPresented {
+                        onConfirm(orderCode, rating)
+                        dismiss()
+                    }
+                }
+            ),
+            title: "완료",
+            message: "리뷰가 성공적으로 작성되었습니다"
+        )
     }
     private func makeCompleteButton() -> some View {
         VStack {
@@ -51,7 +78,7 @@ struct WriteReViewView: View {
             
             Button(action: {
                 // 작성 완료 액션
-                
+                viewModel.action(.writeReView(id: activityId, image: selectedImages, rating: rating, orderCode: orderCode))
                 
             }) {
                 Text("작성 완료")
@@ -229,7 +256,4 @@ extension WriteReViewView {
     }
 }
 
-#Preview {
-    WriteReViewView()
-}
 

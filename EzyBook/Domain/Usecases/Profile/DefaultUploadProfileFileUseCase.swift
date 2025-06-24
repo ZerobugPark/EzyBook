@@ -7,11 +7,11 @@
 
 import UIKit
 
-struct DefaultUploadFileUseCase {
+struct DefaultUploadProfileFileUseCase {
     
-    private let repo: ProfileUploadRepository
+    private let repo: ProfileImageUploadRepository
     
-    init(repo: ProfileUploadRepository) {
+    init(repo: ProfileImageUploadRepository) {
         self.repo = repo
     }
     
@@ -33,9 +33,6 @@ struct DefaultUploadFileUseCase {
             }
         }
     }
+        
     
-}
-
-extension DefaultUploadFileUseCase {
- 
 }

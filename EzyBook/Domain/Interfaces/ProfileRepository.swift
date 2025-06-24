@@ -11,8 +11,9 @@ protocol ProfileLookupRepository {
     func requestProfileLookUp(_ router: UserRequest.Get) async throws -> ProfileLookUpEntity
 }
 
-protocol ProfileUploadRepository {
+protocol ProfileImageUploadRepository {
     func requestUploadImage(_ router: UserRequest.Multipart) async throws -> UserImageUploadEntity
+
 }
 
 protocol ProfileModifyRepository {
