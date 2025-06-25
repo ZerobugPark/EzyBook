@@ -187,7 +187,7 @@ struct ActivityReservationTimeDTO: Decodable {
 struct ActivityCreatorDTO: Decodable {
     let userID: String
     let nick: String
-    let introduction: String
+    let introduction: String?
     
     enum CodingKeys: String, CodingKey {
         case userID = "user_id"

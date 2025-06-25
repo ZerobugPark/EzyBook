@@ -13,7 +13,6 @@
 		D04729622DF88B8D00B13012 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = D04729612DF88B8D00B13012 /* FirebaseCrashlytics */; };
 		D04729642DF88B8D00B13012 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = D04729632DF88B8D00B13012 /* FirebaseMessaging */; };
 		D0472C772DF9582800B13012 /* iamport-ios in Frameworks */ = {isa = PBXBuildFile; productRef = D0472C762DF9582800B13012 /* iamport-ios */; };
-		D04DA72B2DCF7C850031AA2F /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = D04DA72A2DCF7C850031AA2F /* .gitignore */; };
 		D04DA72D2DCF7D5C0031AA2F /* Secrets.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = D04DA72C2DCF7D5C0031AA2F /* Secrets.xcconfig */; };
 		D050A5C12DD104AA00E79E59 /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = D050A5C02DD104AA00E79E59 /* KakaoSDKAuth */; };
 		D050A5C32DD104AA00E79E59 /* KakaoSDKCommon in Frameworks */ = {isa = PBXBuildFile; productRef = D050A5C22DD104AA00E79E59 /* KakaoSDKCommon */; };
@@ -37,7 +36,6 @@
 
 /* Begin PBXFileReference section */
 		D04DA7192DCF7C750031AA2F /* EzyBook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EzyBook.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		D04DA72A2DCF7C850031AA2F /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		D04DA72C2DCF7D5C0031AA2F /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -86,7 +84,6 @@
 			isa = PBXGroup;
 			children = (
 				D04DA72C2DCF7D5C0031AA2F /* Secrets.xcconfig */,
-				D04DA72A2DCF7C850031AA2F /* .gitignore */,
 				D04DA71B2DCF7C750031AA2F /* EzyBook */,
 				D04DA71A2DCF7C750031AA2F /* Products */,
 			);
@@ -182,7 +179,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				D04DA72D2DCF7D5C0031AA2F /* Secrets.xcconfig in Resources */,
-				D04DA72B2DCF7C850031AA2F /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
