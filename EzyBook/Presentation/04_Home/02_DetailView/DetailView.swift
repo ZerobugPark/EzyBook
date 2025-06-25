@@ -49,15 +49,17 @@ struct DetailView: View {
                     makeScheduleView()
                     makeReservationView()
                     
-                    Spacer().frame(height: 80)
+                    Spacer().frame(height: 150)
                 }
                 
             }
             .disabled(viewModel.output.isLoading)
             
-            makePayView()
-            
-            
+            VStack {
+                makeChatButton()
+                makePayView()
+            }
+                        
             LoadingOverlayView(isLoading: viewModel.output.isLoading)
         }
         /// TabView에다가 붙이면
@@ -782,9 +784,37 @@ extension DetailView {
 }
 
 
-// MARK: 유저 섹션
+// MARK: 채팅
 extension DetailView {
     
+    private func makeChatButton() -> some View {
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+                Button(action: {
+                   
+                }) {
+                    Label {
+                        Text("문의하기")
+                            .appFont(PaperlogyFontStyle.caption, textColor: .grayScale0)
+                    } icon: {
+                        Image(.iconInfo)
+                            .renderingMode(.template)
+                            .resizable()
+                            .frame(width: 15, height: 15)
+                            .foregroundStyle(.grayScale0)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    .background(RoundedRectangle(cornerRadius: 12).fill(Color.blackSeafoam))
+                }
+                .shadow(radius: 5)
+                .padding(.trailing, 20)
+                .padding(.bottom, 10)
+            }
+        }
+    }
 }
 
 // MARK: Bottom
