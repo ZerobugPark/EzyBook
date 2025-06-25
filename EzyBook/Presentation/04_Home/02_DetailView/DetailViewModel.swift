@@ -76,6 +76,7 @@ extension DetailViewModel {
         Task {
             do {
                 let detail = try await reqeuestActivityDetailList(activityID)
+                dump(detail)
                 await MainActor.run {
                     output.activityDetailInfo = detail
                 }
