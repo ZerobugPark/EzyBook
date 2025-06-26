@@ -7,11 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D0369E922E0BC20E0023FD4F /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D0369E912E0BC20E0023FD4F /* RealmSwift */; };
+		D0369E932E0BC3C90023FD4F /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = D0369E912E0BC20E0023FD4F /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		D04729602DF88B8D00B13012 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = D047295F2DF88B8D00B13012 /* FirebaseAnalyticsWithoutAdIdSupport */; };
 		D04729622DF88B8D00B13012 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = D04729612DF88B8D00B13012 /* FirebaseCrashlytics */; };
 		D04729642DF88B8D00B13012 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = D04729632DF88B8D00B13012 /* FirebaseMessaging */; };
 		D0472C772DF9582800B13012 /* iamport-ios in Frameworks */ = {isa = PBXBuildFile; productRef = D0472C762DF9582800B13012 /* iamport-ios */; };
-		D04DA72B2DCF7C850031AA2F /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = D04DA72A2DCF7C850031AA2F /* .gitignore */; };
 		D04DA72D2DCF7D5C0031AA2F /* Secrets.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = D04DA72C2DCF7D5C0031AA2F /* Secrets.xcconfig */; };
 		D050A5C12DD104AA00E79E59 /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = D050A5C02DD104AA00E79E59 /* KakaoSDKAuth */; };
 		D050A5C32DD104AA00E79E59 /* KakaoSDKCommon in Frameworks */ = {isa = PBXBuildFile; productRef = D050A5C22DD104AA00E79E59 /* KakaoSDKCommon */; };
@@ -19,9 +20,22 @@
 		D0EAEE7D2DE0575C0008FABD /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = D0EAEE7C2DE0575C0008FABD /* Lottie */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		D0369E942E0BC3C90023FD4F /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				D0369E932E0BC3C90023FD4F /* RealmSwift in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		D04DA7192DCF7C750031AA2F /* EzyBook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EzyBook.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		D04DA72A2DCF7C850031AA2F /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		D04DA72C2DCF7D5C0031AA2F /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -54,6 +68,7 @@
 				D050A5C32DD104AA00E79E59 /* KakaoSDKCommon in Frameworks */,
 				D04729602DF88B8D00B13012 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
 				D04729642DF88B8D00B13012 /* FirebaseMessaging in Frameworks */,
+				D0369E922E0BC20E0023FD4F /* RealmSwift in Frameworks */,
 				D050A5C12DD104AA00E79E59 /* KakaoSDKAuth in Frameworks */,
 				D04729622DF88B8D00B13012 /* FirebaseCrashlytics in Frameworks */,
 				D050A5C52DD104AA00E79E59 /* KakaoSDKUser in Frameworks */,
@@ -69,7 +84,6 @@
 			isa = PBXGroup;
 			children = (
 				D04DA72C2DCF7D5C0031AA2F /* Secrets.xcconfig */,
-				D04DA72A2DCF7C850031AA2F /* .gitignore */,
 				D04DA71B2DCF7C750031AA2F /* EzyBook */,
 				D04DA71A2DCF7C750031AA2F /* Products */,
 			);
@@ -93,6 +107,7 @@
 				D04DA7152DCF7C750031AA2F /* Sources */,
 				D04DA7162DCF7C750031AA2F /* Frameworks */,
 				D04DA7172DCF7C750031AA2F /* Resources */,
+				D0369E942E0BC3C90023FD4F /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -111,6 +126,7 @@
 				D04729612DF88B8D00B13012 /* FirebaseCrashlytics */,
 				D04729632DF88B8D00B13012 /* FirebaseMessaging */,
 				D0472C762DF9582800B13012 /* iamport-ios */,
+				D0369E912E0BC20E0023FD4F /* RealmSwift */,
 			);
 			productName = EzyBook;
 			productReference = D04DA7192DCF7C750031AA2F /* EzyBook.app */;
@@ -145,6 +161,7 @@
 				D0EAEE7B2DE0575C0008FABD /* XCRemoteSwiftPackageReference "lottie-ios" */,
 				D047295E2DF88B8D00B13012 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				D0472C752DF9582800B13012 /* XCRemoteSwiftPackageReference "iamport-ios" */,
+				D0369E902E0BC20E0023FD4F /* XCRemoteSwiftPackageReference "realm-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D04DA71A2DCF7C750031AA2F /* Products */;
@@ -162,7 +179,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				D04DA72D2DCF7D5C0031AA2F /* Secrets.xcconfig in Resources */,
-				D04DA72B2DCF7C850031AA2F /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -402,6 +418,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		D0369E902E0BC20E0023FD4F /* XCRemoteSwiftPackageReference "realm-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/realm-swift.git";
+			requirement = {
+				kind = exactVersion;
+				version = 20.0.1;
+			};
+		};
 		D047295E2DF88B8D00B13012 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
@@ -437,6 +461,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		D0369E912E0BC20E0023FD4F /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D0369E902E0BC20E0023FD4F /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = RealmSwift;
+		};
 		D047295F2DF88B8D00B13012 /* FirebaseAnalyticsWithoutAdIdSupport */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D047295E2DF88B8D00B13012 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

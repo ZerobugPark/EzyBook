@@ -174,7 +174,7 @@ extension HomeViewModel {
             let uniqueList = removeDuplicatesFromFilterList(filterList: summary.data)
             
             nextCursor = summary.nextCursor
-            
+       
             let details = try await prefetchInitial(for: uniqueList, type: FilterActivityModel.self)
             filterActivitySummaryList = summary.data
             
@@ -231,6 +231,7 @@ extension HomeViewModel {
         let detail = try await self.activityDeatilUseCase.execute(id: data.activityID)
         let thumbnailImage = try await self.requestThumbnailImage(detail.thumbnails)
         
+         
         return T(from: detail, thumbnail: thumbnailImage)
         
     }
