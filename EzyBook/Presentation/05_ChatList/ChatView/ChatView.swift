@@ -21,7 +21,7 @@ struct ChatView: View {
     @State private var messageText = ""
     @State private var messages: [Message] = [
         Message(text: "안녕하세요!", isFromMe: false, timestamp: Date().addingTimeInterval(-3600), isRead: true),
-        Message(text: "네, 안녕하세요! 반갑습니다.", isFromMe: true, timestamp: Date().addingTimeInterval(-3500), isRead: true),
+        Message(text: "네, 안녕하세요! 반갑습니다...", isFromMe: true, timestamp: Date().addingTimeInterval(-3500), isRead: true),
         Message(text: "오늘 날씨가 정말 좋네요", isFromMe: false, timestamp: Date().addingTimeInterval(-3000), isRead: true),
         Message(text: "맞아요! 산책하기 좋은 날씨예요 ☀️", isFromMe: true, timestamp: Date().addingTimeInterval(-2800), isRead: true),
         Message(text: "주말에 시간 있으시면 같이 카페 갈까요?", isFromMe: false, timestamp: Date().addingTimeInterval(-60), isRead: false)
