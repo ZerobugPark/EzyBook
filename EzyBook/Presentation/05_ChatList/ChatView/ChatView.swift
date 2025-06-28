@@ -28,31 +28,41 @@ struct ChatView: View {
     ]
     
     var body: some View {
-        VStack(spacing: 0) {
-            // 상단 네비게이션 바
-            chatNavigationBar()
-            
-            // 채팅 메시지 리스트
-            ScrollViewReader { proxy in
-                ScrollView {
-                    LazyVStack(spacing: 8) {
-                        ForEach(messages) { message in
-                            MessageRow(message: message)
-                                .id(message.id)
+        ZStack {
+            VStack(spacing: 0) {
+                
+                // 채팅 메시지 리스트
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        LazyVStack(spacing: 8) {
+                            ForEach(messages) { message in
+                                MessageRow(message: message)
+                                    .id(message.id)
+                            }
                         }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
+                    .onChange(of: messages.count) { _ in
+                        scrollToBottom(proxy: proxy)
+                    }
                 }
-                .onChange(of: messages.count) { _ in
-                    scrollToBottom(proxy: proxy)
+                
+                // 메시지 입력 바
+                messageInputBar()
+            }
+            .background(Color(UIColor.systemBackground))
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                BackButtonView {
+                    //coordinator.pop()
                 }
             }
-            
-            // 메시지 입력 바
-            messageInputBar()
+            ToolbarItem(placement: .topBarTrailing) {
+                Text("Title")
+            }
         }
-        .background(Color(UIColor.systemBackground))
     }
     
     // MARK: - 하단으로 스크롤
@@ -91,41 +101,18 @@ extension ChatView {
                     .foregroundColor(.primary)
             }
             
-            HStack(spacing: 12) {
-                ProfileImage(size: 40)
-                
-                VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .center) {
+                HStack(spacing: 12) {
+      
                     Text("친구 이름")
                         .font(.headline)
                         .fontWeight(.medium)
-                    
-                    Text("온라인")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+
                 }
-                
-                Spacer()
             }
             
-            HStack(spacing: 20) {
-                Button(action: {}) {
-                    Image(systemName: "phone")
-                        .font(.title2)
-                        .foregroundColor(.primary)
-                }
-                
-                Button(action: {}) {
-                    Image(systemName: "video")
-                        .font(.title2)
-                        .foregroundColor(.primary)
-                }
-                
-                Button(action: {}) {
-                    Image(systemName: "line.horizontal.3")
-                        .font(.title2)
-                        .foregroundColor(.primary)
-                }
-            }
+            Spacer()
+        
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
