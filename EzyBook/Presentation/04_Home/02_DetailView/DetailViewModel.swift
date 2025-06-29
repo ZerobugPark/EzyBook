@@ -76,9 +76,10 @@ extension DetailViewModel {
         Task {
             do {
                 let detail = try await reqeuestActivityDetailList(activityID)
-                dump(detail)
+                
                 await MainActor.run {
                     output.activityDetailInfo = detail
+                    
                 }
             } catch let error as APIError {
                 await MainActor.run {
@@ -235,6 +236,16 @@ extension DetailViewModel {
     
 }
 
+
+// MARK: makeChatRoom
+extension DetailViewModel {
+    
+    private func handleCheckChatRoom() {
+        print(output.activityDetailInfo.creator)
+        
+    }
+}
+
 //// MARK: Action
 extension DetailViewModel {
     
@@ -244,6 +255,7 @@ extension DetailViewModel {
         case keepButtonTapped
         case makeOrder(dto: OrderCreateRequestDTO)
         case showPaymentResult(message: DisplayError?)
+        case makeChatRoom
         case resetError
     }
     
@@ -260,6 +272,8 @@ extension DetailViewModel {
             handleResetError()
         case .showPaymentResult(let message):
             handleShowPaymentReulst(message)
+        case .makeChatRoom:
+            handleCheckChatRoom()
         case .makeOrder(let dto):
             handleRequestCreateOrder(dto)
  

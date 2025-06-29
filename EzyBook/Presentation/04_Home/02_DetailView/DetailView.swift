@@ -793,7 +793,7 @@ extension DetailView {
             HStack {
                 Spacer()
                 Button(action: {
-                   
+                    viewModel.action(.makeChatRoom)
                 }) {
                     Label {
                         Text("문의하기")

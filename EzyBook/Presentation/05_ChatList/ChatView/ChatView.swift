@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// 채팅방 아이디만 보내주자 생성이나 조회가 필요할테니 룸 아이디만 보내주기
 // MARK: - 데이터 모델
 struct Message: Identifiable {
     let id = UUID()
@@ -30,6 +31,7 @@ struct ChatView: View {
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
+            
                 
                 // 채팅 메시지 리스트
                 ScrollViewReader { proxy in
