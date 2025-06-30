@@ -19,6 +19,7 @@ final class AppDIContainer {
     private let networkService: DefaultNetworkService
     private let imageLoader: DefaultImageLoader
     private let imageCache: ImageCache
+    private let sockService = SocketServicePool()
                                                             
     // MARK: - Data Layer
     private let authRepository: DefaultAuthRepository
@@ -86,7 +87,8 @@ final class AppDIContainer {
             createChatRoomUseCase: makeCreateChatRoomUseCase(),
             imageLoader: makeImageLoaderUseCase(),
             viewLoader: makeVidoeLoaderDelegate(),
-            tokenService: tokenService
+            tokenService: tokenService,
+            socketService: sockService
         )
     }
     

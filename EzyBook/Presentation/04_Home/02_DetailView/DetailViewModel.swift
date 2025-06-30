@@ -69,6 +69,8 @@ extension DetailViewModel {
         
         var payItem: PayItem? = nil
         var payButtonTapped = false
+        
+        var roomID: String? = nil
     }
     
     func transform() {}
@@ -251,7 +253,10 @@ extension DetailViewModel {
                 let id = output.activityDetailInfo.creator.userID
                 let data = try await createChatRoomUseCase.execute(id: id)
                 
-                dump(data)
+                await MainActor.run {
+                    output.roomID = data.roomId
+                }
+                
                 
             } catch let error as APIError {
                 await MainActor.run {

@@ -78,7 +78,6 @@ struct MainTabView: View {
         if !appState.isCustomTabbarHidden {
             CustomTabbar()
                 .allowsHitTesting(!appState.isLoding)
-                //.transition(.move(edge: .bottom).combined(with: .opacity))
                 .animation(.easeInOut(duration: 0.25), value: appState.isCustomTabbarHidden)
         }
 

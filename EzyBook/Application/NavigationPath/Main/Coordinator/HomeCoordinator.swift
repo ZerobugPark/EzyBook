@@ -16,17 +16,17 @@ final class HomeCoordinator: ObservableObject {
     
     init(container: DIContainer) {
         self.container = container
-
+        
     }
     
     func push(_ route: HomeRoute) {
         path.append(route)
     }
-
+    
     func pop() {
         path.removeLast()
     }
-
+    
     func popToRoot() {
         path = NavigationPath()
     }
@@ -43,9 +43,13 @@ final class HomeCoordinator: ObservableObject {
             DetailView(viewModel: self.container.makeDetailViewModel(), coordinator: self, activityID: id)
         case .reviewView(let id):
             ReviewView(activityID: id)
+        case .chatRoomView(let roomID):
+            ChatRoomView(viewModel: self.container.makeChatRoomViewModel(roomID: roomID)) { [weak self] in
+                self?.pop()
+            }
         }
     }
-
+    
 }
 
 
@@ -58,7 +62,7 @@ extension HomeCoordinator {
     func makeImageViewer(path: String) -> some View {
         let viewModel = container.makeZoomableImageFullScreenViewModel()
         return ZoomableImageFullScreenView(path: path, viewModel: viewModel)
-
+        
     }
     
     
@@ -67,5 +71,5 @@ extension HomeCoordinator {
         return PaymentView(item: item, onFinish: onFinish, viewModel: viewModel)
     }
     
-
+    
 }

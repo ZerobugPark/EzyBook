@@ -118,6 +118,12 @@ struct DetailView: View {
                 appState.isCustomTabbarHidden = true
             }
         }
+        .onChange(of: viewModel.output.roomID) { newRoomID in
+            if let id = newRoomID {
+                coordinator.push(.chatRoomView(roomID: id))
+                viewModel.output.roomID = nil //  트리거 리셋
+            }
+        }
         .onDisappear {
             appState.isCustomTabbarHidden = false
             selectedDate = nil

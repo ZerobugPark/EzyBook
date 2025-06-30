@@ -18,6 +18,7 @@ enum HomeRoute: Hashable {
     case searchView
     case detailView(activityID: String)
     case reviewView(activityID: String)
+    case chatRoomView(roomID: String)
     
 }
 

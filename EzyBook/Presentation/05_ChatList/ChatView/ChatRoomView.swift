@@ -1,10 +1,9 @@
 //
-//  ChatView.swift
+//  ChatRoomView.swift
 //  EzyBook
 //
-//  Created by youngkyun park on 6/26/25.
+//  Created by youngkyun park on 6/30/25.
 //
-
 import SwiftUI
 
 /// 채팅방 아이디만 보내주자 생성이나 조회가 필요할테니 룸 아이디만 보내주기
@@ -18,7 +17,12 @@ struct Message: Identifiable {
 }
 
 // MARK: - 메인 채팅 뷰
-struct ChatView: View {
+struct ChatRoomView: View {
+    
+    @StateObject var viewModel: ChatRoomViewModel
+    @EnvironmentObject var appState: AppState
+    let onBack: () -> Void
+    
     @State private var messageText = ""
     @State private var messages: [Message] = [
         Message(text: "안녕하세요!", isFromMe: false, timestamp: Date().addingTimeInterval(-3600), isRead: true),
@@ -55,15 +59,28 @@ struct ChatView: View {
             }
             .background(Color(UIColor.systemBackground))
         }
+        .onAppear {
+            viewModel.action(.startChat)
+            
+            withAnimation {
+                appState.isCustomTabbarHidden = true
+            }
+        }
+        .navigationBarBackButtonHidden(true)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(.hidden, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 BackButtonView {
-                    //coordinator.pop()
+                    onBack()
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Text("Title")
             }
+        }
+        .onDisappear {
+            appState.isCustomTabbarHidden = false
         }
     }
     
@@ -93,7 +110,7 @@ struct ChatView: View {
 }
 
 // MARK: - 상단 네비게이션 바
-extension ChatView {
+extension ChatRoomView {
     @ViewBuilder
     func chatNavigationBar() -> some View {
         HStack {
@@ -129,7 +146,7 @@ extension ChatView {
 }
 
 // MARK: - 메시지 입력 바
-extension ChatView {
+extension ChatRoomView {
     @ViewBuilder
     func messageInputBar() -> some View {
         VStack(spacing: 0) {
@@ -272,7 +289,3 @@ struct MessageBubbleShape: Shape {
 }
 
 
-// MARK: - 프리뷰
-#Preview {
-    ChatView()
-}
