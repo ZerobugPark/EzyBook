@@ -12,6 +12,9 @@ final class HomeCoordinator: ObservableObject {
     
     @Published var path = NavigationPath()
     
+    @Published var isTabbarHidden: Bool = false
+    private var tabbarHiddenStack: [Bool] = []
+
     private let container: DIContainer
     
     init(container: DIContainer) {
@@ -20,15 +23,22 @@ final class HomeCoordinator: ObservableObject {
     }
     
     func push(_ route: HomeRoute) {
+        let shouldHide = route.hidesTabbar
+        tabbarHiddenStack.append(shouldHide)
+        isTabbarHidden = shouldHide
         path.append(route)
     }
     
     func pop() {
         path.removeLast()
+        _ = tabbarHiddenStack.popLast()
+        isTabbarHidden = tabbarHiddenStack.last ?? false
     }
     
     func popToRoot() {
         path = NavigationPath()
+        tabbarHiddenStack = []
+        isTabbarHidden = false
     }
     
     
@@ -51,6 +61,9 @@ final class HomeCoordinator: ObservableObject {
     }
     
 }
+
+
+
 
 
 extension HomeCoordinator {

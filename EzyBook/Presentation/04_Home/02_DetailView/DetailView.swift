@@ -115,7 +115,7 @@ struct DetailView: View {
             
             /// 탭바 터치 못하게 하게 위한 것
             withAnimation {
-                appState.isCustomTabbarHidden = true
+              //  appState.isCustomTabbarHidden = true
             }
         }
         .onChange(of: viewModel.output.roomID) { newRoomID in
@@ -125,7 +125,7 @@ struct DetailView: View {
             }
         }
         .onDisappear {
-            appState.isCustomTabbarHidden = false
+          //  appState.isCustomTabbarHidden = false
             selectedDate = nil
         }
         .loadingOverlayModify(viewModel.output.isLoading)

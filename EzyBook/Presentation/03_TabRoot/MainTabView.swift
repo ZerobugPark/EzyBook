@@ -40,24 +40,46 @@ struct MainTabView: View {
     /// For Smooth Shape Sliding Effect, We're going to use Matched Geometry
     @Namespace private var animation
     @State private var tabShapePosition: CGPoint = .zero
-    @EnvironmentObject var container: DIContainer
+    
+    
     @EnvironmentObject var appState: AppState
     
-    init() {
+    @StateObject var homeCoordinator: HomeCoordinator
+    @StateObject var communityCoordinator: CommunityCoordinator
+    @StateObject var profileCoordinator: ProfileCoordinator
+    
+    
+    init(container: DIContainer) {
+          _homeCoordinator = StateObject(wrappedValue: HomeCoordinator(container: container))
+          _communityCoordinator = StateObject(wrappedValue: CommunityCoordinator(container: container))
+          _profileCoordinator = StateObject(wrappedValue:  ProfileCoordinator(container: container))
+        
         /// TabBar Hidden이 안될 때,
         //UITabBar.appearance().isHidden = true
+      }
+
+    private var isCurrentTabbarHidden: Bool {
+        switch activeTab {
+        case .home:
+            return homeCoordinator.isTabbarHidden
+        case .community:
+            return communityCoordinator.isTabbarHidden
+        case .chat:
+            return false // 예시: 탭바 숨김 안 함
+        case .profile:
+            return profileCoordinator.isTabbarHidden
+        }
     }
     
-
     
     var body: some View {
         VStack(spacing: 0) {
             TabView(selection: $activeTab) {
-                HomeCoordinatorView(coordinator: HomeCoordinator(container: container))
+                HomeCoordinatorView(coordinator: homeCoordinator)
                     .tag(Tab.home)
                     .toolbar(.hidden, for: .tabBar) ///Hiding Native Tab Bar
     
-                CommunityCoordinatorView(coordinator: CommunityCoordinator(container: container))
+                CommunityCoordinatorView(coordinator: communityCoordinator)
                     .tag(Tab.community)
                     ///Hiding Native Tab Bar
                     .toolbar(.hidden, for: .tabBar)
@@ -67,7 +89,7 @@ struct MainTabView: View {
                     ///Hiding Native Tab Bar
                     .toolbar(.hidden, for: .tabBar)
                 
-                ProfileViewCoordinatorView(coordinator: ProfileCoordinator(container: container))
+                ProfileViewCoordinatorView(coordinator: profileCoordinator)
                     .tag(Tab.profile)
                     ///Hiding Native Tab Bar
                     .toolbar(.hidden, for: .tabBar)
@@ -75,7 +97,7 @@ struct MainTabView: View {
             .background(.red)
         }
         
-        if !appState.isCustomTabbarHidden {
+        if !isCurrentTabbarHidden {
             CustomTabbar()
                 .allowsHitTesting(!appState.isLoding)
                 .animation(.easeInOut(duration: 0.25), value: appState.isCustomTabbarHidden)

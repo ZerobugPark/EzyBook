@@ -63,7 +63,7 @@ struct ChatRoomView: View {
             viewModel.action(.startChat)
             
             withAnimation {
-                appState.isCustomTabbarHidden = true
+                //appState.isCustomTabbarHidden = true
             }
         }
         .navigationBarBackButtonHidden(true)
@@ -80,7 +80,7 @@ struct ChatRoomView: View {
             }
         }
         .onDisappear {
-            appState.isCustomTabbarHidden = false
+            //appState.isCustomTabbarHidden = false
         }
     }
     

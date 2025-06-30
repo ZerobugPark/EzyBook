@@ -22,6 +22,18 @@ enum HomeRoute: Hashable {
     
 }
 
+extension HomeRoute {
+    var hidesTabbar: Bool {
+        switch self {
+        case .detailView, .reviewView, .chatRoomView:
+            return true
+        default:
+            return false
+        }
+    }
+}
+
+
 enum CommunityRoute: Hashable {
     case communityView
 }
