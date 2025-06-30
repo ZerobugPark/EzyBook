@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class DefaultPaymentRepository: PaymentReceiptOrderRepository {
+struct DefaultPaymentRepository: PaymentReceiptOrderRepository {
 
     private let networkService: NetworkService
     

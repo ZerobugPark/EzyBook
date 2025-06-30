@@ -14,6 +14,7 @@ final class DetailViewModel: ViewModelType {
     private let activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase
     private let reviewLookupUseCase: DefaultReviewLookUpUseCase
     private let orderUseCase: DefaultCreateOrderUseCase
+    private let createChatRoomUseCase: DefaultCreateChatRoomUseCase
     private let imageLoader: DefaultLoadImageUseCase
     
     
@@ -29,6 +30,7 @@ final class DetailViewModel: ViewModelType {
         activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase,
         reviewLookupUseCase: DefaultReviewLookUpUseCase,
         orderUseCaes: DefaultCreateOrderUseCase,
+        createChatRoomUseCase: DefaultCreateChatRoomUseCase,
         imageLoader: DefaultLoadImageUseCase
     ) {
 
@@ -36,6 +38,7 @@ final class DetailViewModel: ViewModelType {
         self.activityKeepCommandUseCase = activityKeepCommandUseCase
         self.reviewLookupUseCase = reviewLookupUseCase
         self.orderUseCase = orderUseCaes
+        self.createChatRoomUseCase = createChatRoomUseCase
         self.imageLoader = imageLoader
         
         transform()
@@ -241,6 +244,24 @@ extension DetailViewModel {
 extension DetailViewModel {
     
     private func handleCheckChatRoom() {
+        
+        Task {
+            do {
+                
+                let id = output.activityDetailInfo.creator.userID
+                let data = try await createChatRoomUseCase.execute(id: id)
+                
+                dump(data)
+                
+            } catch let error as APIError {
+                await MainActor.run {
+                    output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+                }
+            } catch {
+                print(error)
+            }
+        }
+        
         print(output.activityDetailInfo.creator)
         
     }

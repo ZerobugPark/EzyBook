@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class DefaultAuthRepository: SignUpRepository, EmailLoginRepository, KakaoLoginRepository, AppleLoginRepository {
+struct DefaultAuthRepository: SignUpRepository, EmailLoginRepository, KakaoLoginRepository, AppleLoginRepository {
 
     private let networkService: NetworkService
     

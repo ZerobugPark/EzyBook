@@ -30,7 +30,7 @@ final class AppDIContainer {
     private let uploadRepository: DefaultUploadFileRepository
     private let orderRepository: DefaultOrderRepository
     private let paymentRepository: DefaultPaymentRepository
-    
+    private let chatRepository: DefaultChatRepository
     
     
     
@@ -53,7 +53,7 @@ final class AppDIContainer {
         orderRepository = DefaultOrderRepository(networkService: networkService)
         paymentRepository = DefaultPaymentRepository(networkService: networkService)
         
-        
+        chatRepository = DefaultChatRepository(networkService: networkService)
         
         
         imageCache = ImageCache()
@@ -83,6 +83,7 @@ final class AppDIContainer {
             orderCreateUseCase: makeOoderCreateUseCase(),
             orderListLookUpUseCase: makeOrderListLookUpUseCase(),
             paymentValidationUseCase: makePaymentVaildationUseCase(),
+            createChatRoomUseCase: makeCreateChatRoomUseCase(),
             imageLoader: makeImageLoaderUseCase(),
             viewLoader: makeVidoeLoaderDelegate(),
             tokenService: tokenService
@@ -107,6 +108,15 @@ extension AppDIContainer {
     }
     
 }
+
+// MARK: Chat
+
+extension AppDIContainer {
+    private func makeCreateChatRoomUseCase() -> DefaultCreateChatRoomUseCase {
+        DefaultCreateChatRoomUseCase(repo: chatRepository)
+    }
+}
+
 
 
 

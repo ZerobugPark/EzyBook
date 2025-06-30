@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class DefaultActivityRepository: ActivityListRepository, ActivityQueryRepository,  ActivityDetailRepository {
+struct DefaultActivityRepository: ActivityListRepository, ActivityQueryRepository,  ActivityDetailRepository {
  
     
 

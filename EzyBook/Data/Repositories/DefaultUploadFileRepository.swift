@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class DefaultUploadFileRepository: ProfileImageUploadRepository, ReviewImageUploadRepository {
+struct DefaultUploadFileRepository: ProfileImageUploadRepository, ReviewImageUploadRepository {
 
     private let networkService: NetworkService
     

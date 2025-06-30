@@ -12,7 +12,7 @@ struct ChatRoomListResponseDTO: Decodable {
     let data: [ChatRoomResponseDTO]
 }
 
-struct ChatRoomResponseDTO: Decodable {
+struct ChatRoomResponseDTO: Decodable, EntityConvertible {
     let roomId: String
     let createdAt: String
     let updatedAt: String
@@ -21,8 +21,8 @@ struct ChatRoomResponseDTO: Decodable {
 
     private enum CodingKeys: String, CodingKey {
         case roomId = "room_id"
-        case createdAt = "created_at"
-        case updatedAt = "updated_at"
+        case createdAt
+        case updatedAt
         case participants
         case lastChat = "last_chat"
     }
@@ -47,8 +47,8 @@ struct ChatResponseDTO: Decodable {
         case chatId = "chat_id"
         case roomId = "room_id"
         case content
-        case createdAt = "created_at"
-        case updatedAt = "updated_at"
+        case createdAt
+        case updatedAt
         case sender
         case files
     }
