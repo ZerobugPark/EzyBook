@@ -46,3 +46,42 @@ struct ChatEntity {
         self.files = dto.files
     }
 }
+
+struct ChatMessageEntity {
+    let chatID: String
+    let content: String
+    let createdAt: String
+    let files: [String]
+    let roomID: String
+    let sender: Sender
+
+    struct Sender {
+        let userID: String
+        let nick: String
+    }
+    
+    static func from(dict: [String : Any]) -> ChatMessageEntity? {
+         guard
+             let chatID = dict["chat_id"] as? String,
+             let content = dict["content"] as? String,
+             let roomID = dict["room_id"] as? String,
+             let createdAt = dict["createdAt"] as? String,
+             let senderDict = dict["sender"] as? [String: Any],
+             let userID = senderDict["user_id"] as? String,
+             let nick = senderDict["nick"] as? String
+         else {
+             return nil
+         }
+
+         let files = dict["files"] as? [String] ?? []
+
+         return ChatMessageEntity(
+             chatID: chatID,
+             content: content,
+             createdAt: createdAt,
+             files: files,
+             roomID: roomID,
+             sender: Sender(userID: userID, nick: nick)
+         )
+     }
+}

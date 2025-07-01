@@ -100,7 +100,7 @@ struct MainTabView: View {
         if !isCurrentTabbarHidden {
             CustomTabbar()
                 .allowsHitTesting(!appState.isLoding)
-                .animation(.easeInOut(duration: 0.25), value: appState.isCustomTabbarHidden)
+                .animation(.easeInOut(duration: 0.25), value: isCurrentTabbarHidden)
         }
 
     }

@@ -26,7 +26,7 @@ struct ActivityIntroduceView: View {
         } else {
             LazyVStack {
                 
-                ForEach(Array(data.enumerated()), id: \.element.activityID) { index, item in
+                ForEach(Array(data.enumerated()), id: \.element.id) { index, item in
                     VStack {
                         makeFilterImageView(index, item)
                         makedescriptionView(item)

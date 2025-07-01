@@ -59,7 +59,7 @@ struct DetailView: View {
                 makeChatButton()
                 makePayView()
             }
-                        
+            
             LoadingOverlayView(isLoading: viewModel.output.isLoading)
         }
         /// TabView에다가 붙이면
@@ -113,10 +113,6 @@ struct DetailView: View {
             /// 즉, 결제 -> OnAppear -> 결제가 성공되면 다시 onAppearRequested 호출
             viewModel.action(.onAppearRequested(id: activityID))
             
-            /// 탭바 터치 못하게 하게 위한 것
-            withAnimation {
-              //  appState.isCustomTabbarHidden = true
-            }
         }
         .onChange(of: viewModel.output.roomID) { newRoomID in
             if let id = newRoomID {
@@ -125,7 +121,6 @@ struct DetailView: View {
             }
         }
         .onDisappear {
-          //  appState.isCustomTabbarHidden = false
             selectedDate = nil
         }
         .loadingOverlayModify(viewModel.output.isLoading)
@@ -826,45 +821,44 @@ extension DetailView {
 // MARK: Bottom
 extension DetailView {
     
-    @ViewBuilder
     private func makePayView() -> some View {
-        if appState.isCustomTabbarHidden {
-            HStack(alignment: .center) {
-                Text("\(data.price.final)원")
-                    .appFont(PaperlogyFontStyle.body, textColor: .grayScale100)
-                    .padding(.leading, 10)
+        
+        HStack(alignment: .center) {
+            Text("\(data.price.final)원")
+                .appFont(PaperlogyFontStyle.body, textColor: .grayScale100)
+                .padding(.leading, 10)
+            
+            Spacer()
+            Button {
                 
-                Spacer()
-                Button {
-                    
-                    guard let selectedDate, let selectedTime else { return }
-                    
-                    let dto = OrderCreateRequestDTO(
-                        activityId: activityID,
-                        reservationItemName: selectedDate,
-                        reservationItemTime: selectedTime,
-                        participantCount: personCount,
-                        totalPrice: data.price.final * personCount
-                    )
-                    
-                    viewModel.action(.makeOrder(dto: dto))
+                guard let selectedDate, let selectedTime else { return }
                 
-                } label: {
-                    Text("결제하기")
-                        .frame(width: 100)
-                        .padding()
-                        .background(
-                            (selectedDate == nil || selectedTime == nil) ? .grayScale45 :
-                                    .blackSeafoam)
-                        .appFont(PaperlogyFontStyle.body, textColor: .grayScale0)
-                        .cornerRadius(7)
-                }
-                .disabled(selectedDate == nil || selectedTime == nil)
+                let dto = OrderCreateRequestDTO(
+                    activityId: activityID,
+                    reservationItemName: selectedDate,
+                    reservationItemTime: selectedTime,
+                    participantCount: personCount,
+                    totalPrice: data.price.final * personCount
+                )
+                
+                viewModel.action(.makeOrder(dto: dto))
+                
+            } label: {
+                Text("결제하기")
+                    .frame(width: 100)
+                    .padding()
+                    .background(
+                        (selectedDate == nil || selectedTime == nil) ? .grayScale45 :
+                                .blackSeafoam)
+                    .appFont(PaperlogyFontStyle.body, textColor: .grayScale0)
+                    .cornerRadius(7)
             }
-            .padding()
-            .background(Color.grayScale0.ignoresSafeArea(edges: .bottom)) // 배경이 바닥까지 닿게
+            .disabled(selectedDate == nil || selectedTime == nil)
         }
+        .padding()
+        .background(Color.grayScale0.ignoresSafeArea(edges: .bottom)) // 배경이 바닥까지 닿게
     }
+    
 }
 
 

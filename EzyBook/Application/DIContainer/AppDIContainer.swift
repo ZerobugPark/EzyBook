@@ -19,7 +19,7 @@ final class AppDIContainer {
     private let networkService: DefaultNetworkService
     private let imageLoader: DefaultImageLoader
     private let imageCache: ImageCache
-    private let sockService = SocketServicePool()
+    private lazy var sockService = SocketServicePool(keyChain: storage)
                                                             
     // MARK: - Data Layer
     private let authRepository: DefaultAuthRepository

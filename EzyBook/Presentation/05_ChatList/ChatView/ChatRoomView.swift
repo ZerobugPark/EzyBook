@@ -62,9 +62,6 @@ struct ChatRoomView: View {
         .onAppear {
             viewModel.action(.startChat)
             
-            withAnimation {
-                //appState.isCustomTabbarHidden = true
-            }
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)
@@ -78,9 +75,6 @@ struct ChatRoomView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Text("Title")
             }
-        }
-        .onDisappear {
-            //appState.isCustomTabbarHidden = false
         }
     }
     

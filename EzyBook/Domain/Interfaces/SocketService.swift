@@ -10,5 +10,5 @@ import Foundation
 protocol SocketService {
     func connect()
     func disconnect()
-    var onMessageReceived: ((String) -> Void)? { get set }
+    var onMessageReceived: ((ChatMessageEntity) -> Void)? { get set }
 }

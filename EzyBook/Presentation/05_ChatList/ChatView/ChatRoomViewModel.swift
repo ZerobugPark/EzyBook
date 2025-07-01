@@ -10,13 +10,13 @@ import Combine
 
 final class ChatRoomViewModel: ViewModelType {
     
-    private let socketService: SocketService
+    private var socketService: SocketService
     private let roomID: String
     var input = Input()
     @Published var output = Output()
     
     var cancellables = Set<AnyCancellable>()
-    
+    private var chatMessages: [ChatMessageEntity] = []
     private var scale: CGFloat = 0
       
     init(
@@ -26,12 +26,18 @@ final class ChatRoomViewModel: ViewModelType {
 
         self.socketService = socketService
         self.roomID = roomID
+        
+        self.socketService.onMessageReceived = { [weak self] message in
+            print("메시지:",message)
+            self?.chatMessages.append(message)
+        }
        
         transform()
     }
     
     
     deinit {
+        print("Here")
         socketService.disconnect()
     }
 }
@@ -43,6 +49,7 @@ extension ChatRoomViewModel {
     
     struct Output {
         var presentedError: DisplayError? = nil
+       
     }
     
     func transform() {}

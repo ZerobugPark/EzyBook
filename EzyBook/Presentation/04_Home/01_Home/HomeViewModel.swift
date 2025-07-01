@@ -112,7 +112,6 @@ extension HomeViewModel {
         }.sink { [weak self] (flag, filter) in
             
             self?.requestActivities(flag, filter)
-            print("버튼이 눌렸습니다.")
             
         }.store(in: &cancellables)
         

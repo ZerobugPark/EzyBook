@@ -11,12 +11,17 @@ import SocketIO
 
 final class SocketServicePool {
     private var services: [String: SocketService] = [:] // roomID → SocketService
+    private let keyChain: KeyChainTokenStorage
+    
+    init(keyChain: KeyChainTokenStorage) {
+        self.keyChain = keyChain
+    }
     
     func service(for roomID: String) -> SocketService {
         if let existing = services[roomID] {
             return existing
         }
-        let newService = DefaultSocketService(roomID: roomID)
+        let newService = DefaultSocketService(roomID: roomID, keyChain: keyChain)
         services[roomID] = newService
         return newService
     }
@@ -26,4 +31,7 @@ final class SocketServicePool {
         services.removeAll()
     }
     
+    deinit {
+        print(#function, "테스트")
+    }
 }

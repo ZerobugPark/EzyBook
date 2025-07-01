@@ -10,5 +10,4 @@ import SwiftUI
 final class AppState: ObservableObject {
     @Published var isLoggedIn = false
     @Published var isLoding = false
-    @Published var isCustomTabbarHidden = false
 }
