@@ -84,7 +84,7 @@ final class AppDIContainer {
             orderCreateUseCase: makeOoderCreateUseCase(),
             orderListLookUpUseCase: makeOrderListLookUpUseCase(),
             paymentValidationUseCase: makePaymentVaildationUseCase(),
-            createChatRoomUseCase: makeCreateChatRoomUseCase(),
+            createChatRoomUseCase: makeCreateChatRoomUseCase(), chatListUseCase: makeChatListUseCase(),
             imageLoader: makeImageLoaderUseCase(),
             viewLoader: makeVidoeLoaderDelegate(),
             tokenService: tokenService,
@@ -116,6 +116,10 @@ extension AppDIContainer {
 extension AppDIContainer {
     private func makeCreateChatRoomUseCase() -> DefaultCreateChatRoomUseCase {
         DefaultCreateChatRoomUseCase(repo: chatRepository)
+    }
+    
+    private func makeChatListUseCase() -> DefaultChatListUseCase {
+        DefaultChatListUseCase(repo: chatRepository)
     }
 }
 

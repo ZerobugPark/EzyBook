@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct DefaultChatRepository: ChatRoomRepository {
+struct DefaultChatRepository: ChatRoomRepository, ChatListRepository {
 
 
     private let networkService: NetworkService
@@ -24,6 +24,13 @@ struct DefaultChatRepository: ChatRoomRepository {
         return data.toEntity()
     }
     
+    func requestChatlist(_ router: ChatRequest.Get) async throws -> [ChatEntity] {
+        
+        let data = try await networkService.fetchData(dto: ChatListResponseDTO.self, router)
+        
+        return data.toEntity()
+        
+    }
  
     
 }

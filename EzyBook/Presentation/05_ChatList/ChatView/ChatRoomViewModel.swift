@@ -18,14 +18,16 @@ final class ChatRoomViewModel: ViewModelType {
     var cancellables = Set<AnyCancellable>()
     private var chatMessages: [ChatMessageEntity] = []
     private var scale: CGFloat = 0
-      
+    private var chatListUseCase :DefaultChatListUseCase
     init(
         socketService: SocketService,
-        roomID: String
+        roomID: String,
+        chatListUseCase: DefaultChatListUseCase
     ) {
 
         self.socketService = socketService
         self.roomID = roomID
+        self.chatListUseCase = chatListUseCase
         
         self.socketService.onMessageReceived = { [weak self] message in
             print("메시지:",message)
@@ -57,6 +59,24 @@ extension ChatRoomViewModel {
     
     private func handleConnectSocket() {
         socketService.connect()
+        
+        // 렘 로직 추가
+        requestChatList()
+    }
+    
+    private func requestChatList() {
+        
+        Task {
+            do {
+                let data = try await chatListUseCase.execute(id: roomID, next: nil)
+                
+                dump(data)
+            } catch {
+                print(error)
+            }
+        }
+        
+        
     }
     
     

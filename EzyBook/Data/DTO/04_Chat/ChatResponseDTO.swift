@@ -29,12 +29,12 @@ struct ChatRoomResponseDTO: Decodable, EntityConvertible {
 }
 
 
-struct ChatListResponseDTO: Decodable {
+struct ChatListResponseDTO: Decodable, EntityConvertible {
     let data: [ChatResponseDTO]
     
 }
 
-struct ChatResponseDTO: Decodable {
+struct ChatResponseDTO: Decodable, EntityConvertible {
     let chatId: String
     let roomId: String
     let content: String

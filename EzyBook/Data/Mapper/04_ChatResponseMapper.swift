@@ -13,3 +13,16 @@ extension ChatRoomResponseDTO {
         ChatRoomEntity(dto: self)
     }
 }
+
+extension ChatListResponseDTO {
+    func toEntity() -> [ChatEntity] {
+        self.data.map { ChatEntity(dto: $0) }
+    }
+}
+
+
+extension ChatResponseDTO {
+    func toEntity() -> ChatEntity {
+        ChatEntity(dto: self)
+    }
+}

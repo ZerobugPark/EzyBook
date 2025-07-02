@@ -20,3 +20,7 @@ struct SendChatRequestDTO: Encodable {
     let files: [String]?
 
 }
+
+struct ChatListRequestDTO: Encodable {
+    let next: String?
+}
