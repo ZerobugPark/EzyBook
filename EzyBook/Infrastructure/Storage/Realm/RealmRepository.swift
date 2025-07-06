@@ -22,7 +22,12 @@ protocol Repository {
 }
 
 class RealmRepository<T: Object>: Repository {
-    let realm = try! Realm()
+    let realm: Realm
+    
+    init(realm: Realm = try! Realm()) {
+        self.realm = realm
+        getFileURL()
+    }
 
     func getFileURL() {
         print(realm.configuration.fileURL)

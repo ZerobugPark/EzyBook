@@ -19,15 +19,19 @@ final class ChatRoomViewModel: ViewModelType {
     private var chatMessages: [ChatMessageEntity] = []
     private var scale: CGFloat = 0
     private var chatListUseCase :DefaultChatListUseCase
+    private var chatRealmUseCase: DefaultChatRealmUseCase
+    
     init(
         socketService: SocketService,
         roomID: String,
-        chatListUseCase: DefaultChatListUseCase
+        chatListUseCase: DefaultChatListUseCase,
+        chatRealmUseCase: DefaultChatRealmUseCase
     ) {
 
         self.socketService = socketService
         self.roomID = roomID
         self.chatListUseCase = chatListUseCase
+        self.chatRealmUseCase = chatRealmUseCase
         
         self.socketService.onMessageReceived = { [weak self] message in
             print("메시지:",message)
@@ -60,7 +64,8 @@ extension ChatRoomViewModel {
     private func handleConnectSocket() {
         socketService.connect()
         
-        // 렘 로직 추가
+        
+        
         requestChatList()
     }
     
@@ -69,8 +74,13 @@ extension ChatRoomViewModel {
         Task {
             do {
                 let data = try await chatListUseCase.execute(id: roomID, next: nil)
+                // 렘 로직 추가
                 
-                dump(data)
+                await MainActor.run {
+                    chatRealmUseCase.executeSaveData(chatList: data)
+                }
+                
+                
             } catch {
                 print(error)
             }

@@ -19,6 +19,7 @@ final class AppDIContainer {
     private let networkService: DefaultNetworkService
     private let imageLoader: DefaultImageLoader
     private let imageCache: ImageCache
+    
     private lazy var sockService = SocketServicePool(keyChain: storage)
                                                             
     // MARK: - Data Layer
@@ -32,6 +33,7 @@ final class AppDIContainer {
     private let orderRepository: DefaultOrderRepository
     private let paymentRepository: DefaultPaymentRepository
     private let chatRepository: DefaultChatRepository
+    private let chatRealmListRepository: DefaultChatRealmDataRepository
     
     
     
@@ -55,7 +57,8 @@ final class AppDIContainer {
         paymentRepository = DefaultPaymentRepository(networkService: networkService)
         
         chatRepository = DefaultChatRepository(networkService: networkService)
-        
+
+        chatRealmListRepository = DefaultChatRealmDataRepository()
         
         imageCache = ImageCache()
         imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache, interceptor: interceptor)
@@ -84,7 +87,9 @@ final class AppDIContainer {
             orderCreateUseCase: makeOoderCreateUseCase(),
             orderListLookUpUseCase: makeOrderListLookUpUseCase(),
             paymentValidationUseCase: makePaymentVaildationUseCase(),
-            createChatRoomUseCase: makeCreateChatRoomUseCase(), chatListUseCase: makeChatListUseCase(),
+            createChatRoomUseCase: makeCreateChatRoomUseCase(),
+            chatListUseCase: makeChatListUseCase(),
+            chatRealmUseCase: makeKhatLosdUseCase(),
             imageLoader: makeImageLoaderUseCase(),
             viewLoader: makeVidoeLoaderDelegate(),
             tokenService: tokenService,
@@ -121,8 +126,11 @@ extension AppDIContainer {
     private func makeChatListUseCase() -> DefaultChatListUseCase {
         DefaultChatListUseCase(repo: chatRepository)
     }
+    
+    private func makeKhatLosdUseCase() -> DefaultChatRealmUseCase {
+        DefaultChatRealmUseCase(repo: chatRealmListRepository)
+    }
 }
-
 
 
 
