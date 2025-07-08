@@ -26,3 +26,20 @@ extension ChatResponseDTO {
         ChatEntity(dto: self)
     }
 }
+
+extension ChatMessageObject {
+    func toEntity() -> ChatMessageEntity {
+        ChatMessageEntity(
+            chatID: self.chatID,
+            content: self.content,
+            createdAt: self.createdAt,
+            files: self.files,
+            roomID: self.roomID,
+            sender: ChatMessageEntity
+                .Sender(
+                    userID: self.senderID,
+                    nick: self.senderNick
+                )
+        )
+    }
+}

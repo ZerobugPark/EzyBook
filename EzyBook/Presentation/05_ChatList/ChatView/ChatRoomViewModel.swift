@@ -65,11 +65,19 @@ extension ChatRoomViewModel {
         socketService.connect()
         
         
+        if let lastLocalMessage = chatRealmUseCase.excuteLastChatMessage(roodID: roomID) {
+            requestChatList(lastLocalMessage.createdAt)
+        } else {
+            requestChatList()
+        }
+
         
-        requestChatList()
+
+     
     }
     
-    private func requestChatList() {
+
+    private func requestChatList(_ next: String? = nil) {
         
         Task {
             do {

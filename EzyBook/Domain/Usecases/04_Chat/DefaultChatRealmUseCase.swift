@@ -9,9 +9,9 @@ import Foundation
 
 final class DefaultChatRealmUseCase {
     
-    private let repo: any DefaultChatDataRepository
+    private let repo: any ChatDataRepository
     
-    init(repo: any DefaultChatDataRepository) {
+    init(repo: any ChatDataRepository) {
         self.repo = repo
     }
     
@@ -34,6 +34,14 @@ final class DefaultChatRealmUseCase {
         }
         print(Thread.isMainThread)
         repo.save(chatList: data)
+    }
+    
+    func excuteLastChatMessage(roodID: String) -> ChatMessageEntity? {
+        
+        let data = repo.getLastChatMessage(roomId: roodID)
+        
+        return data
+        
     }
 }
 
