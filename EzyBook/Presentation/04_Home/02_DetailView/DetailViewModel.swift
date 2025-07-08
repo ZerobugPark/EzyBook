@@ -71,6 +71,14 @@ extension DetailViewModel {
         var payButtonTapped = false
         
         var roomID: String? = nil
+        
+        var opponentID: String {
+            get {
+                activityDetailInfo.creator.userID
+            }
+        }
+        
+        
     }
     
     func transform() {}

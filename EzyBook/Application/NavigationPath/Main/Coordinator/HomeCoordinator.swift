@@ -53,8 +53,8 @@ final class HomeCoordinator: ObservableObject {
             DetailView(viewModel: self.container.makeDetailViewModel(), coordinator: self, activityID: id)
         case .reviewView(let id):
             ReviewView(activityID: id)
-        case .chatRoomView(let roomID):
-            ChatRoomView(viewModel: self.container.makeChatRoomViewModel(roomID: roomID)) { [weak self] in
+        case .chatRoomView(let roomID, let opponentID):
+            ChatRoomView(viewModel: self.container.makeChatRoomViewModel(roomID: roomID, opponentID: opponentID)) { [weak self] in
                 self?.pop()
             }
         }

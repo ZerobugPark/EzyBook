@@ -12,6 +12,7 @@ final class ChatRoomViewModel: ViewModelType {
     
     private var socketService: SocketService
     private let roomID: String
+    private let opponentID: String
     var input = Input()
     @Published var output = Output()
     
@@ -24,12 +25,14 @@ final class ChatRoomViewModel: ViewModelType {
     init(
         socketService: SocketService,
         roomID: String,
+        opponentID: String,
         chatListUseCase: DefaultChatListUseCase,
         chatRealmUseCase: DefaultChatRealmUseCase
     ) {
 
         self.socketService = socketService
         self.roomID = roomID
+        self.opponentID = opponentID
         self.chatListUseCase = chatListUseCase
         self.chatRealmUseCase = chatRealmUseCase
         
@@ -61,16 +64,34 @@ extension ChatRoomViewModel {
     func transform() {}
     
     
+    
+    ///[채팅방 진입 시]
+    ///1. Realm 마지막 메시지 확인
+    ///2. 서버 마지막 메시지 fetch
+    ///3. 동일하면 → Realm만 UI에 사용
+    ///4. 다르면 → 이후 메시지 fetch → Realm 업데이트 → UI 업데이트
     private func handleConnectSocket() {
         socketService.connect()
         
-        
+        /// Realm 마지막 메시지 확인
         if let lastLocalMessage = chatRealmUseCase.excuteLastChatMessage(roodID: roomID) {
+            print("here")
+            print(lastLocalMessage)
+            
+            /// 서버 패치
             requestChatList(lastLocalMessage.createdAt)
         } else {
+            print("here2")
+            /// 서버 패치
             requestChatList()
         }
-
+        
+        /// 내 프로필과, 상대방의 프로필은 언제가져오는게 좋지?
+        /// 그냥 주입시켜버릴까?
+        
+        print(opponentID)
+        ///
+        /// UI 업데이트 로직 추가
         
 
      
@@ -81,9 +102,8 @@ extension ChatRoomViewModel {
         
         Task {
             do {
-                let data = try await chatListUseCase.execute(id: roomID, next: nil)
+                let data = try await chatListUseCase.execute(id: roomID, next: next)
                 // 렘 로직 추가
-                
                 await MainActor.run {
                     chatRealmUseCase.executeSaveData(chatList: data)
                 }

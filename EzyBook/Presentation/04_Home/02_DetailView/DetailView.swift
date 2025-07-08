@@ -116,7 +116,7 @@ struct DetailView: View {
         }
         .onChange(of: viewModel.output.roomID) { newRoomID in
             if let id = newRoomID {
-                coordinator.push(.chatRoomView(roomID: id))
+                coordinator.push(.chatRoomView(roomID: id, opponentID: viewModel.output.opponentID))
                 viewModel.output.roomID = nil //  트리거 리셋
             }
         }
