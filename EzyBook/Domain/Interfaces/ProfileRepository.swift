@@ -19,3 +19,7 @@ protocol ProfileImageUploadRepository {
 protocol ProfileModifyRepository {
     func requestModifyProfile(_ router: UserRequest.Put) async throws -> ProfileLookUpEntity
 }
+
+protocol ProfileSearchRepository {
+    func requestSearchProfile(_ router: UserRequest.Get) async throws -> [UserInfoResponseEntity]
+}

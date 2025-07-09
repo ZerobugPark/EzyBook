@@ -7,8 +7,9 @@
 
 import Foundation
 
-struct DefaultProfileRepository: ProfileLookupRepository, ProfileModifyRepository {
-    
+
+struct DefaultProfileRepository: ProfileLookupRepository, ProfileModifyRepository, ProfileSearchRepository {
+
     private let networkService: NetworkService
     
     init(networkService: NetworkService) {
@@ -31,5 +32,14 @@ struct DefaultProfileRepository: ProfileLookupRepository, ProfileModifyRepositor
         return data.toEntity()
         
     }
+    
+    func requestSearchProfile(_ router: UserRequest.Get) async throws -> [UserInfoResponseEntity] {
+        
+        let data = try await networkService.fetchData(dto: UserInfoListResponseDTO.self, router)
+        
+        return data.toEntity()
+        
+    }
+    
     
 }

@@ -19,9 +19,10 @@ final class ChatRoomViewModel: ViewModelType {
     var cancellables = Set<AnyCancellable>()
     private var chatMessages: [ChatMessageEntity] = []
     private var scale: CGFloat = 0
-    private var chatListUseCase :DefaultChatListUseCase
-    private var chatRealmUseCase: DefaultChatRealmUseCase
+    private let chatListUseCase :DefaultChatListUseCase
+    private let chatRealmUseCase: DefaultChatRealmUseCase
     private let profileLookUpUseCase: DefaultProfileLookUpUseCase
+    private let profileSearchUseCase: DefaultProfileSearchUseCase
     
     init(
         socketService: SocketService,
@@ -29,7 +30,8 @@ final class ChatRoomViewModel: ViewModelType {
         opponentNick: String,
         chatListUseCase: DefaultChatListUseCase,
         chatRealmUseCase: DefaultChatRealmUseCase,
-        profileLookUpUseCase: DefaultProfileLookUpUseCase
+        profileLookUpUseCase: DefaultProfileLookUpUseCase,
+        profileSearchUseCase: DefaultProfileSearchUseCase
     ) {
 
         self.socketService = socketService
@@ -38,6 +40,7 @@ final class ChatRoomViewModel: ViewModelType {
         self.chatListUseCase = chatListUseCase
         self.chatRealmUseCase = chatRealmUseCase
         self.profileLookUpUseCase = profileLookUpUseCase
+        self.profileSearchUseCase = profileSearchUseCase
         
         self.socketService.onMessageReceived = { [weak self] message in
             
@@ -56,7 +59,6 @@ final class ChatRoomViewModel: ViewModelType {
     
     
     deinit {
-        print("Here")
         socketService.disconnect()
     }
 }
@@ -110,6 +112,9 @@ extension ChatRoomViewModel {
             do {
                 let data = try await profileLookUpUseCase.execute()
                 print("profile", data)
+                
+                let opponentData = try await profileSearchUseCase.execute(opponentNick)
+                print("opponentData", opponentData)
             } catch let error as APIError {
                 await MainActor.run {
                     output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)

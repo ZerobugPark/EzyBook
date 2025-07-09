@@ -82,6 +82,7 @@ final class AppDIContainer {
             profileLookUpUseCase: makeProfileLookUpUseCase(),
             profileImageUpLoadUseCase: makeProfileUpLoadFileUseCase(),
             profileModifyUseCase: makeProfileModifyUseCase(),
+            profileSearchUseCase: makeProfileSearchUseCase(),
             reviewImageUploadUseCase: makeReviewImageUpload(),
             reviewWriteUseCase: makeReviewWirteUseCase(),
             orderCreateUseCase: makeOoderCreateUseCase(),
@@ -148,6 +149,10 @@ extension AppDIContainer {
         DefaultProfileModifyUseCase(repo: profileRepository)
     }
     
+    private func makeProfileSearchUseCase() -> DefaultProfileSearchUseCase {
+        DefaultProfileSearchUseCase(repo: profileRepository)
+    }
+    
     private func makeReviewWirteUseCase() -> DefaultReViewWriteUseCase {
         DefaultReViewWriteUseCase(repo: reviewRepository)
     }
@@ -155,6 +160,8 @@ extension AppDIContainer {
     private func makeReviewImageUpload() -> DefaultUploadReviewImages {
         DefaultUploadReviewImages(repo: uploadRepository)
     }
+    
+    
     
 }
 

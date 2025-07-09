@@ -36,6 +36,7 @@ final class DIContainer: ObservableObject {
     let profileLookUpUseCase: DefaultProfileLookUpUseCase
     let profileImageUpLoadUseCase: DefaultUploadProfileFileUseCase
     let profileModifyUseCase: DefaultProfileModifyUseCase
+    let profileSearchUseCase: DefaultProfileSearchUseCase
     let reviewImageUploadUseCase: DefaultUploadReviewImages
     let reviewWriteUseCase: DefaultReViewWriteUseCase
     
@@ -57,7 +58,7 @@ final class DIContainer: ObservableObject {
     let tokenService: DefaultTokenService // 리프레시 갱신 시점 때문에 DI에서 추가 관리
     let socketService: SocketServicePool
 
-    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, reviewLookupUseCase: DefaultReviewLookUpUseCase, profileLookUpUseCase: DefaultProfileLookUpUseCase, profileImageUpLoadUseCase: DefaultUploadProfileFileUseCase, profileModifyUseCase: DefaultProfileModifyUseCase, reviewImageUploadUseCase: DefaultUploadReviewImages, reviewWriteUseCase: DefaultReViewWriteUseCase, orderCreateUseCase: DefaultCreateOrderUseCase, orderListLookUpUseCase: DefaultOrderListLookupUseCase, paymentValidationUseCase: DefaultPaymentValidationUseCase, createChatRoomUseCase: DefaultCreateChatRoomUseCase, chatListUseCase: DefaultChatListUseCase, chatRealmUseCase: DefaultChatRealmUseCase, imageLoader: DefaultLoadImageUseCase, viewLoader: VideoLoaderDelegate, tokenService: DefaultTokenService, socketService: SocketServicePool) {
+    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, reviewLookupUseCase: DefaultReviewLookUpUseCase, profileLookUpUseCase: DefaultProfileLookUpUseCase, profileImageUpLoadUseCase: DefaultUploadProfileFileUseCase, profileModifyUseCase: DefaultProfileModifyUseCase, profileSearchUseCase: DefaultProfileSearchUseCase, reviewImageUploadUseCase: DefaultUploadReviewImages, reviewWriteUseCase: DefaultReViewWriteUseCase, orderCreateUseCase: DefaultCreateOrderUseCase, orderListLookUpUseCase: DefaultOrderListLookupUseCase, paymentValidationUseCase: DefaultPaymentValidationUseCase, createChatRoomUseCase: DefaultCreateChatRoomUseCase, chatListUseCase: DefaultChatListUseCase, chatRealmUseCase: DefaultChatRealmUseCase, imageLoader: DefaultLoadImageUseCase, viewLoader: VideoLoaderDelegate, tokenService: DefaultTokenService, socketService: SocketServicePool) {
         self.kakaoLoginUseCase = kakaoLoginUseCase
         self.createAccountUseCase = createAccountUseCase
         self.emailLoginUseCase = emailLoginUseCase
@@ -71,6 +72,7 @@ final class DIContainer: ObservableObject {
         self.profileLookUpUseCase = profileLookUpUseCase
         self.profileImageUpLoadUseCase = profileImageUpLoadUseCase
         self.profileModifyUseCase = profileModifyUseCase
+        self.profileSearchUseCase = profileSearchUseCase
         self.reviewImageUploadUseCase = reviewImageUploadUseCase
         self.reviewWriteUseCase = reviewWriteUseCase
         self.orderCreateUseCase = orderCreateUseCase
@@ -112,7 +114,8 @@ extension DIContainer {
             opponentNick: opponentNick,
             chatListUseCase: chatListUseCase,
             chatRealmUseCase: chatRealmUseCase,
-            profileLookUpUseCase: profileLookUpUseCase
+            profileLookUpUseCase: profileLookUpUseCase,
+            profileSearchUseCase: profileSearchUseCase
         )
     }
 }
