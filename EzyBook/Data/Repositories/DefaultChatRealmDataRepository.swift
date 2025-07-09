@@ -28,10 +28,10 @@ final class DefaultChatRealmDataRepository: RealmRepository<ChatMessageObject> ,
         
     }
     
-    func getLastChatMessage(roomId: String) -> ChatMessageEntity? {
+    func getLastChatMessage(roomID: String) -> ChatMessageEntity? {
         
         guard let lastObject = realm.objects(ChatMessageObject.self)
-            .filter ("roomID == %@", roomId)
+            .filter ("roomID == %@", roomID)
             .sorted(byKeyPath: "createdAt", ascending: false)
             .first else {
                 return nil
@@ -40,6 +40,28 @@ final class DefaultChatRealmDataRepository: RealmRepository<ChatMessageObject> ,
         return lastObject.toEntity()
         
     }
+    
+    func fetchMessageList(roomID: String, before: String?, limit: Int, opponentID: String) -> [ChatMessageEntity] {
+        
+        
+        var query = realm.objects(ChatMessageObject.self)
+            .filter ("roomID == %@", roomID)
+        
+        if let before {
+            query = query.filter("createdAt < $@", before)
+        }
+        
+        return Array(query
+            .sorted(byKeyPath: "createdAt", ascending: false)
+            .prefix(limit)
+            .reversed()
+            .map {
+                $0.toEntity(opponentID: opponentID)
+            }
+        )
+    }
+    
+    
     
 }
 

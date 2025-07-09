@@ -54,7 +54,8 @@ struct ChatMessageEntity {
     let files: [String]
     let roomID: String
     let sender: Sender
-
+    var isMine: Bool
+    
     struct Sender {
         let userID: String
         let nick: String
@@ -81,7 +82,8 @@ struct ChatMessageEntity {
              createdAt: createdAt,
              files: files,
              roomID: roomID,
-             sender: Sender(userID: userID, nick: nick)
+             sender: Sender(userID: userID, nick: nick),
+             isMine: false
          )
      }
 }

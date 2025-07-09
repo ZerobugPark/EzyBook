@@ -15,33 +15,26 @@ final class DefaultChatRealmUseCase {
         self.repo = repo
     }
     
-    func executeSaveData(chatList: [ChatEntity]) {
+    func executeSaveData(chatList: [ChatMessageEntity]) {
         
-        let data = chatList.map {
-            
-            ChatMessageEntity(
-                chatID: $0.chatId,
-                content: $0.content,
-                createdAt: $0.createdAt,
-                files: $0.files,
-                roomID: $0.roomId,
-                sender: ChatMessageEntity.Sender(
-                    userID: $0.sender.userID,
-                    nick: $0.sender.nick
-                )
-            )
-            
-        }
-        print(Thread.isMainThread)
-        repo.save(chatList: data)
+        repo.save(chatList: chatList)
     }
     
     func excuteLastChatMessage(roodID: String) -> ChatMessageEntity? {
         
-        let data = repo.getLastChatMessage(roomId: roodID)
+        let data = repo.getLastChatMessage(roomID: roodID)
         
         return data
         
     }
+    
+    func excuteFetchChatList(roomID: String, before: String?, limit: Int, opponentID: String) -> [ChatMessageEntity] {
+        
+        let data = repo.fetchMessageList(roomID: roomID, before: before, limit: limit, opponentID: opponentID)
+        
+        return data
+    }
+    
+
 }
 

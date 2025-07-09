@@ -28,7 +28,7 @@ extension ChatResponseDTO {
 }
 
 extension ChatMessageObject {
-    func toEntity() -> ChatMessageEntity {
+    func toEntity(opponentID: String? = nil) -> ChatMessageEntity {
         ChatMessageEntity(
             chatID: self.chatID,
             content: self.content,
@@ -39,7 +39,9 @@ extension ChatMessageObject {
                 .Sender(
                     userID: self.senderID,
                     nick: self.senderNick
-                )
+                ),
+            isMine: opponentID == self.senderID
         )
     }
+
 }

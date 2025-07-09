@@ -74,7 +74,6 @@ extension ProfileViewModel {
         
         do {
             let data = try await profileLookUpUseCase.execute()
-            print("profile",data)
             let profileImage: UIImage
         
             if !data.profileImage.isEmpty {

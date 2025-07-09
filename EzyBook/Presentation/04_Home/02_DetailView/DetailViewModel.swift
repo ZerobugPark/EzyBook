@@ -72,9 +72,9 @@ extension DetailViewModel {
         
         var roomID: String? = nil
         
-        var opponentID: String {
+        var opponentNick: String {
             get {
-                activityDetailInfo.creator.userID
+                activityDetailInfo.creator.nick
             }
         }
         

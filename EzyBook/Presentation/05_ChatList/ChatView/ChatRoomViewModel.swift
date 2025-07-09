@@ -12,7 +12,7 @@ final class ChatRoomViewModel: ViewModelType {
     
     private var socketService: SocketService
     private let roomID: String
-    private let opponentID: String
+    private let opponentNick: String
     var input = Input()
     @Published var output = Output()
     
@@ -21,23 +21,33 @@ final class ChatRoomViewModel: ViewModelType {
     private var scale: CGFloat = 0
     private var chatListUseCase :DefaultChatListUseCase
     private var chatRealmUseCase: DefaultChatRealmUseCase
+    private let profileLookUpUseCase: DefaultProfileLookUpUseCase
     
     init(
         socketService: SocketService,
         roomID: String,
-        opponentID: String,
+        opponentNick: String,
         chatListUseCase: DefaultChatListUseCase,
-        chatRealmUseCase: DefaultChatRealmUseCase
+        chatRealmUseCase: DefaultChatRealmUseCase,
+        profileLookUpUseCase: DefaultProfileLookUpUseCase
     ) {
 
         self.socketService = socketService
         self.roomID = roomID
-        self.opponentID = opponentID
+        self.opponentNick = opponentNick
         self.chatListUseCase = chatListUseCase
         self.chatRealmUseCase = chatRealmUseCase
+        self.profileLookUpUseCase = profileLookUpUseCase
         
         self.socketService.onMessageReceived = { [weak self] message in
-            print("메시지:",message)
+            
+            Task {
+                await MainActor.run {
+                    let chat: [ChatMessageEntity] = [message]
+                    chatRealmUseCase.executeSaveData(chatList: chat)
+                }
+            }
+            
             self?.chatMessages.append(message)
         }
        
@@ -75,37 +85,67 @@ extension ChatRoomViewModel {
         
         /// Realm 마지막 메시지 확인
         if let lastLocalMessage = chatRealmUseCase.excuteLastChatMessage(roodID: roomID) {
-            print("here")
-            print(lastLocalMessage)
-            
             /// 서버 패치
             requestChatList(lastLocalMessage.createdAt)
         } else {
-            print("here2")
             /// 서버 패치
             requestChatList()
         }
         
         /// 내 프로필과, 상대방의 프로필은 언제가져오는게 좋지?
-        /// 그냥 주입시켜버릴까?
+        /// 내 프로필 조회
         
-        print(opponentID)
+        
+        loadProfileLookup()
+        //print(opponentNick) //상대방 ID
         ///
         /// UI 업데이트 로직 추가
         
-
      
     }
     
 
+    private func loadProfileLookup() {
+        Task {
+            do {
+                let data = try await profileLookUpUseCase.execute()
+                print("profile", data)
+            } catch let error as APIError {
+                await MainActor.run {
+                    output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+                }
+            }
+        }
+    }
+    
     private func requestChatList(_ next: String? = nil) {
         
         Task {
             do {
                 let data = try await chatListUseCase.execute(id: roomID, next: next)
+                
+                let chatList = data.map {
+                    
+                    /// 렘에서는 isMine을 저장하지않음 (데이터 무결성을 해침)
+                    /// A로 로그인하고, 동일한 기기로 B로 로그인한다면? 둘다 isMine은 true지만 실제 로그인 유저에 따라 다를 수 있음
+                    /// 기기는 Realm을 공통으로 관리하기 때문에
+                    ChatMessageEntity(
+                        chatID: $0.chatId,
+                        content: $0.content,
+                        createdAt: $0.createdAt,
+                        files: $0.files,
+                        roomID: $0.roomId,
+                        sender: ChatMessageEntity.Sender(
+                            userID: $0.sender.userID,
+                            nick: $0.sender.nick
+                        ), isMine: false
+                    )
+                    
+                }
+                
                 // 렘 로직 추가
                 await MainActor.run {
-                    chatRealmUseCase.executeSaveData(chatList: data)
+                    chatRealmUseCase.executeSaveData(chatList: chatList)
                 }
                 
                 

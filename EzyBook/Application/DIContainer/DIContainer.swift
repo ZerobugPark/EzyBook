@@ -104,14 +104,15 @@ extension DIContainer {
 
 // MARK: Chat
 extension DIContainer {
-    func makeChatRoomViewModel(roomID: String, opponentID: String) -> ChatRoomViewModel {
+    func makeChatRoomViewModel(roomID: String, opponentNick: String) -> ChatRoomViewModel {
         let socketService: SocketService = socketService.service(for: roomID)
         return ChatRoomViewModel(
             socketService: socketService,
             roomID: roomID,
-            opponentID: opponentID,
+            opponentNick: opponentNick,
             chatListUseCase: chatListUseCase,
-            chatRealmUseCase: chatRealmUseCase
+            chatRealmUseCase: chatRealmUseCase,
+            profileLookUpUseCase: profileLookUpUseCase
         )
     }
 }
