@@ -7,6 +7,11 @@
 
 import Foundation
 
+extension ChatRoomListResponseDTO {
+    func toEntity() -> [ChatRoomEntity] {
+        self.data.map { ChatRoomEntity(dto: $0) }
+    }
+}
 
 extension ChatRoomResponseDTO {
     func toEntity() -> ChatRoomEntity {

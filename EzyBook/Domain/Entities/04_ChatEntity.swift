@@ -7,7 +7,8 @@
 
 import Foundation
 
-struct ChatRoomEntity {
+struct ChatRoomEntity: Identifiable {
+    let id = UUID()
     let roomId: String
     let createdAt: String
     let updatedAt: String?
@@ -21,7 +22,7 @@ struct ChatRoomEntity {
         self.participants = dto.participants.map {
             UserInfoResponseEntity(dto: $0)
         }
-        self.lastChat = dto.lastChat != nil ? ChatEntity(dto: dto.lastChat!) : nil
+        self.lastChat = dto.lastChat.map { ChatEntity(dto: $0) }
     }
     
 }

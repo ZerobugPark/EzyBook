@@ -46,13 +46,27 @@ struct MainTabView: View {
     
     @StateObject var homeCoordinator: HomeCoordinator
     @StateObject var communityCoordinator: CommunityCoordinator
+    @StateObject var chatCoordinator: ChatCoordinator
     @StateObject var profileCoordinator: ProfileCoordinator
     
     
     init(container: DIContainer) {
-          _homeCoordinator = StateObject(wrappedValue: HomeCoordinator(container: container))
-          _communityCoordinator = StateObject(wrappedValue: CommunityCoordinator(container: container))
-          _profileCoordinator = StateObject(wrappedValue:  ProfileCoordinator(container: container))
+        _homeCoordinator = StateObject(
+            wrappedValue: HomeCoordinator(
+                container: container
+            )
+        )
+        _communityCoordinator = StateObject(
+            wrappedValue: CommunityCoordinator(container: container)
+        )
+        _chatCoordinator = StateObject(
+            wrappedValue: ChatCoordinator(container: container)
+        )
+        _profileCoordinator = StateObject(
+            wrappedValue:  ProfileCoordinator(
+                container: container
+            )
+        )
         
         /// TabBar Hidden이 안될 때,
         //UITabBar.appearance().isHidden = true
@@ -84,8 +98,8 @@ struct MainTabView: View {
                     ///Hiding Native Tab Bar
                     .toolbar(.hidden, for: .tabBar)
                 
-                Text("PostGallery")
-                    //.tag(Tab.chat)
+                ChatCoordinatorView(coordinator: chatCoordinator)
+                    .tag(Tab.chat)
                     ///Hiding Native Tab Bar
                     .toolbar(.hidden, for: .tabBar)
                 

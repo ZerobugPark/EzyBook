@@ -334,7 +334,7 @@ extension HomeViewModel {
             return
         }
         
-        print("f")
+        print("f", filterActivityindicats)
         guard !paginationInProgress,
               !filterActivityindicats
             .contains(fetchIndex), fetchIndex < filterActivitySummaryList.count else { return }

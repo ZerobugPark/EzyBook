@@ -864,7 +864,4 @@ extension DetailView {
 }
 
 
-#Preview {
-    //  DetailView(viewModel: DetailViewModel())
-}
 

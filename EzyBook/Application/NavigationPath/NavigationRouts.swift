@@ -38,6 +38,22 @@ enum CommunityRoute: Hashable {
     case communityView
 }
 
+enum ChatRoute: Hashable {
+    case chatView
+    case chatRoomView(roomID: String, opponentNick: String)
+}
+
+extension ChatRoute {
+    var hidesTabbar: Bool {
+        switch self {
+        case .chatRoomView:
+            return true
+        default:
+            return false
+        }
+    }
+}
+
 enum ProfileRoute: Hashable {
     case profileView
     case orderListView(list: [OrderEntity])

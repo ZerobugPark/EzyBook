@@ -22,7 +22,7 @@ final class DefaultCreateChatRoomUseCase {
         
         do {
             return try await
-            self.repo.requestChatRoom(router)
+            self.repo.requestCreateChatRoom(router)
             
         } catch  {
             if let apiError = error as? APIError {

@@ -49,6 +49,7 @@ final class DIContainer: ObservableObject {
 
     /// Chat
     let createChatRoomUseCase: DefaultCreateChatRoomUseCase
+    let chatRoomListUseCase: DefaultChatRoomListUseCase
     let chatListUseCase: DefaultChatListUseCase
     let chatRealmUseCase: DefaultChatRealmUseCase
     
@@ -57,8 +58,8 @@ final class DIContainer: ObservableObject {
     let viewLoader: VideoLoaderDelegate
     let tokenService: DefaultTokenService // 리프레시 갱신 시점 때문에 DI에서 추가 관리
     let socketService: SocketServicePool
-
-    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, reviewLookupUseCase: DefaultReviewLookUpUseCase, profileLookUpUseCase: DefaultProfileLookUpUseCase, profileImageUpLoadUseCase: DefaultUploadProfileFileUseCase, profileModifyUseCase: DefaultProfileModifyUseCase, profileSearchUseCase: DefaultProfileSearchUseCase, reviewImageUploadUseCase: DefaultUploadReviewImages, reviewWriteUseCase: DefaultReViewWriteUseCase, orderCreateUseCase: DefaultCreateOrderUseCase, orderListLookUpUseCase: DefaultOrderListLookupUseCase, paymentValidationUseCase: DefaultPaymentValidationUseCase, createChatRoomUseCase: DefaultCreateChatRoomUseCase, chatListUseCase: DefaultChatListUseCase, chatRealmUseCase: DefaultChatRealmUseCase, imageLoader: DefaultLoadImageUseCase, viewLoader: VideoLoaderDelegate, tokenService: DefaultTokenService, socketService: SocketServicePool) {
+    
+    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, reviewLookupUseCase: DefaultReviewLookUpUseCase, profileLookUpUseCase: DefaultProfileLookUpUseCase, profileImageUpLoadUseCase: DefaultUploadProfileFileUseCase, profileModifyUseCase: DefaultProfileModifyUseCase, profileSearchUseCase: DefaultProfileSearchUseCase, reviewImageUploadUseCase: DefaultUploadReviewImages, reviewWriteUseCase: DefaultReViewWriteUseCase, orderCreateUseCase: DefaultCreateOrderUseCase, orderListLookUpUseCase: DefaultOrderListLookupUseCase, paymentValidationUseCase: DefaultPaymentValidationUseCase, createChatRoomUseCase: DefaultCreateChatRoomUseCase, chatRoomListUseCase: DefaultChatRoomListUseCase, chatListUseCase: DefaultChatListUseCase, chatRealmUseCase: DefaultChatRealmUseCase, imageLoader: DefaultLoadImageUseCase, viewLoader: VideoLoaderDelegate, tokenService: DefaultTokenService, socketService: SocketServicePool) {
         self.kakaoLoginUseCase = kakaoLoginUseCase
         self.createAccountUseCase = createAccountUseCase
         self.emailLoginUseCase = emailLoginUseCase
@@ -79,6 +80,7 @@ final class DIContainer: ObservableObject {
         self.orderListLookUpUseCase = orderListLookUpUseCase
         self.paymentValidationUseCase = paymentValidationUseCase
         self.createChatRoomUseCase = createChatRoomUseCase
+        self.chatRoomListUseCase = chatRoomListUseCase
         self.chatListUseCase = chatListUseCase
         self.chatRealmUseCase = chatRealmUseCase
         self.imageLoader = imageLoader
@@ -114,6 +116,17 @@ extension DIContainer {
             opponentNick: opponentNick,
             chatListUseCase: chatListUseCase,
             chatRealmUseCase: chatRealmUseCase,
+            profileLookUpUseCase: profileLookUpUseCase,
+            profileSearchUseCase: profileSearchUseCase,
+            imageLoader: imageLoader
+        )
+    }
+    
+    func makeChatRoomListViewModel() -> ChatListViewModel {
+        ChatListViewModel(
+            chatListUseCase: chatListUseCase,
+            chatRealmUseCase: chatRealmUseCase,
+            chatRoomListUseCase: chatRoomListUseCase,
             profileLookUpUseCase: profileLookUpUseCase,
             profileSearchUseCase: profileSearchUseCase,
             imageLoader: imageLoader

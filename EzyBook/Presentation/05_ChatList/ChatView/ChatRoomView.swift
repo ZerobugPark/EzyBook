@@ -197,7 +197,7 @@ struct MessageRow: View {
                 messageInfo()
                 myMessageBubble()
             } else {
-                ProfileImage(size: 32)
+                ProfileImageView(size: 32)
                 otherMessageBubble()
                 Spacer()
             }
@@ -250,21 +250,7 @@ struct MessageRow: View {
     }
 }
 
-// MARK: - 프로필 이미지
-struct ProfileImage: View {
-    let size: CGFloat
-    
-    var body: some View {
-        Circle()
-            .fill(Color.blue.opacity(0.2))
-            .frame(width: size, height: size)
-            .overlay(
-                Image(systemName: "person.fill")
-                    .font(.system(size: size * 0.4))
-                    .foregroundColor(.blue)
-            )
-    }
-}
+
 
 // MARK: - 메시지 버블 모양
 struct MessageBubbleShape: Shape {
