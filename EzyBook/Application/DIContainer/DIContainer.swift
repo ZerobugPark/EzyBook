@@ -115,7 +115,8 @@ extension DIContainer {
             chatListUseCase: chatListUseCase,
             chatRealmUseCase: chatRealmUseCase,
             profileLookUpUseCase: profileLookUpUseCase,
-            profileSearchUseCase: profileSearchUseCase
+            profileSearchUseCase: profileSearchUseCase,
+            imageLoader: imageLoader
         )
     }
 }

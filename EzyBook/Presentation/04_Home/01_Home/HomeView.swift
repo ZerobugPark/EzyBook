@@ -184,7 +184,7 @@ extension HomeView {
                     .shadow(color: .black.opacity(0.6), radius: 2)
                 
                 Label {
-                    Text("\(data.originalPrice)")
+                    Text("\(data.finalPrice)")
                         .appFont(PaperlogyFontStyle.caption, textColor: .grayScale0)
                         .shadow(color: .black.opacity(0.6), radius: 2)
                 } icon: {

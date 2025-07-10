@@ -85,7 +85,7 @@ struct MainTabView: View {
                     .toolbar(.hidden, for: .tabBar)
                 
                 Text("PostGallery")
-                    .tag(Tab.chat)
+                    //.tag(Tab.chat)
                     ///Hiding Native Tab Bar
                     .toolbar(.hidden, for: .tabBar)
                 
@@ -115,8 +115,9 @@ struct MainTabView: View {
                 TabItem(tint: tint, inactiveTint: inactiveTint, tab: $0, animation: animation, activeTab: $activeTab, position: $tabShapePosition)
             }
         }
+        .padding(.top, 15)
         .padding(.horizontal, 15)
-        .padding(.vertical, 10)
+        .padding(.bottom, -5)
         .background(content: {
             TabShape(midPoint: tabShapePosition.x)
             /// 탭바 Background 컬러

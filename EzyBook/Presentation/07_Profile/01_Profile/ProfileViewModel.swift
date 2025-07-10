@@ -82,8 +82,9 @@ extension ProfileViewModel {
                 profileImage = UIImage(resource: .tabBarProfileFill)
             }
             
+            
             await MainActor.run {
-                output.profile = ProfileLookUpModel(from: data, profile: profileImage)
+                output.profile = ProfileLookUpModel(from: data, profileImage: profileImage)
             }
         } catch let error as APIError {
             await MainActor.run {

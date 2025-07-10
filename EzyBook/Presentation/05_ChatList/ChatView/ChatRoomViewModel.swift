@@ -13,6 +13,9 @@ final class ChatRoomViewModel: ViewModelType {
     private var socketService: SocketService
     private let roomID: String
     private let opponentNick: String
+    
+    private var userID: String = ""
+    
     var input = Input()
     @Published var output = Output()
     
@@ -23,6 +26,7 @@ final class ChatRoomViewModel: ViewModelType {
     private let chatRealmUseCase: DefaultChatRealmUseCase
     private let profileLookUpUseCase: DefaultProfileLookUpUseCase
     private let profileSearchUseCase: DefaultProfileSearchUseCase
+    private let imageLoader: DefaultLoadImageUseCase
     
     init(
         socketService: SocketService,
@@ -31,7 +35,8 @@ final class ChatRoomViewModel: ViewModelType {
         chatListUseCase: DefaultChatListUseCase,
         chatRealmUseCase: DefaultChatRealmUseCase,
         profileLookUpUseCase: DefaultProfileLookUpUseCase,
-        profileSearchUseCase: DefaultProfileSearchUseCase
+        profileSearchUseCase: DefaultProfileSearchUseCase,
+        imageLoader: DefaultLoadImageUseCase
     ) {
 
         self.socketService = socketService
@@ -41,6 +46,7 @@ final class ChatRoomViewModel: ViewModelType {
         self.chatRealmUseCase = chatRealmUseCase
         self.profileLookUpUseCase = profileLookUpUseCase
         self.profileSearchUseCase = profileSearchUseCase
+        self.imageLoader = imageLoader
         
         self.socketService.onMessageReceived = { [weak self] message in
             
@@ -69,8 +75,13 @@ extension ChatRoomViewModel {
     struct Input {  }
     
     struct Output {
+        
         var presentedError: DisplayError? = nil
-       
+        var isShowingError: Bool {
+            presentedError != nil
+        }
+        
+        var opponentProfile: ProfileLookUpModel = .skeleton
     }
     
     func transform() {}
@@ -94,13 +105,13 @@ extension ChatRoomViewModel {
             requestChatList()
         }
         
-        /// 내 프로필과, 상대방의 프로필은 언제가져오는게 좋지?
-        /// 내 프로필 조회
-        
-        
+        /// 내 프로필 및 상대방 프로필
         loadProfileLookup()
-        //print(opponentNick) //상대방 ID
-        ///
+
+        //// Realm에서 메시지 가져오기
+        
+        
+        
         /// UI 업데이트 로직 추가
         
      
@@ -111,10 +122,23 @@ extension ChatRoomViewModel {
         Task {
             do {
                 let data = try await profileLookUpUseCase.execute()
-                print("profile", data)
+                userID = data.userID
                 
                 let opponentData = try await profileSearchUseCase.execute(opponentNick)
-                print("opponentData", opponentData)
+                    
+                let profileImage: UIImage
+              
+                if let url = opponentData[0].profileImage {
+                    profileImage = try await imageLoader.execute(url)
+                } else  {
+                    profileImage = UIImage(resource: .tabBarProfileFill)
+                }
+                
+                await MainActor.run {
+                    output.opponentProfile = ProfileLookUpModel(from: opponentData[0], profileImage: profileImage)
+                }
+                
+                
             } catch let error as APIError {
                 await MainActor.run {
                     output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
