@@ -81,6 +81,7 @@ extension ChatRoomViewModel {
             presentedError != nil
         }
         
+        var unknownedUser: Bool = false
         var opponentProfile: ProfileLookUpModel = .skeleton
     }
     
@@ -125,7 +126,14 @@ extension ChatRoomViewModel {
                 userID = data.userID
                 
                 let opponentData = try await profileSearchUseCase.execute(opponentNick)
-                    
+                
+                guard !opponentData.isEmpty else {
+                    await MainActor.run {
+                        output.unknownedUser = true
+                    }
+                    return
+                }
+                
                 let profileImage: UIImage
               
                 if let url = opponentData[0].profileImage {

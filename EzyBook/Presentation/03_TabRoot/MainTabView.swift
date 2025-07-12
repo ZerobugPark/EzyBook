@@ -79,7 +79,7 @@ struct MainTabView: View {
         case .community:
             return communityCoordinator.isTabbarHidden
         case .chat:
-            return false // 예시: 탭바 숨김 안 함
+            return chatCoordinator.isTabbarHidden
         case .profile:
             return profileCoordinator.isTabbarHidden
         }

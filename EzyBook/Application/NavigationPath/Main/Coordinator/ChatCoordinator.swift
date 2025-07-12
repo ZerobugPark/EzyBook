@@ -37,6 +37,8 @@ final class ChatCoordinator: ObservableObject {
     
     func popToRoot() {
         path = NavigationPath()
+        tabbarHiddenStack = []
+        isTabbarHidden = false
     }
     
     
@@ -44,8 +46,7 @@ final class ChatCoordinator: ObservableObject {
     func destinationView(route: ChatRoute) -> some View {
         switch route {
         case .chatView:
-            ChatListView(viewModel: self.container.makeChatRoomListViewModel())
-            //ChatListView()
+            ChatListView(viewModel: self.container.makeChatRoomListViewModel(), coordinator: self)
         case .chatRoomView(let roomID, let opponentNick):
             ChatRoomView(viewModel: self.container.makeChatRoomViewModel(roomID: roomID, opponentNick: opponentNick)) { [weak self] in
                 self?.pop()

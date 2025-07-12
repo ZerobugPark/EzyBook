@@ -72,10 +72,21 @@ struct ChatRoomView: View {
                     onBack()
                 }
             }
-            ToolbarItem(placement: .topBarTrailing) {
-                Text("Title")
+            ToolbarItem(placement: .principal) {
+                Text(viewModel.output.opponentProfile.nick)
+                    .appFont(PaperlogyFontStyle.caption)
             }
         }
+        .commonAlert(
+            isPresented: Binding(
+                get: { viewModel.output.unknownedUser },
+                set: { isPresented in
+                    onBack()
+                }
+            ),
+            title: "안내",
+            message: "알 수 없는 유저입니다"
+        )
     }
     
     // MARK: - 하단으로 스크롤

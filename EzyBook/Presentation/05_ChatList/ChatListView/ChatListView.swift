@@ -10,6 +10,7 @@ import SwiftUI
 struct ChatListView: View {
     
     @StateObject var viewModel: ChatListViewModel
+    @ObservedObject var coordinator: ChatCoordinator
     
     var body: some View {
         
@@ -17,9 +18,20 @@ struct ChatListView: View {
             LazyVStack {
                 ForEach(viewModel.output.chatRoomList, id: \.id) { item in
                     makeChatListView(item)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            coordinator.push(.chatRoomView(roomID: item.roomId, opponentNick: item.participants[0].nick))
+                        }
+                        
                         
                 }
             }
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                TitleTextView(title: "채팅")
+            }
+            
         }
         .onAppear {
             viewModel.action(.showChatRoomList)
