@@ -208,7 +208,7 @@ struct MessageRow: View {
                 messageInfo()
                 myMessageBubble()
             } else {
-                ProfileImageView(size: 32)
+                ProfileImageView(image: nil, size: 32)
                 otherMessageBubble()
                 Spacer()
             }

@@ -33,6 +33,18 @@ struct ChatListView: View {
             }
             
         }
+        .commonAlert(
+            isPresented: Binding(
+                get: { viewModel.output.isShowingError },
+                set: { isPresented in
+                    if !isPresented {
+                        //viewModel.action(.resetError)
+                    }
+                }
+            ),
+            title: viewModel.output.presentedError?.message.title,
+            message: viewModel.output.presentedError?.message.msg
+        )
         .onAppear {
             viewModel.action(.showChatRoomList)
         }
@@ -48,7 +60,7 @@ extension ChatListView {
     func makeChatListView(_ data: ChatRoomEntity) -> some View {
         
         HStack(alignment: .top, spacing: 10) {
-            ProfileImageView(size: 44)
+            ProfileImageView(image: data.opponentImage, size: 44)
             
             VStack(alignment: .leading, spacing: 5) {
                 Text(data.lastChat!.sender.nick)
@@ -70,7 +82,7 @@ extension ChatListView {
     
     func formatDate(_ isoDateString: String) -> String {
         let formatter = ISO8601DateFormatter()
-        print("dsmakldmsalkmdksalmdl")
+        
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
 
         guard let date = formatter.date(from: isoDateString) else {

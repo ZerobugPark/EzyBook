@@ -8,7 +8,7 @@
 import Foundation
 import RealmSwift
 
-final class ChatMessageObject: Object {
+final class ChatMessageTable: Object {
     @Persisted(primaryKey: true) var chatID: String
     @Persisted var roomID: String  // 🔗 ChatRoomObject와 연결
     @Persisted var content: String
@@ -38,9 +38,9 @@ final class ChatMessageObject: Object {
 }
 
 
-extension ChatMessageObject {
-    static func from(entity: ChatMessageEntity) -> ChatMessageObject {
-        ChatMessageObject(
+extension ChatMessageTable {
+    static func from(entity: ChatMessageEntity) -> ChatMessageTable {
+        ChatMessageTable(
             chatID: entity.chatID,
             roomID: entity.roomID,
             content: entity.content,

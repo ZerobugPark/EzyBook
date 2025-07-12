@@ -20,15 +20,16 @@ final class ChatListViewModel: ViewModelType {
     private var scale: CGFloat = 0
     
     private let chatListUseCase :DefaultChatListUseCase
-    private let chatRealmUseCase: DefaultChatRealmUseCase
+    private let chatRoomRealmListUseCase: DefaultChatRoomRealmListUseCase
     private let chatRoomListUseCase: DefaultChatRoomListUseCase
+    
     private let profileLookUpUseCase: DefaultProfileLookUpUseCase
     private let profileSearchUseCase: DefaultProfileSearchUseCase
     private let imageLoader: DefaultLoadImageUseCase
     
     init(
         chatListUseCase: DefaultChatListUseCase,
-        chatRealmUseCase: DefaultChatRealmUseCase,
+        chatRoomRealmListUseCase: DefaultChatRoomRealmListUseCase,
         chatRoomListUseCase: DefaultChatRoomListUseCase,
         profileLookUpUseCase: DefaultProfileLookUpUseCase,
         profileSearchUseCase: DefaultProfileSearchUseCase,
@@ -37,7 +38,7 @@ final class ChatListViewModel: ViewModelType {
 
     
         self.chatListUseCase = chatListUseCase
-        self.chatRealmUseCase = chatRealmUseCase
+        self.chatRoomRealmListUseCase = chatRoomRealmListUseCase
         self.chatRoomListUseCase = chatRoomListUseCase
         self.profileLookUpUseCase = profileLookUpUseCase
         self.profileSearchUseCase = profileSearchUseCase
@@ -65,59 +66,41 @@ extension ChatListViewModel {
             presentedError != nil
         }
         
-        //var opponentProfile: ProfileLookUpModel = .skeleton
         var chatRoomList: [ChatRoomEntity] = []
     }
     
     func transform() {}
-    
-
-
-//    private func loadProfileLookup() {
-//        Task {
-//            do {
-//                let data = try await profileLookUpUseCase.execute()
-//                userID = data.userID
-//                
-//                let opponentData = try await profileSearchUseCase.execute(opponentNick)
-//                    
-//                let profileImage: UIImage
-//              
-//                if let url = opponentData[0].profileImage {
-//                    profileImage = try await imageLoader.execute(url)
-//                } else  {
-//                    profileImage = UIImage(resource: .tabBarProfileFill)
-//                }
-//                
-//                await MainActor.run {
-//                    output.opponentProfile = ProfileLookUpModel(from: opponentData[0], profileImage: profileImage)
-//                }
-//                
-//                
-//            } catch let error as APIError {
-//                await MainActor.run {
-//                    output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
-//                }
-//            }
-//        }
-//    }
+   
     
     private func requestChatRoomList() {
         
+        
+        /// Realm에서 먼저 불러오기 (빠르게 UI 표시)
+        let realmData = chatRoomRealmListUseCase.excutFetchMessage()
+        if !realmData.isEmpty {
+            output.chatRoomList = realmData
+        }
+        
+        /// 2. 서버에서 최신 채팅방 목록 불러오기 (갱신)
         Task {
             do {
                 let data = try await chatRoomListUseCase.execute()
- 
-                await MainActor.run {
-                    output.chatRoomList = data.filter  { $0.lastChat != nil }
-                    
-                    print(data)
+                let profileImages = await loadProfileLookup(data)
+                
+                let dataWithImage = data.enumerated().map { (offset, element) in
+                    var item = element
+                    item.opponentImage = profileImages[offset]
+                    return item
+                }
 
+                await MainActor.run {
+                    output.chatRoomList = dataWithImage.filter  { $0.lastChat != nil }
+                    chatRoomRealmListUseCase.executeSaveData(lastChat: output.chatRoomList)
                 }
                 
+            } catch let error as APIError {
+                /// 에러처리
                 
-            } catch {
-                print(error)
             }
         }
         
@@ -125,6 +108,60 @@ extension ChatListViewModel {
     }
     
     
+    
+    //TODO: 채팅창이 많아지면 페이지 네이션 기능 추가해할 듯
+    private func loadProfileLookup(_ data: [ChatRoomEntity]) async -> [UIImage?]  {
+        
+        
+        await withTaskGroup(of: (Int, Result<UIImage?, Error>).self) { group in
+            
+            for (index, item) in data.enumerated() {
+                
+                group.addTask { [weak self] in
+                    
+                    guard let self else { return (-1, .failure(NSError(domain: "프로필 이미지 오류", code: -1)))}
+                    
+                    
+                    let result: Result<UIImage?, Error>
+                    
+                    do {
+
+                        let profileImage: UIImage?
+
+                        if let url = item.participants[0].profileImage {
+                            profileImage = try await imageLoader.execute(url)
+                        } else  {
+                            profileImage = nil
+                        }
+                        
+                        result = .success(profileImage)
+                        
+                        
+                    } catch {
+                        result = .failure(error)
+                    }
+                    
+                    return (index, result)
+                }
+            }
+            
+            var images: [UIImage?] = .init(repeating: UIImage(), count: data.count)
+            
+            for await (index, result) in group {
+                switch result {
+                case .success(let image):
+                    images[index] = image
+                case .failure(let error):
+                    let error = error as? APIError
+                    print("이미지 로드  실패 \(index): \(error?.userMessage ?? "알수 없는 오류")")
+                    
+                }
+            }
+            return images
+        }
+        
+        
+    }
 }
 
 // MARK: Action

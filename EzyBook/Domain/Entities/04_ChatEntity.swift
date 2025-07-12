@@ -5,7 +5,7 @@
 //  Created by youngkyun park on 6/30/25.
 //
 
-import Foundation
+import SwiftUI
 
 struct ChatRoomEntity: Identifiable {
     let id = UUID()
@@ -14,6 +14,7 @@ struct ChatRoomEntity: Identifiable {
     let updatedAt: String?
     let participants: [UserInfoResponseEntity]
     let lastChat: ChatEntity?
+    var opponentImage: UIImage? = nil
     
     init(dto: ChatRoomResponseDTO) {
         self.roomId = dto.roomId
@@ -25,6 +26,21 @@ struct ChatRoomEntity: Identifiable {
         self.lastChat = dto.lastChat.map { ChatEntity(dto: $0) }
     }
     
+    init(
+        roomId: String,
+        createdAt: String,
+        updatedAt: String?,
+        participants: [UserInfoResponseEntity],
+        lastChat: ChatEntity?,
+        opponentImage: UIImage? = nil
+    ) {
+        self.roomId = roomId
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+        self.participants = participants
+        self.lastChat = lastChat
+        self.opponentImage = opponentImage
+    }
 }
 
 
@@ -45,6 +61,16 @@ struct ChatEntity {
         self.updatedAt = dto.updatedAt
         self.sender = UserInfoResponseEntity(dto: dto.sender)
         self.files = dto.files
+    }
+    
+    init(chatId: String, roomId: String, content: String, createdAt: String, updatedAt: String, sender: UserInfoResponseEntity, files: [String]) {
+        self.chatId = chatId
+        self.roomId = roomId
+        self.content = content
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+        self.sender = sender
+        self.files = files
     }
 }
 

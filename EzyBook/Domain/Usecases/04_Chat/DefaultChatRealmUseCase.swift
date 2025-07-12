@@ -9,9 +9,9 @@ import Foundation
 
 final class DefaultChatRealmUseCase {
     
-    private let repo: any ChatDataRepository
+    private let repo: any ChatMessageRealmRepository
     
-    init(repo: any ChatDataRepository) {
+    init(repo: any ChatMessageRealmRepository) {
         self.repo = repo
     }
     

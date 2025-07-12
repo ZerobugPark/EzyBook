@@ -33,7 +33,8 @@ final class AppDIContainer {
     private let orderRepository: DefaultOrderRepository
     private let paymentRepository: DefaultPaymentRepository
     private let chatRepository: DefaultChatRepository
-    private let chatRealmListRepository: DefaultChatRealmDataRepository
+    private let chatRealmListRepository: DefaultChatMessageRealmRepository
+    private let chatMessageRealmRepository: DefaultChatRoomRealmRepository
     
     
     
@@ -58,7 +59,8 @@ final class AppDIContainer {
         
         chatRepository = DefaultChatRepository(networkService: networkService)
 
-        chatRealmListRepository = DefaultChatRealmDataRepository()
+        chatRealmListRepository = DefaultChatMessageRealmRepository()
+        chatMessageRealmRepository = DefaultChatRoomRealmRepository()
         
         imageCache = ImageCache()
         imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache, interceptor: interceptor)
@@ -91,6 +93,7 @@ final class AppDIContainer {
             createChatRoomUseCase: makeCreateChatRoomUseCase(),
             chatRoomListUseCase: makeChatRoomListUseCase(),
             chatListUseCase: makeChatListUseCase(),
+            chatRoomRealmListUseCase: makeChatRoomRealmListUseCase(),
             chatRealmUseCase: makeKhatLosdUseCase(),
             imageLoader: makeImageLoaderUseCase(),
             viewLoader: makeVidoeLoaderDelegate(),
@@ -135,6 +138,10 @@ extension AppDIContainer {
     
     private func makeChatRoomListUseCase() -> DefaultChatRoomListUseCase {
         DefaultChatRoomListUseCase(repo: chatRepository)
+    }
+    
+    private func makeChatRoomRealmListUseCase() -> DefaultChatRoomRealmListUseCase {
+        DefaultChatRoomRealmListUseCase(repo: chatMessageRealmRepository)
     }
 }
 
