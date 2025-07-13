@@ -48,17 +48,6 @@ final class ChatRoomViewModel: ViewModelType {
         self.profileSearchUseCase = profileSearchUseCase
         self.imageLoader = imageLoader
         
-        self.socketService.onMessageReceived = { [weak self] message in
-            
-            Task {
-                await MainActor.run {
-                    let chat: [ChatMessageEntity] = [message]
-                    chatRealmUseCase.executeSaveData(chatList: chat)
-                }
-            }
-            
-            self?.chatMessages.append(message)
-        }
        
         transform()
     }
@@ -83,6 +72,13 @@ extension ChatRoomViewModel {
         
         var unknownedUser: Bool = false
         var opponentProfile: ProfileLookUpModel = .skeleton
+        
+        var chatList: [ChatMessageEntity] = []
+    }
+    
+    
+    private var opponentID: String {
+        output.opponentProfile.userID
     }
     
     func transform() {}
@@ -90,39 +86,122 @@ extension ChatRoomViewModel {
     
     
     ///[채팅방 진입 시]
-    ///1. Realm 마지막 메시지 확인
-    ///2. 서버 마지막 메시지 fetch
-    ///3. 동일하면 → Realm만 UI에 사용
-    ///4. 다르면 → 이후 메시지 fetch → Realm 업데이트 → UI 업데이트
-    private func handleConnectSocket() {
-        socketService.connect()
-        
-        /// Realm 마지막 메시지 확인
-        if let lastLocalMessage = chatRealmUseCase.excuteLastChatMessage(roodID: roomID) {
-            /// 서버 패치
-            requestChatList(lastLocalMessage.createdAt)
-        } else {
-            /// 서버 패치
-            requestChatList()
-        }
+    ///1. 프로펄 조회
+    ///2. 로컬 DB에서 채팅 내역 조회
+    ///3. 서버에서 최신 채팅 내역 요청
+    ///4. 데이터 저장 및 UI 업데이트
+    ///5. 소켓 연결
+    ///-> 데이터 동기화로 인하여 WebSocket연결이 지연 될 수 있기 때문에, 소켓 연결 후 최신 채팅 내역 한번 더 요청
+    private func handleEnterChatRoom() {
         
         /// 내 프로필 및 상대방 프로필
         loadProfileLookup()
 
+
         //// Realm에서 메시지 가져오기
+        loadLocalMessages()
+        
+        /// 서버에서 채팅 내역 요청
+        if output.chatList.isEmpty {
+            /// 렘에 비어있으면 서버에서 전체 데이터 조회
+            requestChatList()
+        } else {
+            /// 렘이 비어있지 않다면 마지막 메시지만 비교
+            requesLastChatMessage()
+        }
+        
+  
+        
+        socketService.onConnect = { [weak self] in
+            
+            guard let self else { return }
+            requesLastChatMessage()
+        }
+
+        
+        socketService.onMessageReceived = { [weak self] message in
+            
+            guard let self else { return }
+            
+            Task {
+                await MainActor.run {
+                    let chat: [ChatMessageEntity] = [message]
+                    self.chatRealmUseCase.executeSaveData(chatList: chat)
+                }
+            }
+            
+            self.chatMessages.append(message)
+        }
         
         
         
-        /// UI 업데이트 로직 추가
         
+        
+        socketService.connect()
+        
+
      
     }
     
+    /// 렘에서 최근 메시지 조회
+    private func loadLocalMessages() {
+        
+        Task {
+            await MainActor.run {
+                let list = chatRealmUseCase.excutefetchLatestMessage(roodID: roomID, opponentID: opponentID)
+                output.chatList = list
+            }
+        }
+        
+        
+        
+    }
+    
+    /// 서버에서 마지막 채팅 내역 조회
+    private func requesLastChatMessage() {
+        guard let date = output.chatList.last?.createdAt else {
+            return
+        }
+        requestChatList(date)
+    }
 
+    
+
+    /// 채팅 내역 조회
+    private func requestChatList(_ next: String? = nil) {
+        
+        Task {
+            do {
+                let data = try await chatListUseCase.execute(id: roomID, next: next)
+
+                
+                
+                /// 렘에서는 isMine을 저장하지않음 (데이터 무결성을 해침)
+                /// A로 로그인하고, 동일한 기기로 B로 로그인한다면? 둘다 isMine은 true지만 실제 로그인 유저에 따라 다를 수 있음
+                /// 기기는 Realm을 공통으로 관리하기 때문에
+                let chatList = data.map { $0.toEnity() }
+                
+                // 렘 로직 추가
+                await MainActor.run {
+                    chatRealmUseCase.executeSaveData(chatList: chatList)
+                }
+                
+                
+            } catch {
+                print(error)
+            }
+        }
+        
+        
+    }
+    
+    ///프로필 조회
     private func loadProfileLookup() {
         Task {
             do {
                 let data = try await profileLookUpUseCase.execute()
+                
+                /// 상대방과 나를 비교하기 위한 UserID
                 userID = data.userID
                 
                 let opponentData = try await profileSearchUseCase.execute(opponentNick)
@@ -155,45 +234,6 @@ extension ChatRoomViewModel {
         }
     }
     
-    private func requestChatList(_ next: String? = nil) {
-        
-        Task {
-            do {
-                let data = try await chatListUseCase.execute(id: roomID, next: next)
-                
-                let chatList = data.map {
-                    
-                    /// 렘에서는 isMine을 저장하지않음 (데이터 무결성을 해침)
-                    /// A로 로그인하고, 동일한 기기로 B로 로그인한다면? 둘다 isMine은 true지만 실제 로그인 유저에 따라 다를 수 있음
-                    /// 기기는 Realm을 공통으로 관리하기 때문에
-                    ChatMessageEntity(
-                        chatID: $0.chatId,
-                        content: $0.content,
-                        createdAt: $0.createdAt,
-                        files: $0.files,
-                        roomID: $0.roomId,
-                        sender: ChatMessageEntity.Sender(
-                            userID: $0.sender.userID,
-                            nick: $0.sender.nick
-                        ), isMine: false
-                    )
-                    
-                }
-                
-                // 렘 로직 추가
-                await MainActor.run {
-                    chatRealmUseCase.executeSaveData(chatList: chatList)
-                }
-                
-                
-            } catch {
-                print(error)
-            }
-        }
-        
-        
-    }
-    
     
 }
 
@@ -208,7 +248,7 @@ extension ChatRoomViewModel {
     func action(_ action: Action) {
         switch action {
         case .startChat:
-            handleConnectSocket()
+            handleEnterChatRoom()
         }
     }
     

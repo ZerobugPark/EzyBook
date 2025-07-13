@@ -10,7 +10,7 @@ import RealmSwift
 
 final class ChatMessageTable: Object {
     @Persisted(primaryKey: true) var chatID: String
-    @Persisted var roomID: String  // 🔗 ChatRoomObject와 연결
+    @Persisted var roomID: String
     @Persisted var content: String
     @Persisted var createdAt: String
     @Persisted var _files: List<String>

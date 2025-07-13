@@ -38,7 +38,7 @@ struct ChatListView: View {
                 get: { viewModel.output.isShowingError },
                 set: { isPresented in
                     if !isPresented {
-                        //viewModel.action(.resetError)
+                        viewModel.action(.resetError)
                     }
                 }
             ),

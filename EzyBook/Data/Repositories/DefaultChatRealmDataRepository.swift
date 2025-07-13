@@ -13,8 +13,8 @@ import RealmSwift
 
 
 final class DefaultChatMessageRealmRepository: RealmRepository<ChatMessageTable> ,ChatMessageRealmRepository {
-
-    func save(chatList: [ChatMessageEntity]) {
+    
+    func save(chatList: [ChatMessageEntity], retryCount: Int = 0) {
         getFileURL()
         let objects = chatList.map { ChatMessageTable.from(entity: $0) }
         
@@ -23,24 +23,41 @@ final class DefaultChatMessageRealmRepository: RealmRepository<ChatMessageTable>
                 realm.add(objects, update: .modified)
             }
         } catch {
-            print("렘 저장 실패")
+            print(" Realm 저장 실패 - 재시도 \(retryCount)")
+            
+            if retryCount < 3 {
+                // 약간의 딜레이 후 재시도
+                // concurrency를 사용할 경우 메인쓰레드에 대해서 한번 더 명시를 해줘야 할 수 있기 때문에, GCD 사용
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self.save(chatList: chatList, retryCount: retryCount + 1)
+                }
+            } else {
+                print(" Realm 저장 영구 실패. 수동 보정 필요.")
+            }
         }
         
+        
+        
+        print("렘 저장 실패")
+        
+        
     }
     
-    func getLastChatMessage(roomID: String) -> ChatMessageEntity? {
-        
-        guard let lastObject = realm.objects(ChatMessageTable.self)
-            .filter ("roomID == %@", roomID)
+
+    /// 가장 최근 채팅 내역
+    func fetchLatestMessages(roomID: String, limit: Int = 30, opponentID: String) -> [ChatMessageEntity] {
+        let query = realm.objects(ChatMessageTable.self)
+            .filter("roomID == %@", roomID)
             .sorted(byKeyPath: "createdAt", ascending: false)
-            .first else {
-                return nil
-            }
-        
-        return lastObject.toEntity()
-        
+            .prefix(limit)
+
+        return Array(query.reversed()).map {
+            $0.toEntity(opponentID: opponentID)
+        }
     }
     
+    
+    /// 채팅 내역 불러오기
     func fetchMessageList(roomID: String, before: String?, limit: Int, opponentID: String) -> [ChatMessageEntity] {
         
         
@@ -66,7 +83,6 @@ final class DefaultChatMessageRealmRepository: RealmRepository<ChatMessageTable>
 final class DefaultChatRoomRealmRepository: RealmRepository<ChatRoomTabel>, ChatRoomRealmRepository {
     
     func save(lastChat: [ChatRoomEntity]) {
-        getFileURL()
         
         let objects = lastChat.map { ChatRoomTabel.from(entity: $0) }
         
@@ -79,16 +95,17 @@ final class DefaultChatRoomRealmRepository: RealmRepository<ChatRoomTabel>, Chat
         }
         
     }
-    
+
+    /// 마지막 채팅 목록
     func fetchLastMessageList() -> [ChatRoomEntity] {
         
         
         return realm.objects(ChatRoomTabel.self)
             .sorted(byKeyPath: "lastMessageCreatedAt", ascending: false)
             .map { $0.toEntity() }
-
-    
-
+        
+        
+        
     }
     
 }

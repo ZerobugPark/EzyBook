@@ -79,3 +79,10 @@ extension ChatRoomTabel {
     
 }
 
+
+
+extension ChatEntity {
+    func toEnity() -> ChatMessageEntity {
+        return ChatMessageEntity(entity: self)
+    }
+}

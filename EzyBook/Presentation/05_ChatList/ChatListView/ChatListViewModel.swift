@@ -99,7 +99,9 @@ extension ChatListViewModel {
                 }
                 
             } catch let error as APIError {
-                /// 에러처리
+                await MainActor.run {
+                    output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+                }
                 
             }
         }
@@ -162,6 +164,11 @@ extension ChatListViewModel {
         
         
     }
+    
+    
+    private func handleResetError() {
+        output.presentedError = nil
+    }
 }
 
 // MARK: Action
@@ -169,6 +176,7 @@ extension ChatListViewModel {
     
     enum Action {
         case showChatRoomList
+        case resetError
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
@@ -176,6 +184,8 @@ extension ChatListViewModel {
         switch action {
         case .showChatRoomList:
             requestChatRoomList()
+        case .resetError:
+            handleResetError()
         }
     }
     

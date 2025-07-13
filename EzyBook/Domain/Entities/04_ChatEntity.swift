@@ -74,6 +74,7 @@ struct ChatEntity {
     }
 }
 
+
 struct ChatMessageEntity {
     let chatID: String
     let content: String
@@ -86,6 +87,28 @@ struct ChatMessageEntity {
     struct Sender {
         let userID: String
         let nick: String
+    }
+    
+    
+    init(chatID: String, content: String, createdAt: String, files: [String], roomID: String, sender: Sender, isMine: Bool) {
+        self.chatID = chatID
+        self.content = content
+        self.createdAt = createdAt
+        self.files = files
+        self.roomID = roomID
+        self.sender = sender
+        self.isMine = isMine
+    }
+    
+    
+    init(entity: ChatEntity) {
+        self.chatID = entity.chatId
+        self.content = entity.content
+        self.createdAt = entity.createdAt
+        self.files = entity.files
+        self.roomID = entity.roomId
+        self.sender = Sender(userID: entity.sender.userID, nick: entity.sender.nick)
+        self.isMine = false
     }
     
     static func from(dict: [String : Any]) -> ChatMessageEntity? {
@@ -114,5 +137,4 @@ struct ChatMessageEntity {
          )
      }
 }
-
 
