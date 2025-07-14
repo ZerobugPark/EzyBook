@@ -20,7 +20,7 @@ final class DefaultChatRealmUseCase {
         repo.save(chatList: chatList)
     }
     
-    func excutefetchLatestMessage(roodID: String, opponentID: String) -> [ChatMessageEntity] {
+    func excutefetchLatestMessage(roodID: String, opponentID: String) -> ChatMessageEntity? {
         
         let data = repo.fetchLatestMessages(roomID: roodID, opponentID: opponentID)
         

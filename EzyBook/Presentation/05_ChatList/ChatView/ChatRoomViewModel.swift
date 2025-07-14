@@ -83,6 +83,12 @@ extension ChatRoomViewModel {
     
     func transform() {}
     
+  
+    private func startEnterChatRoomFlow() {
+        Task {
+            await handleEnterChatRoom()
+        }
+    }
     
     
     ///[채팅방 진입 시]
@@ -92,33 +98,30 @@ extension ChatRoomViewModel {
     ///4. 데이터 저장 및 UI 업데이트
     ///5. 소켓 연결
     ///-> 데이터 동기화로 인하여 WebSocket연결이 지연 될 수 있기 때문에, 소켓 연결 후 최신 채팅 내역 한번 더 요청
-    private func handleEnterChatRoom() {
-        
+    private func handleEnterChatRoom() async {
+
         /// 내 프로필 및 상대방 프로필
         loadProfileLookup()
-
-
+ 
         //// Realm에서 메시지 가져오기
-        loadLocalMessages()
-        
+        let lastMessage = await loadLocalMessages()
+
         /// 서버에서 채팅 내역 요청
-        if output.chatList.isEmpty {
+        if let lastMessage {
+            /// 렘이 비어있지 않다면 마지막 메시지만 비교
+            requestChatList(lastMessage.createdAt)
+            
+        } else {
             /// 렘에 비어있으면 서버에서 전체 데이터 조회
             requestChatList()
-        } else {
-            /// 렘이 비어있지 않다면 마지막 메시지만 비교
-            requesLastChatMessage()
         }
-        
-  
-        
+                  
         socketService.onConnect = { [weak self] in
             
             guard let self else { return }
-            requesLastChatMessage()
+            requestChatList(output.chatList.last?.createdAt)
         }
 
-        
         socketService.onMessageReceived = { [weak self] message in
             
             guard let self else { return }
@@ -131,66 +134,67 @@ extension ChatRoomViewModel {
             }
             
             self.chatMessages.append(message)
+            
+            print(self.chatMessages)
         }
         
-        
-        
-        
-        
+
         socketService.connect()
         
-
-     
     }
     
     /// 렘에서 최근 메시지 조회
-    private func loadLocalMessages() {
+    private func loadLocalMessages() async -> ChatMessageEntity? {
         
-        Task {
-            await MainActor.run {
-                let list = chatRealmUseCase.excutefetchLatestMessage(roodID: roomID, opponentID: opponentID)
-                output.chatList = list
-            }
+        await MainActor.run {
+            return chatRealmUseCase.excutefetchLatestMessage(roodID: roomID, opponentID: opponentID)
+            
         }
-        
-        
-        
-    }
     
-    /// 서버에서 마지막 채팅 내역 조회
-    private func requesLastChatMessage() {
-        guard let date = output.chatList.last?.createdAt else {
-            return
-        }
-        requestChatList(date)
+        
     }
+
 
     
 
     /// 채팅 내역 조회
-    private func requestChatList(_ next: String? = nil) {
+    private func requestChatList(_ next: String? = nil) async {
         
-        Task {
-            do {
-                let data = try await chatListUseCase.execute(id: roomID, next: next)
+        do {
+            let data = try await chatListUseCase.execute(id: roomID, next: next)
 
-                
-                
-                /// 렘에서는 isMine을 저장하지않음 (데이터 무결성을 해침)
-                /// A로 로그인하고, 동일한 기기로 B로 로그인한다면? 둘다 isMine은 true지만 실제 로그인 유저에 따라 다를 수 있음
-                /// 기기는 Realm을 공통으로 관리하기 때문에
-                let chatList = data.map { $0.toEnity() }
-                
-                // 렘 로직 추가
-                await MainActor.run {
-                    chatRealmUseCase.executeSaveData(chatList: chatList)
-                }
-                
-                
-            } catch {
-                print(error)
+
+            /// 렘에서는 isMine을 저장하지않음 (데이터 무결성을 해침)
+            /// A로 로그인하고, 동일한 기기로 B로 로그인한다면? 둘다 isMine은 true지만 실제 로그인 유저에 따라 다를 수 있음
+            /// 기기는 Realm을 공통으로 관리하기 때문에
+            let chatList = data.map { $0.toEnity() }
+            
+            guard !chatList.isEmpty else {
+                // next 이후로 가져올 데이터 없음 → 저장 스킵
+                // 렘에서만 호출
+                let messages = chatRealmUseCase.excuteFetchChatList(roomID: roomID, before: nil, limit: 30, opponentID: opponentID)
+                output.chatList = messages
+                return
             }
+            
+            
+            // 렘 로직 추가
+            await MainActor.run {
+                /// 렘에 저장
+                chatRealmUseCase.executeSaveData(chatList: chatList)
+                
+                
+                let messages = chatRealmUseCase.excuteFetchChatList(roomID: roomID, before: nil, limit: 30, opponentID: opponentID)
+                output.chatList = messages
+                // 저장후 불러오기
+                
+            }
+            
+            
+        } catch {
+            print(error)
         }
+        
         
         
     }
@@ -248,7 +252,7 @@ extension ChatRoomViewModel {
     func action(_ action: Action) {
         switch action {
         case .startChat:
-            handleEnterChatRoom()
+            startEnterChatRoomFlow()
         }
     }
     

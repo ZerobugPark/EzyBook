@@ -36,26 +36,21 @@ final class DefaultChatMessageRealmRepository: RealmRepository<ChatMessageTable>
             }
         }
         
-        
-        
-        print("렘 저장 실패")
-        
-        
     }
     
 
     /// 가장 최근 채팅 내역
-    func fetchLatestMessages(roomID: String, limit: Int = 30, opponentID: String) -> [ChatMessageEntity] {
-        let query = realm.objects(ChatMessageTable.self)
+    func fetchLatestMessages(roomID: String, opponentID: String) -> ChatMessageEntity? {
+        let last = realm.objects(ChatMessageTable.self)
             .filter("roomID == %@", roomID)
             .sorted(byKeyPath: "createdAt", ascending: false)
-            .prefix(limit)
-
-        return Array(query.reversed()).map {
-            $0.toEntity(opponentID: opponentID)
-        }
+            .first
+        
+        return last?.toEntity(opponentID: opponentID)
+        
     }
     
+
     
     /// 채팅 내역 불러오기
     func fetchMessageList(roomID: String, before: String?, limit: Int, opponentID: String) -> [ChatMessageEntity] {
