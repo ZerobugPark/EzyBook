@@ -93,111 +93,151 @@ extension ChatRoomViewModel {
     
     ///[채팅방 진입 시]
     ///1. 프로펄 조회
-    ///2. 로컬 DB에서 채팅 내역 조회
+    ///2. 로컬 DB  채팅 내역 조회
     ///3. 서버에서 최신 채팅 내역 요청
     ///4. 데이터 저장 및 UI 업데이트
     ///5. 소켓 연결
     ///-> 데이터 동기화로 인하여 WebSocket연결이 지연 될 수 있기 때문에, 소켓 연결 후 최신 채팅 내역 한번 더 요청
+    
+    
+    // MARK: - Entry Point
     private func handleEnterChatRoom() async {
-
-        /// 내 프로필 및 상대방 프로필
         loadProfileLookup()
- 
-        //// Realm에서 메시지 가져오기
-        let lastMessage = await loadLocalMessages()
-
-        /// 서버에서 채팅 내역 요청
-        if let lastMessage {
-            /// 렘이 비어있지 않다면 마지막 메시지만 비교
-            requestChatList(lastMessage.createdAt)
-            
-        } else {
-            /// 렘에 비어있으면 서버에서 전체 데이터 조회
-            requestChatList()
-        }
-                  
-        socketService.onConnect = { [weak self] in
-            
-            guard let self else { return }
-            requestChatList(output.chatList.last?.createdAt)
-        }
-
-        socketService.onMessageReceived = { [weak self] message in
-            
-            guard let self else { return }
-            
-            Task {
-                await MainActor.run {
-                    let chat: [ChatMessageEntity] = [message]
-                    self.chatRealmUseCase.executeSaveData(chatList: chat)
-                }
-            }
-            
-            self.chatMessages.append(message)
-            
-            print(self.chatMessages)
-        }
         
-
+        // 1) Realm 데이터 즉시 로드 (초기 UI)
+        await loadInitialChatData()
+        
+        // 2) 서버 최신 여부 동기화 (백그라운드)
+        await syncChatListIfNeeded()
+        
+        // 3) 소켓 설정 및 연결
+        configureSocket()
         socketService.connect()
-        
     }
+
     
-    /// 렘에서 최근 메시지 조회
-    private func loadLocalMessages() async -> ChatMessageEntity? {
-        
+    // MARK: - Initial Load (Realm → UI 즉시 표시)
+    private func loadInitialChatData() async {
         await MainActor.run {
-            return chatRealmUseCase.excutefetchLatestMessage(roodID: roomID, opponentID: opponentID)
-            
+            let messages = chatRealmUseCase.excuteFetchChatList(
+                roomID: roomID,
+                before: nil,
+                limit: 30,
+                opponentID: opponentID
+            )
+            output.chatList = messages
         }
-    
-        
     }
 
 
-    
-
-    /// 채팅 내역 조회
-    private func requestChatList(_ next: String? = nil) async {
+    // MARK: - Sync Logic (서버와 최신 여부 비교 후 새 메시지 동기화)
+    private func syncChatListIfNeeded() async {
+        guard let lastLocalMessage = await loadLocalLastMessage() else {
+            // Realm도 비어있으면 전체 조회
+            await requestChatList()
+            return
+        }
         
         do {
-            let data = try await chatListUseCase.execute(id: roomID, next: next)
-
-
-            /// 렘에서는 isMine을 저장하지않음 (데이터 무결성을 해침)
-            /// A로 로그인하고, 동일한 기기로 B로 로그인한다면? 둘다 isMine은 true지만 실제 로그인 유저에 따라 다를 수 있음
-            /// 기기는 Realm을 공통으로 관리하기 때문에
-            let chatList = data.map { $0.toEnity() }
+            let serverLatest = try await fetchChatListFromServer(lastLocalMessage.createdAt)
+            guard !serverLatest.isEmpty else { return }
             
-            guard !chatList.isEmpty else {
-                // next 이후로 가져올 데이터 없음 → 저장 스킵
-                // 렘에서만 호출
-                let messages = chatRealmUseCase.excuteFetchChatList(roomID: roomID, before: nil, limit: 30, opponentID: opponentID)
-                output.chatList = messages
-                return
-            }
-            
-            
-            // 렘 로직 추가
-            await MainActor.run {
-                /// 렘에 저장
-                chatRealmUseCase.executeSaveData(chatList: chatList)
-                
-                
-                let messages = chatRealmUseCase.excuteFetchChatList(roomID: roomID, before: nil, limit: 30, opponentID: opponentID)
-                output.chatList = messages
-                // 저장후 불러오기
-                
-            }
-            
-            
+            await saveAndLoadChatList(serverLatest)
         } catch {
-            print(error)
+            print("syncChatListIfNeeded error: \(error)")
+        }
+    }
+    
+    // MARK: - Socket Configuration
+    private func configureSocket() {
+        socketService.onConnect = { [weak self] in
+            guard let self else { return }
+            Task {
+                await self.syncChatListIfNeeded()
+            }
         }
         
-        
-        
+        socketService.onMessageReceived = { [weak self] message in
+            guard let self else { return }
+            Task {
+                await self.handleIncomingMessage(message)
+            }
+        }
     }
+
+    
+
+    // MARK: - Handle Incoming Message (실시간 소켓 메시지 append)
+    private func handleIncomingMessage(_ message: ChatMessageEntity) async {
+        await MainActor.run {
+            // Realm 저장
+            chatRealmUseCase.executeSaveData(chatList: [message])
+            
+            // UI append (중복 방지)
+            if !output.chatList.contains(where: { $0.chatID == message.chatID }) {
+                output.chatList.append(message)
+            }
+        }
+    }
+
+    // MARK: - Local Realm Helpers
+    /// 최근 메시지 1개 (서버 동기화 기준)
+    private func loadLocalLastMessage() async -> ChatMessageEntity? {
+        await MainActor.run {
+            return chatRealmUseCase.excutefetchLatestMessage(
+                roodID: roomID,
+                opponentID: opponentID
+            )
+        }
+    }
+    
+    // MARK: - Chat List Request (서버 → Realm 저장 → append or 전체 교체)
+    private func requestChatList(_ next: String? = nil) async {
+        do {
+            let chatList = try await fetchChatListFromServer(next)
+            
+            if next == nil {
+                // 전체 로드 (초기 진입 or Realm 비었을 때)
+                await MainActor.run {
+                    chatRealmUseCase.executeSaveData(chatList: chatList)
+                    let messages = chatRealmUseCase.excuteFetchChatList(
+                        roomID: roomID,
+                        before: nil,
+                        limit: 30,
+                        opponentID: opponentID
+                    )
+                    output.chatList = messages
+                }
+            } else {
+                // 추가 로드 (append)
+                await saveAndLoadChatList(chatList)
+            }
+        } catch {
+            print("requestChatList error: \(error)")
+        }
+    }
+
+    /// 네트워크 순수 호출
+    private func fetchChatListFromServer(_ next: String? = nil) async throws -> [ChatMessageEntity] {
+        let data = try await chatListUseCase.execute(id: roomID, next: next)
+        return data.map { $0.toEnity() }
+    }
+
+    /// Realm 저장 후 UI append
+    private func saveAndLoadChatList(_ chatList: [ChatMessageEntity]) async {
+        guard !chatList.isEmpty else { return }
+        
+        await MainActor.run {
+            chatRealmUseCase.executeSaveData(chatList: chatList)
+            
+            let newMessages = chatList.filter { newMsg in
+                !output.chatList.contains { $0.chatID == newMsg.chatID }
+            }
+            output.chatList.append(contentsOf: newMessages)
+        }
+    }
+
+
     
     ///프로필 조회
     private func loadProfileLookup() {
@@ -207,6 +247,7 @@ extension ChatRoomViewModel {
                 
                 /// 상대방과 나를 비교하기 위한 UserID
                 userID = data.userID
+                print(userID)
                 
                 let opponentData = try await profileSearchUseCase.execute(opponentNick)
                 

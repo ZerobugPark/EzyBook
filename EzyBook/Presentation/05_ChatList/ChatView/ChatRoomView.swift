@@ -6,15 +6,6 @@
 //
 import SwiftUI
 
-/// 채팅방 아이디만 보내주자 생성이나 조회가 필요할테니 룸 아이디만 보내주기
-// MARK: - 데이터 모델
-struct Message: Identifiable {
-    let id = UUID()
-    let text: String
-    let isFromMe: Bool
-    let timestamp: Date
-    let isRead: Bool
-}
 
 // MARK: - 메인 채팅 뷰
 struct ChatRoomView: View {
@@ -24,32 +15,18 @@ struct ChatRoomView: View {
     let onBack: () -> Void
     
     @State private var messageText = ""
-    @State private var messages: [Message] = [
-        Message(text: "안녕하세요!", isFromMe: false, timestamp: Date().addingTimeInterval(-3600), isRead: true),
-        Message(text: "네, 안녕하세요! 반갑습니다...", isFromMe: true, timestamp: Date().addingTimeInterval(-3500), isRead: true),
-        Message(text: "오늘 날씨가 정말 좋네요", isFromMe: false, timestamp: Date().addingTimeInterval(-3000), isRead: true),
-        Message(text: "맞아요! 산책하기 좋은 날씨예요 ☀️", isFromMe: true, timestamp: Date().addingTimeInterval(-2800), isRead: true),
-        Message(text: "주말에 시간 있으시면 같이 카페 갈까요?", isFromMe: false, timestamp: Date().addingTimeInterval(-60), isRead: false)
-    ]
+
     
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
             
-                
                 // 채팅 메시지 리스트
                 ScrollViewReader { proxy in
                     ScrollView {
-                        LazyVStack(spacing: 8) {
-                            ForEach(messages) { message in
-                                MessageRow(message: message)
-                                    .id(message.id)
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
+                        test()
                     }
-                    .onChange(of: messages.count) { _ in
+                    .onChange(of: viewModel.output.chatList.count) { _ in
                         scrollToBottom(proxy: proxy)
                     }
                 }
@@ -65,7 +42,6 @@ struct ChatRoomView: View {
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 BackButtonView {
@@ -89,11 +65,21 @@ struct ChatRoomView: View {
         )
     }
     
+    private func test() -> some View {
+        LazyVStack(spacing: 8) {
+            ForEach(viewModel.output.chatList, id: \.chatID) { message in
+                MessageRow(message: message)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+    }
+    
     // MARK: - 하단으로 스크롤
     private func scrollToBottom(proxy: ScrollViewProxy) {
-        if let lastMessage = messages.last {
+        if let lastMessage = viewModel.output.chatList.last {
             withAnimation(.easeInOut(duration: 0.3)) {
-                proxy.scrollTo(lastMessage.id, anchor: UnitPoint.bottom)
+                proxy.scrollTo(lastMessage.chatID, anchor: UnitPoint.bottom)
             }
         }
     }
@@ -101,15 +87,8 @@ struct ChatRoomView: View {
     // MARK: - 메시지 전송
     private func sendMessage() {
         guard !messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-        
-        let newMessage = Message(
-            text: messageText,
-            isFromMe: true,
-            timestamp: Date(),
-            isRead: false
-        )
-        
-        messages.append(newMessage)
+
+        ///messages.append(newMessage)
         messageText = ""
     }
 }
@@ -199,11 +178,11 @@ extension ChatRoomView {
 
 // MARK: - 메시지 행
 struct MessageRow: View {
-    let message: Message
+    let message: ChatMessageEntity
     
     var body: some View {
         HStack(alignment: .bottom, spacing: 8) {
-            if message.isFromMe {
+            if message.isMine {
                 Spacer()
                 messageInfo()
                 myMessageBubble()
@@ -218,7 +197,7 @@ struct MessageRow: View {
     // MARK: - 내 메시지 버블
     @ViewBuilder
     func myMessageBubble() -> some View {
-        Text(message.text)
+        Text(message.content)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .background(Color.yellow.opacity(0.8))
@@ -229,7 +208,7 @@ struct MessageRow: View {
     // MARK: - 상대방 메시지 버블
     @ViewBuilder
     func otherMessageBubble() -> some View {
-        Text(message.text)
+        Text(message.content)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .background(Color(UIColor.secondarySystemBackground))
@@ -241,15 +220,15 @@ struct MessageRow: View {
     @ViewBuilder
     func messageInfo() -> some View {
         VStack(alignment: .trailing, spacing: 2) {
-            if !message.isRead {
-                Circle()
-                    .fill(Color.red)
-                    .frame(width: 6, height: 6)
-            }
+//            if !message.isRead {
+//                Circle()
+//                    .fill(Color.red)
+//                    .frame(width: 6, height: 6)
+//            }
             
-            Text(formatTime(message.timestamp))
-                .font(.caption2)
-                .foregroundColor(.secondary)
+//            Text(formatTime(message.createdAt))
+//                .font(.caption2)
+//                .foregroundColor(.secondary)
         }
     }
     
