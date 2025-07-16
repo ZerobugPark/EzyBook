@@ -50,10 +50,8 @@ final class DIContainer: ObservableObject {
     /// Chat
     let createChatRoomUseCase: DefaultCreateChatRoomUseCase
     let chatRoomListUseCase: DefaultChatRoomListUseCase
-    let chatListUseCase: DefaultChatListUseCase
     let chatRoomRealmListUseCase : DefaultChatRoomRealmListUseCase
-    let chatRealmUseCase: DefaultChatRealmUseCase
-    let chatUseCases: ChatUseCases
+    let chatUseCases: ChatListUseCases
     
     /// Common
     let imageLoader: DefaultLoadImageUseCase
@@ -61,7 +59,7 @@ final class DIContainer: ObservableObject {
     let tokenService: DefaultTokenService // 리프레시 갱신 시점 때문에 DI에서 추가 관리
     let socketService: SocketServicePool
     
-    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, reviewLookupUseCase: DefaultReviewLookUpUseCase, profileLookUpUseCase: DefaultProfileLookUpUseCase, profileImageUpLoadUseCase: DefaultUploadProfileFileUseCase, profileModifyUseCase: DefaultProfileModifyUseCase, profileSearchUseCase: DefaultProfileSearchUseCase, reviewImageUploadUseCase: DefaultUploadReviewImages, reviewWriteUseCase: DefaultReViewWriteUseCase, orderCreateUseCase: DefaultCreateOrderUseCase, orderListLookUpUseCase: DefaultOrderListLookupUseCase, paymentValidationUseCase: DefaultPaymentValidationUseCase, createChatRoomUseCase: DefaultCreateChatRoomUseCase, chatRoomListUseCase: DefaultChatRoomListUseCase, chatListUseCase: DefaultChatListUseCase, chatRoomRealmListUseCase: DefaultChatRoomRealmListUseCase, chatRealmUseCase: DefaultChatRealmUseCase, chatUseCase: ChatUseCases, imageLoader: DefaultLoadImageUseCase, viewLoader: VideoLoaderDelegate, tokenService: DefaultTokenService, socketService: SocketServicePool) {
+    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, reviewLookupUseCase: DefaultReviewLookUpUseCase, profileLookUpUseCase: DefaultProfileLookUpUseCase, profileImageUpLoadUseCase: DefaultUploadProfileFileUseCase, profileModifyUseCase: DefaultProfileModifyUseCase, profileSearchUseCase: DefaultProfileSearchUseCase, reviewImageUploadUseCase: DefaultUploadReviewImages, reviewWriteUseCase: DefaultReViewWriteUseCase, orderCreateUseCase: DefaultCreateOrderUseCase, orderListLookUpUseCase: DefaultOrderListLookupUseCase, paymentValidationUseCase: DefaultPaymentValidationUseCase, createChatRoomUseCase: DefaultCreateChatRoomUseCase, chatRoomListUseCase: DefaultChatRoomListUseCase, chatRoomRealmListUseCase: DefaultChatRoomRealmListUseCase, chatUseCases: ChatListUseCases, imageLoader: DefaultLoadImageUseCase, viewLoader: VideoLoaderDelegate, tokenService: DefaultTokenService, socketService: SocketServicePool) {
         self.kakaoLoginUseCase = kakaoLoginUseCase
         self.createAccountUseCase = createAccountUseCase
         self.emailLoginUseCase = emailLoginUseCase
@@ -83,10 +81,8 @@ final class DIContainer: ObservableObject {
         self.paymentValidationUseCase = paymentValidationUseCase
         self.createChatRoomUseCase = createChatRoomUseCase
         self.chatRoomListUseCase = chatRoomListUseCase
-        self.chatListUseCase = chatListUseCase
         self.chatRoomRealmListUseCase = chatRoomRealmListUseCase
-        self.chatRealmUseCase = chatRealmUseCase
-        self.chatUseCases = chatUseCase
+        self.chatUseCases = chatUseCases
         self.imageLoader = imageLoader
         self.viewLoader = viewLoader
         self.tokenService = tokenService
@@ -118,9 +114,7 @@ extension DIContainer {
             socketService: socketService,
             roomID: roomID,
             opponentNick: opponentNick,
-            chatListUseCase: chatListUseCase,
             chatUseCases: chatUseCases,
-            chatRealmUseCase: chatRealmUseCase,
             profileLookUpUseCase: profileLookUpUseCase,
             profileSearchUseCase: profileSearchUseCase,
             imageLoader: imageLoader
@@ -129,7 +123,6 @@ extension DIContainer {
     
     func makeChatRoomListViewModel() -> ChatListViewModel {
         ChatListViewModel(
-            chatListUseCase: chatListUseCase,
             chatRoomRealmListUseCase: chatRoomRealmListUseCase,
             chatRoomListUseCase: chatRoomListUseCase,
             profileLookUpUseCase: profileLookUpUseCase,

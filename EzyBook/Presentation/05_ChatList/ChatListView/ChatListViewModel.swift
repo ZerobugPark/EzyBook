@@ -19,7 +19,6 @@ final class ChatListViewModel: ViewModelType {
     private var chatMessages: [ChatMessageEntity] = []
     private var scale: CGFloat = 0
     
-    private let chatListUseCase :DefaultChatListUseCase
     private let chatRoomRealmListUseCase: DefaultChatRoomRealmListUseCase
     private let chatRoomListUseCase: DefaultChatRoomListUseCase
     
@@ -28,7 +27,6 @@ final class ChatListViewModel: ViewModelType {
     private let imageLoader: DefaultLoadImageUseCase
     
     init(
-        chatListUseCase: DefaultChatListUseCase,
         chatRoomRealmListUseCase: DefaultChatRoomRealmListUseCase,
         chatRoomListUseCase: DefaultChatRoomListUseCase,
         profileLookUpUseCase: DefaultProfileLookUpUseCase,
@@ -37,7 +35,6 @@ final class ChatListViewModel: ViewModelType {
     ) {
 
     
-        self.chatListUseCase = chatListUseCase
         self.chatRoomRealmListUseCase = chatRoomRealmListUseCase
         self.chatRoomListUseCase = chatRoomListUseCase
         self.profileLookUpUseCase = profileLookUpUseCase

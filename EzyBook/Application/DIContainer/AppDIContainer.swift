@@ -92,10 +92,8 @@ final class AppDIContainer {
             paymentValidationUseCase: makePaymentVaildationUseCase(),
             createChatRoomUseCase: makeCreateChatRoomUseCase(),
             chatRoomListUseCase: makeChatRoomListUseCase(),
-            chatListUseCase: makeChatListUseCase(),
             chatRoomRealmListUseCase: makeChatRoomRealmListUseCase(),
-            chatRealmUseCase: makeKhatLosdUseCase(),
-            chatUseCase: makeChatUseCase(),
+            chatUseCases: makeChatUseCase(),
             imageLoader: makeImageLoaderUseCase(),
             viewLoader: makeVidoeLoaderDelegate(),
             tokenService: tokenService,
@@ -129,13 +127,7 @@ extension AppDIContainer {
         DefaultCreateChatRoomUseCase(repo: chatRepository)
     }
     
-    private func makeChatListUseCase() -> DefaultChatListUseCase {
-        DefaultChatListUseCase(repo: chatRepository)
-    }
-    
-    private func makeKhatLosdUseCase() -> DefaultChatRealmUseCase {
-        DefaultChatRealmUseCase(repo: chatRealmListRepository)
-    }
+
     
     private func makeChatRoomListUseCase() -> DefaultChatRoomListUseCase {
         DefaultChatRoomListUseCase(repo: chatRepository)
@@ -145,15 +137,36 @@ extension AppDIContainer {
         DefaultChatRoomRealmListUseCase(repo: chatMessageRealmRepository)
     }
     
-    private func makeChatUseCase() -> ChatUseCases {
-        ChatUseCases(
-            sendMessages: makeSendUseCase()
+    private func makeChatUseCase() -> ChatListUseCases {
+        ChatListUseCases(
+            sendMessages: makeSendUseCase(),
+            saveRealmMessages: makeSaveUseCase(),
+            fetchRealmLatestMessage: makeFetchLatestChatMessageUseCase(),
+            fetchRealmMessageList: makeFetchChatMessageListUseCase(),
+            fetchRemoteMessage: makeFetchRemoteChatMessagesUseCase()
         )
     }
     
     private func makeSendUseCase() -> DefaultChatSendMessageUseCase {
         DefaultChatSendMessageUseCase(repo: chatRepository)
     }
+    
+    private func makeSaveUseCase() -> DefaultRealmSaveChatMessageUseCase {
+        DefaultRealmSaveChatMessageUseCase(repo: chatRealmListRepository)
+    }
+    
+    private func makeFetchLatestChatMessageUseCase() -> DefaultRealmFetchLatestChatMessageUseCase {
+        DefaultRealmFetchLatestChatMessageUseCase(repo: chatRealmListRepository)
+    }
+    
+    private func makeFetchChatMessageListUseCase() -> DefaultRealmFetchChatMessageListUseCase {
+        DefaultRealmFetchChatMessageListUseCase(repo: chatRealmListRepository)
+    }
+    
+    private func makeFetchRemoteChatMessagesUseCase() -> DefaultFetchRemoteChatMessagesUseCase {
+        DefaultFetchRemoteChatMessagesUseCase(repo: chatRepository)
+    }
+    
 }
 
 

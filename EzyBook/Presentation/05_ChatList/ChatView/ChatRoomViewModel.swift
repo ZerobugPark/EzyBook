@@ -23,11 +23,9 @@ final class ChatRoomViewModel: ViewModelType {
     @Published var content = ""
     
     var cancellables = Set<AnyCancellable>()
-    private var chatMessages: [ChatMessageEntity] = []
+    
     private var scale: CGFloat = 0
-    private let chatListUseCase :DefaultChatListUseCase
-    private let chatUseCases: ChatUseCases
-    private let chatRealmUseCase: DefaultChatRealmUseCase
+    private let chatUseCases: ChatListUseCases
     private let profileLookUpUseCase: DefaultProfileLookUpUseCase
     private let profileSearchUseCase: DefaultProfileSearchUseCase
     private let imageLoader: DefaultLoadImageUseCase
@@ -36,9 +34,7 @@ final class ChatRoomViewModel: ViewModelType {
         socketService: SocketService,
         roomID: String,
         opponentNick: String,
-        chatListUseCase: DefaultChatListUseCase,
-        chatUseCases: ChatUseCases,
-        chatRealmUseCase: DefaultChatRealmUseCase,
+        chatUseCases: ChatListUseCases,
         profileLookUpUseCase: DefaultProfileLookUpUseCase,
         profileSearchUseCase: DefaultProfileSearchUseCase,
         imageLoader: DefaultLoadImageUseCase
@@ -47,9 +43,7 @@ final class ChatRoomViewModel: ViewModelType {
         self.socketService = socketService
         self.roomID = roomID
         self.opponentNick = opponentNick
-        self.chatListUseCase = chatListUseCase
         self.chatUseCases = chatUseCases
-        self.chatRealmUseCase = chatRealmUseCase
         self.profileLookUpUseCase = profileLookUpUseCase
         self.profileSearchUseCase = profileSearchUseCase
         self.imageLoader = imageLoader
@@ -146,7 +140,7 @@ extension ChatRoomViewModel {
     // MARK: - Initial Load (Realm → UI 즉시 표시)
     private func loadInitialChatData() async {
         await MainActor.run {
-            let messages = chatRealmUseCase.excuteFetchChatList(
+            let messages = chatUseCases.fetchRealmMessageList.excute(
                 roomID: roomID,
                 before: nil,
                 limit: 30,
@@ -198,7 +192,7 @@ extension ChatRoomViewModel {
     private func handleIncomingMessage(_ message: ChatMessageEntity) async {
         await MainActor.run {
             // Realm 저장
-            chatRealmUseCase.executeSaveData(chatList: [message])
+            chatUseCases.saveRealmMessages.execute(chatList: [message])
             
             // UI append (중복 방지)
             if !output.chatList.contains(where: { $0.chatID == message.chatID }) {
@@ -211,9 +205,9 @@ extension ChatRoomViewModel {
     /// 최근 메시지 1개 (서버 동기화 기준)
     private func loadLocalLastMessage() async -> ChatMessageEntity? {
         await MainActor.run {
-            return chatRealmUseCase.excutefetchLatestMessage(
+            return chatUseCases.fetchRealmLatestMessage.execute(
                 roodID: roomID,
-                userID: opponentID
+                userID: userID
             )
         }
     }
@@ -226,8 +220,9 @@ extension ChatRoomViewModel {
             if next == nil {
                 // 전체 로드 (초기 진입 or Realm 비었을 때)
                 await MainActor.run {
-                    chatRealmUseCase.executeSaveData(chatList: chatList)
-                    let messages = chatRealmUseCase.excuteFetchChatList(
+                    chatUseCases.saveRealmMessages.execute(chatList: chatList)
+                  
+                    let messages =  chatUseCases.fetchRealmMessageList.excute(
                         roomID: roomID,
                         before: nil,
                         limit: 30,
@@ -246,7 +241,7 @@ extension ChatRoomViewModel {
     
     /// 네트워크 순수 호출
     private func fetchChatListFromServer(_ next: String? = nil) async throws -> [ChatMessageEntity] {
-        let data = try await chatListUseCase.execute(id: roomID, next: next)
+        let data = try await chatUseCases.fetchRemoteMessage.execute(id: roomID, next: next)
         return data.map { $0.toEnity() }
     }
     
@@ -255,7 +250,7 @@ extension ChatRoomViewModel {
         guard !chatList.isEmpty else { return }
         
         await MainActor.run {
-            chatRealmUseCase.executeSaveData(chatList: chatList)
+            chatUseCases.saveRealmMessages.execute(chatList: chatList)
             
             let newMessages = chatList.filter { newMsg in
                 !output.chatList.contains { $0.chatID == newMsg.chatID }
@@ -298,8 +293,7 @@ extension ChatRoomViewModel {
         await MainActor.run {
             // Realm 저장
             let entity = message.toEnity(userID: userID)
-            dump(entity)
-            chatRealmUseCase.executeSaveData(chatList: [entity])
+            chatUseCases.saveRealmMessages.execute(chatList: [entity])
             
             output.chatList.append(entity)
         }
