@@ -16,27 +16,24 @@ final class ChatListViewModel: ViewModelType {
     @Published var output = Output()
     
     var cancellables = Set<AnyCancellable>()
-    private var chatMessages: [ChatMessageEntity] = []
+    
+    
     private var scale: CGFloat = 0
     
-    private let chatRoomRealmListUseCase: DefaultChatRoomRealmListUseCase
-    private let chatRoomListUseCase: DefaultChatRoomListUseCase
+    private let chatRoomUseCases: ChatRoomListUseCases
     
     private let profileLookUpUseCase: DefaultProfileLookUpUseCase
     private let profileSearchUseCase: DefaultProfileSearchUseCase
     private let imageLoader: DefaultLoadImageUseCase
     
     init(
-        chatRoomRealmListUseCase: DefaultChatRoomRealmListUseCase,
-        chatRoomListUseCase: DefaultChatRoomListUseCase,
+        chatRoomUseCases: ChatRoomListUseCases,
         profileLookUpUseCase: DefaultProfileLookUpUseCase,
         profileSearchUseCase: DefaultProfileSearchUseCase,
         imageLoader: DefaultLoadImageUseCase
     ) {
 
-    
-        self.chatRoomRealmListUseCase = chatRoomRealmListUseCase
-        self.chatRoomListUseCase = chatRoomListUseCase
+        self.chatRoomUseCases = chatRoomUseCases
         self.profileLookUpUseCase = profileLookUpUseCase
         self.profileSearchUseCase = profileSearchUseCase
         self.imageLoader = imageLoader
@@ -73,7 +70,8 @@ extension ChatListViewModel {
         
         
         /// Realm에서 먼저 불러오기 (빠르게 UI 표시)
-        let realmData = chatRoomRealmListUseCase.excutFetchMessage()
+        let realmData = chatRoomUseCases.fetchRealmChatRoomList.execute()
+        
         if !realmData.isEmpty {
             output.chatRoomList = realmData
         }
@@ -81,7 +79,7 @@ extension ChatListViewModel {
         /// 2. 서버에서 최신 채팅방 목록 불러오기 (갱신)
         Task {
             do {
-                let data = try await chatRoomListUseCase.execute()
+                let data = try await chatRoomUseCases.fetchRemoteChatRoomList.execute()
                 let profileImages = await loadProfileLookup(data)
                 
                 let dataWithImage = data.enumerated().map { (offset, element) in
@@ -92,7 +90,7 @@ extension ChatListViewModel {
 
                 await MainActor.run {
                     output.chatRoomList = dataWithImage.filter  { $0.lastChat != nil }
-                    chatRoomRealmListUseCase.executeSaveData(lastChat: output.chatRoomList)
+                    chatRoomUseCases.saveRealmLastMessage.execute(lastChat: output.chatRoomList)
                 }
                 
             } catch let error as APIError {

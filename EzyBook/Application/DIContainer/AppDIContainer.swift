@@ -91,8 +91,7 @@ final class AppDIContainer {
             orderListLookUpUseCase: makeOrderListLookUpUseCase(),
             paymentValidationUseCase: makePaymentVaildationUseCase(),
             createChatRoomUseCase: makeCreateChatRoomUseCase(),
-            chatRoomListUseCase: makeChatRoomListUseCase(),
-            chatRoomRealmListUseCase: makeChatRoomRealmListUseCase(),
+            chatRoomUseCases: makeChatRoomListUseCase(),
             chatUseCases: makeChatUseCase(),
             imageLoader: makeImageLoaderUseCase(),
             viewLoader: makeVidoeLoaderDelegate(),
@@ -123,20 +122,36 @@ extension AppDIContainer {
 // MARK: Chat
 
 extension AppDIContainer {
+    
+    // 채팅방 생성
     private func makeCreateChatRoomUseCase() -> DefaultCreateChatRoomUseCase {
         DefaultCreateChatRoomUseCase(repo: chatRepository)
     }
     
-
-    
+    // MARK: 채팅 목록
     private func makeChatRoomListUseCase() -> DefaultChatRoomListUseCase {
         DefaultChatRoomListUseCase(repo: chatRepository)
     }
     
-    private func makeChatRoomRealmListUseCase() -> DefaultChatRoomRealmListUseCase {
-        DefaultChatRoomRealmListUseCase(repo: chatMessageRealmRepository)
+    private func makeSaveLatestChatRoomUseCase() -> DefaultSaveLatestChatRoomUseCase {
+        DefaultSaveLatestChatRoomUseCase(repo: chatMessageRealmRepository)
     }
     
+    private func makeFetchChatRoomListUseCase() -> DefaultFetchChatRoomListUseCase {
+        DefaultFetchChatRoomListUseCase(repo: chatMessageRealmRepository)
+    }
+    
+    private func makeChatRoomListUseCase() -> ChatRoomListUseCases {
+        ChatRoomListUseCases(
+            fetchRemoteChatRoomList: makeChatRoomListUseCase(),
+            saveRealmLastMessage: makeSaveLatestChatRoomUseCase(),
+            fetchRealmChatRoomList: makeFetchChatRoomListUseCase()
+        )
+    }
+    
+    
+    
+    // MARK: 채팅방
     private func makeChatUseCase() -> ChatListUseCases {
         ChatListUseCases(
             sendMessages: makeSendUseCase(),
