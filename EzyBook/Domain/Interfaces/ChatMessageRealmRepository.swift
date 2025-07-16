@@ -9,8 +9,8 @@ import Foundation
 
 protocol ChatMessageRealmRepository: Repository where T == ChatMessageTable {
     func save(chatList: [ChatMessageEntity], retryCount: Int)
-    func fetchLatestMessages(roomID: String, opponentID: String) ->  ChatMessageEntity?
-    func fetchMessageList(roomID: String, before: String?, limit: Int, opponentID: String) -> [ChatMessageEntity]
+    func fetchLatestMessages(roomID: String, userID: String) ->  ChatMessageEntity?
+    func fetchMessageList(roomID: String, before: String?, limit: Int, userID: String) -> [ChatMessageEntity]
 }
 
 extension ChatMessageRealmRepository {

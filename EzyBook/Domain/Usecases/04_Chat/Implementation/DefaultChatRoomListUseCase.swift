@@ -21,7 +21,7 @@ final class DefaultChatRoomListUseCase {
         
         do {
             return try await
-            self.repo.requesChatRoomList(router)
+            self.repo.requestsChatRoomList(router)
             
         } catch  {
             if let apiError = error as? APIError {

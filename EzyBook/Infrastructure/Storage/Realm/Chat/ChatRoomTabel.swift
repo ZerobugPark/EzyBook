@@ -50,14 +50,14 @@ extension ChatRoomTabel {
         fileList.append(objectsIn: entity.lastChat?.files ?? [])
         
         return ChatRoomTabel(
-            roomID: entity.roomId,
+            roomID: entity.roomID,
             createdAt: entity.createdAt,
             opponentID: entity.participants[0].userID,
             opponentNick: entity.participants[0].nick,
-            lastMessageID: entity.lastChat?.chatId ?? "" ,
+            lastMessageID: entity.lastChat?.chatID ?? "" ,
             lastMessageContent: entity.lastChat?.content ?? "",
             lastMessageCreatedAt: entity.lastChat?.createdAt ?? "",
-            lastMessageSenderID: entity.lastChat?.chatId ?? "",
+            lastMessageSenderID: entity.lastChat?.chatID ?? "",
             lastMessageFiles: fileList
         )
     }

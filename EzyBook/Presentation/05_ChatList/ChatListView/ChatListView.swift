@@ -20,7 +20,7 @@ struct ChatListView: View {
                     makeChatListView(item)
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            coordinator.push(.chatRoomView(roomID: item.roomId, opponentNick: item.participants[0].nick))
+                            coordinator.push(.chatRoomView(roomID: item.roomID, opponentNick: item.participants[0].nick))
                         }
                         
                         

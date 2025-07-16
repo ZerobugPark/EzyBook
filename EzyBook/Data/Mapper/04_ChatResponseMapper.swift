@@ -33,7 +33,8 @@ extension ChatResponseDTO {
 }
 
 extension ChatMessageTable {
-    func toEntity(opponentID: String? = nil) -> ChatMessageEntity {
+    func toEntity(userID: String? = nil) -> ChatMessageEntity {
+
         ChatMessageEntity(
             chatID: self.chatID,
             content: self.content,
@@ -45,7 +46,7 @@ extension ChatMessageTable {
                     userID: self.senderID,
                     nick: self.senderNick
                 ),
-            isMine: opponentID == self.senderID
+            isMine: userID == self.senderID
         )
     }
 
@@ -84,5 +85,22 @@ extension ChatRoomTabel {
 extension ChatEntity {
     func toEnity() -> ChatMessageEntity {
         return ChatMessageEntity(entity: self)
+    }
+    
+    func toEnity(userID: String) -> ChatMessageEntity {
+        ChatMessageEntity(
+            chatID: self.chatID,
+            content: self.content,
+            createdAt: self.createdAt,
+            files: self.files,
+            roomID: self.roomID,
+            sender: ChatMessageEntity
+                .Sender(
+                    userID: self.sender.userID,
+                    nick: self.sender.nick
+                ),
+            isMine: userID == self.sender.userID
+        )
+
     }
 }

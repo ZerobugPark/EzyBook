@@ -262,7 +262,7 @@ extension DetailViewModel {
                 let data = try await createChatRoomUseCase.execute(id: id)
                 
                 await MainActor.run {
-                    output.roomID = data.roomId
+                    output.roomID = data.roomID
                 }
                 
                 

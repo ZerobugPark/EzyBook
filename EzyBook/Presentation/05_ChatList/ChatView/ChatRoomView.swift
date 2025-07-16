@@ -14,9 +14,6 @@ struct ChatRoomView: View {
     @EnvironmentObject var appState: AppState
     let onBack: () -> Void
     
-    @State private var messageText = ""
-
-    
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
@@ -86,10 +83,7 @@ struct ChatRoomView: View {
     
     // MARK: - 메시지 전송
     private func sendMessage() {
-        guard !messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-
-        ///messages.append(newMessage)
-        messageText = ""
+        viewModel.action(.sendButtonTapped)
     }
 }
 
@@ -146,10 +140,10 @@ extension ChatRoomView {
                 }
                 
                 HStack(spacing: 8) {
-                    TextField("메시지를 입력하세요", text: $messageText)
+                    TextField("메시지를 입력하세요", text: $viewModel.content)
                         .textFieldStyle(PlainTextFieldStyle())
                     
-                    if !messageText.isEmpty {
+                    if !viewModel.content.isEmpty {
                         Button(action: {}) {
                             Image(systemName: "face.smiling")
                                 .font(.title2)
@@ -165,9 +159,9 @@ extension ChatRoomView {
                 Button(action: sendMessage) {
                     Image(systemName: "paperplane.fill")
                         .font(.title2)
-                        .foregroundColor(messageText.isEmpty ? .secondary : .blue)
+                        .foregroundColor(viewModel.content.isEmpty ? .secondary : .blue)
                 }
-                .disabled(messageText.isEmpty)
+                .disabled(viewModel.content.isEmpty)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)

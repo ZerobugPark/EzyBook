@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ChatRoomEntity: Identifiable {
     let id = UUID()
-    let roomId: String
+    let roomID: String
     let createdAt: String
     let updatedAt: String?
     let participants: [UserInfoResponseEntity]
@@ -17,7 +17,7 @@ struct ChatRoomEntity: Identifiable {
     var opponentImage: UIImage? = nil
     
     init(dto: ChatRoomResponseDTO) {
-        self.roomId = dto.roomId
+        self.roomID = dto.roomId
         self.createdAt = dto.createdAt
         self.updatedAt = dto.updatedAt
         self.participants = dto.participants.map {
@@ -34,7 +34,7 @@ struct ChatRoomEntity: Identifiable {
         lastChat: ChatEntity?,
         opponentImage: UIImage? = nil
     ) {
-        self.roomId = roomId
+        self.roomID = roomId
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.participants = participants
@@ -45,8 +45,8 @@ struct ChatRoomEntity: Identifiable {
 
 
 struct ChatEntity {
-    let chatId: String
-    let roomId: String
+    let chatID: String
+    let roomID: String
     let content: String
     let createdAt: String
     let updatedAt: String
@@ -54,8 +54,8 @@ struct ChatEntity {
     let files: [String]
     
     init(dto: ChatResponseDTO) {
-        self.chatId = dto.chatId
-        self.roomId = dto.roomId
+        self.chatID = dto.chatId
+        self.roomID = dto.roomId
         self.content = dto.content
         self.createdAt = dto.createdAt
         self.updatedAt = dto.updatedAt
@@ -64,8 +64,8 @@ struct ChatEntity {
     }
     
     init(chatId: String, roomId: String, content: String, createdAt: String, updatedAt: String, sender: UserInfoResponseEntity, files: [String]) {
-        self.chatId = chatId
-        self.roomId = roomId
+        self.chatID = chatId
+        self.roomID = roomId
         self.content = content
         self.createdAt = createdAt
         self.updatedAt = updatedAt
@@ -102,11 +102,11 @@ struct ChatMessageEntity {
     
     
     init(entity: ChatEntity) {
-        self.chatID = entity.chatId
+        self.chatID = entity.chatID
         self.content = entity.content
         self.createdAt = entity.createdAt
         self.files = entity.files
-        self.roomID = entity.roomId
+        self.roomID = entity.roomID
         self.sender = Sender(userID: entity.sender.userID, nick: entity.sender.nick)
         self.isMine = false
     }

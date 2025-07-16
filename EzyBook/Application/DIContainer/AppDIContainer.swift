@@ -95,6 +95,7 @@ final class AppDIContainer {
             chatListUseCase: makeChatListUseCase(),
             chatRoomRealmListUseCase: makeChatRoomRealmListUseCase(),
             chatRealmUseCase: makeKhatLosdUseCase(),
+            chatUseCase: makeChatUseCase(),
             imageLoader: makeImageLoaderUseCase(),
             viewLoader: makeVidoeLoaderDelegate(),
             tokenService: tokenService,
@@ -142,6 +143,16 @@ extension AppDIContainer {
     
     private func makeChatRoomRealmListUseCase() -> DefaultChatRoomRealmListUseCase {
         DefaultChatRoomRealmListUseCase(repo: chatMessageRealmRepository)
+    }
+    
+    private func makeChatUseCase() -> ChatUseCases {
+        ChatUseCases(
+            sendMessages: makeSendUseCase()
+        )
+    }
+    
+    private func makeSendUseCase() -> DefaultChatSendMessageUseCase {
+        DefaultChatSendMessageUseCase(repo: chatRepository)
     }
 }
 

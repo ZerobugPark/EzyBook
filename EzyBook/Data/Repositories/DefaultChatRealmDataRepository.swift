@@ -40,20 +40,20 @@ final class DefaultChatMessageRealmRepository: RealmRepository<ChatMessageTable>
     
 
     /// 가장 최근 채팅 내역
-    func fetchLatestMessages(roomID: String, opponentID: String) -> ChatMessageEntity? {
+    func fetchLatestMessages(roomID: String, userID: String) -> ChatMessageEntity? {
         let last = realm.objects(ChatMessageTable.self)
             .filter("roomID == %@", roomID)
             .sorted(byKeyPath: "createdAt", ascending: false)
             .first
         
-        return last?.toEntity(opponentID: opponentID)
+        return last?.toEntity(userID: userID)
         
     }
     
 
     
     /// 채팅 내역 불러오기
-    func fetchMessageList(roomID: String, before: String?, limit: Int, opponentID: String) -> [ChatMessageEntity] {
+    func fetchMessageList(roomID: String, before: String?, limit: Int, userID: String) -> [ChatMessageEntity] {
         
         
         var query = realm.objects(ChatMessageTable.self)
@@ -68,7 +68,7 @@ final class DefaultChatMessageRealmRepository: RealmRepository<ChatMessageTable>
             .prefix(limit)
             .reversed()
             .map {
-                $0.toEntity(opponentID: opponentID)
+                $0.toEntity(userID: userID)
             }
         )
     }
