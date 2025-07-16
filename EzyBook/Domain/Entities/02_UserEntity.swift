@@ -86,6 +86,13 @@ struct UserInfoResponseEntity {
         self.introduction = dto.introduction
     }
     
+    init(userID: String, nick: String, profileImage: String? = nil, introduction: String? = nil) {
+        self.userID = userID
+        self.nick = nick
+        self.profileImage = profileImage
+        self.introduction = introduction
+    }
+    
 }
 
 /// 유저검색

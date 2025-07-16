@@ -14,7 +14,7 @@ enum ChatRequest {
     
     enum Get: GetRouter {
         case lookUpChatRoomList // 채팅방 목록 조회
-        case lookUpChatList(id: String) //채팅내역 목록 조회
+        case lookUpChatList(id: String, dto: ChatListRequestDTO) //채팅내역 목록 조회
 
         var requiresAuth: Bool {
             true
@@ -24,7 +24,7 @@ enum ChatRequest {
             switch self {
             case .lookUpChatRoomList:
                 ChatEndPoint.lookUpChatRoomList.requestURL
-            case .lookUpChatList(let id):
+            case .lookUpChatList(let id, _):
                 ChatEndPoint.lookUpChatList(id: id).requestURL
             }
         }
@@ -34,6 +34,20 @@ enum ChatRequest {
                 "SeSACKey": APIConstants.apiKey
             ]
             
+        }
+        
+        var parameters: Parameters? {
+            switch self {
+            case .lookUpChatRoomList:
+                return nil
+            case .lookUpChatList(_, let dto):
+                if let next = dto.next {
+                    return ["next" : next]
+                } else {
+                    return nil
+                }
+                
+            }
         }
     
     }
@@ -45,7 +59,7 @@ extension ChatRequest {
     
     enum Post: PostRouter {
         case makeChat(dto: ChatRoomLookUpRequestDTO) //채팅방 생성
-        case sendChat(id: String, dto: SendChatRequestDTO) //채팅 보내기
+        case sendChat(roomId: String, dto: ChatSendMessageRequestDTO) //채팅 보내기
      
         var requiresAuth: Bool {
             true
@@ -55,8 +69,8 @@ extension ChatRequest {
             switch self {
             case .makeChat:
                 ChatEndPoint.makeChat.requestURL
-            case .sendChat(let id, _):
-                ChatEndPoint.sendChat(id: id).requestURL
+            case .sendChat(let roomId, _):
+                ChatEndPoint.sendChat(id: roomId).requestURL
             }
             
         }

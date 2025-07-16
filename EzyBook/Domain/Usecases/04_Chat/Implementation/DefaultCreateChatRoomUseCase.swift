@@ -21,8 +21,7 @@ final class DefaultCreateChatRoomUseCase {
         let router = ChatRequest.Post.makeChat(dto: dto )
         
         do {
-            return try await
-            self.repo.requestChatRoom(router)
+            return try await repo.requestCreateChatRoom(router)
             
         } catch  {
             if let apiError = error as? APIError {

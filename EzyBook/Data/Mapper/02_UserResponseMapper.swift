@@ -51,3 +51,4 @@ extension ProfileImageUploadResponseDTO {
         UserImageUploadEntity(dto: self)
     }
 }
+

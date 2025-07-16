@@ -54,7 +54,7 @@ final class HomeViewModel: ViewModelType {
                 .map { $0.value }
             
             output.filterActivityDetailList = sortedValues
-            //dump(output.filterActivityDetailList)
+            
         }
     }
     private var pendingFetchIndices = Set<Int>() // 스크롤 펜딩
@@ -144,6 +144,7 @@ extension HomeViewModel {
             
             let summary = try await activityNewLisUseCase.execute(country: country, category: category)
             let details = try await prefetchInitial(for: summary, type: NewActivityModel.self)
+
             newActivitySummaryList = summary
             
             await MainActor.run {
@@ -167,7 +168,7 @@ extension HomeViewModel {
     private func fetchFilterList(_ country: String?, _ category: String?) async {
         
         let requestDto = ActivitySummaryListRequestDTO(country: country, category: category, limit: "\(limit)", next: nil)
-        
+   
         do {
             let summary = try await activityListUseCase.execute(requestDto: requestDto)
             let uniqueList = removeDuplicatesFromFilterList(filterList: summary.data)
@@ -228,6 +229,7 @@ extension HomeViewModel {
     private func  reqeuestActivityDetailList<T: ActivityModelBuildable>(_ data:  ActivitySummaryEntity, type: T.Type) async throws -> T {
         
         let detail = try await self.activityDeatilUseCase.execute(id: data.activityID)
+        
         let thumbnailImage = try await self.requestThumbnailImage(detail.thumbnails)
         
          
@@ -238,30 +240,16 @@ extension HomeViewModel {
     /// 이미지 로드 함수
     private func requestThumbnailImage(_ paths: [String]) async throws -> UIImage {
         
+        
         guard !paths.isEmpty else {
             let fallback = UIImage(systemName: "star")!
             return fallback
         }
-        
+
         return try await imageLoader.execute(paths[0], scale: scale)
         
     }
-//  상세뷰에서만 관리하자
-//    private func getMediatype(from path: String) ->  MediaType   {
-//        let fileExtension = URL(fileURLWithPath: path).pathExtension.lowercased()
-//
-//        if let utType = UTType(filenameExtension: fileExtension) {
-//            if utType.conforms(to: .image) {
-//                return .image
-//            } else if utType.conforms(to: .movie) {
-//                return .media
-//            } else {
-//                return .unknown
-//            }
-//        } else {
-//            return .unknown
-//        }
-//    }
+
     
     
     private func handleResetError() {
@@ -334,7 +322,9 @@ extension HomeViewModel {
             return
         }
         
-        guard !paginationInProgress,!filterActivityindicats
+        print("f", filterActivityindicats)
+        guard !paginationInProgress,
+              !filterActivityindicats
             .contains(fetchIndex), fetchIndex < filterActivitySummaryList.count else { return }
         filterActivityindicats.insert(fetchIndex)
         

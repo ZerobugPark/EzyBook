@@ -46,13 +46,27 @@ struct MainTabView: View {
     
     @StateObject var homeCoordinator: HomeCoordinator
     @StateObject var communityCoordinator: CommunityCoordinator
+    @StateObject var chatCoordinator: ChatCoordinator
     @StateObject var profileCoordinator: ProfileCoordinator
     
     
     init(container: DIContainer) {
-          _homeCoordinator = StateObject(wrappedValue: HomeCoordinator(container: container))
-          _communityCoordinator = StateObject(wrappedValue: CommunityCoordinator(container: container))
-          _profileCoordinator = StateObject(wrappedValue:  ProfileCoordinator(container: container))
+        _homeCoordinator = StateObject(
+            wrappedValue: HomeCoordinator(
+                container: container
+            )
+        )
+        _communityCoordinator = StateObject(
+            wrappedValue: CommunityCoordinator(container: container)
+        )
+        _chatCoordinator = StateObject(
+            wrappedValue: ChatCoordinator(container: container)
+        )
+        _profileCoordinator = StateObject(
+            wrappedValue:  ProfileCoordinator(
+                container: container
+            )
+        )
         
         /// TabBar Hidden이 안될 때,
         //UITabBar.appearance().isHidden = true
@@ -65,7 +79,7 @@ struct MainTabView: View {
         case .community:
             return communityCoordinator.isTabbarHidden
         case .chat:
-            return false // 예시: 탭바 숨김 안 함
+            return chatCoordinator.isTabbarHidden
         case .profile:
             return profileCoordinator.isTabbarHidden
         }
@@ -84,7 +98,7 @@ struct MainTabView: View {
                     ///Hiding Native Tab Bar
                     .toolbar(.hidden, for: .tabBar)
                 
-                Text("PostGallery")
+                ChatCoordinatorView(coordinator: chatCoordinator)
                     .tag(Tab.chat)
                     ///Hiding Native Tab Bar
                     .toolbar(.hidden, for: .tabBar)
@@ -115,8 +129,9 @@ struct MainTabView: View {
                 TabItem(tint: tint, inactiveTint: inactiveTint, tab: $0, animation: animation, activeTab: $activeTab, position: $tabShapePosition)
             }
         }
+        .padding(.top, 15)
         .padding(.horizontal, 15)
-        .padding(.vertical, 10)
+        .padding(.bottom, -5)
         .background(content: {
             TabShape(midPoint: tabShapePosition.x)
             /// 탭바 Background 컬러

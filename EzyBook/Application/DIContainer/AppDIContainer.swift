@@ -19,6 +19,7 @@ final class AppDIContainer {
     private let networkService: DefaultNetworkService
     private let imageLoader: DefaultImageLoader
     private let imageCache: ImageCache
+    
     private lazy var sockService = SocketServicePool(keyChain: storage)
                                                             
     // MARK: - Data Layer
@@ -32,6 +33,8 @@ final class AppDIContainer {
     private let orderRepository: DefaultOrderRepository
     private let paymentRepository: DefaultPaymentRepository
     private let chatRepository: DefaultChatRepository
+    private let chatRealmListRepository: DefaultChatMessageRealmRepository
+    private let chatMessageRealmRepository: DefaultChatRoomRealmRepository
     
     
     
@@ -55,7 +58,9 @@ final class AppDIContainer {
         paymentRepository = DefaultPaymentRepository(networkService: networkService)
         
         chatRepository = DefaultChatRepository(networkService: networkService)
-        
+
+        chatRealmListRepository = DefaultChatMessageRealmRepository()
+        chatMessageRealmRepository = DefaultChatRoomRealmRepository()
         
         imageCache = ImageCache()
         imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache, interceptor: interceptor)
@@ -79,12 +84,18 @@ final class AppDIContainer {
             profileLookUpUseCase: makeProfileLookUpUseCase(),
             profileImageUpLoadUseCase: makeProfileUpLoadFileUseCase(),
             profileModifyUseCase: makeProfileModifyUseCase(),
+            profileSearchUseCase: makeProfileSearchUseCase(),
             reviewImageUploadUseCase: makeReviewImageUpload(),
             reviewWriteUseCase: makeReviewWirteUseCase(),
             orderCreateUseCase: makeOoderCreateUseCase(),
             orderListLookUpUseCase: makeOrderListLookUpUseCase(),
             paymentValidationUseCase: makePaymentVaildationUseCase(),
             createChatRoomUseCase: makeCreateChatRoomUseCase(),
+            chatRoomListUseCase: makeChatRoomListUseCase(),
+            chatListUseCase: makeChatListUseCase(),
+            chatRoomRealmListUseCase: makeChatRoomRealmListUseCase(),
+            chatRealmUseCase: makeKhatLosdUseCase(),
+            chatUseCase: makeChatUseCase(),
             imageLoader: makeImageLoaderUseCase(),
             viewLoader: makeVidoeLoaderDelegate(),
             tokenService: tokenService,
@@ -117,8 +128,33 @@ extension AppDIContainer {
     private func makeCreateChatRoomUseCase() -> DefaultCreateChatRoomUseCase {
         DefaultCreateChatRoomUseCase(repo: chatRepository)
     }
+    
+    private func makeChatListUseCase() -> DefaultChatListUseCase {
+        DefaultChatListUseCase(repo: chatRepository)
+    }
+    
+    private func makeKhatLosdUseCase() -> DefaultChatRealmUseCase {
+        DefaultChatRealmUseCase(repo: chatRealmListRepository)
+    }
+    
+    private func makeChatRoomListUseCase() -> DefaultChatRoomListUseCase {
+        DefaultChatRoomListUseCase(repo: chatRepository)
+    }
+    
+    private func makeChatRoomRealmListUseCase() -> DefaultChatRoomRealmListUseCase {
+        DefaultChatRoomRealmListUseCase(repo: chatMessageRealmRepository)
+    }
+    
+    private func makeChatUseCase() -> ChatUseCases {
+        ChatUseCases(
+            sendMessages: makeSendUseCase()
+        )
+    }
+    
+    private func makeSendUseCase() -> DefaultChatSendMessageUseCase {
+        DefaultChatSendMessageUseCase(repo: chatRepository)
+    }
 }
-
 
 
 
@@ -136,6 +172,10 @@ extension AppDIContainer {
         DefaultProfileModifyUseCase(repo: profileRepository)
     }
     
+    private func makeProfileSearchUseCase() -> DefaultProfileSearchUseCase {
+        DefaultProfileSearchUseCase(repo: profileRepository)
+    }
+    
     private func makeReviewWirteUseCase() -> DefaultReViewWriteUseCase {
         DefaultReViewWriteUseCase(repo: reviewRepository)
     }
@@ -143,6 +183,8 @@ extension AppDIContainer {
     private func makeReviewImageUpload() -> DefaultUploadReviewImages {
         DefaultUploadReviewImages(repo: uploadRepository)
     }
+    
+    
     
 }
 

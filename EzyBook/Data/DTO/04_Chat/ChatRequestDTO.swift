@@ -15,8 +15,12 @@ struct ChatRoomLookUpRequestDTO: Encodable {
     }
 }
 
-struct SendChatRequestDTO: Encodable {
+struct ChatSendMessageRequestDTO: Encodable {
     let content: String
     let files: [String]?
 
+}
+
+struct ChatListRequestDTO: Encodable {
+    let next: String?
 }

@@ -5,31 +5,48 @@
 //  Created by youngkyun park on 6/30/25.
 //
 
-import Foundation
+import SwiftUI
 
-struct ChatRoomEntity {
-    let roomId: String
+struct ChatRoomEntity: Identifiable {
+    let id = UUID()
+    let roomID: String
     let createdAt: String
     let updatedAt: String?
     let participants: [UserInfoResponseEntity]
     let lastChat: ChatEntity?
+    var opponentImage: UIImage? = nil
     
     init(dto: ChatRoomResponseDTO) {
-        self.roomId = dto.roomId
+        self.roomID = dto.roomId
         self.createdAt = dto.createdAt
         self.updatedAt = dto.updatedAt
         self.participants = dto.participants.map {
             UserInfoResponseEntity(dto: $0)
         }
-        self.lastChat = dto.lastChat != nil ? ChatEntity(dto: dto.lastChat!) : nil
+        self.lastChat = dto.lastChat.map { ChatEntity(dto: $0) }
     }
     
+    init(
+        roomId: String,
+        createdAt: String,
+        updatedAt: String?,
+        participants: [UserInfoResponseEntity],
+        lastChat: ChatEntity?,
+        opponentImage: UIImage? = nil
+    ) {
+        self.roomID = roomId
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+        self.participants = participants
+        self.lastChat = lastChat
+        self.opponentImage = opponentImage
+    }
 }
 
 
 struct ChatEntity {
-    let chatId: String
-    let roomId: String
+    let chatID: String
+    let roomID: String
     let content: String
     let createdAt: String
     let updatedAt: String
@@ -37,15 +54,26 @@ struct ChatEntity {
     let files: [String]
     
     init(dto: ChatResponseDTO) {
-        self.chatId = dto.chatId
-        self.roomId = dto.roomId
+        self.chatID = dto.chatId
+        self.roomID = dto.roomId
         self.content = dto.content
         self.createdAt = dto.createdAt
         self.updatedAt = dto.updatedAt
         self.sender = UserInfoResponseEntity(dto: dto.sender)
         self.files = dto.files
     }
+    
+    init(chatId: String, roomId: String, content: String, createdAt: String, updatedAt: String, sender: UserInfoResponseEntity, files: [String]) {
+        self.chatID = chatId
+        self.roomID = roomId
+        self.content = content
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+        self.sender = sender
+        self.files = files
+    }
 }
+
 
 struct ChatMessageEntity {
     let chatID: String
@@ -54,10 +82,33 @@ struct ChatMessageEntity {
     let files: [String]
     let roomID: String
     let sender: Sender
-
+    var isMine: Bool
+    
     struct Sender {
         let userID: String
         let nick: String
+    }
+    
+    
+    init(chatID: String, content: String, createdAt: String, files: [String], roomID: String, sender: Sender, isMine: Bool) {
+        self.chatID = chatID
+        self.content = content
+        self.createdAt = createdAt
+        self.files = files
+        self.roomID = roomID
+        self.sender = sender
+        self.isMine = isMine
+    }
+    
+    
+    init(entity: ChatEntity) {
+        self.chatID = entity.chatID
+        self.content = entity.content
+        self.createdAt = entity.createdAt
+        self.files = entity.files
+        self.roomID = entity.roomID
+        self.sender = Sender(userID: entity.sender.userID, nick: entity.sender.nick)
+        self.isMine = false
     }
     
     static func from(dict: [String : Any]) -> ChatMessageEntity? {
@@ -81,7 +132,9 @@ struct ChatMessageEntity {
              createdAt: createdAt,
              files: files,
              roomID: roomID,
-             sender: Sender(userID: userID, nick: nick)
+             sender: Sender(userID: userID, nick: nick),
+             isMine: false
          )
      }
 }
+

@@ -41,7 +41,7 @@ final class DefaultImageLoader: ImagerLoader {
         throw APIError.localError(type: .invalidMediaType, message: nil)
     }
     
-    /// 원본 이미지 로드
+    /// 원본 이미지 로드 (확대)
     func loadOriginalImage(from path: String) async throws -> UIImage {
         let fullURL = APIConstants.baseURL + "/v1" + path
         
@@ -74,7 +74,10 @@ final class DefaultImageLoader: ImagerLoader {
         }
     }
 
-    
+
+
+
+
     private func loadImage(from path: String, scale: CGFloat) async throws ->  UIImage {
         
         let fullURL = APIConstants.baseURL + "/v1" + path
@@ -103,6 +106,18 @@ final class DefaultImageLoader: ImagerLoader {
         let etagFromHeader = response.response?.allHeaderFields["Etag"] as? String
 
 
+        
+        
+        if let request = response.request {
+            print("Full URL:", request.url?.absoluteString ?? "nil")
+            print("HTTP Method:", request.httpMethod ?? "nil")
+            print("Headers:", request.headers)
+        }
+    
+        if statusCode == 444 {
+            print("here")
+        }
+    
         //// 리소스 데이터가 없으면 실패로 처리하넹
         switch statusCode {
         case 304:
@@ -159,6 +174,8 @@ final class DefaultImageLoader: ImagerLoader {
             .validate(statusCode: 200...304)
             .serializingData()
             .response
+
+        
 
         switch response.result {
         case .success(let data):

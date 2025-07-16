@@ -27,6 +27,7 @@ struct TabItem: View {
                 .foregroundStyle(activeTab == tab ? .white : inactiveTint)
                 ///  Image Size
                 .frame(width: activeTab == tab ? 50: 35, height: activeTab == tab ? 50: 35)
+                
                 .background {
                     if activeTab == tab {
                         Circle()

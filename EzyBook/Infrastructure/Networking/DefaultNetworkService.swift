@@ -66,6 +66,7 @@ final class DefaultNetworkService: NetworkService {
         
         let statusCode = response.response?.statusCode
         
+
         switch response.result {
         case .success(let data):
             

@@ -8,7 +8,7 @@
 import Foundation
 
 
-struct ChatRoomListResponseDTO: Decodable {
+struct ChatRoomListResponseDTO: Decodable, EntityConvertible {
     let data: [ChatRoomResponseDTO]
 }
 
@@ -24,17 +24,17 @@ struct ChatRoomResponseDTO: Decodable, EntityConvertible {
         case createdAt
         case updatedAt
         case participants
-        case lastChat = "last_chat"
+        case lastChat
     }
 }
 
 
-struct ChatListResponseDTO: Decodable {
+struct ChatListResponseDTO: Decodable, EntityConvertible {
     let data: [ChatResponseDTO]
     
 }
 
-struct ChatResponseDTO: Decodable {
+struct ChatResponseDTO: Decodable, EntityConvertible {
     let chatId: String
     let roomId: String
     let content: String

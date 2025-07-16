@@ -116,7 +116,7 @@ struct DetailView: View {
         }
         .onChange(of: viewModel.output.roomID) { newRoomID in
             if let id = newRoomID {
-                coordinator.push(.chatRoomView(roomID: id))
+                coordinator.push(.chatRoomView(roomID: id, opponentNick: viewModel.output.opponentNick))
                 viewModel.output.roomID = nil //  트리거 리셋
             }
         }
@@ -595,7 +595,9 @@ extension DetailView {
                 )
                 .overlay {
                     RoundedRectangle(cornerRadius: 20)
-                        .stroke(soldOut ? Color.grayScale45.opacity(0.5) : isSelected ? Color.deepSeafoam.opacity(0.1) : Color.grayScale30, lineWidth: 2)
+                    /// .storke는 패딩에 따라서 차이가 있을 수 있음
+                    /// .strokeBorder를 사용하면 내부에서 그리기 때문에, 패딩이랑 상관 없음
+                        .strokeBorder(soldOut ? Color.grayScale45.opacity(0.5) : isSelected ? Color.deepSeafoam.opacity(0.1) : Color.grayScale30, lineWidth: 1)
                 }
         }
     }
@@ -739,7 +741,7 @@ extension DetailView {
             
             HStack(spacing: 16) {
                 Button(action: {
-                    if personCount > 0 {
+                    if personCount > 1 {
                         personCount -= 1
                     }
                 }) {
@@ -824,7 +826,7 @@ extension DetailView {
     private func makePayView() -> some View {
         
         HStack(alignment: .center) {
-            Text("\(data.price.final)원")
+            Text("\(data.price.final * personCount)원")
                 .appFont(PaperlogyFontStyle.body, textColor: .grayScale100)
                 .padding(.leading, 10)
             
@@ -862,7 +864,4 @@ extension DetailView {
 }
 
 
-#Preview {
-    //  DetailView(viewModel: DetailViewModel())
-}
 

@@ -71,6 +71,14 @@ extension DetailViewModel {
         var payButtonTapped = false
         
         var roomID: String? = nil
+        
+        var opponentNick: String {
+            get {
+                activityDetailInfo.creator.nick
+            }
+        }
+        
+        
     }
     
     func transform() {}
@@ -254,7 +262,7 @@ extension DetailViewModel {
                 let data = try await createChatRoomUseCase.execute(id: id)
                 
                 await MainActor.run {
-                    output.roomID = data.roomId
+                    output.roomID = data.roomID
                 }
                 
                 

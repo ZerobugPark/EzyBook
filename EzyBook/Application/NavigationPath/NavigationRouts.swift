@@ -18,7 +18,7 @@ enum HomeRoute: Hashable {
     case searchView
     case detailView(activityID: String)
     case reviewView(activityID: String)
-    case chatRoomView(roomID: String)
+    case chatRoomView(roomID: String, opponentNick: String)
     
 }
 
@@ -36,6 +36,22 @@ extension HomeRoute {
 
 enum CommunityRoute: Hashable {
     case communityView
+}
+
+enum ChatRoute: Hashable {
+    case chatView
+    case chatRoomView(roomID: String, opponentNick: String)
+}
+
+extension ChatRoute {
+    var hidesTabbar: Bool {
+        switch self {
+        case .chatRoomView:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 enum ProfileRoute: Hashable {

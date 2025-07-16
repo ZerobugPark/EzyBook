@@ -15,7 +15,7 @@ enum UserRequest {
     enum Get: GetRouter {
         
         case profileLookUp
-        case searchUser(id: String)
+        case searchUser(nick: String)
         
         var requiresAuth: Bool {
             true
@@ -39,8 +39,8 @@ enum UserRequest {
         /// 쿼리중 ? 뒤에 오는것들
         var parameters: Parameters? {
             switch self {
-            case .searchUser(let id):
-                return ["nick": id]
+            case .searchUser(let nick):
+                return ["nick": nick]
             default:
                 return nil
             }
