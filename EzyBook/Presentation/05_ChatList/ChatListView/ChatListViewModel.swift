@@ -32,13 +32,13 @@ final class ChatListViewModel: ViewModelType {
         profileSearchUseCase: DefaultProfileSearchUseCase,
         imageLoader: DefaultLoadImageUseCase
     ) {
-
+        
         self.chatRoomUseCases = chatRoomUseCases
         self.profileLookUpUseCase = profileLookUpUseCase
         self.profileSearchUseCase = profileSearchUseCase
         self.imageLoader = imageLoader
         
-  
+        
         transform()
     }
     
@@ -64,101 +64,105 @@ extension ChatListViewModel {
     }
     
     func transform() {}
-   
+    
     
     private func requestChatRoomList() {
         
+        loadChatRoomsFromRealm()
+        Task { await loadChatRoomsFromServer() }
+ 
+    }
         
-        /// Realm에서 먼저 불러오기 (빠르게 UI 표시)
+    /// UI Update
+    /// Realm에서 먼저 불러오기 (빠르게 UI 표시)
+    private func loadChatRoomsFromRealm() {
         let realmData = chatRoomUseCases.fetchRealmChatRoomList.execute()
-        
         if !realmData.isEmpty {
             output.chatRoomList = realmData
         }
-        
-        /// 2. 서버에서 최신 채팅방 목록 불러오기 (갱신)
-        Task {
-            do {
-                let data = try await chatRoomUseCases.fetchRemoteChatRoomList.execute()
-                let profileImages = await loadProfileLookup(data)
-                
-                let dataWithImage = data.enumerated().map { (offset, element) in
-                    var item = element
-                    item.opponentImage = profileImages[offset]
-                    return item
-                }
-
-                await MainActor.run {
-                    output.chatRoomList = dataWithImage.filter  { $0.lastChat != nil }
-                    chatRoomUseCases.saveRealmLastMessage.execute(lastChat: output.chatRoomList)
-                }
-                
-            } catch let error as APIError {
-                await MainActor.run {
-                    output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
-                }
-                
-            }
-        }
-        
-        
     }
+
+    
+    /// 서버 호출
+    private func loadChatRoomsFromServer() async {
+        do {
+            let remoteData = try await chatRoomUseCases.fetchRemoteChatRoomList.execute()
+            let updatedData = await attachProfileImages(to: remoteData)
+            
+            await MainActor.run {
+                output.chatRoomList = updatedData.filter { $0.lastChat != nil }
+                chatRoomUseCases.saveRealmLastMessage.execute(lastChat: output.chatRoomList)
+            }
+        } catch let error as APIError {
+            await MainActor.run {
+                output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+            }
+        } catch {
+            print(#function,  "알 수 없는 오류")
+        }
+    }
+    
+    /// 이미지 로딩
+    private func attachProfileImages(to data: [ChatRoomEntity]) async -> [ChatRoomEntity] {
+        let profileImages = await loadProfileLookup(data)
+        return data.enumerated().map { index, element in
+            var item = element
+            item.opponentImage = profileImages[index]
+            return item
+        }
+    }
+
     
     
     
     //TODO: 채팅창이 많아지면 페이지 네이션 기능 추가해할 듯
     private func loadProfileLookup(_ data: [ChatRoomEntity]) async -> [UIImage?]  {
         
-        
-        await withTaskGroup(of: (Int, Result<UIImage?, Error>).self) { group in
+        await withTaskGroup(of: (Int, UIImage?).self) { group in
             
             for (index, item) in data.enumerated() {
                 
                 group.addTask { [weak self] in
                     
-                    guard let self else { return (-1, .failure(NSError(domain: "프로필 이미지 오류", code: -1)))}
+                    guard let self else { return (-1, nil) }
                     
+                    let image = await self.loadProfileImage(for: item)
                     
-                    let result: Result<UIImage?, Error>
-                    
-                    do {
-
-                        let profileImage: UIImage?
-
-                        if let url = item.participants[0].profileImage {
-                            profileImage = try await imageLoader.execute(url)
-                        } else  {
-                            profileImage = nil
-                        }
-                        
-                        result = .success(profileImage)
-                        
-                        
-                    } catch {
-                        result = .failure(error)
-                    }
-                    
-                    return (index, result)
+                    return (index, image)
                 }
             }
             
             var images: [UIImage?] = .init(repeating: UIImage(), count: data.count)
             
-            for await (index, result) in group {
-                switch result {
-                case .success(let image):
-                    images[index] = image
-                case .failure(let error):
-                    let error = error as? APIError
-                    print("이미지 로드  실패 \(index): \(error?.userMessage ?? "알수 없는 오류")")
-                    
-                }
+            for await (index, image) in group {
+                images[index] = image
             }
+            
             return images
         }
         
         
     }
+    
+    
+    //  이미지 로드
+    private func loadProfileImage(for item: ChatRoomEntity) async -> UIImage? {
+        do {
+            if let url = item.participants.first?.profileImage {
+                return try await imageLoader.execute(url)
+            }
+            return nil
+        } catch let error as APIError {
+            await MainActor.run {
+                output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+            }
+            
+        } catch {
+            print(#function,  "알 수 없는 오류")
+        }
+        return nil
+    }
+    
     
     
     private func handleResetError() {
