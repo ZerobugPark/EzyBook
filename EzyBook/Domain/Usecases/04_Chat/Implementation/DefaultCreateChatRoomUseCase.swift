@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// 채팅방생성
 final class DefaultCreateChatRoomUseCase {
     
     private let repo: ChatRoomRepository

@@ -12,17 +12,16 @@ import Combine
 
 final class LoginViewModel: ViewModelType {
     
-    private let kakaoLoginUseCase: DefaultKakaoLoginUseCase
-    private let appleLoginUseCase: DefaultAppleLoginUseCase
+    private let socialLoginUseCases: SocialLoginUseCases
+    
     
     var input = Input()
     @Published var output = Output()
-        
+    
     var cancellables = Set<AnyCancellable>()
     
-    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase) {
-        self.kakaoLoginUseCase = kakaoLoginUseCase
-        self.appleLoginUseCase = appleLoginUseCase
+    init(socialLoginUseCases: SocialLoginUseCases) {
+        self.socialLoginUseCases = socialLoginUseCases
         transform()
     }
 }
@@ -46,7 +45,11 @@ extension LoginViewModel {
         
         Task {
             do {
-                try await kakaoLoginUseCase.execute()
+                let data = try await socialLoginUseCases.kakaoLogin.execute()
+                
+                /// 유저 정보 업데이트
+                UserSession.shared.update(data)
+                
                 await MainActor.run {
                     output.loginSuccessed = true
                 }
@@ -66,7 +69,11 @@ extension LoginViewModel {
     private func requestAppleLogin(_ result: Result<ASAuthorization, any Error>) {
         Task {
             do {
-                try await appleLoginUseCase.execute(result)
+                let data = try await socialLoginUseCases.appleLogin.execute(result)
+                
+                /// 유저 정보 업데이트
+                UserSession.shared.update(data)
+                
                 await MainActor.run {
                     output.loginSuccessed = true
                 }
