@@ -15,6 +15,7 @@ struct ChatRoomEntity: Identifiable {
     let participants: [UserInfoResponseEntity]
     let lastChat: ChatEntity?
     var opponentImage: UIImage? = nil
+    var opponentIndex: Int? = nil
     
     init(dto: ChatRoomResponseDTO) {
         self.roomID = dto.roomId

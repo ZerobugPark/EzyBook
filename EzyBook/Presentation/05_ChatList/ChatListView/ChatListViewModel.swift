@@ -87,7 +87,8 @@ extension ChatListViewModel {
     private func loadChatRoomsFromServer() async {
         do {
             let remoteData = try await chatRoomUseCases.fetchRemoteChatRoomList.execute()
-            let updatedData = await attachProfileImages(to: remoteData)
+            let roomsWithOpponentIndex = attachOpponentIndex(to: remoteData)
+            let updatedData = await attachProfileImages(to: roomsWithOpponentIndex)
             
             await MainActor.run {
                 output.chatRoomList = updatedData.filter { $0.lastChat != nil }
@@ -102,12 +103,23 @@ extension ChatListViewModel {
         }
     }
     
+    /// opponetIndex 추가
+    private func attachOpponentIndex(to data: [ChatRoomEntity]) -> [ChatRoomEntity] {
+        return data.map { item in
+            var newItem = item
+            newItem.opponentIndex = findOppentUserIndex(data: item)
+            return newItem
+        }
+    }
+    
+    
     /// 이미지 로딩
     private func attachProfileImages(to data: [ChatRoomEntity]) async -> [ChatRoomEntity] {
         let profileImages = await loadProfileLookup(data)
         return data.enumerated().map { index, element in
             var item = element
             item.opponentImage = profileImages[index]
+            
             return item
         }
     }
@@ -149,11 +161,11 @@ extension ChatListViewModel {
     private func loadProfileImage(for item: ChatRoomEntity) async -> UIImage? {
         do {
             
-            guard let index = findOppentUserIndex(data: item) else { return nil }
-            
-            if let url = item.participants[index].profileImage {
+            if let index = item.opponentIndex, let url = item.participants[index].profileImage {
+                
                 return try await imageLoader.execute(url)
             }
+            
             return nil
         } catch let error as APIError {
             await MainActor.run {
@@ -168,9 +180,7 @@ extension ChatListViewModel {
     
     private func findOppentUserIndex(data: ChatRoomEntity) -> Int? {
         if let opponentIndex = data.participants.firstIndex(where: { $0.userID != userID }) {
-            
-            output.opponentIndex = opponentIndex
-            
+                        
             return opponentIndex
         }
         return nil

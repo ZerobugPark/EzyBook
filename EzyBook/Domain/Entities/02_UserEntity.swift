@@ -49,16 +49,24 @@ struct LoginEntity {
 }
 
 /// 유저정보 (공유인스턴스)
-struct UserEntity {
+struct UserEntity: Codable {
     let userID: String
     let email: String
     let nick: String
+    
+    init(userID: String, email: String, nick: String) {
+        self.userID = userID
+        self.email = email
+        self.nick = nick
+    }
     
     init(dto: LoginEntity) {
         self.userID = dto.userID
         self.email = dto.email
         self.nick = dto.nick
     }
+    
+    
 }
 
 /// 로그인 (이메일, 카카오, 애플 공통)
