@@ -61,6 +61,8 @@ extension ChatListViewModel {
         }
         
         var chatRoomList: [ChatRoomEntity] = []
+        
+
     }
     
     func transform() {}

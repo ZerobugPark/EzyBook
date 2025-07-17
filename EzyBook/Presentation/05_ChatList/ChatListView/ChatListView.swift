@@ -63,10 +63,12 @@ extension ChatListView {
             ProfileImageView(image: data.opponentImage, size: 44)
             
             VStack(alignment: .leading, spacing: 5) {
-                Text(data.lastChat!.sender.nick)
+                /// 채팅하는 사람
+                Text(data.participants.first!.nick)
                     .appFont(PretendardFontStyle.body1, textColor: .grayScale100)
                     .lineLimit(1)
                     .truncationMode(.tail)
+                /// 마지막 채팅 내역
                 Text(data.lastChat!.content)
                     .appFont(PretendardFontStyle.body2, textColor: .grayScale60)
                     .lineLimit(1)
