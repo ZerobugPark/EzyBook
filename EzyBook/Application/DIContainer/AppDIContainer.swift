@@ -71,10 +71,9 @@ final class AppDIContainer {
     // MARK: - DIContainer Factory
     func makeDIContainer() -> DIContainer {
         DIContainer(
-            kakaoLoginUseCase: makeKakaoLoginUseCase(),
+            socialLoginUseCases: makeSocialLoginUseCase(),
             createAccountUseCase: makeCreateAccountUseCase(),
             emailLoginUseCase: makeEmailLoginUseCase(),
-            appleLoginUseCase: makeAppleLoginUseCase(),
             activityListUseCase: makeActivityListUseCase(),
             activityNewListUseCase: makeActivityNewListUseCase(),
             activitySearchUseCase: makeActivitySearchUseCase(),
@@ -236,6 +235,13 @@ extension AppDIContainer {
 
 // MARK: Auth
 extension AppDIContainer {
+    
+    private func makeSocialLoginUseCase() -> SocialLoginUseCases {
+        SocialLoginUseCases(
+            appleLogin: makeAppleLoginUseCase(),
+            kakaoLogin: makeKakaoLoginUseCase()
+        )
+    }
 
     private func makeKakaoLoginUseCase() -> DefaultKakaoLoginUseCase {
         DefaultKakaoLoginUseCase(

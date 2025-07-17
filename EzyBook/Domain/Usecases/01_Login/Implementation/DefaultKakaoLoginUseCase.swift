@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class DefaultKakaoLoginUseCase {
+final class DefaultKakaoLoginUseCase: KakaoLogin {
     
     // 여기는 카카오 로그인과, apple 로그인이 필요
     private let kakoLoginService: SocialLoginService
@@ -26,12 +26,14 @@ final class DefaultKakaoLoginUseCase {
 // MARK: Login
 extension DefaultKakaoLoginUseCase {
     
-    func execute() async throws -> Void {
+    func execute() async throws -> UserEntity {
         
         do {
             let data = try await kakoLoginService.loginWithKakao()
-            let token = try await authRepository.requestKakaoLogin(data)
-            _ = tokenService.saveTokens(accessToken: token.accessToken, refreshToken: token.refreshToken)
+            let loginInfo = try await authRepository.requestKakaoLogin(data)
+            _ = tokenService.saveTokens(accessToken: loginInfo.accessToken, refreshToken: loginInfo.refreshToken)
+            
+            return loginInfo.toEntity()
         } catch {
             if let apiError = error as? APIError {
                 throw apiError

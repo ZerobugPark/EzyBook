@@ -48,6 +48,19 @@ struct LoginEntity {
     
 }
 
+/// 유저정보 (공유인스턴스)
+struct UserEntity {
+    let userID: String
+    let email: String
+    let nick: String
+    
+    init(dto: LoginEntity) {
+        self.userID = dto.userID
+        self.email = dto.email
+        self.nick = dto.nick
+    }
+}
+
 /// 로그인 (이메일, 카카오, 애플 공통)
 struct ProfileLookUpEntity {
     let userID: String

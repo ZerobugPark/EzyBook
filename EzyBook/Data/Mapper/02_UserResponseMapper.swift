@@ -30,6 +30,7 @@ extension LoginResponseDTO {
     func toEntity() -> LoginEntity {
         LoginEntity.init(dto: self)
     }
+    
 }
 
 extension ProfileLookUpResponseDTO {
@@ -49,6 +50,13 @@ extension UserInfoListResponseDTO {
 extension ProfileImageUploadResponseDTO {
     func toEntity() -> UserImageUploadEntity {
         UserImageUploadEntity(dto: self)
+    }
+}
+
+extension LoginEntity {
+    
+    func toEntity() -> UserEntity {
+        UserEntity.init(dto: self)
     }
 }
 

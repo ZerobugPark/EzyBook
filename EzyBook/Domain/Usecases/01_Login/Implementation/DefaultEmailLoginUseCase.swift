@@ -24,15 +24,16 @@ final class DefaultEmailLoginUseCase {
 extension DefaultEmailLoginUseCase {
     
     
-    func execute(email: String, password: String) async throws -> Void {
+    func execute(email: String, password: String) async throws -> UserEntity {
         
         let requestDto = EmailLoginRequestDTO(email: email, password: password, deviceToken: nil)
         
         let router = UserRequest.Post.emailLogin(body: requestDto)
         do {
-            let token = try await authRepository.requestEmailLogin(router)
-            _ = tokenService.saveTokens(accessToken: token.accessToken, refreshToken: token.refreshToken)
-            return ()
+            let loginInfo = try await authRepository.requestEmailLogin(router)
+            _ = tokenService.saveTokens(accessToken: loginInfo.accessToken, refreshToken: loginInfo.refreshToken)
+            
+            return loginInfo.toEntity()
         } catch  {
             if let apiError = error as? APIError {
                 throw apiError

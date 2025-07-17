@@ -13,10 +13,10 @@ import Foundation
 final class DIContainer: ObservableObject {
 
     /// Auth
-    private let kakaoLoginUseCase: DefaultKakaoLoginUseCase
+    private let socialLoginUseCases: SocialLoginUseCases
     private let createAccountUseCase : DefaultCreateAccountUseCase
     private let emailLoginUseCase : DefaultEmailLoginUseCase
-    private let appleLoginUseCase: DefaultAppleLoginUseCase
+
     
     
     /// Activity
@@ -58,11 +58,10 @@ final class DIContainer: ObservableObject {
     let tokenService: DefaultTokenService // 리프레시 갱신 시점 때문에 DI에서 추가 관리
     let socketService: SocketServicePool
     
-    init(kakaoLoginUseCase: DefaultKakaoLoginUseCase, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, appleLoginUseCase: DefaultAppleLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, reviewLookupUseCase: DefaultReviewLookUpUseCase, profileLookUpUseCase: DefaultProfileLookUpUseCase, profileImageUpLoadUseCase: DefaultUploadProfileFileUseCase, profileModifyUseCase: DefaultProfileModifyUseCase, profileSearchUseCase: DefaultProfileSearchUseCase, reviewImageUploadUseCase: DefaultUploadReviewImages, reviewWriteUseCase: DefaultReViewWriteUseCase, orderCreateUseCase: DefaultCreateOrderUseCase, orderListLookUpUseCase: DefaultOrderListLookupUseCase, paymentValidationUseCase: DefaultPaymentValidationUseCase, createChatRoomUseCase: DefaultCreateChatRoomUseCase, chatRoomUseCases: ChatRoomListUseCases, chatUseCases: ChatListUseCases, imageLoader: DefaultLoadImageUseCase, viewLoader: VideoLoaderDelegate, tokenService: DefaultTokenService, socketService: SocketServicePool) {
-        self.kakaoLoginUseCase = kakaoLoginUseCase
+    init(socialLoginUseCases: SocialLoginUseCases, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, reviewLookupUseCase: DefaultReviewLookUpUseCase, profileLookUpUseCase: DefaultProfileLookUpUseCase, profileImageUpLoadUseCase: DefaultUploadProfileFileUseCase, profileModifyUseCase: DefaultProfileModifyUseCase, profileSearchUseCase: DefaultProfileSearchUseCase, reviewImageUploadUseCase: DefaultUploadReviewImages, reviewWriteUseCase: DefaultReViewWriteUseCase, orderCreateUseCase: DefaultCreateOrderUseCase, orderListLookUpUseCase: DefaultOrderListLookupUseCase, paymentValidationUseCase: DefaultPaymentValidationUseCase, createChatRoomUseCase: DefaultCreateChatRoomUseCase, chatRoomUseCases: ChatRoomListUseCases, chatUseCases: ChatListUseCases, imageLoader: DefaultLoadImageUseCase, viewLoader: VideoLoaderDelegate, tokenService: DefaultTokenService, socketService: SocketServicePool) {
+        self.socialLoginUseCases = socialLoginUseCases
         self.createAccountUseCase = createAccountUseCase
         self.emailLoginUseCase = emailLoginUseCase
-        self.appleLoginUseCase = appleLoginUseCase
         self.activityListUseCase = activityListUseCase
         self.activityNewListUseCase = activityNewListUseCase
         self.activitySearchUseCase = activitySearchUseCase
@@ -181,9 +180,8 @@ extension DIContainer {
     
     func makeSocialLoginViewModel() -> LoginViewModel {
         LoginViewModel(
-            kakaoLoginUseCase: kakaoLoginUseCase,
-            appleLoginUseCase: appleLoginUseCase
-        )
+            
+            socialLoginUseCases: socialLoginUseCases)
     }
 
 }
