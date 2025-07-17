@@ -64,7 +64,7 @@ extension ChatListView {
             
             VStack(alignment: .leading, spacing: 5) {
                 /// 채팅하는 사람
-                Text(data.participants.first!.nick)
+                Text(data.participants[viewModel.output.opponentIndex ?? 0].nick)
                     .appFont(PretendardFontStyle.body1, textColor: .grayScale100)
                     .lineLimit(1)
                     .truncationMode(.tail)

@@ -9,32 +9,28 @@ import SwiftUI
 import Combine
 
 final class ChatListViewModel: ViewModelType {
-    
-    private var userID: String = ""
-    
+        
     var input = Input()
     @Published var output = Output()
     
     var cancellables = Set<AnyCancellable>()
     
-    
-    private var scale: CGFloat = 0
-    
     private let chatRoomUseCases: ChatRoomListUseCases
     
-    private let profileLookUpUseCase: DefaultProfileLookUpUseCase
     private let profileSearchUseCase: DefaultProfileSearchUseCase
     private let imageLoader: DefaultLoadImageUseCase
     
+    private var userID: String {
+        UserSession.shared.currentUser!.userID
+    }
+    
     init(
         chatRoomUseCases: ChatRoomListUseCases,
-        profileLookUpUseCase: DefaultProfileLookUpUseCase,
         profileSearchUseCase: DefaultProfileSearchUseCase,
         imageLoader: DefaultLoadImageUseCase
     ) {
         
         self.chatRoomUseCases = chatRoomUseCases
-        self.profileLookUpUseCase = profileLookUpUseCase
         self.profileSearchUseCase = profileSearchUseCase
         self.imageLoader = imageLoader
         
@@ -62,6 +58,8 @@ extension ChatListViewModel {
         
         var chatRoomList: [ChatRoomEntity] = []
         
+        
+        var opponentIndex: Int? = nil
 
     }
     
@@ -150,7 +148,10 @@ extension ChatListViewModel {
     //  이미지 로드
     private func loadProfileImage(for item: ChatRoomEntity) async -> UIImage? {
         do {
-            if let url = item.participants.first?.profileImage {
+            
+            guard let index = findOppentUserIndex(data: item) else { return nil }
+            
+            if let url = item.participants[index].profileImage {
                 return try await imageLoader.execute(url)
             }
             return nil
@@ -165,6 +166,16 @@ extension ChatListViewModel {
         return nil
     }
     
+    private func findOppentUserIndex(data: ChatRoomEntity) -> Int? {
+        if let opponentIndex = data.participants.firstIndex(where: { $0.userID != userID }) {
+            
+            output.opponentIndex = opponentIndex
+            
+            return opponentIndex
+        }
+        return nil
+        
+    }
     
     
     private func handleResetError() {

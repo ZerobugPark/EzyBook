@@ -14,10 +14,6 @@ final class ChatRoomViewModel: ViewModelType {
     private let roomID: String
     private let opponentNick: String
     
-    private var userID: String = ""
-    
-    
-    
     var input = Input()
     @Published var output = Output()
     @Published var content = ""
@@ -26,16 +22,18 @@ final class ChatRoomViewModel: ViewModelType {
     
     private var scale: CGFloat = 0
     private let chatUseCases: ChatListUseCases
-    private let profileLookUpUseCase: DefaultProfileLookUpUseCase
     private let profileSearchUseCase: DefaultProfileSearchUseCase
     private let imageLoader: DefaultLoadImageUseCase
+    
+    private var userID: String {
+        UserSession.shared.currentUser!.userID
+    }
     
     init(
         socketService: SocketService,
         roomID: String,
         opponentNick: String,
         chatUseCases: ChatListUseCases,
-        profileLookUpUseCase: DefaultProfileLookUpUseCase,
         profileSearchUseCase: DefaultProfileSearchUseCase,
         imageLoader: DefaultLoadImageUseCase
     ) {
@@ -44,7 +42,6 @@ final class ChatRoomViewModel: ViewModelType {
         self.roomID = roomID
         self.opponentNick = opponentNick
         self.chatUseCases = chatUseCases
-        self.profileLookUpUseCase = profileLookUpUseCase
         self.profileSearchUseCase = profileSearchUseCase
         self.imageLoader = imageLoader
         
@@ -316,11 +313,7 @@ extension ChatRoomViewModel {
     private func handleEnterChatRoomProfiles() async  {
         
         do {
-            
-            // 1) 내 프로필 조회
-            userID = try await loadMyProfile()
-            
-            // 2) 상대방 프로필 조회
+            // 1) 상대방 프로필 조회
             guard let opponentProfile = try await loadOpponentProfile() else {
                 await MainActor.run {
                     output.unknownedUser = true
@@ -328,10 +321,10 @@ extension ChatRoomViewModel {
                 return
             }
             
-            // 3) 이미지 로드
+            // 2) 이미지 로드
             let profileImage = try await loadProfileImage(from: opponentProfile.profileImage)
             
-            // 4) UI 업데이트
+            // 3) UI 업데이트
             await MainActor.run {
                 updateOpponentProfile(opponentProfile, image: profileImage)
             }
@@ -348,12 +341,6 @@ extension ChatRoomViewModel {
         
     }
     
-    
-    /// 나의 프로필 조회
-    private func loadMyProfile() async throws -> String {
-        let data = try await profileLookUpUseCase.execute()
-        return data.userID
-    }
     
     /// 상대방 프로필 조회
     private func loadOpponentProfile() async throws -> UserInfoResponseEntity? {

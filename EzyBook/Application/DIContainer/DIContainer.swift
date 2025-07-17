@@ -112,7 +112,6 @@ extension DIContainer {
             roomID: roomID,
             opponentNick: opponentNick,
             chatUseCases: chatUseCases,
-            profileLookUpUseCase: profileLookUpUseCase,
             profileSearchUseCase: profileSearchUseCase,
             imageLoader: imageLoader
         )
@@ -121,7 +120,6 @@ extension DIContainer {
     func makeChatRoomListViewModel() -> ChatListViewModel {
         ChatListViewModel(
             chatRoomUseCases: chatRoomUseCases,
-            profileLookUpUseCase: profileLookUpUseCase,
             profileSearchUseCase: profileSearchUseCase,
             imageLoader: imageLoader
         )
