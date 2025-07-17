@@ -11,12 +11,12 @@ import Foundation
 /// 공통 모듈
 /// 네트워크 서비스?, 저장소 패턴, 또 뭐가 있을끼?
 final class DIContainer: ObservableObject {
-
+    
     /// Auth
     private let socialLoginUseCases: SocialLoginUseCases
     private let createAccountUseCase : DefaultCreateAccountUseCase
     private let emailLoginUseCase : DefaultEmailLoginUseCase
-
+    
     
     
     /// Activity
@@ -29,7 +29,7 @@ final class DIContainer: ObservableObject {
     
     /// Review
     let reviewLookupUseCase: DefaultReviewLookUpUseCase
-
+    
     
     
     /// Profile
@@ -46,7 +46,7 @@ final class DIContainer: ObservableObject {
     
     /// Payment
     let paymentValidationUseCase: DefaultPaymentValidationUseCase
-
+    
     /// Chat
     let createChatRoomUseCase: DefaultCreateChatRoomUseCase
     let chatRoomUseCases: ChatRoomListUseCases
@@ -112,7 +112,6 @@ extension DIContainer {
             roomID: roomID,
             opponentNick: opponentNick,
             chatUseCases: chatUseCases,
-            profileLookUpUseCase: profileLookUpUseCase,
             profileSearchUseCase: profileSearchUseCase,
             imageLoader: imageLoader
         )
@@ -121,7 +120,6 @@ extension DIContainer {
     func makeChatRoomListViewModel() -> ChatListViewModel {
         ChatListViewModel(
             chatRoomUseCases: chatRoomUseCases,
-            profileLookUpUseCase: profileLookUpUseCase,
             profileSearchUseCase: profileSearchUseCase,
             imageLoader: imageLoader
         )
@@ -183,7 +181,7 @@ extension DIContainer {
             
             socialLoginUseCases: socialLoginUseCases)
     }
-
+    
 }
 
 // MARK: Make Home ViewModel
@@ -217,14 +215,47 @@ extension DIContainer {
             imageLoader: imageLoader
         )
     }
-
+    
     
 }
 
-// MARK: 토큰 갱신 추가
-extension DIContainer {
-    func refreshAccessTokenIfNeeded() async throws {
-        try await tokenService.refreshToken()
 
+extension DIContainer {
+    
+    
+    // MARK: 앱 시작 시 세션 초기화 (토큰 갱신 + 유저 정보 최신화)
+    func initializeAppSession() async throws {
+        
+        // 1) 토큰 갱신
+        try await refreshAccessTokenIfNeeded()
+        
+        // 2) 최신 유저 정보 가져오기 (없을 경우, 기존 User 정보)
+        await initializeUserSession()
+        
     }
+    
+    // MARK: 토큰 갱신 추가
+    private func refreshAccessTokenIfNeeded() async throws {
+        try await tokenService.refreshToken()
+    }
+    
+    // MARK: 서버에서 최신 유저 정보 업데이트
+    private func initializeUserSession() async {
+        do {
+            let latestUser = try await profileLookUpUseCase.execute()
+            
+            let userInfo = UserEntity(
+                userID: latestUser.userID,
+                email: latestUser.email,
+                nick: latestUser.nick
+            )
+            
+            UserSession.shared.update(userInfo)
+            
+        } catch {
+            print("최신 유저 정보 가져오기 실패: \(error)")
+        }
+    }
+    
+    
 }

@@ -20,7 +20,7 @@ struct ChatListView: View {
                     makeChatListView(item)
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            coordinator.push(.chatRoomView(roomID: item.roomID, opponentNick: item.participants[0].nick))
+                            coordinator.push(.chatRoomView(roomID: item.roomID, opponentNick: item.participants[item.opponentIndex ?? 0].nick))
                         }
                         
                         
@@ -64,7 +64,7 @@ extension ChatListView {
             
             VStack(alignment: .leading, spacing: 5) {
                 /// 채팅하는 사람
-                Text(data.participants.first!.nick)
+                Text(data.participants[data.opponentIndex ?? 0].nick)
                     .appFont(PretendardFontStyle.body1, textColor: .grayScale100)
                     .lineLimit(1)
                     .truncationMode(.tail)
