@@ -317,12 +317,12 @@ extension HomeViewModel {
         /// +1, 최초 로딩시, 3개의 [0, 1,  2]데이터를 가져옴, 이후 2번 인덱스에도착하면 3번 데이터를 호출
         let fetchIndex = index + 1
          
+        /// prefetch 인덱스가, 실제 서버 에서 받은 데이터보다 크다면, 펜딩에 대기
         if fetchIndex >= filterActivitySummaryList.count {
             pendingFetchIndices.insert(fetchIndex)
             return
         }
         
-        print("f", filterActivityindicats)
         guard !paginationInProgress,
               !filterActivityindicats
             .contains(fetchIndex), fetchIndex < filterActivitySummaryList.count else { return }
