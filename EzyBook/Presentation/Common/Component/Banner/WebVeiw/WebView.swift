@@ -19,14 +19,14 @@ struct WebView: UIViewRepresentable {
     func makeUIView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration() // WKWebView 초기 설정
         
+        // 웹뷰 컨트롤러에 브릿지 받을 때 사용할 키워드
         let controller = WKUserContentController()
-        
-        /// 웹이랑 동일한 이름
         controller.add(context.coordinator, name: "click_attendance_button")
         controller.add(context.coordinator, name: "complete_attendance")
         
         config.userContentController = controller
         
+        // 웹뷰 설정
         let webView = WKWebView(frame: .zero, configuration: config)
         context.coordinator.webView = webView
         
@@ -54,7 +54,7 @@ struct WebView: UIViewRepresentable {
         init(parent: WebView) {
             self.parent = parent
         }
-        
+        // 브릿지 통신 처리
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
             switch message.name {
             case "click_attendance_button":
