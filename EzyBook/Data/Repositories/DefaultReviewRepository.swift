@@ -8,7 +8,7 @@
 import Foundation
 
 
-final class DefaultReviewRepository: ReviewRatingListRepository, ReviewWriteRepository {
+struct DefaultReviewRepository: ReviewRatingListRepository, ReviewWriteRepository {
 
     private let networkService: NetworkService
     

@@ -19,6 +19,8 @@ final class AppDIContainer {
     private let networkService: DefaultNetworkService
     private let imageLoader: DefaultImageLoader
     private let imageCache: ImageCache
+    
+    private lazy var sockService = SocketServicePool(keyChain: storage)
                                                             
     // MARK: - Data Layer
     private let authRepository: DefaultAuthRepository
@@ -30,7 +32,9 @@ final class AppDIContainer {
     private let uploadRepository: DefaultUploadFileRepository
     private let orderRepository: DefaultOrderRepository
     private let paymentRepository: DefaultPaymentRepository
-    
+    private let chatRepository: DefaultChatRepository
+    private let chatRealmListRepository: DefaultChatMessageRealmRepository
+    private let chatMessageRealmRepository: DefaultChatRoomRealmRepository
     
     
     
@@ -53,8 +57,10 @@ final class AppDIContainer {
         orderRepository = DefaultOrderRepository(networkService: networkService)
         paymentRepository = DefaultPaymentRepository(networkService: networkService)
         
-        
-        
+        chatRepository = DefaultChatRepository(networkService: networkService)
+
+        chatRealmListRepository = DefaultChatMessageRealmRepository()
+        chatMessageRealmRepository = DefaultChatRoomRealmRepository()
         
         imageCache = ImageCache()
         imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache, interceptor: interceptor)
@@ -65,10 +71,9 @@ final class AppDIContainer {
     // MARK: - DIContainer Factory
     func makeDIContainer() -> DIContainer {
         DIContainer(
-            kakaoLoginUseCase: makeKakaoLoginUseCase(),
+            socialLoginUseCases: makeSocialLoginUseCase(),
             createAccountUseCase: makeCreateAccountUseCase(),
             emailLoginUseCase: makeEmailLoginUseCase(),
-            appleLoginUseCase: makeAppleLoginUseCase(),
             activityListUseCase: makeActivityListUseCase(),
             activityNewListUseCase: makeActivityNewListUseCase(),
             activitySearchUseCase: makeActivitySearchUseCase(),
@@ -78,14 +83,19 @@ final class AppDIContainer {
             profileLookUpUseCase: makeProfileLookUpUseCase(),
             profileImageUpLoadUseCase: makeProfileUpLoadFileUseCase(),
             profileModifyUseCase: makeProfileModifyUseCase(),
+            profileSearchUseCase: makeProfileSearchUseCase(),
             reviewImageUploadUseCase: makeReviewImageUpload(),
             reviewWriteUseCase: makeReviewWirteUseCase(),
             orderCreateUseCase: makeOoderCreateUseCase(),
             orderListLookUpUseCase: makeOrderListLookUpUseCase(),
             paymentValidationUseCase: makePaymentVaildationUseCase(),
+            createChatRoomUseCase: makeCreateChatRoomUseCase(),
+            chatRoomUseCases: makeChatRoomListUseCase(),
+            chatUseCases: makeChatUseCase(),
             imageLoader: makeImageLoaderUseCase(),
             viewLoader: makeVidoeLoaderDelegate(),
-            tokenService: tokenService
+            tokenService: tokenService,
+            socketService: sockService
         )
     }
     
@@ -108,6 +118,71 @@ extension AppDIContainer {
     
 }
 
+// MARK: Chat
+
+extension AppDIContainer {
+    
+    // 채팅방 생성
+    private func makeCreateChatRoomUseCase() -> DefaultCreateChatRoomUseCase {
+        DefaultCreateChatRoomUseCase(repo: chatRepository)
+    }
+    
+    // MARK: 채팅 목록
+    private func makeChatRoomListUseCase() -> DefaultChatRoomListUseCase {
+        DefaultChatRoomListUseCase(repo: chatRepository)
+    }
+    
+    private func makeSaveLatestChatRoomUseCase() -> DefaultSaveLatestChatRoomUseCase {
+        DefaultSaveLatestChatRoomUseCase(repo: chatMessageRealmRepository)
+    }
+    
+    private func makeFetchChatRoomListUseCase() -> DefaultFetchChatRoomListUseCase {
+        DefaultFetchChatRoomListUseCase(repo: chatMessageRealmRepository)
+    }
+    
+    private func makeChatRoomListUseCase() -> ChatRoomListUseCases {
+        ChatRoomListUseCases(
+            fetchRemoteChatRoomList: makeChatRoomListUseCase(),
+            saveRealmLastMessage: makeSaveLatestChatRoomUseCase(),
+            fetchRealmChatRoomList: makeFetchChatRoomListUseCase()
+        )
+    }
+    
+    
+    
+    // MARK: 채팅방
+    private func makeChatUseCase() -> ChatListUseCases {
+        ChatListUseCases(
+            sendMessages: makeSendUseCase(),
+            saveRealmMessages: makeSaveUseCase(),
+            fetchRealmLatestMessage: makeFetchLatestChatMessageUseCase(),
+            fetchRealmMessageList: makeFetchChatMessageListUseCase(),
+            fetchRemoteMessage: makeFetchRemoteChatMessagesUseCase()
+        )
+    }
+    
+    private func makeSendUseCase() -> DefaultChatSendMessageUseCase {
+        DefaultChatSendMessageUseCase(repo: chatRepository)
+    }
+    
+    private func makeSaveUseCase() -> DefaultRealmSaveChatMessageUseCase {
+        DefaultRealmSaveChatMessageUseCase(repo: chatRealmListRepository)
+    }
+    
+    private func makeFetchLatestChatMessageUseCase() -> DefaultRealmFetchLatestChatMessageUseCase {
+        DefaultRealmFetchLatestChatMessageUseCase(repo: chatRealmListRepository)
+    }
+    
+    private func makeFetchChatMessageListUseCase() -> DefaultRealmFetchChatMessageListUseCase {
+        DefaultRealmFetchChatMessageListUseCase(repo: chatRealmListRepository)
+    }
+    
+    private func makeFetchRemoteChatMessagesUseCase() -> DefaultFetchRemoteChatMessagesUseCase {
+        DefaultFetchRemoteChatMessagesUseCase(repo: chatRepository)
+    }
+    
+}
+
 
 
 // MARK: Profile
@@ -124,6 +199,10 @@ extension AppDIContainer {
         DefaultProfileModifyUseCase(repo: profileRepository)
     }
     
+    private func makeProfileSearchUseCase() -> DefaultProfileSearchUseCase {
+        DefaultProfileSearchUseCase(repo: profileRepository)
+    }
+    
     private func makeReviewWirteUseCase() -> DefaultReViewWriteUseCase {
         DefaultReViewWriteUseCase(repo: reviewRepository)
     }
@@ -131,6 +210,8 @@ extension AppDIContainer {
     private func makeReviewImageUpload() -> DefaultUploadReviewImages {
         DefaultUploadReviewImages(repo: uploadRepository)
     }
+    
+    
     
 }
 
@@ -154,6 +235,13 @@ extension AppDIContainer {
 
 // MARK: Auth
 extension AppDIContainer {
+    
+    private func makeSocialLoginUseCase() -> SocialLoginUseCases {
+        SocialLoginUseCases(
+            appleLogin: makeAppleLoginUseCase(),
+            kakaoLogin: makeKakaoLoginUseCase()
+        )
+    }
 
     private func makeKakaoLoginUseCase() -> DefaultKakaoLoginUseCase {
         DefaultKakaoLoginUseCase(

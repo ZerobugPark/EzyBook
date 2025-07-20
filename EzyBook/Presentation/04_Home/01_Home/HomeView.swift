@@ -25,11 +25,6 @@ struct HomeView: View {
     /// 버튼 Rows
     private let rows = [GridItem(.flexible(), spacing: 20)]
     
-    var title: some View {
-        Text("EzyBook")
-            .appFont(PaperlogyFontStyle.body, textColor: .blackSeafoam)
-    }
-    
     
     var body: some View {
         ZStack {
@@ -59,7 +54,7 @@ struct HomeView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                title
+                TitleTextView(title: "EzyBook")
             }
 
             ToolbarItem(placement: .topBarTrailing) {
@@ -184,7 +179,7 @@ extension HomeView {
                     .shadow(color: .black.opacity(0.6), radius: 2)
                 
                 Label {
-                    Text("\(data.originalPrice)")
+                    Text("\(data.finalPrice)")
                         .appFont(PaperlogyFontStyle.caption, textColor: .grayScale0)
                         .shadow(color: .black.opacity(0.6), radius: 2)
                 } icon: {

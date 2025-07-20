@@ -97,7 +97,7 @@ struct EzyBookApp: App {
                             await container.imageLoader.cleanUpDiskCache()
                             
                             do {
-                                try await container.refreshAccessTokenIfNeeded()
+                                try await container.initializeAppSession()
                                 appState.isLoggedIn = true
                             } catch {
                                 appState.isLoggedIn = false

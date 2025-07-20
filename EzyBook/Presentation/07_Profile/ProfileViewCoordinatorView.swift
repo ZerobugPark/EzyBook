@@ -10,7 +10,7 @@ import SwiftUI
 struct ProfileViewCoordinatorView: View {
     
     @EnvironmentObject var container: DIContainer
-    @StateObject var coordinator: ProfileCoordinator
+    @ObservedObject var coordinator: ProfileCoordinator
     
     var body: some View {
         NavigationStack(path: $coordinator.path) {

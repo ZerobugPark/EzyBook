@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class DefaultAuthRepository: SignUpRepository, EmailLoginRepository, KakaoLoginRepository, AppleLoginRepository {
+struct DefaultAuthRepository: SignUpRepository, EmailLoginRepository, KakaoLoginRepository, AppleLoginRepository {
 
     private let networkService: NetworkService
     
@@ -35,7 +35,7 @@ extension DefaultAuthRepository {
     
     func requestEmailLogin(_ router: UserRequest.Post) async throws -> LoginEntity {
         let data = try await networkService.fetchData(dto: LoginResponseDTO.self, router)
-        print(data)
+        
         return data.toEntity()
     }
     

@@ -228,7 +228,7 @@ struct ActivityReservationTimeEntity {
 struct ActivityCreatorEntity {
     let userID: String
     let nick: String
-    let introduction: String
+    let introduction: String?
     
     init(dto: ActivityCreatorDTO) {
         self.userID = dto.userID

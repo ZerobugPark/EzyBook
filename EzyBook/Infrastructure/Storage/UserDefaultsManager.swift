@@ -30,10 +30,15 @@ import Foundation
 enum UserDefaultManager {
     enum Key: String {
         case etag
+        case currentUser
+        
     }
     
     @EzyBookUserDefaultManager(key: Key.etag.rawValue, empty: [:])
     static var etag: [String: String]
+    
+    @EzyBookUserDefaultManager(key: Key.currentUser.rawValue, empty: Data())
+    static var currentUser: Data
     
 }
 

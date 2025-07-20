@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>top-level-items</key>
+	<array>
+		<dict>
+			<key>destination</key>
+			<dict>
+				<key>location-parameters</key>
+				<dict>
+					<key>EndingColumnNumber</key>
+					<string>0</string>
+					<key>EndingLineNumber</key>
+					<string>23</string>
+					<key>StartingColumnNumber</key>
+					<string>0</string>
+					<key>StartingLineNumber</key>
+					<string>22</string>
+					<key>Timestamp</key>
+					<string>771061370.095421</string>
+				</dict>
+				<key>rebasable-url</key>
+				<dict>
+					<key>base</key>
+					<string>workspace</string>
+					<key>payload</key>
+					<dict>
+						<key>relative-path</key>
+						<string>EzyBook/Presentation/Common/Extension/String+Extension.swift</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>text-context</key>
+			<dict>
+				<key>focused</key>
+				<string>        return NSPredicate(format:"SELF MATCHES %@", regex).evaluate(with: self)
+</string>
+				<key>leading</key>
+				<string>    func validateEmail() -&gt; Bool {
+        let regex = #"^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"#
+</string>
+				<key>trailing</key>
+				<string>    }
+    
+    /// 비밀번호 복잡도 검사
+</string>
+			</dict>
+			<key>title</key>
+			<string>정규식 표현: regex, Predicate 차이 비교 </string>
+			<key>type</key>
+			<string>bookmark</string>
+		</dict>
+		<dict>
+			<key>destination</key>
+			<dict>
+				<key>location-parameters</key>
+				<dict>
+					<key>EndingColumnNumber</key>
+					<string>0</string>
+					<key>EndingLineNumber</key>
+					<string>73</string>
+					<key>StartingColumnNumber</key>
+					<string>0</string>
+					<key>StartingLineNumber</key>
+					<string>72</string>
+					<key>Timestamp</key>
+					<string>772521788.521197</string>
+				</dict>
+				<key>rebasable-url</key>
+				<dict>
+					<key>base</key>
+					<string>workspace</string>
+					<key>payload</key>
+					<dict>
+						<key>relative-path</key>
+						<string>EzyBook/Presentation/04_Home/02_DetailView/DetailView.swift</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>text-context</key>
+			<dict>
+				<key>focused</key>
+				<string>        .fullScreenCover(isPresented: $viewModel.output.payButtonTapped) {
+</string>
+				<key>leading</key>
+				<string>            }
+        }
+</string>
+				<key>trailing</key>
+				<string>            if let payItem = viewModel.output.payItem {
+                coordinator.makePaymentView(item: payItem) { msg in
+                    viewModel.action(.showPaymentResult(message: msg))
+</string>
+			</dict>
+			<key>title</key>
+			<string>결제 성공시, 예약 내역 업데이트하는 로직 추가 필요</string>
+			<key>type</key>
+			<string>bookmark</string>
+		</dict>
+	</array>
+</dict>
+</plist>

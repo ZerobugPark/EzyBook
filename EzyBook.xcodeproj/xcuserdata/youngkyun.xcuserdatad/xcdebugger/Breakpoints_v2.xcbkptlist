@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "E2458A3D-229B-4DBB-A2CA-5C22E7350298"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C7DB1BDD-C5F4-4AFF-88EF-4073C0966A8B"
+            shouldBeEnabled = "No"
+            nameForDebugger = "&#xbe44;&#xb514;&#xc624;&#xc694;&#xccad;&#xc751;&#xb2f5;&#xbc94;&#xc704;"
+            ignoreCount = "0"
+            continueAfterRunningActions = "Yes"
+            filePath = "EzyBook/Infrastructure/Networking/VideoLoaderDelegate.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "63"
+            endingLineNumber = "63"
+            landmarkName = "resourceLoader(_:shouldWaitForLoadingOfRequestedResource:)"
+            landmarkType = "7">
+            <Actions>
+               <BreakpointActionProxy
+                  ActionExtensionID = "Xcode.BreakpointAction.DebuggerCommand">
+                  <ActionContent
+                     consoleCommand = "expr print(&quot;&#x27a1;&#xfe0f; &#xc751;&#xb2f5; &#xbc94;&#xc704;: \(offset)..&lt;\(rangeEnd)&quot;)">
+                  </ActionContent>
+               </BreakpointActionProxy>
+            </Actions>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "11929B2D-6297-45B2-89BF-B0145504A5A2"
+            shouldBeEnabled = "No"
+            nameForDebugger = "&#xbe44;&#xb514;&#xc624;&#xc694;&#xccad;&#xc751;&#xb2f5;&#xd06c;&#xae30;"
+            ignoreCount = "0"
+            continueAfterRunningActions = "Yes"
+            filePath = "EzyBook/Infrastructure/Networking/VideoLoaderDelegate.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "59"
+            endingLineNumber = "59"
+            landmarkName = "resourceLoader(_:shouldWaitForLoadingOfRequestedResource:)"
+            landmarkType = "7">
+            <Actions>
+               <BreakpointActionProxy
+                  ActionExtensionID = "Xcode.BreakpointAction.DebuggerCommand">
+                  <ActionContent
+                     consoleCommand = "expr print(&quot;&#x2705; &#xc694;&#xccad;&#xb428;: offset=\(offset), length=\(length), dataSize=\(data.count)&quot;)">
+                  </ActionContent>
+               </BreakpointActionProxy>
+            </Actions>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "7524A2E5-C269-495F-9629-86C753E7F1F8"
+            shouldBeEnabled = "No"
+            nameForDebugger = "&#xc694;&#xccad;&#xc5d0;&#xb7ec;"
+            ignoreCount = "0"
+            continueAfterRunningActions = "Yes"
+            filePath = "EzyBook/Infrastructure/Networking/VideoLoaderDelegate.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "71"
+            endingLineNumber = "71"
+            landmarkName = "resourceLoader(_:shouldWaitForLoadingOfRequestedResource:)"
+            landmarkType = "7">
+            <Actions>
+               <BreakpointActionProxy
+                  ActionExtensionID = "Xcode.BreakpointAction.DebuggerCommand">
+                  <ActionContent
+                     consoleCommand = "expr print(&quot;Error loading video:&quot;, error)">
+                  </ActionContent>
+               </BreakpointActionProxy>
+            </Actions>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>
