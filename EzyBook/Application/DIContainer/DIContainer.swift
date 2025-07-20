@@ -18,6 +18,8 @@ final class DIContainer: ObservableObject {
     private let emailLoginUseCase : DefaultEmailLoginUseCase
     
     
+    ///Banner
+    let bannerInfoUseCase: DefaultBannerInfoUseCase
     
     /// Activity
     let activityListUseCase: DefaultActivityListUseCase
@@ -58,10 +60,11 @@ final class DIContainer: ObservableObject {
     let tokenService: DefaultTokenService // 리프레시 갱신 시점 때문에 DI에서 추가 관리
     let socketService: SocketServicePool
     
-    init(socialLoginUseCases: SocialLoginUseCases, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, reviewLookupUseCase: DefaultReviewLookUpUseCase, profileLookUpUseCase: DefaultProfileLookUpUseCase, profileImageUpLoadUseCase: DefaultUploadProfileFileUseCase, profileModifyUseCase: DefaultProfileModifyUseCase, profileSearchUseCase: DefaultProfileSearchUseCase, reviewImageUploadUseCase: DefaultUploadReviewImages, reviewWriteUseCase: DefaultReViewWriteUseCase, orderCreateUseCase: DefaultCreateOrderUseCase, orderListLookUpUseCase: DefaultOrderListLookupUseCase, paymentValidationUseCase: DefaultPaymentValidationUseCase, createChatRoomUseCase: DefaultCreateChatRoomUseCase, chatRoomUseCases: ChatRoomListUseCases, chatUseCases: ChatListUseCases, imageLoader: DefaultLoadImageUseCase, viewLoader: VideoLoaderDelegate, tokenService: DefaultTokenService, socketService: SocketServicePool) {
+    init(socialLoginUseCases: SocialLoginUseCases, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, bannerInfoUseCase: DefaultBannerInfoUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, reviewLookupUseCase: DefaultReviewLookUpUseCase, profileLookUpUseCase: DefaultProfileLookUpUseCase, profileImageUpLoadUseCase: DefaultUploadProfileFileUseCase, profileModifyUseCase: DefaultProfileModifyUseCase, profileSearchUseCase: DefaultProfileSearchUseCase, reviewImageUploadUseCase: DefaultUploadReviewImages, reviewWriteUseCase: DefaultReViewWriteUseCase, orderCreateUseCase: DefaultCreateOrderUseCase, orderListLookUpUseCase: DefaultOrderListLookupUseCase, paymentValidationUseCase: DefaultPaymentValidationUseCase, createChatRoomUseCase: DefaultCreateChatRoomUseCase, chatRoomUseCases: ChatRoomListUseCases, chatUseCases: ChatListUseCases, imageLoader: DefaultLoadImageUseCase, viewLoader: VideoLoaderDelegate, tokenService: DefaultTokenService, socketService: SocketServicePool) {
         self.socialLoginUseCases = socialLoginUseCases
         self.createAccountUseCase = createAccountUseCase
         self.emailLoginUseCase = emailLoginUseCase
+        self.bannerInfoUseCase = bannerInfoUseCase
         self.activityListUseCase = activityListUseCase
         self.activityNewListUseCase = activityNewListUseCase
         self.activitySearchUseCase = activitySearchUseCase
@@ -217,6 +220,16 @@ extension DIContainer {
     }
     
     
+}
+
+// MARK: 광고
+extension DIContainer {
+    func makeBannerViewModel() -> BannerViewModel {
+        BannerViewModel(
+            imageLoader: imageLoader,
+            bannerUseCase: bannerInfoUseCase
+        )
+    }
 }
 
 

@@ -35,6 +35,7 @@ final class AppDIContainer {
     private let chatRepository: DefaultChatRepository
     private let chatRealmListRepository: DefaultChatMessageRealmRepository
     private let chatMessageRealmRepository: DefaultChatRoomRealmRepository
+    private let bannerRepository: DefaultBannerRepository
     
     
     
@@ -62,6 +63,8 @@ final class AppDIContainer {
         chatRealmListRepository = DefaultChatMessageRealmRepository()
         chatMessageRealmRepository = DefaultChatRoomRealmRepository()
         
+        bannerRepository = DefaultBannerRepository(networkService: networkService)
+        
         imageCache = ImageCache()
         imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache, interceptor: interceptor)
         
@@ -74,6 +77,7 @@ final class AppDIContainer {
             socialLoginUseCases: makeSocialLoginUseCase(),
             createAccountUseCase: makeCreateAccountUseCase(),
             emailLoginUseCase: makeEmailLoginUseCase(),
+            bannerInfoUseCase: makeBannerInfoUseCase(),
             activityListUseCase: makeActivityListUseCase(),
             activityNewListUseCase: makeActivityNewListUseCase(),
             activitySearchUseCase: makeActivitySearchUseCase(),
@@ -119,7 +123,6 @@ extension AppDIContainer {
 }
 
 // MARK: Chat
-
 extension AppDIContainer {
     
     // 채팅방 생성
@@ -307,4 +310,10 @@ extension AppDIContainer {
 }
 
 
+// MARK: Banner
+extension AppDIContainer {
+    private func makeBannerInfoUseCase() -> DefaultBannerInfoUseCase {
+        DefaultBannerInfoUseCase(repo: bannerRepository)
+    }
+}
 

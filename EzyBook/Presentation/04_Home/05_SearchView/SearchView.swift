@@ -13,6 +13,7 @@ struct SearchView: View {
     @EnvironmentObject var appState: AppState
     
     @StateObject var viewModel: SearchViewModel
+    @StateObject var bannerViewModel: BannerViewModel
     @ObservedObject var coordinator: HomeCoordinator
    
     @State private var isSearching = false
@@ -73,7 +74,9 @@ struct SearchView: View {
             message: viewModel.output.presentedError?.message.msg
         )
         .onAppear {
+            // 탭바 터치 가능 여뷰
             appState.isLoding = viewModel.output.isLoading
+            
         }
         .loadingOverlayModify(viewModel.output.isLoading)
         
@@ -81,7 +84,9 @@ struct SearchView: View {
     }
     
 
+
 }
+
 
 
 // MARK: 광고 영역
@@ -89,12 +94,11 @@ extension SearchView {
     
     private func makeAdvertiseView() -> some View {
         ZStack {
-            Rectangle()
-                .fill(.deepSeafoam) // 원하는 색상으로 설정
-                .frame(maxWidth: .infinity)
-                .frame(height: 150)
             
-            Text("광고뷰 입니다.")
+            BannerView(
+                viewModel: bannerViewModel
+            )
+            
         }
     }
 
@@ -118,7 +122,3 @@ extension SearchView {
 }
 
 
-
-#Preview {
-    //PreViewHelper.makeSearchView()
-}
