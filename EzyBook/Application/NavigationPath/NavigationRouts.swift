@@ -19,13 +19,14 @@ enum HomeRoute: Hashable {
     case detailView(activityID: String)
     case reviewView(activityID: String)
     case chatRoomView(roomID: String, opponentNick: String)
+    case advertiseView(callbackID: UUID)
     
 }
 
 extension HomeRoute {
     var hidesTabbar: Bool {
         switch self {
-        case .detailView, .reviewView, .chatRoomView:
+        case .detailView, .reviewView, .chatRoomView, .advertiseView:
             return true
         default:
             return false

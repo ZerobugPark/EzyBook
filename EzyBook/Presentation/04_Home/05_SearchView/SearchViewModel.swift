@@ -13,6 +13,8 @@ final class SearchViewModel: ViewModelType {
     private let activitySearchLisUseCase: DefaultActivitySearchUseCase
     private let activityDeatilUseCase: DefaultActivityDetailUseCase
     private let activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase
+    
+    
     private let imageLoader: DefaultLoadImageUseCase
     
     var input = Input()
@@ -78,6 +80,8 @@ extension SearchViewModel {
         }
         
         var activitySearchDetailList: [FilterActivityModel] = []
+        
+      
     }
     
     func transform() {
@@ -90,6 +94,23 @@ extension SearchViewModel {
             
     }
     
+    
+
+    
+    private func handleResetError() {
+        output.presentedError = nil
+    }
+    
+    private func handleUpdateScale(_ scale: CGFloat) {
+        self.scale = scale
+    }
+    
+    
+    
+}
+
+// MARK: 검색 관련
+extension SearchViewModel {
     
     func requestSearchList(query: String) {
         Task {
@@ -144,30 +165,6 @@ extension SearchViewModel {
         
     }
     
-    
-    private func handleResetError() {
-        output.presentedError = nil
-    }
-    
-    private func handleUpdateScale(_ scale: CGFloat) {
-        self.scale = scale
-    }
-    
-    
-    
-}
-
-// MARK: 추천 관련
-extension SearchViewModel {
-    
-    //TODO: 추후 구현
-    
-}
-
-// MARK: 광고 관련
-extension SearchViewModel {
-    
-    //TODO: 추후 구현
     
 }
 
@@ -245,6 +242,18 @@ extension SearchViewModel {
     
 }
 
+
+
+// MARK: 추천 관련
+extension SearchViewModel {
+    
+    //TODO: 추후 구현
+    
+}
+
+
+
+
 // MARK:  Keep Status
 extension SearchViewModel {
     private func triggerKeepActivity(_ index: Int) {
@@ -302,6 +311,7 @@ extension SearchViewModel {
         case prefetchSearchContent(index: Int)
         case keepButtonTapped(index: Int)
         case resetError
+        
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)

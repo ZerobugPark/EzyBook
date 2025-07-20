@@ -13,16 +13,19 @@ struct SearchView: View {
     @EnvironmentObject var appState: AppState
     
     @StateObject var viewModel: SearchViewModel
+    @StateObject var bannerViewModel: BannerViewModel
     @ObservedObject var coordinator: HomeCoordinator
    
     @State private var isSearching = false
+    @State private var isBanner = false
+    @State private var bannerMessage = ""
     
     var body: some View {
         ZStack {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .center, spacing: 15) {
                     makeAdvertiseView()
-                    makeRecommendView()
+                   // makeRecommendView()
                     ActivityIntroduceView(data: $viewModel.output.activitySearchDetailList) { index in
                         viewModel.action(.keepButtonTapped(index: index))
                     } currentIndex: { index in
@@ -72,8 +75,16 @@ struct SearchView: View {
             title: viewModel.output.presentedError?.message.title,
             message: viewModel.output.presentedError?.message.msg
         )
+        .commonAlert(
+            isPresented: $isBanner,
+            title: "안내",
+            message: bannerMessage
+        )
+   
         .onAppear {
+            // 탭바 터치 가능 여뷰
             appState.isLoding = viewModel.output.isLoading
+            
         }
         .loadingOverlayModify(viewModel.output.isLoading)
         
@@ -81,7 +92,9 @@ struct SearchView: View {
     }
     
 
+
 }
+
 
 
 // MARK: 광고 영역
@@ -89,12 +102,14 @@ extension SearchView {
     
     private func makeAdvertiseView() -> some View {
         ZStack {
-            Rectangle()
-                .fill(.deepSeafoam) // 원하는 색상으로 설정
-                .frame(maxWidth: .infinity)
-                .frame(height: 150)
-            
-            Text("광고뷰 입니다.")
+            BannerView(viewModel: bannerViewModel) { _ in
+                coordinator.pushAdvertiseView { result in
+                    
+                    self.bannerMessage = "\(result)번째 출석이 완료되었습니다."
+                    self.isBanner = true
+                    
+                }
+            }
         }
     }
 
@@ -118,7 +133,3 @@ extension SearchView {
 }
 
 
-
-#Preview {
-    //PreViewHelper.makeSearchView()
-}
