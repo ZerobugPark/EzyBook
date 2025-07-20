@@ -40,9 +40,8 @@ struct ProfileView: View {
             }
             .background(.grayScale15)
             .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text("PROFILE")
-                        .appFont(PaperlogyFontStyle.body, textColor: .blackSeafoam)
+                ToolbarItem(placement: .topBarLeading) {
+                    TitleTextView(title: "PROFILE")
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {}) {

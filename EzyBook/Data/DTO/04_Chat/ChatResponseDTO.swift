@@ -8,11 +8,11 @@
 import Foundation
 
 
-struct ChatRoomListResponseDTO: Decodable {
+struct ChatRoomListResponseDTO: Decodable, EntityConvertible {
     let data: [ChatRoomResponseDTO]
 }
 
-struct ChatRoomResponseDTO: Decodable {
+struct ChatRoomResponseDTO: Decodable, EntityConvertible {
     let roomId: String
     let createdAt: String
     let updatedAt: String
@@ -21,20 +21,20 @@ struct ChatRoomResponseDTO: Decodable {
 
     private enum CodingKeys: String, CodingKey {
         case roomId = "room_id"
-        case createdAt = "created_at"
-        case updatedAt = "updated_at"
+        case createdAt
+        case updatedAt
         case participants
-        case lastChat = "last_chat"
+        case lastChat
     }
 }
 
 
-struct ChatListResponseDTO: Decodable {
+struct ChatListResponseDTO: Decodable, EntityConvertible {
     let data: [ChatResponseDTO]
     
 }
 
-struct ChatResponseDTO: Decodable {
+struct ChatResponseDTO: Decodable, EntityConvertible {
     let chatId: String
     let roomId: String
     let content: String
@@ -47,8 +47,8 @@ struct ChatResponseDTO: Decodable {
         case chatId = "chat_id"
         case roomId = "room_id"
         case content
-        case createdAt = "created_at"
-        case updatedAt = "updated_at"
+        case createdAt
+        case updatedAt
         case sender
         case files
     }

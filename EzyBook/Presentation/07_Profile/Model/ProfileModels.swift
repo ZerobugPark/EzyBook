@@ -16,14 +16,23 @@ struct ProfileLookUpModel {
     let phoneNum: String
     let introduction: String
     
-    init (from detail: ProfileLookUpEntity, profile: UIImage?) {
+    init (from detail: ProfileLookUpEntity, profileImage: UIImage?) {
         self.userID = detail.userID
         self.email = detail.email
         self.nick = detail.nick
-        self.profileImage = profile
+        self.profileImage = profileImage
         self.phoneNum = detail.phoneNum
         self.introduction = detail.introduction.isEmpty ? "소개를 작성해주세요" : detail.introduction
 
+    }
+    
+    init(from profile: UserInfoResponseEntity, profileImage: UIImage?) {
+        self.userID = profile.userID
+        self.email = ""
+        self.nick = profile.nick
+        self.profileImage = profileImage
+        self.phoneNum = ""
+        self.introduction = profile.introduction ?? ""
     }
     
 }
@@ -43,7 +52,7 @@ extension ProfileLookUpModel {
                 introduction: "사용자 소개를 불러오는 중입니다..."
             )
         ),
-        profile: nil
+        profileImage: nil
         
     )
     

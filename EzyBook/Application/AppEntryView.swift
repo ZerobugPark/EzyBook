@@ -15,7 +15,7 @@ struct AppEntryView: View {
     var body: some View {
         
         if appState.isLoggedIn {
-            MainTabView()
+            MainTabView(container: container)
         } else {
             AuthCoordinatorView(coordinator: AuthCoordinator(container: container))
         }

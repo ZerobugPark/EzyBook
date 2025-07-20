@@ -10,7 +10,7 @@ import SwiftUI
 struct CommunityCoordinatorView: View {
     
     @EnvironmentObject var container: DIContainer
-    @StateObject var coordinator: CommunityCoordinator
+    @ObservedObject var coordinator: CommunityCoordinator
     
     var body: some View {
         NavigationStack(path: $coordinator.path) {

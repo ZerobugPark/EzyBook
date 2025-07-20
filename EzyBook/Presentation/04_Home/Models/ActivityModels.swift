@@ -48,8 +48,8 @@ struct NewActivityModel: ActivityModelBuildable {
     
 }
 
-struct FilterActivityModel: ActivityModelBuildable {
-    
+struct FilterActivityModel: ActivityModelBuildable, Identifiable {
+    let id = UUID()
     let activityID: String
     let title: String
     let country: String

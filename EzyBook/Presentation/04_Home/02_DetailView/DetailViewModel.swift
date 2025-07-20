@@ -14,6 +14,7 @@ final class DetailViewModel: ViewModelType {
     private let activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase
     private let reviewLookupUseCase: DefaultReviewLookUpUseCase
     private let orderUseCase: DefaultCreateOrderUseCase
+    private let createChatRoomUseCase: DefaultCreateChatRoomUseCase
     private let imageLoader: DefaultLoadImageUseCase
     
     
@@ -29,6 +30,7 @@ final class DetailViewModel: ViewModelType {
         activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase,
         reviewLookupUseCase: DefaultReviewLookUpUseCase,
         orderUseCaes: DefaultCreateOrderUseCase,
+        createChatRoomUseCase: DefaultCreateChatRoomUseCase,
         imageLoader: DefaultLoadImageUseCase
     ) {
 
@@ -36,6 +38,7 @@ final class DetailViewModel: ViewModelType {
         self.activityKeepCommandUseCase = activityKeepCommandUseCase
         self.reviewLookupUseCase = reviewLookupUseCase
         self.orderUseCase = orderUseCaes
+        self.createChatRoomUseCase = createChatRoomUseCase
         self.imageLoader = imageLoader
         
         transform()
@@ -66,6 +69,16 @@ extension DetailViewModel {
         
         var payItem: PayItem? = nil
         var payButtonTapped = false
+        
+        var roomID: String? = nil
+        
+        var opponentNick: String {
+            get {
+                activityDetailInfo.creator.nick
+            }
+        }
+        
+        
     }
     
     func transform() {}
@@ -76,9 +89,10 @@ extension DetailViewModel {
         Task {
             do {
                 let detail = try await reqeuestActivityDetailList(activityID)
-                dump(detail)
+                
                 await MainActor.run {
                     output.activityDetailInfo = detail
+                    
                 }
             } catch let error as APIError {
                 await MainActor.run {
@@ -235,6 +249,37 @@ extension DetailViewModel {
     
 }
 
+
+// MARK: makeChatRoom
+extension DetailViewModel {
+    
+    private func handleCheckChatRoom() {
+        
+        Task {
+            do {
+                
+                let id = output.activityDetailInfo.creator.userID
+                let data = try await createChatRoomUseCase.execute(id: id)
+                
+                await MainActor.run {
+                    output.roomID = data.roomID
+                }
+                
+                
+            } catch let error as APIError {
+                await MainActor.run {
+                    output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+                }
+            } catch {
+                print(error)
+            }
+        }
+        
+        print(output.activityDetailInfo.creator)
+        
+    }
+}
+
 //// MARK: Action
 extension DetailViewModel {
     
@@ -244,6 +289,7 @@ extension DetailViewModel {
         case keepButtonTapped
         case makeOrder(dto: OrderCreateRequestDTO)
         case showPaymentResult(message: DisplayError?)
+        case makeChatRoom
         case resetError
     }
     
@@ -260,6 +306,8 @@ extension DetailViewModel {
             handleResetError()
         case .showPaymentResult(let message):
             handleShowPaymentReulst(message)
+        case .makeChatRoom:
+            handleCheckChatRoom()
         case .makeOrder(let dto):
             handleRequestCreateOrder(dto)
  

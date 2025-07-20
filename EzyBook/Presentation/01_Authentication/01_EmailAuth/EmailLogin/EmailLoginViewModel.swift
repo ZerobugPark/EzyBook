@@ -58,7 +58,9 @@ extension EmailLoginViewModel {
 
         Task {
             do {
-                try await emailLoginUseCase.execute(email: input.emailTextField, password: input.passwordTextField)
+                let data = try await emailLoginUseCase.execute(email: input.emailTextField, password: input.passwordTextField)
+                
+                UserSession.shared.update(data)
                 
                 await MainActor.run {
                     self.output.loginSuccessed = true

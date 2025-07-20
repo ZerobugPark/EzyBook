@@ -17,6 +17,7 @@
 		D050A5C12DD104AA00E79E59 /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = D050A5C02DD104AA00E79E59 /* KakaoSDKAuth */; };
 		D050A5C32DD104AA00E79E59 /* KakaoSDKCommon in Frameworks */ = {isa = PBXBuildFile; productRef = D050A5C22DD104AA00E79E59 /* KakaoSDKCommon */; };
 		D050A5C52DD104AA00E79E59 /* KakaoSDKUser in Frameworks */ = {isa = PBXBuildFile; productRef = D050A5C42DD104AA00E79E59 /* KakaoSDKUser */; };
+		D0964DC92E1277C900F51AC0 /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = D0964DC82E1277C900F51AC0 /* SocketIO */; };
 		D0EAEE7D2DE0575C0008FABD /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = D0EAEE7C2DE0575C0008FABD /* Lottie */; };
 /* End PBXBuildFile section */
 
@@ -68,6 +69,7 @@
 				D050A5C32DD104AA00E79E59 /* KakaoSDKCommon in Frameworks */,
 				D04729602DF88B8D00B13012 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
 				D04729642DF88B8D00B13012 /* FirebaseMessaging in Frameworks */,
+				D0964DC92E1277C900F51AC0 /* SocketIO in Frameworks */,
 				D0369E922E0BC20E0023FD4F /* RealmSwift in Frameworks */,
 				D050A5C12DD104AA00E79E59 /* KakaoSDKAuth in Frameworks */,
 				D04729622DF88B8D00B13012 /* FirebaseCrashlytics in Frameworks */,
@@ -127,6 +129,7 @@
 				D04729632DF88B8D00B13012 /* FirebaseMessaging */,
 				D0472C762DF9582800B13012 /* iamport-ios */,
 				D0369E912E0BC20E0023FD4F /* RealmSwift */,
+				D0964DC82E1277C900F51AC0 /* SocketIO */,
 			);
 			productName = EzyBook;
 			productReference = D04DA7192DCF7C750031AA2F /* EzyBook.app */;
@@ -162,6 +165,7 @@
 				D047295E2DF88B8D00B13012 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				D0472C752DF9582800B13012 /* XCRemoteSwiftPackageReference "iamport-ios" */,
 				D0369E902E0BC20E0023FD4F /* XCRemoteSwiftPackageReference "realm-swift" */,
+				D0964DC72E1277C900F51AC0 /* XCRemoteSwiftPackageReference "socket.io-client-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D04DA71A2DCF7C750031AA2F /* Products */;
@@ -450,6 +454,14 @@
 				minimumVersion = 2.24.1;
 			};
 		};
+		D0964DC72E1277C900F51AC0 /* XCRemoteSwiftPackageReference "socket.io-client-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/socketio/socket.io-client-swift.git";
+			requirement = {
+				kind = exactVersion;
+				version = 16.1.1;
+			};
+		};
 		D0EAEE7B2DE0575C0008FABD /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
@@ -500,6 +512,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D050A5BF2DD104AA00E79E59 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
 			productName = KakaoSDKUser;
+		};
+		D0964DC82E1277C900F51AC0 /* SocketIO */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D0964DC72E1277C900F51AC0 /* XCRemoteSwiftPackageReference "socket.io-client-swift" */;
+			productName = SocketIO;
 		};
 		D0EAEE7C2DE0575C0008FABD /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -11,7 +11,7 @@ struct HomeCoordinatorView: View {
     
     
     @EnvironmentObject var container: DIContainer
-    @StateObject var coordinator: HomeCoordinator
+    @ObservedObject var coordinator: HomeCoordinator
     
     var body: some View {
         
