@@ -77,6 +77,7 @@ final class AppDIContainer {
             socialLoginUseCases: makeSocialLoginUseCase(),
             createAccountUseCase: makeCreateAccountUseCase(),
             emailLoginUseCase: makeEmailLoginUseCase(),
+            toekenService: tokenService,
             bannerInfoUseCase: makeBannerInfoUseCase(),
             activityListUseCase: makeActivityListUseCase(),
             activityNewListUseCase: makeActivityNewListUseCase(),

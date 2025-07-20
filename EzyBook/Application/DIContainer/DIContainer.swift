@@ -17,53 +17,56 @@ final class DIContainer: ObservableObject {
     private let createAccountUseCase : DefaultCreateAccountUseCase
     private let emailLoginUseCase : DefaultEmailLoginUseCase
     
+    /// Token Service
+    let toekenService: DefaultTokenService
     
     ///Banner
-    let bannerInfoUseCase: DefaultBannerInfoUseCase
+    private let bannerInfoUseCase: DefaultBannerInfoUseCase
     
     /// Activity
-    let activityListUseCase: DefaultActivityListUseCase
-    let activityNewListUseCase: DefaultNewActivityListUseCase
-    let activitySearchUseCase: DefaultActivitySearchUseCase
-    let activityDetailUseCase: DefaultActivityDetailUseCase
-    let activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase
+    private let activityListUseCase: DefaultActivityListUseCase
+    private let activityNewListUseCase: DefaultNewActivityListUseCase
+    private let activitySearchUseCase: DefaultActivitySearchUseCase
+    private let activityDetailUseCase: DefaultActivityDetailUseCase
+    private let activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase
     
     
     /// Review
-    let reviewLookupUseCase: DefaultReviewLookUpUseCase
+    private let reviewLookupUseCase: DefaultReviewLookUpUseCase
     
     
     
     /// Profile
-    let profileLookUpUseCase: DefaultProfileLookUpUseCase
-    let profileImageUpLoadUseCase: DefaultUploadProfileFileUseCase
-    let profileModifyUseCase: DefaultProfileModifyUseCase
-    let profileSearchUseCase: DefaultProfileSearchUseCase
-    let reviewImageUploadUseCase: DefaultUploadReviewImages
-    let reviewWriteUseCase: DefaultReViewWriteUseCase
+    private let profileLookUpUseCase: DefaultProfileLookUpUseCase
+    private let profileImageUpLoadUseCase: DefaultUploadProfileFileUseCase
+    private let profileModifyUseCase: DefaultProfileModifyUseCase
+    private let profileSearchUseCase: DefaultProfileSearchUseCase
+    private let reviewImageUploadUseCase: DefaultUploadReviewImages
+    private let reviewWriteUseCase: DefaultReViewWriteUseCase
     
     /// Order
-    let orderCreateUseCase: DefaultCreateOrderUseCase
-    let orderListLookUpUseCase: DefaultOrderListLookupUseCase
+    private let orderCreateUseCase: DefaultCreateOrderUseCase
+    private let orderListLookUpUseCase: DefaultOrderListLookupUseCase
     
     /// Payment
-    let paymentValidationUseCase: DefaultPaymentValidationUseCase
+    private let paymentValidationUseCase: DefaultPaymentValidationUseCase
     
     /// Chat
-    let createChatRoomUseCase: DefaultCreateChatRoomUseCase
-    let chatRoomUseCases: ChatRoomListUseCases
-    let chatUseCases: ChatListUseCases
+    private let createChatRoomUseCase: DefaultCreateChatRoomUseCase
+    private let chatRoomUseCases: ChatRoomListUseCases
+    private let chatUseCases: ChatListUseCases
     
     /// Common
     let imageLoader: DefaultLoadImageUseCase
-    let viewLoader: VideoLoaderDelegate
-    let tokenService: DefaultTokenService // 리프레시 갱신 시점 때문에 DI에서 추가 관리
-    let socketService: SocketServicePool
+    private let videoLoader: VideoLoaderDelegate
+    private let tokenService: DefaultTokenService // 리프레시 갱신 시점 때문에 DI에서 추가 관리
+    private let socketService: SocketServicePool
     
-    init(socialLoginUseCases: SocialLoginUseCases, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, bannerInfoUseCase: DefaultBannerInfoUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, reviewLookupUseCase: DefaultReviewLookUpUseCase, profileLookUpUseCase: DefaultProfileLookUpUseCase, profileImageUpLoadUseCase: DefaultUploadProfileFileUseCase, profileModifyUseCase: DefaultProfileModifyUseCase, profileSearchUseCase: DefaultProfileSearchUseCase, reviewImageUploadUseCase: DefaultUploadReviewImages, reviewWriteUseCase: DefaultReViewWriteUseCase, orderCreateUseCase: DefaultCreateOrderUseCase, orderListLookUpUseCase: DefaultOrderListLookupUseCase, paymentValidationUseCase: DefaultPaymentValidationUseCase, createChatRoomUseCase: DefaultCreateChatRoomUseCase, chatRoomUseCases: ChatRoomListUseCases, chatUseCases: ChatListUseCases, imageLoader: DefaultLoadImageUseCase, viewLoader: VideoLoaderDelegate, tokenService: DefaultTokenService, socketService: SocketServicePool) {
+    init(socialLoginUseCases: SocialLoginUseCases, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, toekenService: DefaultTokenService, bannerInfoUseCase: DefaultBannerInfoUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, reviewLookupUseCase: DefaultReviewLookUpUseCase, profileLookUpUseCase: DefaultProfileLookUpUseCase, profileImageUpLoadUseCase: DefaultUploadProfileFileUseCase, profileModifyUseCase: DefaultProfileModifyUseCase, profileSearchUseCase: DefaultProfileSearchUseCase, reviewImageUploadUseCase: DefaultUploadReviewImages, reviewWriteUseCase: DefaultReViewWriteUseCase, orderCreateUseCase: DefaultCreateOrderUseCase, orderListLookUpUseCase: DefaultOrderListLookupUseCase, paymentValidationUseCase: DefaultPaymentValidationUseCase, createChatRoomUseCase: DefaultCreateChatRoomUseCase, chatRoomUseCases: ChatRoomListUseCases, chatUseCases: ChatListUseCases, imageLoader: DefaultLoadImageUseCase, viewLoader: VideoLoaderDelegate, tokenService: DefaultTokenService, socketService: SocketServicePool) {
         self.socialLoginUseCases = socialLoginUseCases
         self.createAccountUseCase = createAccountUseCase
         self.emailLoginUseCase = emailLoginUseCase
+        self.toekenService = toekenService
         self.bannerInfoUseCase = bannerInfoUseCase
         self.activityListUseCase = activityListUseCase
         self.activityNewListUseCase = activityNewListUseCase
@@ -84,7 +87,7 @@ final class DIContainer: ObservableObject {
         self.chatRoomUseCases = chatRoomUseCases
         self.chatUseCases = chatUseCases
         self.imageLoader = imageLoader
-        self.viewLoader = viewLoader
+        self.videoLoader = viewLoader
         self.tokenService = tokenService
         self.socketService = socketService
     }
@@ -160,7 +163,7 @@ extension DIContainer {
 extension DIContainer {
     
     func makeVideoPlayerViewModel() -> VideoPlayerViewModel {
-        VideoPlayerViewModel(videoLoader: viewLoader)
+        VideoPlayerViewModel(videoLoader: videoLoader)
     }
     
     func makeZoomableImageFullScreenViewModel() -> ZoomableImageFullScreenViewModel {

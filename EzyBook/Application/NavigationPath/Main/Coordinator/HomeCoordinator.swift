@@ -14,6 +14,9 @@ final class HomeCoordinator: ObservableObject {
     
     @Published var isTabbarHidden: Bool = false
     private var tabbarHiddenStack: [Bool] = []
+    
+    /// 네비게이션 스택에서 콜백 함수를 받기 위한 딕셔너리 처리
+    var callbacks: [UUID: (String) -> Void] = [:]
 
     private let container: DIContainer
     
@@ -41,6 +44,21 @@ final class HomeCoordinator: ObservableObject {
         isTabbarHidden = false
     }
     
+    //  광고(WebView) 전용 push
+    func pushAdvertiseView(onComplete: @escaping (String) -> Void) {
+        let id = UUID()
+        callbacks[id] = onComplete
+        push(.advertiseView(callbackID: id))
+    }
+
+    //  광고 완료 시 콜백 실행 후 pop
+    func completeAdvertise(id: UUID, message: String) {
+        callbacks[id]?(message)
+        callbacks.removeValue(forKey: id)
+        pop()
+    }
+    
+
     
     @ViewBuilder
     func destinationView(route: HomeRoute) -> some View {
@@ -60,6 +78,14 @@ final class HomeCoordinator: ObservableObject {
             ChatRoomView(viewModel: self.container.makeChatRoomViewModel(roomID: roomID, opponentNick: opponentNick)) { [weak self] in
                 self?.pop()
             }
+        case .advertiseView(let callbackID):
+            WebViewScreen(
+                tokenManager: container.toekenService,
+                coordinator: self) { [weak self] msg in
+                    self?.completeAdvertise(id: callbackID, message: msg)
+                    
+                }
+         
         }
     }
     

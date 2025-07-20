@@ -10,6 +10,7 @@ import SwiftUI
 struct BannerView: View {
     
     @ObservedObject var viewModel: BannerViewModel
+    var onBannerTap: ((BannerEntity) -> Void)? = nil
     
     @State private var currentIndex = 0
     @State private var timer: Timer? = nil
@@ -18,13 +19,21 @@ struct BannerView: View {
     
     var body: some View {
         TabView(selection: $currentIndex) {
-
+            
             ForEach(Array(viewModel.output.bannerList.enumerated()), id: \.offset) { index, data in
                 Image(uiImage: data.bannerImage ?? UIImage(systemName: "star.fill")!)
                     .resizable()
                     .scaledToFit()
                     .clipped()
-                    .tag(index) // ✅ 필수
+                    .contentShape(Rectangle())
+                    .highPriorityGesture(
+                        TapGesture().onEnded {
+                            stopAutoScroll()
+                            onBannerTap?(data)
+                        }
+                    )
+                    .tag(index)
+                
             }
             
         }
