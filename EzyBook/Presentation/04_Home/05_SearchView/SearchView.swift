@@ -25,7 +25,7 @@ struct SearchView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .center, spacing: 15) {
                     makeAdvertiseView()
-                    makeRecommendView()
+                   // makeRecommendView()
                     ActivityIntroduceView(data: $viewModel.output.activitySearchDetailList) { index in
                         viewModel.action(.keepButtonTapped(index: index))
                     } currentIndex: { index in
