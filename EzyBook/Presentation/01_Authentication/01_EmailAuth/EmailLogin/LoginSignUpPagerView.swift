@@ -35,14 +35,14 @@ struct LoginSignUpPagerView: View {
             TabView(selection: $selectedIndex) {
                 EmailLoginView(
                     selectedIndex: $selectedIndex,
-                    viewModel: container.makeEmailLoginViewModel(),
+                    viewModel: container.loginDIContainer.makeEmailLoginViewModel(),
                     coordinator: coordinator
                 )
                     .padding(.top, 10)
                     .tag(0)
                 CreateAccountView(
                     selectedIndex: $selectedIndex,
-                    viewModel: container.makeAccountViewModel()
+                    viewModel: container.loginDIContainer.makeAccountViewModel()
                 )
                     .padding(.top, 10)
                     .tag(1)
@@ -64,6 +64,3 @@ struct LoginSignUpPagerView: View {
        }
 }
 
-#Preview {
-    //PreViewHelper.makeLoginSignUpPagerView()
-}

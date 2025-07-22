@@ -37,7 +37,7 @@ final class AuthCoordinator: ObservableObject {
     func destinationView(route: AuthRoute) -> some View {
         switch route {
         case .socialLogin:
-            LoginView(coordinator: self, viewModel: self.container.makeSocialLoginViewModel())
+            LoginView(coordinator: self, viewModel: self.container.loginDIContainer.makeSocialLoginViewModel())
         case .emailLogin:
             LoginSignUpPagerView(coordinator: self)
         }
