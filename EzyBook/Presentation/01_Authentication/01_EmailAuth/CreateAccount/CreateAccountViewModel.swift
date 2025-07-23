@@ -10,25 +10,57 @@ import Combine
 
 final class CreateAccountViewModel: ViewModelType {
     
+    var createUseCase: DefaultCreateAccountUseCase
+    
     var input = Input()
     @Published var output = Output()
     
+    @Published var phoneNumberTextField: String {
+        didSet {
+            // phoneNumberTextField 변경 시 input 안에 값도 갱신
+            input.phoneNumberTextField = phoneNumberTextField
+        }
+    }
         
     var cancellables = Set<AnyCancellable>()
     
-    private let createUseCase: CreateAccountUseCases
-    
-    init(createUseCase: CreateAccountUseCases) {
+    init(createUseCase: DefaultCreateAccountUseCase) {
         self.createUseCase = createUseCase
+        self.phoneNumberTextField = input.phoneNumberTextField
         transform()
     }
+    
     
 }
 
 // MARK: Input/Output
 extension CreateAccountViewModel {
         
-
+    /// 비밀번호 일치 여부 (사용 가능 여부)
+    var validatePassword: Bool {
+        return input.passwordTextField == input.passwordConfirmTextField
+    }
+    
+    /// 닉네임 유효성 검사
+    var vaildationNicknameValid: Bool {
+        let forbiddenCharacters: Set<Character> = [",", ".", "?", "*", "-", "@"]
+        let input = input.nicknameTextField.trimmingCharacters(in: .whitespaces)
+        
+        if input.isEmpty {
+            return false
+        }
+        
+        if input.count == 1, let firstChar = input.first, forbiddenCharacters.contains(firstChar) {
+            return false
+        }
+        
+        return true
+    }
+    
+    var vaildationPhoneNumber: Bool {
+        return input.phoneNumberTextField.count == 11
+    }
+    
     struct Input {
         var emailTextField = ""
         var passwordTextField = ""
@@ -39,7 +71,6 @@ extension CreateAccountViewModel {
     }
     
     struct Output {
-        /// 뷰의 상태 표시
         var isVaildEmail = false
         var isAvailableEmail = false
         var isPasswordLongEnough = false
@@ -47,14 +78,15 @@ extension CreateAccountViewModel {
         var isValidPassword = false
         var isValidNickname = false
         var isValidPhoneNumber = false
-
+        var isFormValid = false
         var currentError: DisplayError? = nil
         var isAccountCreated = false
-                
-        var isFormValid: Bool {
-            isVaildEmail && isAvailableEmail && isValidPassword && isValidNickname
-        }
-    
+        
+        // 비밀번호 히든 체크
+        var visibleStates: [PasswordInputFieldType: Bool] = [
+            .password: false,
+            .confirmPassword: false
+        ]
         
         var isShowingError: Bool {
             currentError != nil
@@ -65,71 +97,37 @@ extension CreateAccountViewModel {
     
     func transform() { }
     
-    
-    private func handleResetError() {
-        output.currentError = nil
-    }
-    
-
-}
-
-// MARK: Email TextField
-extension CreateAccountViewModel {
-
     /// 이메일 유효성 검사 및 중복확인
-    /// Validates email format and checks for duplication
     private func handleEmailEditingCompleted() {
-        
-        output.isVaildEmail = checkEmailFormat(input.emailTextField)
+        output.isVaildEmail =  input.emailTextField.validateEmail()
 
         if output.isVaildEmail {
             Task {
-                await validateEmailAvailability()
+                do {
+                    try await createUseCase.verifyEmail(input.emailTextField)
+                    await MainActor.run {
+                        output.isAvailableEmail = true
+                    }
+                } catch let error as APIError {
+                    await MainActor.run {
+                        output.isAvailableEmail = false
+                        output.currentError = DisplayError.error(code: error.code, msg: error.userMessage)
+                    }
+                }
             }
         }
-    
-    }
-    
-    /// 이메일(로컬) 유효성 검사
-    /// Validates email (locally)
-    private func checkEmailFormat(_ email: String) -> Bool {
-        email.validateEmail()
+            
+        updateFormValidation()
     }
     
-    /// 이메일 유효성 검사 및 중복 체크 (서버)
-    /// Validates the email and checks for duplication on the server
-    private func validateEmailAvailability() async {
-        
-        do {
-            try await createUseCase.verifyEmail.execute(input.emailTextField)
-           
-            await MainActor.run {
-                output.isAvailableEmail = true
-            }
-            
-        } catch let error as APIError {
-            
-            await MainActor.run {
-                output.isAvailableEmail = false
-                output.currentError = DisplayError.error(code: error.code, msg: error.userMessage)
-            }
-            
-        } catch {
-            print(#function, error)
-        }
+    /// 텍스트필트 비밀번호 필드 히든 처리
+    ///
+    /// - Parameters:
+    ///   - field: 텍트스필드 타입
+    private func handleToggleVisibility(for field: PasswordInputFieldType) {
+        output.visibleStates[field]?.toggle()
     }
-
-
-
-}
-
-
-// MARK: Password TextField
-extension CreateAccountViewModel {
-    /// 비밀번호 일치 여부 (사용 가능 여부)
-    var isPasswordMatched: Bool {
-        return input.passwordTextField == input.passwordConfirmTextField
-    }
+    
     
     /// 비밀번호 필드, 유효성 검사
     private func handlePasswordEditingCompleted() {
@@ -137,103 +135,69 @@ extension CreateAccountViewModel {
         output.isPasswordComplexEnough = input.passwordTextField.validatePasswordCmplexEnough()
        
         if output.isPasswordLongEnough && output.isPasswordComplexEnough {
-            output.isValidPassword = isPasswordMatched
+            output.isValidPassword = validatePassword
         }
- 
-    }
-
-}
-
-// MARK: NickName TextField
-extension CreateAccountViewModel {
-    
-    /// Validates NickName
-    private func handleNicknameEditingCompleted() {
-        output.isValidNickname = isNicknameLocallyValid(input.nicknameTextField)
-    }
-    
-    /// 유저 닉네임 유효성 검사
-    private func isNicknameLocallyValid(_ nickname: String) -> Bool {
-        //유효한 특수문자
-        let forbiddenCharacters: Set<Character> = [",", ".", "?", "*", "-", "@"]
-        let trimmed = nickname.trimmingCharacters(in: .whitespaces)
         
-        guard !trimmed.isEmpty else { return false }
-        if trimmed.count == 1, let first = trimmed.first, forbiddenCharacters.contains(first) {
-            return false
-        }
-        return true
-    }
-
-    
-}
-
-// MARK: Phone Text Field
-extension CreateAccountViewModel {
-    
-
-    /// Checks if the given phone number is valid (e.g., exactly 11 digits, etc.)
-    private func isPhoneNumberValid(_ phoneNumber: String) -> Bool {
-        // 1. 11자리, 2. 모두 숫자, 3. 01로 시작
-        phoneNumber.count == 11 &&
-        phoneNumber.hasPrefix("01") &&
-        phoneNumber.allSatisfy { $0.isNumber }
+        updateFormValidation()
     }
     
-    /// Validate Phone Number
-    private func handlePhoneNumberEditingCompleted() {
-        output.isValidPhoneNumber = isPhoneNumberValid(input.phoneNumberTextField)
+    /// 닉네임 유효성 검사
+    private func handlerNickNameEditingCompleted() {
+        output.isValidNickname = vaildationNicknameValid
+        updateFormValidation()
     }
     
-}
-
-
-// MARK: SignUp Button Tapped (회원가입 클릭)
-extension CreateAccountViewModel {
+    /// 휴대전화 유효성 검사
+    private func handlerPhoneNumberEditingCompleted() {
+        output.isValidPhoneNumber = vaildationPhoneNumber
+    }
     
-    
-    private func handleSignUpButtonTapped() {
+    private func requestSignUp() {
+        
+        let body = JoinRequestDTO(
+            email: input.emailTextField,
+            password: input.passwordConfirmTextField,
+            nick: input.nicknameTextField,
+            phoneNum: input.phoneNumberTextField.isEmpty ? nil : input.phoneNumberTextField,
+            introduction: input.introduceTextField.isEmpty ? nil : input.introduceTextField,
+            deviceToken: nil
+        )
+        let router = UserRequest.Post.join(body: body)
+        
         Task {
-            await performSignUpRequest()
+            do {
+                try await createUseCase.signUp(router)
+                await MainActor.run {
+                    output.isAccountCreated = true
+                }
+            } catch let error as APIError {
+                await MainActor.run {
+                    output.isAvailableEmail = false
+                    output.currentError = DisplayError.error(code: error.code, msg: error.userMessage)
+                }
+            }
         }
+
     }
     
-    private func performSignUpRequest() async {
-        
-        do {
-            try await createUseCase.signUp.execute(
-                email: input.emailTextField,
-                password: input.passwordConfirmTextField,
-                nick: input.nicknameTextField,
-                phoneNum: input.phoneNumberTextField.isEmpty ? nil : input.phoneNumberTextField,
-                introduction: input.introduceTextField.isEmpty ? nil : input.introduceTextField,
-                deviceToken: nil
-            )
-                
-            await MainActor.run {
-                output.isAccountCreated = true
-            }
-        } catch let error as APIError {
-            await MainActor.run {
-                output.isAvailableEmail = false
-                output.currentError = DisplayError.error(code: error.code, msg: error.userMessage)
-            }
-        } catch {
-            print(#function, error)
-        }
-        
+    /// 회원가입 버튼 버튼 상태
+    private func updateFormValidation() {
+        output.isFormValid = output.isVaildEmail && output.isAvailableEmail && output.isValidPassword && output.isValidNickname
     }
-
+    
+    private func handleResetError() {
+        output.currentError = nil
+    }
+    
     
 }
-
-
 
 // MARK: Action
 extension CreateAccountViewModel {
     
     enum Action {
         case emailEditingCompleted
+        case togglePasswordVisibility(type: PasswordInputFieldType)
         case passwordEditingCompleted
         case nickNameEditingCompleted
         case phoneNumberEditingCompleted
@@ -246,14 +210,16 @@ extension CreateAccountViewModel {
         switch action {
         case .emailEditingCompleted:
             handleEmailEditingCompleted()
+        case .togglePasswordVisibility(let type):
+            handleToggleVisibility(for: type)
         case .passwordEditingCompleted:
             handlePasswordEditingCompleted()
         case .nickNameEditingCompleted:
-            handleNicknameEditingCompleted()
+            handlerNickNameEditingCompleted()
         case .phoneNumberEditingCompleted:
-            handlePhoneNumberEditingCompleted()
+            handlerPhoneNumberEditingCompleted()
         case .signUpButtonTapped:
-            handleSignUpButtonTapped()
+            requestSignUp()
         case .resetError:
             handleResetError()
         }

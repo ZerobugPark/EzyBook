@@ -5,7 +5,7 @@
 //  Created by youngkyun park on 5/23/25.
 //
 
-import SwiftUI
+import Foundation
 
 /// 패스워드 텍스트 필드
 enum PasswordInputFieldType {
@@ -24,16 +24,6 @@ enum PasswordInputFieldType {
 /// 회원가입에서 각 텍스트필드의 상태를 구분하기 위해서
 enum SignUpFocusField: Hashable {
     case email, password, confirmPassword, nickname, phone
-    
-
-    var keyboardType: UIKeyboardType {
-        switch self {
-        case .email: return .emailAddress
-        case .phone: return .phonePad
-        default: return .default
-        }
-    }
-    
 }
 
 /// 로그인 텍스트 필드
