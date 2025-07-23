@@ -40,25 +40,50 @@ extension LoginViewModel {
     }
     
     func transform() { }
+ 
     
-    private func requestKakaoLogin() {
+    private func handleResetError() {
+        output.loginError = nil
+    }
+}
+
+// MARK: KaKaoLogin
+extension LoginViewModel {
+    private func handleKakaoLogin() {
         
         Task {
-            do {
-                let data = try await socialLoginUseCases.kakaoLogin.execute()
-                
-                /// 유저 정보 업데이트
-                UserSession.shared.update(data)
-                
-                await MainActor.run {
-                    output.loginSuccessed = true
-                }
-            } catch let error as APIError {
-                await MainActor.run {
-                    self.output.loginError = .kakaoLoginError(code: error.code)
-                }
-            }
+            await performKakaoLogin()
         }
+    }
+    
+    private func performKakaoLogin() async {
+        
+        do {
+            let data = try await socialLoginUseCases.kakaoLogin.execute()
+            
+            /// 유저 정보 업데이트
+            UserSession.shared.update(data)
+            
+            await MainActor.run {
+                output.loginSuccessed = true
+            }
+        } catch let error as APIError {
+            await MainActor.run {
+                self.output.loginError = .kakaoLoginError(code: error.code)
+            }
+        } catch {
+            print(#function, error)
+        }
+        
+    }
+}
+
+// MARK: Apple Login
+
+extension LoginViewModel {
+    
+    private func handleAppleLoginRequest(_ request: ASAuthorizationAppleIDRequest) {
+        configureAppleLoginRequest(request)
     }
     
     /// 애플 로그인 권한 설정
@@ -66,28 +91,33 @@ extension LoginViewModel {
         request.requestedScopes = [.email, .fullName]
     }
     
-    private func requestAppleLogin(_ result: Result<ASAuthorization, any Error>) {
+    private func handleAppleLoginCompleted(_ result: Result<ASAuthorization, any Error>) {
+        
         Task {
-            do {
-                let data = try await socialLoginUseCases.appleLogin.execute(result)
-                
-                /// 유저 정보 업데이트
-                UserSession.shared.update(data)
-                
-                await MainActor.run {
-                    output.loginSuccessed = true
-                }
-            } catch let error as APIError {
-                await MainActor.run {
-                    self.output.loginError = .kakaoLoginError(code: error.code)
-                }
+            await performAppleLogin(result)
+        }
+        
+    }
+    
+    private func performAppleLogin(_ result: Result<ASAuthorization, any Error>)  async {
+        do {
+            let data = try await socialLoginUseCases.appleLogin.execute(result)
+            
+            /// 유저 정보 업데이트
+            UserSession.shared.update(data)
+            
+            await MainActor.run {
+                output.loginSuccessed = true
             }
+        } catch let error as APIError {
+            await MainActor.run {
+                self.output.loginError = .appleLoginError(code: error.code)
+            }
+        } catch {
+            print(#function, error)
         }
     }
     
-    private func handleResetError() {
-        output.loginError = nil
-    }
 }
 
 // MARK: Action
@@ -104,11 +134,11 @@ extension LoginViewModel {
     func action(_ action: Action) {
         switch action {
         case .kakaoLoginButtonTapped:
-            requestKakaoLogin()
+            handleKakaoLogin()
         case .appleLoginButtonTapped(let request):
-            configureAppleLoginRequest(request)
+            handleAppleLoginRequest(request)
         case .appleLoginCompleted(let result):
-            requestAppleLogin(result)
+            handleAppleLoginCompleted(result)
         case .resetError:
             handleResetError()
         }
