@@ -8,24 +8,10 @@
 import Foundation
 import AuthenticationServices
 
-
-// MARK: 로그인
-protocol AppleLoginUseCase {
+protocol AppleLogin {
     func execute(_ result:  Result<ASAuthorization, any Error>) async throws -> UserEntity
 }
 
-protocol KakaoLoginUseCase {
+protocol KakaoLogin {
     func execute() async throws -> UserEntity
-}
-
-
-
-
-// MARK: 회원가입
-protocol SignUpUseCase {
-    func execute(email: String, password: String, nick: String, phoneNum: String?, introduction: String?, deviceToken: String?) async throws -> Void 
-}
-
-protocol VerifyEmailUseCase {
-    func execute(_ email: String) async throws -> Void
 }

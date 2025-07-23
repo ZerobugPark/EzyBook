@@ -15,7 +15,7 @@ struct AuthCoordinatorView: View {
     var body: some View {
         NavigationStack(path: $coordinator.path) {
             LoginView(
-                coordinator: coordinator, viewModel: container.loginDIContainer.makeSocialLoginViewModel()
+                coordinator: coordinator, viewModel: container.makeSocialLoginViewModel()
             ).navigationDestination(for: AuthRoute.self) { route in
                 coordinator.destinationView(route: route)
                 
