@@ -16,7 +16,7 @@ struct ValidationMessage: Identifiable {
 struct SignUpInputField: View {
     
     let title: String
-    let plachoder: String
+    let placeholder: String
     @Binding var text: String
     var isRequired: Bool
     var focusField: FocusState<SignUpFocusField?>.Binding
@@ -30,8 +30,8 @@ struct SignUpInputField: View {
             /// 타이틀 섹션
             FieldTitle(title: title, isRequired: isRequired)
             
-            TextField(plachoder, text: $text)
-                .keyboardType(keyboardType(for: field))
+            TextField(placeholder, text: $text)
+                .keyboardType(field.keyboardType)
                 .textFieldModify()
                 .appFont(PretendardFontStyle.body1, textColor: .grayScale100)
                 .focused(focusField, equals: field)
@@ -50,17 +50,9 @@ struct SignUpInputField: View {
         }
     }
     
-    private func keyboardType(for field: SignUpFocusField) -> UIKeyboardType {
-        switch field {
-        case .email:
-            return .emailAddress
-        case .phone:
-            return .phonePad
-        default:
-            return .default
-        }
-    }
 }
+
+
 
 struct FieldTitle: View {
     

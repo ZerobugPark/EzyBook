@@ -100,7 +100,7 @@ extension CreateAccountView {
             
             SignUpInputField(
                 title: SignUpMessage.Title.email,
-                plachoder: SignUpMessage.Placeholder.email,
+                placeholder: SignUpMessage.Placeholder.email,
                 text: $viewModel.input.emailTextField,
                 isRequired: true,
                 focusField: $focusedField,
@@ -205,7 +205,7 @@ extension CreateAccountView {
         
         SignUpInputField(
             title: SignUpMessage.Title.nickname,
-            plachoder: SignUpMessage.Placeholder.nickname,
+            placeholder: SignUpMessage.Placeholder.nickname,
             text: $viewModel.input.nicknameTextField,
             isRequired: true,
             focusField: $focusedField,
@@ -226,7 +226,7 @@ extension CreateAccountView {
         
         SignUpInputField(
             title: SignUpMessage.Title.phone,
-            plachoder: SignUpMessage.Placeholder.phone,
+            placeholder: SignUpMessage.Placeholder.phone,
             text: $viewModel.input.phoneNumberTextField,
             isRequired: false,
             focusField: $focusedField,
