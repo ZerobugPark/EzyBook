@@ -36,7 +36,7 @@ struct LoginView: View {
         )
     }
     
-    
+
     
     private var content: some View {
         VStack(alignment: .center, spacing: 10) {
@@ -100,19 +100,4 @@ struct LoginView: View {
         }
     }
     
-}
-
-extension LoginView {
-    
-    // MARK: Layout Constants
-    private enum Layout {
-        static let horizontalPadding: CGFloat = 43
-        static let buttonHeight: CGFloat = 50
-        static let iconPaddingHorizontal: CGFloat = 30
-    }
-    
-}
-
-#Preview {
-  //  PreViewHelper.makeLoginView()
 }

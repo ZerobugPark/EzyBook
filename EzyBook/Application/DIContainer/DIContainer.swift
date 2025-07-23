@@ -12,13 +12,12 @@ import Foundation
 /// 네트워크 서비스?, 저장소 패턴, 또 뭐가 있을끼?
 final class DIContainer: ObservableObject {
     
-    /// Auth
-    private let socialLoginUseCases: SocialLoginUseCases
-    private let createAccountUseCase : DefaultCreateAccountUseCase
-    private let emailLoginUseCase : DefaultEmailLoginUseCase
-    
     /// Token Service
     let toekenService: DefaultTokenService
+    
+    
+    /// 나중에 수정
+    let loginDIContainer: LoginDIContainer
     
     ///Banner
     private let bannerInfoUseCase: DefaultBannerInfoUseCase
@@ -62,11 +61,9 @@ final class DIContainer: ObservableObject {
     private let tokenService: DefaultTokenService // 리프레시 갱신 시점 때문에 DI에서 추가 관리
     private let socketService: SocketServicePool
     
-    init(socialLoginUseCases: SocialLoginUseCases, createAccountUseCase: DefaultCreateAccountUseCase, emailLoginUseCase: DefaultEmailLoginUseCase, toekenService: DefaultTokenService, bannerInfoUseCase: DefaultBannerInfoUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, reviewLookupUseCase: DefaultReviewLookUpUseCase, profileLookUpUseCase: DefaultProfileLookUpUseCase, profileImageUpLoadUseCase: DefaultUploadProfileFileUseCase, profileModifyUseCase: DefaultProfileModifyUseCase, profileSearchUseCase: DefaultProfileSearchUseCase, reviewImageUploadUseCase: DefaultUploadReviewImages, reviewWriteUseCase: DefaultReViewWriteUseCase, orderCreateUseCase: DefaultCreateOrderUseCase, orderListLookUpUseCase: DefaultOrderListLookupUseCase, paymentValidationUseCase: DefaultPaymentValidationUseCase, createChatRoomUseCase: DefaultCreateChatRoomUseCase, chatRoomUseCases: ChatRoomListUseCases, chatUseCases: ChatListUseCases, imageLoader: DefaultLoadImageUseCase, viewLoader: VideoLoaderDelegate, tokenService: DefaultTokenService, socketService: SocketServicePool) {
-        self.socialLoginUseCases = socialLoginUseCases
-        self.createAccountUseCase = createAccountUseCase
-        self.emailLoginUseCase = emailLoginUseCase
+    init(toekenService: DefaultTokenService, loginDIContainer: LoginDIContainer, bannerInfoUseCase: DefaultBannerInfoUseCase, activityListUseCase: DefaultActivityListUseCase, activityNewListUseCase: DefaultNewActivityListUseCase, activitySearchUseCase: DefaultActivitySearchUseCase, activityDetailUseCase: DefaultActivityDetailUseCase, activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase, reviewLookupUseCase: DefaultReviewLookUpUseCase, profileLookUpUseCase: DefaultProfileLookUpUseCase, profileImageUpLoadUseCase: DefaultUploadProfileFileUseCase, profileModifyUseCase: DefaultProfileModifyUseCase, profileSearchUseCase: DefaultProfileSearchUseCase, reviewImageUploadUseCase: DefaultUploadReviewImages, reviewWriteUseCase: DefaultReViewWriteUseCase, orderCreateUseCase: DefaultCreateOrderUseCase, orderListLookUpUseCase: DefaultOrderListLookupUseCase, paymentValidationUseCase: DefaultPaymentValidationUseCase, createChatRoomUseCase: DefaultCreateChatRoomUseCase, chatRoomUseCases: ChatRoomListUseCases, chatUseCases: ChatListUseCases, imageLoader: DefaultLoadImageUseCase, videoLoader: VideoLoaderDelegate, tokenService: DefaultTokenService, socketService: SocketServicePool) {
         self.toekenService = toekenService
+        self.loginDIContainer = loginDIContainer
         self.bannerInfoUseCase = bannerInfoUseCase
         self.activityListUseCase = activityListUseCase
         self.activityNewListUseCase = activityNewListUseCase
@@ -87,11 +84,12 @@ final class DIContainer: ObservableObject {
         self.chatRoomUseCases = chatRoomUseCases
         self.chatUseCases = chatUseCases
         self.imageLoader = imageLoader
-        self.videoLoader = viewLoader
+        self.videoLoader = videoLoader
         self.tokenService = tokenService
         self.socketService = socketService
     }
 }
+
 
 
 // MARK:  Payment
@@ -172,23 +170,7 @@ extension DIContainer {
 }
 
 
-// MARK: Make Auth ViewModel
-extension DIContainer {
-    func makeAccountViewModel() -> CreateAccountViewModel {
-        CreateAccountViewModel(createUseCase: createAccountUseCase)
-    }
-    
-    func makeEmailLoginViewModel() -> EmailLoginViewModel {
-        EmailLoginViewModel(emailLoginUseCase: emailLoginUseCase)
-    }
-    
-    func makeSocialLoginViewModel() -> LoginViewModel {
-        LoginViewModel(
-            
-            socialLoginUseCases: socialLoginUseCases)
-    }
-    
-}
+
 
 // MARK: Make Home ViewModel
 extension DIContainer {
