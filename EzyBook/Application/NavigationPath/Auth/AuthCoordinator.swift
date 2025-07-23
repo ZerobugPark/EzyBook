@@ -39,7 +39,11 @@ final class AuthCoordinator: ObservableObject {
         case .socialLogin:
             LoginView(coordinator: self, viewModel: self.container.loginDIContainer.makeSocialLoginViewModel())
         case .emailLogin:
-            LoginSignUpPagerView(coordinator: self)
+            LoginSignUpPagerView(
+                coordinator: self,
+                loginViewModel: self.container.loginDIContainer.makeEmailLoginViewModel(),
+                acountViewModel: self.container.loginDIContainer.makeAccountViewModel()
+            )
         }
     }
     

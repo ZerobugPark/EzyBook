@@ -13,26 +13,15 @@ final class CreateAccountViewModel: ViewModelType {
     var input = Input()
     @Published var output = Output()
     
-    @Published var phoneNumberTextField: String {
-        didSet {
-            // phoneNumberTextField 변경 시 input 안에 값도 갱신
-            input.phoneNumberTextField = phoneNumberTextField
-        }
-    }
         
     var cancellables = Set<AnyCancellable>()
     
     private let createUseCase: CreateAccountUseCases
     
-    
-    
-    
     init(createUseCase: CreateAccountUseCases) {
         self.createUseCase = createUseCase
-        self.phoneNumberTextField = input.phoneNumberTextField
         transform()
     }
-    
     
 }
 
@@ -66,11 +55,6 @@ extension CreateAccountViewModel {
             isVaildEmail && isAvailableEmail && isValidPassword && isValidNickname
         }
     
-        // 비밀번호 히든 체크
-        var visibleStates: [PasswordInputFieldType: Bool] = [
-            .password: false,
-            .confirmPassword: false
-        ]
         
         var isShowingError: Bool {
             currentError != nil
@@ -157,12 +141,7 @@ extension CreateAccountViewModel {
         }
  
     }
-    
-    /// 텍스트필트 비밀번호 필드 히든 처리
-    private func handleToggleVisibility(for field: PasswordInputFieldType) {
-        output.visibleStates[field]?.toggle()
-    }
-    
+
 }
 
 // MARK: NickName TextField
@@ -255,7 +234,6 @@ extension CreateAccountViewModel {
     
     enum Action {
         case emailEditingCompleted
-        case togglePasswordVisibility(type: PasswordInputFieldType)
         case passwordEditingCompleted
         case nickNameEditingCompleted
         case phoneNumberEditingCompleted
@@ -268,8 +246,6 @@ extension CreateAccountViewModel {
         switch action {
         case .emailEditingCompleted:
             handleEmailEditingCompleted()
-        case .togglePasswordVisibility(let type):
-            handleToggleVisibility(for: type)
         case .passwordEditingCompleted:
             handlePasswordEditingCompleted()
         case .nickNameEditingCompleted:

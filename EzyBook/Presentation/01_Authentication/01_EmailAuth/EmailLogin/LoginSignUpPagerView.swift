@@ -12,7 +12,8 @@ struct LoginSignUpPagerView: View {
     @State private var bounce = false
     
     @ObservedObject var coordinator: AuthCoordinator
-    @EnvironmentObject private var container: DIContainer
+    @StateObject var loginViewModel: EmailLoginViewModel
+    @StateObject var acountViewModel: CreateAccountViewModel
     
     private let titles = ["로그인", "회원가입"]
     
@@ -35,14 +36,14 @@ struct LoginSignUpPagerView: View {
             TabView(selection: $selectedIndex) {
                 EmailLoginView(
                     selectedIndex: $selectedIndex,
-                    viewModel: container.loginDIContainer.makeEmailLoginViewModel(),
+                    viewModel: loginViewModel,
                     coordinator: coordinator
                 )
                     .padding(.top, 10)
                     .tag(0)
                 CreateAccountView(
                     selectedIndex: $selectedIndex,
-                    viewModel: container.loginDIContainer.makeAccountViewModel()
+                    viewModel: acountViewModel
                 )
                     .padding(.top, 10)
                     .tag(1)

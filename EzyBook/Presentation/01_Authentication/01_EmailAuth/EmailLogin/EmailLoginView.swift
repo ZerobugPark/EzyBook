@@ -10,7 +10,7 @@ import SwiftUI
 struct EmailLoginView: View {
     
     @Binding var selectedIndex: Int
-    @StateObject var viewModel: EmailLoginViewModel
+    @ObservedObject var viewModel: EmailLoginViewModel
 
     @ObservedObject var coordinator: AuthCoordinator
     
