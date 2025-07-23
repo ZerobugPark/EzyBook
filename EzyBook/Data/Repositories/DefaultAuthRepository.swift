@@ -9,6 +9,7 @@ import Foundation
 
 struct DefaultAuthRepository: SignUpRepository, EmailLoginRepository, KakaoLoginRepository, AppleLoginRepository {
 
+
     private let networkService: NetworkService
     
     init(networkService: NetworkService) {
@@ -24,9 +25,24 @@ struct DefaultAuthRepository: SignUpRepository, EmailLoginRepository, KakaoLogin
         
     }
     
-    func signUp(_ router: UserRequest.Post) async throws {
+    func signUp(_ email: String, _ password: String, _ nick: String, _ phoneNum: String?, _ introduction: String?, _ deviceToken: String?) async throws {
+    
+        let body = JoinRequestDTO(
+            email: email,
+            password: password,
+            nick: nick,
+            phoneNum: phoneNum,
+            introduction: introduction,
+            deviceToken: deviceToken
+        )
+        let router = UserRequest.Post.join(body: body)
+        
+        
         _ = try await networkService.fetchData(dto: JoinResponseDTO.self, router)
     }
+    
+    
+    
     
 }
 

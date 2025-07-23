@@ -20,11 +20,12 @@ final class AppDIContainer {
     private let imageLoader: DefaultImageLoader
     private let imageCache: ImageCache
     
-    private lazy var sockService = SocketServicePool(keyChain: storage)
+    private lazy var socketService = SocketServicePool(keyChain: storage)
+    
+    private let loginDIContainer: LoginDIContainer
+    
                                                             
-    // MARK: - Data Layer
-    private let authRepository: DefaultAuthRepository
-    private let socialLoginService: DefaultsSocialLoginService
+
     private let activityRepository: DefaultActivityRepository
     private let acitvityKeepStatusRepository: DefaultKeepStatusRepository
     private let reviewRepository: DefaultReviewRepository
@@ -46,8 +47,6 @@ final class AppDIContainer {
         interceptor = TokenInterceptor(tokenService: tokenService)
         networkService = DefaultNetworkService(decodingService: decoder, interceptor: interceptor)
         
-        authRepository = DefaultAuthRepository(networkService: networkService)
-        socialLoginService = DefaultsSocialLoginService()
         
         activityRepository = DefaultActivityRepository(networkService: networkService)
         acitvityKeepStatusRepository = DefaultKeepStatusRepository(networkService: networkService)
@@ -65,6 +64,11 @@ final class AppDIContainer {
         
         bannerRepository = DefaultBannerRepository(networkService: networkService)
         
+        loginDIContainer = LoginDIContainer(
+            networkService: networkService,
+            tokenService: tokenService
+        )
+        
         imageCache = ImageCache()
         imageLoader = DefaultImageLoader(tokenService: tokenService, imageCache: imageCache, interceptor: interceptor)
         
@@ -74,10 +78,8 @@ final class AppDIContainer {
     // MARK: - DIContainer Factory
     func makeDIContainer() -> DIContainer {
         DIContainer(
-            socialLoginUseCases: makeSocialLoginUseCase(),
-            createAccountUseCase: makeCreateAccountUseCase(),
-            emailLoginUseCase: makeEmailLoginUseCase(),
             toekenService: tokenService,
+            loginDIContainer: loginDIContainer,
             bannerInfoUseCase: makeBannerInfoUseCase(),
             activityListUseCase: makeActivityListUseCase(),
             activityNewListUseCase: makeActivityNewListUseCase(),
@@ -98,14 +100,17 @@ final class AppDIContainer {
             chatRoomUseCases: makeChatRoomListUseCase(),
             chatUseCases: makeChatUseCase(),
             imageLoader: makeImageLoaderUseCase(),
-            viewLoader: makeVidoeLoaderDelegate(),
+            videoLoader: makeVidoeLoaderDelegate(),
             tokenService: tokenService,
-            socketService: sockService
+            socketService: socketService
         )
     }
     
 
 }
+
+
+
 
 // MARK: Order
 extension AppDIContainer {
@@ -237,43 +242,6 @@ extension AppDIContainer {
 
 
 
-// MARK: Auth
-extension AppDIContainer {
-    
-    private func makeSocialLoginUseCase() -> SocialLoginUseCases {
-        SocialLoginUseCases(
-            appleLogin: makeAppleLoginUseCase(),
-            kakaoLogin: makeKakaoLoginUseCase()
-        )
-    }
-
-    private func makeKakaoLoginUseCase() -> DefaultKakaoLoginUseCase {
-        DefaultKakaoLoginUseCase(
-            kakoLoginService: socialLoginService,
-            authRepository: authRepository,
-            tokenService: tokenService
-        )
-    }
-
-    private func makeAppleLoginUseCase() -> DefaultAppleLoginUseCase {
-        DefaultAppleLoginUseCase(
-            appleLoginService: socialLoginService,
-            authRepository: authRepository,
-            tokenService: tokenService
-        )
-    }
-
-    private func makeEmailLoginUseCase() -> DefaultEmailLoginUseCase {
-        DefaultEmailLoginUseCase(
-            authRepository: authRepository,
-            tokenService: tokenService
-        )
-    }
-
-    private func makeCreateAccountUseCase() -> DefaultCreateAccountUseCase {
-        DefaultCreateAccountUseCase(authRepository: authRepository)
-    }
-}
 
 
 // MARK: Activity
