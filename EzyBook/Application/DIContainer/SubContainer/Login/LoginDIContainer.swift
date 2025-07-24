@@ -63,7 +63,7 @@ extension LoginDIContainer {
         )
     }
 
-    private func makeEmailLoginUseCase() -> DefaultEmailLoginUseCase {
+    private func makeEmailLoginUseCase() -> EmailLoginUseCase {
         DefaultEmailLoginUseCase(
             authRepository: makeAuthRepository(),
             tokenService: tokenService
@@ -87,8 +87,8 @@ extension LoginDIContainer {
         DefaultAuthRepository(networkService: networkService)
     }
     
-    private func makeSocialLoginService() -> DefaultsSocialLoginService {
-        DefaultsSocialLoginService()
+    private func makeSocialLoginService() -> DefaultSocialLoginService {
+        DefaultSocialLoginService()
     }
 }
 

@@ -13,7 +13,7 @@ import KakaoSDKUser
 
 
 
-final class DefaultsSocialLoginService: SocialLoginService {
+final class DefaultSocialLoginService: SocialLoginService {
     
     /// UserApi.shared.loginWithKakaoTalk(completion:)
     /// UserApi.shared.loginWithKakaoAccount(completion:)
@@ -86,7 +86,7 @@ final class DefaultsSocialLoginService: SocialLoginService {
 }
 
 // MARK: Apple Login
-extension DefaultsSocialLoginService {
+extension DefaultSocialLoginService {
     
     func loginWithApple(_ result: Result<ASAuthorization, any Error>) async throws -> (token: String, name: String?) {
         switch result {

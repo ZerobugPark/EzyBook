@@ -89,7 +89,7 @@ extension DefaultAppleLoginUseCase {
 
 
 // MARK: 이메일 로그인
-final class DefaultEmailLoginUseCase {
+final class DefaultEmailLoginUseCase: EmailLoginUseCase {
     
     private let authRepository: EmailLoginRepository
     private let tokenService: TokenWritable
@@ -105,7 +105,7 @@ final class DefaultEmailLoginUseCase {
 extension DefaultEmailLoginUseCase {
     
     
-    func execute(email: String, password: String, deviceToken: String? = nil) async throws -> UserEntity {
+    func execute(email: String, password: String, deviceToken: String?) async throws -> UserEntity {
    
         do {
             

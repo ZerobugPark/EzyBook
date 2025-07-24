@@ -18,6 +18,9 @@ protocol KakaoLoginUseCase {
     func execute() async throws -> UserEntity
 }
 
+protocol EmailLoginUseCase {
+    func execute(email: String, password: String, deviceToken: String?) async throws -> UserEntity
+}
 
 
 

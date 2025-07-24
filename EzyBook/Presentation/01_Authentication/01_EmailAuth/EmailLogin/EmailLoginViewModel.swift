@@ -11,14 +11,14 @@ import Combine
 
 final class EmailLoginViewModel: ViewModelType {
     
-    let emailLoginUseCase: DefaultEmailLoginUseCase
+    let emailLoginUseCase: EmailLoginUseCase
     
     var input = Input()
     @Published var output = Output()
         
     var cancellables = Set<AnyCancellable>()
     
-    init(emailLoginUseCase: DefaultEmailLoginUseCase) {
+    init(emailLoginUseCase: EmailLoginUseCase) {
         self.emailLoginUseCase = emailLoginUseCase
         transform()
     }
@@ -79,7 +79,11 @@ extension EmailLoginViewModel {
         
         do {
             
-            let data = try await emailLoginUseCase.execute(email: input.emailTextField, password: input.passwordTextField)
+            let data = try await emailLoginUseCase.execute(
+                email: input.emailTextField,
+                password: input.passwordTextField,
+                deviceToken: nil
+            )
             
             UserSession.shared.update(data)
             
