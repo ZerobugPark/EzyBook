@@ -74,7 +74,7 @@ extension EmailLoginViewModel {
     }
     
   
-    
+    // TODO: 추후 알림을 위해 Device Token 필요
     private func performLogin() async {
         
         do {
