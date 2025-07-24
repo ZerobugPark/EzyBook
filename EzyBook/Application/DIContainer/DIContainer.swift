@@ -32,8 +32,7 @@ final class DIContainer: ObservableObject {
     
     /// Review
     private let reviewLookupUseCase: DefaultReviewLookUpUseCase
-    
-    
+
     
     /// Profile
     private let profileLookUpUseCase: DefaultProfileLookUpUseCase

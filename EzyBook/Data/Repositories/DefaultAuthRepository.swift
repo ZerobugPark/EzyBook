@@ -49,7 +49,12 @@ struct DefaultAuthRepository: SignUpRepository, EmailLoginRepository, KakaoLogin
 // MARK:  Login
 extension DefaultAuthRepository {
     
-    func requestEmailLogin(_ router: UserRequest.Post) async throws -> LoginEntity {
+    func requestEmailLogin(_ email: String, _ password: String, _ deviceToken: String?) async throws -> LoginEntity {
+        
+        let requestDto = EmailLoginRequestDTO(email: email, password: password, deviceToken: nil)
+        
+        let router = UserRequest.Post.emailLogin(body: requestDto)
+        
         let data = try await networkService.fetchData(dto: LoginResponseDTO.self, router)
         
         return data.toEntity()
