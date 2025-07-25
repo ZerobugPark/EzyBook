@@ -44,7 +44,7 @@
 		D04DA72F2DCF7D7F0031AA2F /* Exceptions for "EzyBook" folder in "EzyBook" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Application/Info.plist,
+				01_Application/Info.plist,
 			);
 			target = D04DA7182DCF7C750031AA2F /* EzyBook */;
 		};
