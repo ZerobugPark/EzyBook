@@ -7,76 +7,47 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "C7DB1BDD-C5F4-4AFF-88EF-4073C0966A8B"
-            shouldBeEnabled = "No"
-            nameForDebugger = "&#xbe44;&#xb514;&#xc624;&#xc694;&#xccad;&#xc751;&#xb2f5;&#xbc94;&#xc704;"
+            uuid = "1FFAA4A0-543F-4A5A-9C08-1AC82C45D1E7"
+            shouldBeEnabled = "Yes"
             ignoreCount = "0"
-            continueAfterRunningActions = "Yes"
-            filePath = "EzyBook/Infrastructure/Networking/VideoLoaderDelegate.swift"
+            continueAfterRunningActions = "No"
+            filePath = "EzyBook/04_Data/Repositories/DefaultLoadImageRepository.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "63"
-            endingLineNumber = "63"
-            landmarkName = "resourceLoader(_:shouldWaitForLoadingOfRequestedResource:)"
+            startingLineNumber = "184"
+            endingLineNumber = "184"
+            landmarkName = "reloadOriginalImageWithoutETag(url:)"
             landmarkType = "7">
-            <Actions>
-               <BreakpointActionProxy
-                  ActionExtensionID = "Xcode.BreakpointAction.DebuggerCommand">
-                  <ActionContent
-                     consoleCommand = "expr print(&quot;&#x27a1;&#xfe0f; &#xc751;&#xb2f5; &#xbc94;&#xc704;: \(offset)..&lt;\(rangeEnd)&quot;)">
-                  </ActionContent>
-               </BreakpointActionProxy>
-            </Actions>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "11929B2D-6297-45B2-89BF-B0145504A5A2"
-            shouldBeEnabled = "No"
-            nameForDebugger = "&#xbe44;&#xb514;&#xc624;&#xc694;&#xccad;&#xc751;&#xb2f5;&#xd06c;&#xae30;"
-            ignoreCount = "0"
-            continueAfterRunningActions = "Yes"
-            filePath = "EzyBook/Infrastructure/Networking/VideoLoaderDelegate.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "59"
-            endingLineNumber = "59"
-            landmarkName = "resourceLoader(_:shouldWaitForLoadingOfRequestedResource:)"
-            landmarkType = "7">
-            <Actions>
-               <BreakpointActionProxy
-                  ActionExtensionID = "Xcode.BreakpointAction.DebuggerCommand">
-                  <ActionContent
-                     consoleCommand = "expr print(&quot;&#x2705; &#xc694;&#xccad;&#xb428;: offset=\(offset), length=\(length), dataSize=\(data.count)&quot;)">
-                  </ActionContent>
-               </BreakpointActionProxy>
-            </Actions>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "7524A2E5-C269-495F-9629-86C753E7F1F8"
-            shouldBeEnabled = "No"
-            nameForDebugger = "&#xc694;&#xccad;&#xc5d0;&#xb7ec;"
-            ignoreCount = "0"
-            continueAfterRunningActions = "Yes"
-            filePath = "EzyBook/Infrastructure/Networking/VideoLoaderDelegate.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "71"
-            endingLineNumber = "71"
-            landmarkName = "resourceLoader(_:shouldWaitForLoadingOfRequestedResource:)"
-            landmarkType = "7">
-            <Actions>
-               <BreakpointActionProxy
-                  ActionExtensionID = "Xcode.BreakpointAction.DebuggerCommand">
-                  <ActionContent
-                     consoleCommand = "expr print(&quot;Error loading video:&quot;, error)">
-                  </ActionContent>
-               </BreakpointActionProxy>
-            </Actions>
+            <Locations>
+               <Location
+                  uuid = "1FFAA4A0-543F-4A5A-9C08-1AC82C45D1E7 - 8626a8d5e2f389e1"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for EzyBook.DefaultLoadImageRepository.reloadOriginalImageWithoutETag(url: Swift.String) async throws -&gt; __C.UIImage"
+                  moduleName = "EzyBook.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/youngkyun/Desktop/iOS/03.%20SeSac%20%E1%84%83%E1%85%A9%E1%84%87%E1%85%A9%E1%86%BC/Portfolio/SLP/EzyBook/EzyBook/04_Data/Repositories/DefaultLoadImageRepository.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "184"
+                  endingLineNumber = "184">
+               </Location>
+               <Location
+                  uuid = "1FFAA4A0-543F-4A5A-9C08-1AC82C45D1E7 - 34ba1c04eccd93e2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for EzyBook.DefaultLoadImageRepository.reloadOriginalImageWithoutETag(url: Swift.String) async throws -&gt; __C.UIImage"
+                  moduleName = "EzyBook.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/youngkyun/Desktop/iOS/03.%20SeSac%20%E1%84%83%E1%85%A9%E1%84%87%E1%85%A9%E1%86%BC/Portfolio/SLP/EzyBook/EzyBook/04_Data/Repositories/DefaultLoadImageRepository.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "184"
+                  endingLineNumber = "184">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

@@ -47,6 +47,7 @@ extension ZoomableImageFullScreenViewModel {
         Task {
             do {
                 let image = try await requestThumbnailImage(path)
+                print(image.size)
                 await MainActor.run {
                     output.image = image
                 }

@@ -10,7 +10,7 @@ import SwiftUI
 struct WebViewScreen: View {
     
     
-    let tokenManager: DefaultTokenService
+    let tokenManager: TokenStorage
     @ObservedObject var coordinator: HomeCoordinator
     let onComplete: ((String) -> Void)?
 

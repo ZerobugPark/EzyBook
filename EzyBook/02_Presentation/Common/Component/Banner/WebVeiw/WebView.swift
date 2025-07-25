@@ -11,7 +11,7 @@ import WebKit
 struct WebView: UIViewRepresentable {
 
    
-    let tokenManger: DefaultTokenService
+    let tokenManger: TokenStorage
     let url: URL
     let onCompleteAttendance: ((String) -> Void)?
     

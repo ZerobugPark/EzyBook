@@ -94,7 +94,7 @@ struct EzyBookApp: App {
                 .onChange(of: scenePhase) { phase in
                     if phase == .active {
                         Task {
-                            await container.imageCache.cleanUpDiskCache()
+                            await container.cacheManager.cleanUpDiskCache()
                             
                             do {
                                 try await container.initializeAppSession()
@@ -111,6 +111,8 @@ struct EzyBookApp: App {
 }
 
 
+
+// MARK: Navigation Setting
 extension EzyBookApp {
     
     
