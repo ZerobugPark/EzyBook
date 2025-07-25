@@ -11,9 +11,9 @@ import SocketIO
 
 final class SocketServicePool {
     private var services: [String: SocketService] = [:] // roomID → SocketService
-    private let keyChain: KeyChainTokenStorage
+    private let keyChain: TokenStorage
     
-    init(keyChain: KeyChainTokenStorage) {
+    init(keyChain: TokenStorage) {
         self.keyChain = keyChain
     }
     

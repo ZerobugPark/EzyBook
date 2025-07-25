@@ -7,37 +7,34 @@
 
 import Foundation
 
-final class AppDIContainer {
+final class AppDIContainer: ObservableObject {
     
     // MARK: - Infrastructure
     private let decoder = ResponseDecoder()
     private let storage = KeyChainTokenStorage()
     
     private let tokenNetworkService: DefaultNetworkService // 토큰 전용 네트워크 서비스
-    private let tokenService: DefaultTokenService
+    
     private let interceptor: TokenInterceptor
     private let networkService: DefaultNetworkService
     private let imageLoader: DefaultImageLoader
-    private let imageCache: ImageCache
     
-    private lazy var socketService = SocketServicePool(keyChain: storage)
+    let tokenService: DefaultTokenService
+    let imageCache: ImageCache
     
-    private let loginDIContainer: LoginDIContainer
     
-                                                            
+    
+    
+    // MARK: - DIContainer Factory
+    private let commonDICotainer: CommonDIContainer
+    
+    let loginDIContainer: LoginDIContainer
+    let homeDIContainer: HomeDIContainer
+    let communityDIContainer: CommunityDIContainer
+    let chatDIContainer: ChatDIContainer
+    let profileDIContainer: ProfileDIContainer
+                                                                    
 
-    private let activityRepository: DefaultActivityRepository
-    private let acitvityKeepStatusRepository: DefaultKeepStatusRepository
-    private let reviewRepository: DefaultReviewRepository
-    private let profileRepository: DefaultProfileRepository
-    private let uploadRepository: DefaultUploadFileRepository
-    private let orderRepository: DefaultOrderRepository
-    private let paymentRepository: DefaultPaymentRepository
-    private let chatRepository: DefaultChatRepository
-    private let chatRealmListRepository: DefaultChatMessageRealmRepository
-    private let chatMessageRealmRepository: DefaultChatRoomRealmRepository
-    private let bannerRepository: DefaultBannerRepository
-    
     
     
     init() {
@@ -48,241 +45,87 @@ final class AppDIContainer {
         networkService = DefaultNetworkService(decodingService: decoder, interceptor: interceptor)
         
         
-        activityRepository = DefaultActivityRepository(networkService: networkService)
-        acitvityKeepStatusRepository = DefaultKeepStatusRepository(networkService: networkService)
-        reviewRepository = DefaultReviewRepository(networkService: networkService)
+        imageCache = ImageCache()
+        imageLoader = DefaultImageLoader(tokenService: tokenService, interceptor: interceptor)
         
-        profileRepository = DefaultProfileRepository(networkService: networkService)
-        uploadRepository = DefaultUploadFileRepository(networkService: networkService)
-        orderRepository = DefaultOrderRepository(networkService: networkService)
-        paymentRepository = DefaultPaymentRepository(networkService: networkService)
         
-        chatRepository = DefaultChatRepository(networkService: networkService)
-
-        chatRealmListRepository = DefaultChatMessageRealmRepository()
-        chatMessageRealmRepository = DefaultChatRoomRealmRepository()
-        
-        bannerRepository = DefaultBannerRepository(networkService: networkService)
+        commonDICotainer = CommonDIContainer(
+            imageLoader: imageLoader,
+            imageCache: imageCache,
+            networkService: networkService
+        )
         
         loginDIContainer = LoginDIContainer(
             networkService: networkService,
             tokenService: tokenService
         )
         
-        imageCache = ImageCache()
-        imageLoader = DefaultImageLoader(tokenService: tokenService, interceptor: interceptor)
+        homeDIContainer = HomeDIContainer(
+            networkService: networkService,
+            commonDIContainer: commonDICotainer,
+            videoLoader: VideoLoaderDelegate(
+                tokenService: tokenService,
+                interceptor: interceptor
+            )
+        )
+        
+        
+        communityDIContainer = CommunityDIContainer(
+            networkService: networkService,
+            commonDIContainer: commonDICotainer
+        )
+        
+        chatDIContainer = ChatDIContainer(
+            networkService: networkService,
+            commonDIContainer: commonDICotainer,
+            storage: storage
+        )
+        
+        profileDIContainer = ProfileDIContainer(
+            networkService: networkService,
+            commonDIContainer: commonDICotainer
+        )
         
     }
     
-    
-    // MARK: - DIContainer Factory
-    func makeDIContainer() -> DIContainer {
-        DIContainer(
-            toekenService: tokenService,
-            loginDIContainer: loginDIContainer,
-            bannerInfoUseCase: makeBannerInfoUseCase(),
-            activityListUseCase: makeActivityListUseCase(),
-            activityNewListUseCase: makeActivityNewListUseCase(),
-            activitySearchUseCase: makeActivitySearchUseCase(),
-            activityDetailUseCase: makeActivityDetailUseCase(),
-            activityKeepCommandUseCase: makeActivityKeepCommandUseCase(),
-            reviewLookupUseCase: makeReviewRatingUseCase(),
-            profileLookUpUseCase: makeProfileLookUpUseCase(),
-            profileImageUpLoadUseCase: makeProfileUpLoadFileUseCase(),
-            profileModifyUseCase: makeProfileModifyUseCase(),
-            profileSearchUseCase: makeProfileSearchUseCase(),
-            reviewImageUploadUseCase: makeReviewImageUpload(),
-            reviewWriteUseCase: makeReviewWirteUseCase(),
-            orderCreateUseCase: makeOoderCreateUseCase(),
-            orderListLookUpUseCase: makeOrderListLookUpUseCase(),
-            paymentValidationUseCase: makePaymentVaildationUseCase(),
-            createChatRoomUseCase: makeCreateChatRoomUseCase(),
-            chatRoomUseCases: makeChatRoomListUseCase(),
-            chatUseCases: makeChatUseCase(),
-            imageLoader: makeImageLoaderUseCase(),
-            videoLoader: makeVidoeLoaderDelegate(),
-            tokenService: tokenService,
-            socketService: socketService
-        )
-    }
-    
+
 
 }
 
 
-
-
-// MARK: Order
 extension AppDIContainer {
-    private func makePaymentVaildationUseCase() -> DefaultPaymentValidationUseCase {
-        DefaultPaymentValidationUseCase(repo: paymentRepository)
-    }
-    
-    private func makeOoderCreateUseCase() -> DefaultCreateOrderUseCase {
-        DefaultCreateOrderUseCase(repo: orderRepository)
-    }
-    
-    private func makeOrderListLookUpUseCase() -> DefaultOrderListLookupUseCase {
-        DefaultOrderListLookupUseCase(repo: orderRepository)
-    }
-    
-}
+    // MARK: 앱 시작 시 세션 초기화 (토큰 갱신 + 유저 정보 최신화)
+    func initializeAppSession() async throws {
 
-// MARK: Chat
-extension AppDIContainer {
-    
-    // 채팅방 생성
-    private func makeCreateChatRoomUseCase() -> DefaultCreateChatRoomUseCase {
-        DefaultCreateChatRoomUseCase(repo: chatRepository)
-    }
-    
-    // MARK: 채팅 목록
-    private func makeChatRoomListUseCase() -> DefaultChatRoomListUseCase {
-        DefaultChatRoomListUseCase(repo: chatRepository)
-    }
-    
-    private func makeSaveLatestChatRoomUseCase() -> DefaultSaveLatestChatRoomUseCase {
-        DefaultSaveLatestChatRoomUseCase(repo: chatMessageRealmRepository)
-    }
-    
-    private func makeFetchChatRoomListUseCase() -> DefaultFetchChatRoomListUseCase {
-        DefaultFetchChatRoomListUseCase(repo: chatMessageRealmRepository)
-    }
-    
-    private func makeChatRoomListUseCase() -> ChatRoomListUseCases {
-        ChatRoomListUseCases(
-            fetchRemoteChatRoomList: makeChatRoomListUseCase(),
-            saveRealmLastMessage: makeSaveLatestChatRoomUseCase(),
-            fetchRealmChatRoomList: makeFetchChatRoomListUseCase()
-        )
-    }
-    
-    
-    
-    // MARK: 채팅방
-    private func makeChatUseCase() -> ChatListUseCases {
-        ChatListUseCases(
-            sendMessages: makeSendUseCase(),
-            saveRealmMessages: makeSaveUseCase(),
-            fetchRealmLatestMessage: makeFetchLatestChatMessageUseCase(),
-            fetchRealmMessageList: makeFetchChatMessageListUseCase(),
-            fetchRemoteMessage: makeFetchRemoteChatMessagesUseCase()
-        )
-    }
-    
-    private func makeSendUseCase() -> DefaultChatSendMessageUseCase {
-        DefaultChatSendMessageUseCase(repo: chatRepository)
-    }
-    
-    private func makeSaveUseCase() -> DefaultRealmSaveChatMessageUseCase {
-        DefaultRealmSaveChatMessageUseCase(repo: chatRealmListRepository)
-    }
-    
-    private func makeFetchLatestChatMessageUseCase() -> DefaultRealmFetchLatestChatMessageUseCase {
-        DefaultRealmFetchLatestChatMessageUseCase(repo: chatRealmListRepository)
-    }
-    
-    private func makeFetchChatMessageListUseCase() -> DefaultRealmFetchChatMessageListUseCase {
-        DefaultRealmFetchChatMessageListUseCase(repo: chatRealmListRepository)
-    }
-    
-    private func makeFetchRemoteChatMessagesUseCase() -> DefaultFetchRemoteChatMessagesUseCase {
-        DefaultFetchRemoteChatMessagesUseCase(repo: chatRepository)
-    }
-    
-}
+        // 1) 토큰 갱신
+        try await refreshAccessTokenIfNeeded()
 
+        // 2) 최신 유저 정보 가져오기 (없을 경우, 기존 User 정보)
+        await initializeUserSession()
 
-
-// MARK: Profile
-extension AppDIContainer {
-    private func makeProfileLookUpUseCase() -> DefaultProfileLookUpUseCase {
-        DefaultProfileLookUpUseCase(repo: profileRepository)
-    }
-    
-    private func makeProfileUpLoadFileUseCase() -> DefaultProfileUploadImageUseCase {
-        DefaultProfileUploadImageUseCase(repo: uploadRepository)
-    }
-    
-    private func makeProfileModifyUseCase() -> DefaultProfileModifyUseCase {
-        DefaultProfileModifyUseCase(repo: profileRepository)
-    }
-    
-    private func makeProfileSearchUseCase() -> DefaultProfileSearchUseCase {
-        DefaultProfileSearchUseCase(repo: profileRepository)
-    }
-    
-    private func makeReviewWirteUseCase() -> DefaultReViewWriteUseCase {
-        DefaultReViewWriteUseCase(repo: reviewRepository)
-    }
-    
-    private func makeReviewImageUpload() -> DefaultUploadReviewImages {
-        DefaultUploadReviewImages(repo: uploadRepository)
-    }
-    
-    
-    
-}
-
-
-// MARK: Common
-extension AppDIContainer {
-//    private func makeImageLoaderUseCase() -> DefaultLoadImageUseCase {
-//        DefaultLoadImageUseCase(imageLoader: imageLoader)
-//    }
-    
-    
-    private func makeVidoeLoaderDelegate() -> VideoLoaderDelegate {
-        VideoLoaderDelegate(
-            tokenService: tokenService,
-            interceptor: interceptor
-        )
-    }
-}
-
-
-
-
-
-// MARK: Activity
-extension AppDIContainer {
-
-    private func makeActivityListUseCase() -> DefaultActivityListUseCase {
-        DefaultActivityListUseCase(repo: activityRepository)
     }
 
-    private func makeActivityNewListUseCase() -> DefaultNewActivityListUseCase {
-        DefaultNewActivityListUseCase(repo: activityRepository)
+    // MARK: 토큰 갱신 추가
+    private func refreshAccessTokenIfNeeded() async throws {
+        try await tokenService.refreshToken()
     }
-    
-    private func makeActivitySearchUseCase() -> DefaultActivitySearchUseCase {
-        DefaultActivitySearchUseCase(repo: activityRepository)
-    }
-    
-    private func makeActivityDetailUseCase() -> DefaultActivityDetailUseCase {
-        DefaultActivityDetailUseCase(repo: activityRepository)
-    }
-    
-    private func makeActivityKeepCommandUseCase() -> DefaultActivityKeepCommandUseCase {
-        DefaultActivityKeepCommandUseCase(repo: acitvityKeepStatusRepository)
-    }
-    
 
-}
+    // MARK: 서버에서 최신 유저 정보 업데이트
+    private func initializeUserSession() async {
+        do {
+            let latestUser = try await commonDICotainer.makeProfilLookupUseCase().execute()
 
-// MARK: Review
-extension AppDIContainer {
-    
-    private func makeReviewRatingUseCase() -> DefaultReviewLookUpUseCase {
-        DefaultReviewLookUpUseCase(repo: reviewRepository)
-    }
-}
+            let userInfo = UserEntity(
+                userID: latestUser.userID,
+                email: latestUser.email,
+                nick: latestUser.nick
+            )
 
+            UserSession.shared.update(userInfo)
 
-// MARK: Banner
-extension AppDIContainer {
-    private func makeBannerInfoUseCase() -> DefaultBannerInfoUseCase {
-        DefaultBannerInfoUseCase(repo: bannerRepository)
+        } catch {
+            print("최신 유저 정보 가져오기 실패: \(error)")
+        }
     }
 }
 

@@ -10,13 +10,13 @@ import Foundation
 
 /// 채팅방 생성
 protocol ChatRoomRepository {
-    func requestCreateChatRoom(_ router: ChatRequest.Post) async throws -> ChatRoomEntity
+    func requestCreateChatRoom(_ id: String) async throws -> ChatRoomEntity
 }
 
 
 /// 채팅 리스트
 protocol ChatListRepository {
-    func requestChatlist(_ router: ChatRequest.Get) async throws -> [ChatEntity] 
+    func requestChatlist(_ id: String, _ next: String?) async throws -> [ChatEntity] 
 }
 
 /// 채팅방 목록 조회

@@ -13,14 +13,14 @@ import Combine
 /// 결제 영수증 등 부가적인 뷰모델
 final class ProfileSupplementaryViewModel: ViewModelType {
     
-    private let orderListUseCase: DefaultOrderListLookupUseCase
+    private let orderListUseCase: OrderListLookUpUseCase
         
     var input = Input()
     @Published var output = Output()
     
     var cancellables = Set<AnyCancellable>()
     
-    init(orderListUseCase: DefaultOrderListLookupUseCase) {
+    init(orderListUseCase: OrderListLookUpUseCase) {
 
         self.orderListUseCase = orderListUseCase
         transform()

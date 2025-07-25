@@ -7,30 +7,26 @@
 
 import Foundation
 
+
+protocol BannerInfoUseCase {
+    func execute() async throws -> [BannerEntity]
+}
+
 // 배너 정보 가져오기
-final class DefaultBannerInfoUseCase {
+final class DefaultBannerInfoUseCase: BannerInfoUseCase {
     
     private let repo: BannerInfoRepository
     
     init(repo: BannerInfoRepository) {
         self.repo = repo
     }
-    
-    
+
+
+}
+
+extension DefaultBannerInfoUseCase {
     func execute() async throws -> [BannerEntity] {
-        
-        do {
-            return try await self.repo.rqeustBannerInfo()
-        } catch  {
-            if let apiError = error as? APIError {
-                throw apiError
-            } else {
-                throw APIError.unknown
-            }
-            
-        }
-        
-        
+        try await repo.rqeustBannerInfo()
     }
     
 }

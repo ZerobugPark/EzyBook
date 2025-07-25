@@ -18,9 +18,9 @@ final class HomeCoordinator: ObservableObject {
     /// 네비게이션 스택에서 콜백 함수를 받기 위한 딕셔너리 처리
     var callbacks: [UUID: (String) -> Void] = [:]
 
-    private let container: DIContainer
+    private let container: AppDIContainer
     
-    init(container: DIContainer) {
+    init(container: AppDIContainer) {
         self.container = container
         
     }
@@ -64,23 +64,23 @@ final class HomeCoordinator: ObservableObject {
     func destinationView(route: HomeRoute) -> some View {
         switch route {
         case .homeView:
-            HomeView(viewModel: self.container.makeHomeViewModel(), coordinator: self)
+            HomeView(viewModel: self.container.homeDIContainer.makeHomeViewModel(), coordinator: self)
         case .searchView:
             SearchView(
-                viewModel: self.container.makeSearchViewModel(),
-                bannerViewModel: self.container.makeBannerViewModel(), coordinator: self
+                viewModel: self.container.homeDIContainer.makeSearchViewModel(),
+                bannerViewModel: self.container.homeDIContainer.makeBannerViewModel(), coordinator: self
             )
         case .detailView(let id):
-            DetailView(viewModel: self.container.makeDetailViewModel(), coordinator: self, activityID: id)
+            DetailView(viewModel: self.container.homeDIContainer.makeDetailViewModel(), coordinator: self, activityID: id)
         case .reviewView(let id):
             ReviewView(activityID: id)
         case .chatRoomView(let roomID, let opponentNick):
-            ChatRoomView(viewModel: self.container.makeChatRoomViewModel(roomID: roomID, opponentNick: opponentNick)) { [weak self] in
+            ChatRoomView(viewModel: self.container.chatDIContainer.makeChatRoomViewModel(roomID: roomID, opponentNick: opponentNick)) { [weak self] in
                 self?.pop()
             }
         case .advertiseView(let callbackID):
             WebViewScreen(
-                tokenManager: container.toekenService,
+                tokenManager: container.tokenService,
                 coordinator: self) { [weak self] msg in
                     self?.completeAdvertise(id: callbackID, message: msg)
                     
@@ -97,19 +97,19 @@ final class HomeCoordinator: ObservableObject {
 
 extension HomeCoordinator {
     func makeVideoPlayerView(path: String) -> some View {
-        let viewModel = container.makeVideoPlayerViewModel()
+        let viewModel = container.homeDIContainer.makeVideoPlayerViewModel()
         return VideoPlayerView(path: path, viewModel: viewModel)
     }
     
     func makeImageViewer(path: String) -> some View {
-        let viewModel = container.makeZoomableImageFullScreenViewModel()
+        let viewModel = container.homeDIContainer.makeZoomableImageFullScreenViewModel()
         return ZoomableImageFullScreenView(path: path, viewModel: viewModel)
         
     }
     
     
     func makePaymentView(item: PayItem, onFinish: @escaping (DisplayError?) -> Void) -> some View {
-        let viewModel = container.makePaymentViewModel()
+        let viewModel = container.homeDIContainer.makePaymentViewModel()
         return PaymentView(item: item, onFinish: onFinish, viewModel: viewModel)
     }
     

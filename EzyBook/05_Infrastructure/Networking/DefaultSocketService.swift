@@ -11,7 +11,7 @@ import SocketIO
 final class DefaultSocketService: SocketService {
     
     private let roomID: String
-    private let keyChain: KeyChainTokenStorage
+    private let keyChain: TokenStorage
     private var isConnected: Bool = false
     private var manager: SocketManager?
     private var socket: SocketIOClient?
@@ -19,7 +19,7 @@ final class DefaultSocketService: SocketService {
     var onMessageReceived: ((ChatMessageEntity) -> Void)?
     var onConnect: (() -> Void)?
     
-    init(roomID: String, keyChain: KeyChainTokenStorage) {
+    init(roomID: String, keyChain: TokenStorage) {
         self.roomID = roomID
         self.keyChain = keyChain
     }

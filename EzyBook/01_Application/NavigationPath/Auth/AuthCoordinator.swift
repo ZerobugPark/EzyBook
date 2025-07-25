@@ -14,9 +14,9 @@ final class AuthCoordinator: ObservableObject {
     
     @Published var path = NavigationPath()
     
-    private let container: DIContainer
+    private let container: LoginDIContainer
     
-    init(container: DIContainer) {
+    init(container: LoginDIContainer) {
         self.container = container
     }
     
@@ -37,12 +37,12 @@ final class AuthCoordinator: ObservableObject {
     func destinationView(route: AuthRoute) -> some View {
         switch route {
         case .socialLogin:
-            LoginView(coordinator: self, viewModel: self.container.loginDIContainer.makeSocialLoginViewModel())
+            LoginView(coordinator: self, viewModel: self.container.makeSocialLoginViewModel())
         case .emailLogin:
             LoginSignUpPagerView(
                 coordinator: self,
-                loginViewModel: self.container.loginDIContainer.makeEmailLoginViewModel(),
-                acountViewModel: self.container.loginDIContainer.makeAccountViewModel()
+                loginViewModel: self.container.makeEmailLoginViewModel(),
+                acountViewModel: self.container.makeAccountViewModel()
             )
         }
     }

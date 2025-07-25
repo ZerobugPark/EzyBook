@@ -9,9 +9,9 @@ import SwiftUI
 
 struct AuthCoordinatorView: View {
     
-    @EnvironmentObject var container: DIContainer
+    @EnvironmentObject var container: AppDIContainer
     @StateObject var coordinator: AuthCoordinator
-    
+        
     var body: some View {
         NavigationStack(path: $coordinator.path) {
             LoginView(

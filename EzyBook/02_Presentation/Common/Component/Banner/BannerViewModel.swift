@@ -11,7 +11,6 @@ import Combine
 final class BannerViewModel: ViewModelType {
     
 
-    
     var input = Input()
     @Published var output = Output()
 
@@ -21,12 +20,12 @@ final class BannerViewModel: ViewModelType {
     private var scale: CGFloat = 0
     
     private let imageLoadUseCases: ImageLoadUseCases
-    private let bannerUseCase: DefaultBannerInfoUseCase
+    private let bannerUseCase: BannerInfoUseCase
   
     
     init(
         imageLoadUseCases: ImageLoadUseCases,
-        bannerUseCase: DefaultBannerInfoUseCase
+        bannerUseCase: BannerInfoUseCase
     ) {
 
         self.imageLoadUseCases = imageLoadUseCases

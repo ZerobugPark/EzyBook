@@ -13,7 +13,7 @@ struct ChatListUseCases {
     let saveRealmMessages: SaveChatMessageUseCase
     let fetchRealmLatestMessage: FetchLatestChatMessageUseCase
     let fetchRealmMessageList: FetchChatMessageListUseCase
-    let fetchRemoteMessage  :FetchRemoteChatMessagesUseCase
+    let fetchRemoteMessage:   FetchRemoteChatMessagesUseCase
 }
 
 

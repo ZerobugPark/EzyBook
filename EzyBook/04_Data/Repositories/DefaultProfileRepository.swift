@@ -8,7 +8,7 @@
 import Foundation
 
 
-struct DefaultProfileRepository: ProfileLookupRepository, ProfileModifyRepository, ProfileSearchRepository {
+final class DefaultProfileRepository: ProfileLookupRepository, ProfileModifyRepository, ProfileSearchRepository {
   
 
     private let networkService: NetworkService

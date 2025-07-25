@@ -11,7 +11,7 @@ import Combine
 
 final class PaymentViewModel: ViewModelType {
     
-    private let vaildationUseCase: DefaultPaymentValidationUseCase
+    private let vaildationUseCase: PaymentValidationUseCase
         
     var input = Input()
     @Published var output = Output()
@@ -20,7 +20,7 @@ final class PaymentViewModel: ViewModelType {
     
     private var scale: CGFloat = 0
       
-    init(vaildationUseCase: DefaultPaymentValidationUseCase) {
+    init(vaildationUseCase: PaymentValidationUseCase) {
 
         self.vaildationUseCase = vaildationUseCase
         transform()
@@ -42,12 +42,9 @@ extension PaymentViewModel {
     
     
     private func handleRequestRecepit(_  impUid:  String, _ merchantUid: String) {
-        
-        let dto = PaymentValidationDTO(impUid: impUid)
-        
         Task {
             do {
-                let data = try await vaildationUseCase.execute(dto: dto)
+                let data = try await vaildationUseCase.execute(impUid: impUid)
                 await MainActor.run {
                     /// 이 조건이 가능한걸까?
                     if data.orderItem.orderCode != merchantUid {

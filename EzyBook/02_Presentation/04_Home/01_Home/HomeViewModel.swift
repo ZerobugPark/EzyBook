@@ -11,10 +11,7 @@ import UniformTypeIdentifiers
 
 final class HomeViewModel: ViewModelType {
     
-    private let activityListUseCase: DefaultActivityListUseCase
-    private let activityNewLisUseCase: DefaultNewActivityListUseCase
-    private let activityDeatilUseCase: DefaultActivityDetailUseCase
-    private let activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase
+    private let activityUseCases: ActivityUseCases
     private let imageLoadUseCases: ImageLoadUseCases
     
     var input = Input()
@@ -63,16 +60,10 @@ final class HomeViewModel: ViewModelType {
     
     
     init(
-        activityListUseCase: DefaultActivityListUseCase,
-        activityNewLisUseCase: DefaultNewActivityListUseCase,
-        activityDeatilUseCase: DefaultActivityDetailUseCase,
-        activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase,
+        activityUseCases: ActivityUseCases,
         imageLoadUseCases: ImageLoadUseCases
     ) {
-        self.activityListUseCase = activityListUseCase
-        self.activityNewLisUseCase = activityNewLisUseCase
-        self.activityDeatilUseCase = activityDeatilUseCase
-        self.activityKeepCommandUseCase = activityKeepCommandUseCase
+        self.activityUseCases = activityUseCases
         self.imageLoadUseCases = imageLoadUseCases
         
         transform()
@@ -142,7 +133,7 @@ extension HomeViewModel {
         
         do {
             
-            let summary = try await activityNewLisUseCase.execute(country: country, category: category)
+            let summary = try await activityUseCases.activityNewList.execute(country: country, category: category)
             let details = try await prefetchInitial(for: summary, type: NewActivityModel.self)
 
             newActivitySummaryList = summary
@@ -167,10 +158,12 @@ extension HomeViewModel {
     /// 필터 데이터 조회
     private func fetchFilterList(_ country: String?, _ category: String?) async {
         
-        let requestDto = ActivitySummaryListRequestDTO(country: country, category: category, limit: "\(limit)", next: nil)
+//        let requestDto = ActivitySummaryListRequestDTO(country: country, category: category, limit: "\(limit)", next: nil)
    
         do {
-            let summary = try await activityListUseCase.execute(requestDto: requestDto)
+            let summary = try await activityUseCases.activityList.execute(country: country, category: category, limit:
+            "\(limit)", next: nil)
+            
             let uniqueList = removeDuplicatesFromFilterList(filterList: summary.data)
             
             nextCursor = summary.nextCursor
@@ -228,8 +221,8 @@ extension HomeViewModel {
     /// 상세 정보 조회
     private func  reqeuestActivityDetailList<T: ActivityModelBuildable>(_ data:  ActivitySummaryEntity, type: T.Type) async throws -> T {
         
-        let detail = try await self.activityDeatilUseCase.execute(id: data.activityID)
-        
+        let detail = try await activityUseCases.activityDetail.execute(id: data.activityID)
+            
         let thumbnailImage = try await self.requestThumbnailImage(detail.thumbnails)
         
          
@@ -367,7 +360,13 @@ extension HomeViewModel {
         let requestDto = ActivitySummaryListRequestDTO(country: country, category: category, limit: "\(limit)", next: nextCursor)
         
         do {
-            let summary = try await activityListUseCase.execute(requestDto: requestDto)
+            let summary = try await activityUseCases.activityList.execute(
+                country: country,
+                category: category,
+                limit: "\(limit)",
+                next: nextCursor
+            )
+            
             let uniqueList = removeDuplicatesFromFilterList(filterList: summary.data)
             filterActivitySummaryList.append(contentsOf: uniqueList)
             self.nextCursor = summary.nextCursor
@@ -467,7 +466,8 @@ extension HomeViewModel {
             var statusChanged =  data.isKeep
             statusChanged.toggle()
 
-            let detail = try await activityKeepCommandUseCase.execute(id: data.activityID, stauts: statusChanged)
+            let detail = try await activityUseCases.activityKeepCommand.execute(id: data.activityID, stauts: statusChanged)
+            
             await MainActor.run {
                 _filterActivityDetailList[index]?.isKeep = detail.keepStatus
             }

@@ -50,21 +50,21 @@ struct MainTabView: View {
     @StateObject var profileCoordinator: ProfileCoordinator
     
     
-    init(container: DIContainer) {
+    init(container: AppDIContainer) {
         _homeCoordinator = StateObject(
             wrappedValue: HomeCoordinator(
                 container: container
             )
         )
         _communityCoordinator = StateObject(
-            wrappedValue: CommunityCoordinator(container: container)
+            wrappedValue: CommunityCoordinator(container: container.communityDIContainer)
         )
         _chatCoordinator = StateObject(
-            wrappedValue: ChatCoordinator(container: container)
+            wrappedValue: ChatCoordinator(container: container.chatDIContainer)
         )
         _profileCoordinator = StateObject(
             wrappedValue:  ProfileCoordinator(
-                container: container
+                container: container.profileDIContainer
             )
         )
         

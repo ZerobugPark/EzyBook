@@ -65,7 +65,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 @main
 struct EzyBookApp: App {
     @Environment(\.scenePhase) private var scenePhase
-    @StateObject private var container = AppDIContainer().makeDIContainer()
+    @StateObject private var container = AppDIContainer()
     @StateObject private var appState = AppState()
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
@@ -94,7 +94,7 @@ struct EzyBookApp: App {
                 .onChange(of: scenePhase) { phase in
                     if phase == .active {
                         Task {
-                            await container.imageLoader.cleanUpDiskCache()
+                            await container.imageCache.cleanUpDiskCache()
                             
                             do {
                                 try await container.initializeAppSession()

@@ -10,12 +10,11 @@ import Combine
 
 final class DetailViewModel: ViewModelType {
     
-    private let activityDeatilUseCase: DefaultActivityDetailUseCase
-    private let activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase
-    private let reviewLookupUseCase: DefaultReviewLookUpUseCase
-    private let orderUseCase: DefaultCreateOrderUseCase
-    private let createChatRoomUseCase: DefaultCreateChatRoomUseCase
-    private let imageLoader: DefaultLoadImageUseCase
+    private let activityUseCases: ActivityUseCases
+    private let reviewLookupUseCase: ReviewLookUpUseCase
+    private let orderUseCase: CreateOrderUseCase
+    private let createChatRoomUseCase: CreateChatRoomUseCase
+    private let imageLoadUseCases: ImageLoadUseCases
     
     
     var input = Input()
@@ -26,20 +25,18 @@ final class DetailViewModel: ViewModelType {
     private var scale: CGFloat = 0
       
     init(
-        activityDeatilUseCase: DefaultActivityDetailUseCase,
-        activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase,
-        reviewLookupUseCase: DefaultReviewLookUpUseCase,
-        orderUseCaes: DefaultCreateOrderUseCase,
-        createChatRoomUseCase: DefaultCreateChatRoomUseCase,
-        imageLoader: DefaultLoadImageUseCase
+        activityUseCases: ActivityUseCases,
+        reviewLookupUseCase: ReviewLookUpUseCase,
+        orderUseCaes: CreateOrderUseCase,
+        createChatRoomUseCase: CreateChatRoomUseCase,
+        imageLoadUseCases: ImageLoadUseCases
     ) {
 
-        self.activityDeatilUseCase = activityDeatilUseCase
-        self.activityKeepCommandUseCase = activityKeepCommandUseCase
+        self.activityUseCases = activityUseCases
         self.reviewLookupUseCase = reviewLookupUseCase
         self.orderUseCase = orderUseCaes
         self.createChatRoomUseCase = createChatRoomUseCase
-        self.imageLoader = imageLoader
+        self.imageLoadUseCases = imageLoadUseCases
         
         transform()
     }
@@ -110,7 +107,8 @@ extension DetailViewModel {
         
     private func  reqeuestActivityDetailList(_ activityID:  String) async throws -> ActivityDetailEntity {
         
-        var detail = try await self.activityDeatilUseCase.execute(id: activityID)
+        var detail = try await activityUseCases.activityDetail.execute(id: activityID)
+        
         
         let sortedThumbnails = detail.thumbnails.sorted {
             $0.hasSuffix(".mp4") && !$1.hasSuffix(".mp4")
@@ -156,7 +154,7 @@ extension DetailViewModel {
     
     private func requestThumbnailImage(_ path: String) async throws -> UIImage {
         
-        return try await imageLoader.execute(path, scale: scale)
+        return try await imageLoadUseCases.thumbnailImage.execute(path: path, scale: scale)
         
     }
     
@@ -198,7 +196,11 @@ extension DetailViewModel {
   
         do {
             
-            let detail = try await activityKeepCommandUseCase.execute(id: output.activityDetailInfo.activityID, stauts: output.activityDetailInfo.isKeep)
+            let detail = try await activityUseCases.activityKeepCommand.execute(
+                id: output.activityDetailInfo.activityID,
+                stauts: output.activityDetailInfo.isKeep
+            )
+            
             
             await MainActor.run {
                 output.activityDetailInfo.isKeep = detail.keepStatus
@@ -218,11 +220,18 @@ extension DetailViewModel {
     }
     
     /// 주문생성
-    private func handleRequestCreateOrder(_  dto:  OrderCreateRequestDTO) {
+    private func handleRequestCreateOrder(_ id: String, _ name: String, _ time: String, _  count: Int, _ price: Int) {
         
         Task {
             do {
-                let detail = try await orderUseCase.execute(dto: dto)
+                let detail = try await orderUseCase.execute(
+                    activityId: id,
+                    reservationItemName: name,
+                    reservationItemTime: time,
+                    participantCount: count,
+                    totalPrice: price
+                )
+                    
                 await MainActor.run {
                     output.payItem = PayItem(orderCode: detail.orderCode, price: "\(detail.totalPrice)", name: output.activityDetailInfo.title)
                     output.payButtonTapped = true
@@ -287,10 +296,12 @@ extension DetailViewModel {
         case onAppearRequested(id: String)
         case updateScale(scale: CGFloat)
         case keepButtonTapped
-        case makeOrder(dto: OrderCreateRequestDTO)
+        case makeOrder(id: String, name: String, time: String, count: Int, price: Int)
         case showPaymentResult(message: DisplayError?)
         case makeChatRoom
         case resetError
+        
+       
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
@@ -308,8 +319,8 @@ extension DetailViewModel {
             handleShowPaymentReulst(message)
         case .makeChatRoom:
             handleCheckChatRoom()
-        case .makeOrder(let dto):
-            handleRequestCreateOrder(dto)
+        case let .makeOrder(id, name, time, count, price):
+            handleRequestCreateOrder(id, name, time, count, price)
  
         }
     }

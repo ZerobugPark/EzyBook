@@ -10,12 +10,8 @@ import Combine
 
 final class SearchViewModel: ViewModelType {
     
-    private let activitySearchLisUseCase: DefaultActivitySearchUseCase
-    private let activityDeatilUseCase: DefaultActivityDetailUseCase
-    private let activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase
-    
-    
-    private let imageLoader: DefaultLoadImageUseCase
+    private let activityUseCases: ActivityUseCases
+    private let imageLoadUseCases: ImageLoadUseCases
     
     var input = Input()
     @Published var output = Output()
@@ -44,16 +40,12 @@ final class SearchViewModel: ViewModelType {
  
     
     init(
-        activitySearchLisUseCase: DefaultActivitySearchUseCase,
-        activityDeatilUseCase: DefaultActivityDetailUseCase,
-        activityKeepCommandUseCase: DefaultActivityKeepCommandUseCase,
-        imageLoader: DefaultLoadImageUseCase
+        activityUseCases: ActivityUseCases,
+        imageLoadUseCases: ImageLoadUseCases
     ) {
 
-        self.activitySearchLisUseCase = activitySearchLisUseCase
-        self.activityDeatilUseCase = activityDeatilUseCase
-        self.activityKeepCommandUseCase = activityKeepCommandUseCase
-        self.imageLoader = imageLoader
+        self.activityUseCases = activityUseCases
+        self.imageLoadUseCases = imageLoadUseCases
         
         transform()
     }
@@ -144,7 +136,7 @@ extension SearchViewModel {
     /// prefetch쪽을 공통 뷰모델로 관리해볼까?
     private func  reqeuestActivityDetailList<T: ActivityModelBuildable>(_ data:  ActivitySummaryEntity, type: T.Type) async throws -> T {
         
-        let detail = try await self.activityDeatilUseCase.execute(id: data.activityID)
+        let detail = try await activityUseCases.activityDetail.execute(id: data.activityID)
         let thumbnailImage = try await self.requestThumbnailImage(detail.thumbnails)
         
         return T(from: detail, thumbnail: thumbnailImage)
@@ -161,7 +153,8 @@ extension SearchViewModel {
             let fallback = UIImage(systemName: "star")!
             return fallback
         }
-        return try await imageLoader.execute(path, scale: scale)
+        return try await imageLoadUseCases.thumbnailImage.execute(path: path, scale: scale)
+      
         
     }
     
@@ -187,7 +180,7 @@ extension SearchViewModel {
     private func fetchSearchList(_ query: String) async {
         
         do {
-            let summary = try await activitySearchLisUseCase.execute(title: query)
+            let summary = try await activityUseCases.activitySearch.execute(title: query)
             let details = try await prefetchInitial(for: summary, type: FilterActivityModel.self)
             searchActivitySummaryList = summary
             
@@ -282,7 +275,8 @@ extension SearchViewModel {
             var statusChanged =  data.isKeep
             statusChanged.toggle()
             print(statusChanged)
-            let detail = try await activityKeepCommandUseCase.execute(id: data.activityID, stauts: statusChanged)
+            let detail = try await activityUseCases.activityKeepCommand.execute(id: data.activityID, stauts: statusChanged)
+            
             await MainActor.run {
                 _searchActivityDetailList[index]?.isKeep = detail.keepStatus
             }

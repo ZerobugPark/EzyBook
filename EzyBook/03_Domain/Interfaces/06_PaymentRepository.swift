@@ -8,5 +8,6 @@
 import Foundation
 
 protocol PaymentReceiptOrderRepository {
-    func requestPaymentValidation(_ router: PaymentRequest.Post) async throws -> ReceiptOrderEntity
+    func requestPaymentValidation(_ impUid: String) async throws -> ReceiptOrderEntity
 }
+

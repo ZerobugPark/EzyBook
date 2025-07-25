@@ -123,6 +123,12 @@ final class DefaultLoadImageRepository: LoadOriginalImage, LoadThumbnailImage {
             //압축해서 저장
             if let image = UIImage(data: response.data),
                let compressedData = image.jpegData(compressionQuality: 0.8) {
+                /// 원본 크기
+                print("원본 크기")
+                printDataSize(response.data)
+                
+                print("압축된 데이터 크기")
+                printDataSize(compressedData)
                 imageCache.setData(compressedData, forKey: fullURL) // 디시크 캐시에 저장
             } else {
                 imageCache.setData(response.data, forKey: fullURL) // fallback
@@ -276,5 +282,14 @@ extension DefaultLoadImageRepository {
             }
             return UIImage(cgImage: cgImage)
         }
+    
+    
+    /// 데이터 체크
+    private func printDataSize(_ data: Data) {
+        let bytes = data.count
+        let kb = Double(bytes) / 1024
+        let mb = kb / 1024
+        print(String(format: "📦 Data size: %.2f MB (%.0f KB / %d bytes)", mb, kb, bytes))
+    }
 }
 

@@ -22,8 +22,8 @@ final class ChatRoomViewModel: ViewModelType {
     
     private var scale: CGFloat = 0
     private let chatUseCases: ChatListUseCases
-    private let profileSearchUseCase: DefaultProfileSearchUseCase
-    private let imageLoader: DefaultLoadImageUseCase
+    private let profileSearchUseCase: ProfileSearchUseCase
+    private let imageLoadUseCases: ImageLoadUseCases
     
     private var userID: String {
         UserSession.shared.currentUser!.userID
@@ -34,8 +34,8 @@ final class ChatRoomViewModel: ViewModelType {
         roomID: String,
         opponentNick: String,
         chatUseCases: ChatListUseCases,
-        profileSearchUseCase: DefaultProfileSearchUseCase,
-        imageLoader: DefaultLoadImageUseCase
+        profileSearchUseCase: ProfileSearchUseCase,
+        imageLoadUseCases: ImageLoadUseCases
     ) {
         
         self.socketService = socketService
@@ -43,7 +43,7 @@ final class ChatRoomViewModel: ViewModelType {
         self.opponentNick = opponentNick
         self.chatUseCases = chatUseCases
         self.profileSearchUseCase = profileSearchUseCase
-        self.imageLoader = imageLoader
+        self.imageLoadUseCases = imageLoadUseCases
         
         
         transform()
@@ -351,7 +351,7 @@ extension ChatRoomViewModel {
     
     /// 상대방 프로필 조회
     private func loadOpponentProfile() async throws -> UserInfoResponseEntity? {
-        let opponentData = try await profileSearchUseCase.execute(opponentNick)
+        let opponentData = try await profileSearchUseCase.execute(nick: opponentNick)
 
         return opponentData.first
     }
@@ -361,7 +361,7 @@ extension ChatRoomViewModel {
     private func loadProfileImage(from url: String?) async throws -> UIImage {
         
         if let url {
-            return try await imageLoader.execute(url)
+            return try await imageLoadUseCases.originalImage.execute(path: url)
         } else  {
             return UIImage(resource: .tabBarProfileFill)
         }

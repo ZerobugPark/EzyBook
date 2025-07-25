@@ -47,7 +47,7 @@ extension DefaultProfileSearchUseCase {
 
 
 // MARK: 프로필 이미지 업로드
-struct DefaultProfileUploadImageUseCase: ProfileUploadImageUseCase {
+final class DefaultProfileUploadImageUseCase: ProfileUploadImageUseCase {
     
     private let repo: ProfileImageUploadRepository
     

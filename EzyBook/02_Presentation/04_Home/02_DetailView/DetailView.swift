@@ -835,15 +835,8 @@ extension DetailView {
                 
                 guard let selectedDate, let selectedTime else { return }
                 
-                let dto = OrderCreateRequestDTO(
-                    activityId: activityID,
-                    reservationItemName: selectedDate,
-                    reservationItemTime: selectedTime,
-                    participantCount: personCount,
-                    totalPrice: data.price.final * personCount
-                )
                 
-                viewModel.action(.makeOrder(dto: dto))
+                viewModel.action(.makeOrder(id: activityID, name: selectedDate, time: selectedTime, count: personCount, price: data.price.final * personCount))
                 
             } label: {
                 Text("결제하기")

@@ -8,7 +8,7 @@
 import Foundation
 
 
-struct DefaultKeepStatusRepository: ActivityKeepCommandRepository,  ActivityKeepQueryRepository {
+final class DefaultKeepStatusRepository: ActivityKeepCommandRepository,  ActivityKeepQueryRepository {
     
     private let networkService: NetworkService
     
@@ -17,7 +17,9 @@ struct DefaultKeepStatusRepository: ActivityKeepCommandRepository,  ActivityKeep
     }
     
     /// 킵 요청
-    func requestToggleKeep(_ router: ActivityRequest.Post) async throws -> ActivityKeepEntity  {
+    func requestToggleKeep(_ id: String, _ stauts: Bool) async throws -> ActivityKeepEntity {
+        let dto = ActivityKeepRequestDTO(status: stauts)
+        let router = ActivityRequest.Post.activityKeep(id: id, param: dto)
         
         let data = try await networkService.fetchData(dto: ActivityKeepResponseDTO.self, router)
         
@@ -25,6 +27,9 @@ struct DefaultKeepStatusRepository: ActivityKeepCommandRepository,  ActivityKeep
         
     }
     
+    
     //TODO: Keep list 조회
+    
+    
 }
 

@@ -13,9 +13,9 @@ final class CommunityCoordinator: ObservableObject {
     @Published var path = NavigationPath()
     @Published var isTabbarHidden: Bool = false
     
-    private let container: DIContainer
+    private let container: CommunityDIContainer
     
-    init(container: DIContainer) {
+    init(container: CommunityDIContainer) {
         self.container = container
 
     }

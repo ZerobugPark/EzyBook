@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CommunityCoordinatorView: View {
     
-    @EnvironmentObject var container: DIContainer
+    @EnvironmentObject var container: AppDIContainer
     @ObservedObject var coordinator: CommunityCoordinator
     
     var body: some View {

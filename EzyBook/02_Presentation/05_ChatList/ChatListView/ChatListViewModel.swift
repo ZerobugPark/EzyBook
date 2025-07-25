@@ -16,9 +16,8 @@ final class ChatListViewModel: ViewModelType {
     var cancellables = Set<AnyCancellable>()
     
     private let chatRoomUseCases: ChatRoomListUseCases
-    
-    private let profileSearchUseCase: DefaultProfileSearchUseCase
-    private let imageLoader: DefaultLoadImageUseCase
+    private let profileSearchUseCase: ProfileSearchUseCase
+    private let imageLoadUseCases: ImageLoadUseCases
     
     private var userID: String {
         UserSession.shared.currentUser!.userID
@@ -26,13 +25,13 @@ final class ChatListViewModel: ViewModelType {
     
     init(
         chatRoomUseCases: ChatRoomListUseCases,
-        profileSearchUseCase: DefaultProfileSearchUseCase,
-        imageLoader: DefaultLoadImageUseCase
+        profileSearchUseCase: ProfileSearchUseCase,
+        imageLoadUseCases: ImageLoadUseCases
     ) {
         
         self.chatRoomUseCases = chatRoomUseCases
         self.profileSearchUseCase = profileSearchUseCase
-        self.imageLoader = imageLoader
+        self.imageLoadUseCases = imageLoadUseCases
         
         
         transform()
@@ -163,7 +162,7 @@ extension ChatListViewModel {
             
             if let index = item.opponentIndex, let url = item.participants[index].profileImage {
                 
-                return try await imageLoader.execute(url)
+                return try await imageLoadUseCases.originalImage.execute(path: url)
             }
             
             return nil

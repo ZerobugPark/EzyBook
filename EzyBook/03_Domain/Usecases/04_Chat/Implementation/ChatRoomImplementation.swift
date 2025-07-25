@@ -17,21 +17,19 @@ final class DefaultChatSendMessageUseCase: SendMessageUseCase {
         self.repo = repo
     }
     
-    func execute(roomId: String, content: String, files: [String]?) async throws -> ChatEntity {
-    
-        do {
-            return try await repo.requestSendMessage(roomId, content, files)
-        } catch  {
-            if let apiError = error as? APIError {
-                throw apiError
-            } else {
-                throw APIError.unknown
-            }
-        }
-    }
+ 
 
 }
 
+extension DefaultChatSendMessageUseCase {
+    func execute(roomId: String, content: String, files: [String]?) async throws -> ChatEntity {
+        try await repo.requestSendMessage(roomId, content, files)
+    }
+}
+
+    
+    
+/// 채팅 리스트
 final class DefaultFetchRemoteChatMessagesUseCase: FetchRemoteChatMessagesUseCase {
     
     private let repo: ChatListRepository
@@ -40,29 +38,13 @@ final class DefaultFetchRemoteChatMessagesUseCase: FetchRemoteChatMessagesUseCas
         self.repo = repo
     }
     
+}
+    
+extension DefaultFetchRemoteChatMessagesUseCase {
     func execute(id: String, next: String?) async throws -> [ChatEntity] {
         
-        let dto: ChatListRequestDTO
-        if let next {
-            dto = ChatListRequestDTO(next: next)
-        } else {
-            dto = ChatListRequestDTO(next: nil)
-        }
-        
-        let router = ChatRequest.Get.lookUpChatList(id: id, dto: dto)
-        
-        do {
-            return try await
-            self.repo.requestChatlist(router)
-            
-        } catch  {
-            if let apiError = error as? APIError {
-                throw apiError
-            } else {
-                throw APIError.unknown
-            }
-            
-        }
+        try await repo.requestChatlist(id, next)
+
     }
 }
 
@@ -77,14 +59,15 @@ final class DefaultRealmFetchChatMessageListUseCase: FetchChatMessageListUseCase
     init(repo: any ChatMessageRealmRepository) {
         self.repo = repo
     }
-    
+
+}
+
+extension DefaultRealmFetchChatMessageListUseCase {
     func excute(roomID: String, before: String?, limit: Int, userID: String) -> [ChatMessageEntity] {
         let data = repo.fetchMessageList(roomID: roomID, before: before, limit: limit, userID: userID)
 
         return data
     }
-
-
 }
 
 // MARK: 가장 최근 메시지 내역 (Realm)
@@ -95,18 +78,18 @@ final class DefaultRealmFetchLatestChatMessageUseCase: FetchLatestChatMessageUse
     init(repo: any ChatMessageRealmRepository) {
         self.repo = repo
     }
-    
+
+
+}
+extension DefaultRealmFetchLatestChatMessageUseCase {
     func execute(roodID: String, userID: String) -> ChatMessageEntity? {
       
         let data = repo.fetchLatestMessages(roomID: roodID, userID: userID)
         return data
     }
-    
-
 }
 
 // MARK: 메시지 저장 (Realm)
-
 final class DefaultRealmSaveChatMessageUseCase: SaveChatMessageUseCase {
 
     
@@ -116,10 +99,11 @@ final class DefaultRealmSaveChatMessageUseCase: SaveChatMessageUseCase {
         self.repo = repo
     }
     
+
+}
+extension DefaultRealmSaveChatMessageUseCase {
     
     func execute(chatList: [ChatMessageEntity]) {
         repo.save(chatList: chatList)
     }
-
-
 }

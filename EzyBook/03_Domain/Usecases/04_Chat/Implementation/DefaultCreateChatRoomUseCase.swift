@@ -8,7 +8,7 @@
 import Foundation
 
 /// 채팅방생성
-final class DefaultCreateChatRoomUseCase {
+final class DefaultCreateChatRoomUseCase: CreateChatRoomUseCase {
     
     private let repo: ChatRoomRepository
     
@@ -16,21 +16,13 @@ final class DefaultCreateChatRoomUseCase {
         self.repo = repo
     }
     
+
+    
+}
+
+extension DefaultCreateChatRoomUseCase {
     func execute(id: String) async throws -> ChatRoomEntity {
         
-        let dto = ChatRoomLookUpRequestDTO(opponentID: id)
-        let router = ChatRequest.Post.makeChat(dto: dto )
-        
-        do {
-            return try await repo.requestCreateChatRoom(router)
-            
-        } catch  {
-            if let apiError = error as? APIError {
-                throw apiError
-            } else {
-                throw APIError.unknown
-            }
-            
-        }
+        try await repo.requestCreateChatRoom(id)
     }
 }

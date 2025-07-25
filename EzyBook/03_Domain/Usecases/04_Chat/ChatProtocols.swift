@@ -10,6 +10,11 @@ import Foundation
 
 // MARK: 채팅방 관련 프로토콜
 
+/// 채팅방 생성
+protocol CreateChatRoomUseCase {
+    func execute(id: String) async throws -> ChatRoomEntity
+}
+
 /// 메시지 송신
 protocol SendMessageUseCase {
     func execute(roomId: String, content: String, files: [String]?) async throws -> ChatEntity
@@ -50,4 +55,6 @@ protocol SaveRealmLatestChatRoomUseCase {
 protocol FetchRealmChatRoomListUseCase {
     func execute() -> [ChatRoomEntity]
 }
+
+
 

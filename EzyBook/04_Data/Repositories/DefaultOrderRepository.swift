@@ -7,24 +7,38 @@
 
 import Foundation
 
-struct DefaultOrderRepository: OrderCreateRepository, OrderListLookUpRepository {
+final class DefaultOrderRepository: OrderCreateRepository, OrderListLookUpRepository {
+
     
     private let networkService: NetworkService
     
     init(networkService: NetworkService) {
         self.networkService = networkService
     }
-    
-    func requestOrderCreate(_ router: OrderRequest.Post) async throws -> OrderCreateEntity  {
         
+    /// 주문 생성
+    func requestOrderCreate(_ activityId: String, _ reservationItemName: String, _ reservationItemTime: String, _ participantCount: Int, _ totalPrice: Int) async throws -> OrderCreateEntity {
+        
+        
+        let dto = OrderCreateRequestDTO(
+            activityId: activityId,
+            reservationItemName: reservationItemName,
+            reservationItemTime: reservationItemTime,
+            participantCount: participantCount,
+            totalPrice: totalPrice
+        )
+        
+        let router = OrderRequest.Post.order(dto: dto)
         let data = try await networkService.fetchData(dto: OrderCreateResponseDTO.self, router)
         
         return data.toEntity()
-        
     }
     
-    
-    func requestOrderListLookUp(_ router: OrderRequest.Get) async throws -> [OrderEntity]  {
+
+    /// 주문 내역 조회
+    func requestOrderListLookUp() async throws -> [OrderEntity]  {
+        
+        let router = OrderRequest.Get.order
         
         let data = try await networkService.fetchData(dto: OrderListResponseDTO.self, router)
         

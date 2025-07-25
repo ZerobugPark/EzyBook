@@ -7,7 +7,8 @@
 
 import Foundation
 
-struct DefaultPaymentRepository: PaymentReceiptOrderRepository {
+final class DefaultPaymentRepository: PaymentReceiptOrderRepository {
+
 
     private let networkService: NetworkService
     
@@ -16,10 +17,13 @@ struct DefaultPaymentRepository: PaymentReceiptOrderRepository {
     }
     
     /// 결제 영수증 검증
-    func requestPaymentValidation(_ router: PaymentRequest.Post) async throws -> ReceiptOrderEntity {
+    func requestPaymentValidation(_ impUid: String) async throws -> ReceiptOrderEntity {
+        
+        let dto = PaymentValidationDTO(impUid: impUid)
+        let router = PaymentRequest.Post.vaildation(dto: dto)
         let data = try await networkService.fetchData(dto: ReceiptOrderResponseDTO.self, router)
+        
         return data.toEntity()
     }
     
-
 }

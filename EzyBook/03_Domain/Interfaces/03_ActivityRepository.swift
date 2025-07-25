@@ -7,24 +7,31 @@
 
 import Foundation
 
-/// 신규 액티비티 및 액티비티 검색 공용
-protocol ActivityQueryRepository {
-    func requestActivityNewList(_ router: ActivityRequest.Get) async throws -> [ActivitySummaryEntity]
+/// 신규 액티비티
+protocol ActivityNewListRepository {
+    func requestActivityNewList(_ country: String?, _ category: String?) async throws -> [ActivitySummaryEntity]
 }
 
 /// 액티비티 목록 조회
 protocol ActivityListRepository {
-    func requestActivityList(_ router: ActivityRequest.Get) async throws -> ActivitySummaryListEntity
+    func requestActivityList(_ country: String?, _ category: String?, _ limit: String, _ next: String?) async throws -> ActivitySummaryListEntity
 }
 
 
+/// 액티비티 검색
+protocol ActivitySearchRepository {
+    func requestActivitySearch(_ title: String) async throws -> [ActivitySummaryEntity]
+}
+
+
+/// 액태비비 좋아요
 protocol ActivityKeepCommandRepository {
-    func requestToggleKeep(_ router: ActivityRequest.Post) async throws -> ActivityKeepEntity
+    func requestToggleKeep(_ id: String, _ stauts: Bool) async throws -> ActivityKeepEntity
 }
 
-
+/// 액티비티 상세 조회
 protocol ActivityDetailRepository {
-    func requestActivityDetail(_ router: ActivityRequest.Get) async throws -> ActivityDetailEntity
+    func requestActivityDetail(_ id: String) async throws -> ActivityDetailEntity
 }
 
 protocol ActivityKeepQueryRepository {

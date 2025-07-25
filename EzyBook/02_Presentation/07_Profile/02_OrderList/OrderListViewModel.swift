@@ -10,7 +10,7 @@ import Combine
 
 final class OrderListViewModel: ViewModelType {
     
-    private let imageLoader: DefaultLoadImageUseCase
+    private let imageLoadUseCases: ImageLoadUseCases
     
     var input = Input()
     @Published var output = Output()
@@ -20,9 +20,9 @@ final class OrderListViewModel: ViewModelType {
     private var scale: CGFloat = 0
     
     init(
-        imageLoader: DefaultLoadImageUseCase
+        imageLoadUseCases: ImageLoadUseCases
     ) {
-        self.imageLoader = imageLoader
+        self.imageLoadUseCases = imageLoadUseCases
         transform()
         
     }
@@ -116,7 +116,7 @@ extension OrderListViewModel {
     /// 이미지 로드 함수
     private func requestThumbnailImage(_ path: String) async throws -> UIImage {
         
-        return try await imageLoader.execute(path, scale: scale)
+        return try await imageLoadUseCases.thumbnailImage.execute(path: path, scale: scale)
         
     }
     

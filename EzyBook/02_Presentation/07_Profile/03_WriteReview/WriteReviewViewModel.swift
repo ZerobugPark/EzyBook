@@ -11,8 +11,7 @@ import Combine
 
 final class WriteReviewViewModel: ViewModelType {
     
-    private let reviewImageUploadUseCase: DefaultUploadReviewImages
-    private let reviewWriteUseCase: DefaultReViewWriteUseCase
+    private let reviewUseCases: ReviewUseCases
     
     var input = Input()
     @Published var output = Output()
@@ -21,13 +20,8 @@ final class WriteReviewViewModel: ViewModelType {
     
     private var scale: CGFloat = 0
     
-    init(
-        reviewImageUploadUseCase: DefaultUploadReviewImages,
-        reviewWriteUseCase: DefaultReViewWriteUseCase
-    )
-     {
-         self.reviewImageUploadUseCase = reviewImageUploadUseCase
-         self.reviewWriteUseCase = reviewWriteUseCase
+    init(reviewUseCases: ReviewUseCases) {
+         self.reviewUseCases = reviewUseCases
          transform()
     }
     
@@ -64,24 +58,30 @@ extension WriteReviewViewModel {
           
             do {
                 
-                let serverPath: [String]?
+                let serverPaths: [String]?
                 
                 if let images {
                     let path = try await requestUploadProfileImage(id: id, images)
-                    serverPath = path.reviewImageUrls
+                    serverPaths = path.reviewImageUrls
                 } else {
-                    serverPath = nil
+                    serverPaths = nil
                 }
                 
                 
                 let dto = ReviewWriteRequestDTO(
                     content: input.reviewText,
                     rating: rating,
-                    reviewImageUrls: serverPath,
+                    reviewImageUrls: serverPaths,
                     orderCode: orderCode
                 )
                 
-                _ = try await reviewWriteUseCase.execute(id, dto)
+                _ = try await  reviewUseCases.reviewWrite.execute(
+                    id: id,
+                    content: input.reviewText,
+                    rating: rating,
+                    reviewImageUrls: serverPaths,
+                    orderCode: orderCode
+                )
                 
                 await MainActor.run {
                     output.writeSuccess = true
@@ -106,8 +106,7 @@ extension WriteReviewViewModel {
     
     
     private func requestUploadProfileImage(id: String ,_ images: [UIImage]) async throws ->  ReviewImageEntity {
-        
-        return try await reviewImageUploadUseCase.execute(id, images)
+        return try await reviewUseCases.imageUpload.execute(id: id, images: images)
         
     }
     

@@ -7,12 +7,12 @@
 
 import Foundation
 
-/// 신규 액티비티 및 액티비티 검색 공용
+
 protocol OrderCreateRepository {
-    func requestOrderCreate(_ router: OrderRequest.Post) async throws -> OrderCreateEntity
+    func requestOrderCreate(_ activityId: String, _ reservationItemName: String, _ reservationItemTime: String, _ participantCount: Int, _ totalPrice: Int) async throws -> OrderCreateEntity
     
 }
 
 protocol OrderListLookUpRepository {
-    func requestOrderListLookUp(_ router: OrderRequest.Get) async throws -> [OrderEntity]
+    func requestOrderListLookUp() async throws -> [OrderEntity]
 }

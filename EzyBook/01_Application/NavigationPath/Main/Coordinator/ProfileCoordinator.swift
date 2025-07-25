@@ -13,9 +13,9 @@ final class ProfileCoordinator: ObservableObject {
     @Published var path = NavigationPath()
     @Published var isTabbarHidden: Bool = false
     
-    private let container: DIContainer
+    private let container: ProfileDIContainer
     
-    init(container: DIContainer) {
+    init(container: ProfileDIContainer) {
         self.container = container
 
     }

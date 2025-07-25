@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class DefaultActivityKeepCommandUseCase {
+final class DefaultActivityKeepCommandUseCase: ActivityKeepCommandUseCase {
     
     private let repo: ActivityKeepCommandRepository
     
@@ -15,19 +15,12 @@ final class DefaultActivityKeepCommandUseCase {
         self.repo = repo
     }
     
-    func execute(id: String, stauts: Bool) async throws -> ActivityKeepEntity {
 
-        let dto = ActivityKeepRequestDTO(status: stauts)
-        let router = ActivityRequest.Post.activityKeep(id: id, param: dto)
-        do {
-            return try await repo.requestToggleKeep(router)
-        } catch {
-            if let apiError = error as? APIError {
-                throw apiError
-            } else {
-                throw APIError.unknown
-            }
-        }
+}
+
+extension DefaultActivityKeepCommandUseCase {
+    func execute(id: String, stauts: Bool) async throws -> ActivityKeepEntity {
+        try await repo.requestToggleKeep(id, stauts)
     }
 }
 

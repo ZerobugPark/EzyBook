@@ -9,12 +9,12 @@ import SwiftUI
 
 struct ChatCoordinatorView: View {
     
-    @EnvironmentObject var container: DIContainer
+    @EnvironmentObject var container: AppDIContainer
     @ObservedObject var coordinator: ChatCoordinator
     
     var body: some View {
         NavigationStack(path: $coordinator.path) {
-            ChatListView(viewModel: container.makeChatRoomListViewModel(), coordinator: coordinator)
+            ChatListView(viewModel: container.chatDIContainer.makeChatListViewModel(), coordinator: coordinator)
                 .navigationDestination(for: ChatRoute.self) { route in
                     coordinator.destinationView(route: route)
                 }

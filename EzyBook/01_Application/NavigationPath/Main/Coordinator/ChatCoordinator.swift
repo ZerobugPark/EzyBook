@@ -15,9 +15,9 @@ final class ChatCoordinator: ObservableObject {
     
     private var tabbarHiddenStack: [Bool] = []
     
-    private let container: DIContainer
+    private let container: ChatDIContainer
     
-    init(container: DIContainer) {
+    init(container: ChatDIContainer) {
         self.container = container
         
     }
@@ -46,7 +46,7 @@ final class ChatCoordinator: ObservableObject {
     func destinationView(route: ChatRoute) -> some View {
         switch route {
         case .chatView:
-            ChatListView(viewModel: self.container.makeChatRoomListViewModel(), coordinator: self)
+            ChatListView(viewModel: self.container.makeChatListViewModel(), coordinator: self)
         case .chatRoomView(let roomID, let opponentNick):
             ChatRoomView(viewModel: self.container.makeChatRoomViewModel(roomID: roomID, opponentNick: opponentNick)) { [weak self] in
                 self?.pop()

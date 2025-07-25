@@ -12,13 +12,13 @@ final class ZoomableImageFullScreenViewModel: ViewModelType {
 
     
     var input = Input()
-    private let imageLoader: DefaultLoadImageUseCase
+    private let imageLoadUseCases: ImageLoadUseCases
     @Published var output = Output()
     
     var cancellables = Set<AnyCancellable>()
     
-    init(imageLoader: DefaultLoadImageUseCase) {
-        self.imageLoader = imageLoader
+    init(imageLoadUseCases: ImageLoadUseCases) {
+        self.imageLoadUseCases = imageLoadUseCases
         transform()
     }
     
@@ -64,7 +64,7 @@ extension ZoomableImageFullScreenViewModel {
     
     private func requestThumbnailImage(_ path: String) async throws -> UIImage {
         
-        return try await imageLoader.execute(path, isOriginal: true)
+        return try await imageLoadUseCases.originalImage.execute(path: path)
         
     }
     
