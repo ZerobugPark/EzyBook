@@ -143,14 +143,16 @@ extension HomeDIContainer {
     func makeSearchViewModel() -> SearchViewModel {
         SearchViewModel(
             activityUseCases: makeActivityUseCase(),
-            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase()
+            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase(),
+            scale: UIScreen.main.scale
         )
     }
     
     func makeBannerViewModel() -> BannerViewModel {
         BannerViewModel(
             imageLoadUseCases: commonDIContainer.makeImageLoadUseCase(),
-            bannerUseCase: makeBannerInfoUseCase()
+            bannerUseCase: makeBannerInfoUseCase(),
+            scale: UIScreen.main.scale
         )
     }
 

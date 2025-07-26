@@ -32,8 +32,6 @@ struct WebViewScreen: View {
                         coordinator.pop()
                     }
                     .padding()
-                    
-                    
                     Spacer()
                 }
                 Spacer()

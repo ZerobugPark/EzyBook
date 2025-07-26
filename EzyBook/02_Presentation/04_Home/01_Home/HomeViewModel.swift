@@ -245,33 +245,6 @@ extension HomeViewModel {
     }
     
     
-//    /// 필터 데이터 조회
-//    private func performFilterListLoad(_ country: String?, _ category: String?) async {
-//
-//        do {
-//            let summary = try await activityUseCases.activityList.execute(country: country, category: category, limit:"\(limit)", next: nil)
-//
-//            let uniqueList = removeNewActivitiesFromFilterList(filterList: summary.data)
-//
-//            nextCursor = summary.nextCursor
-//
-//            let details = try await prefetchInitial(for: uniqueList, type: FilterActivityModel.self)
-//            filterActivitySummaryList = summary.data
-//
-//            await MainActor.run {
-//                /// 데이터 초기화
-//                _filterActivityDetailList = [:]
-//                for (index, data)in details {
-//                    _filterActivityDetailList[index] = data
-//                }
-//            }
-//        } catch {
-//            await handleError(error)
-//        }
-//
-//    }
-//
-    
     /// New 있으면 필터에는 보이지 않게 하기 위한 중복제거 함수
     private func removeNewActivitiesFromFilterList(filterList: [ActivitySummaryEntity]) -> [ActivitySummaryEntity] {
         
@@ -527,7 +500,7 @@ extension HomeViewModel {
         do {
             try await updateKeepStatus(for: data, at: index)
         } catch {
-            await handleError(error)
+            await rollbackKeepUI(index, error: error)
         }
         
     }

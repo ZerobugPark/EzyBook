@@ -9,7 +9,6 @@ import SwiftUI
 
 struct SearchView: View {
     
-    @Environment(\.displayScale) var scale
     @EnvironmentObject var appState: AppState
     
     @StateObject var viewModel: SearchViewModel
@@ -25,13 +24,12 @@ struct SearchView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .center, spacing: 15) {
                     makeAdvertiseView()
-                   // makeRecommendView()
                     ActivityIntroduceView(data: viewModel.output.activitySearchDetailList) { index in
                         viewModel.action(.keepButtonTapped(index: index))
                     } currentIndex: { index in
                         viewModel.action(.prefetchSearchContent(index: index))
                     } onItemTapped: { id in
-                        print("TODO: DetailView ")
+                        coordinator.push(.detailView(activityID: id))
                     }
                     
                 }
@@ -53,7 +51,7 @@ struct SearchView: View {
                     .appFont(PaperlogyFontStyle.body, textColor: .blackSeafoam)
             }
         }
-        .contentShape(Rectangle()) // 전체 터치 가능하게
+        .contentShape(Rectangle()) // 전체 터치 가능하게 (키보드 내리기 위해서)
         .onTapGesture {
             hideKeyboard()
             isSearching = false
@@ -63,32 +61,23 @@ struct SearchView: View {
             viewModel.action(.searchButtonTapped)
             isSearching = false
         })
-        .commonAlert(
-            isPresented: Binding(
-                get: { viewModel.output.isShowingError },
-                set: { isPresented in
-                    if !isPresented {
-                        viewModel.action(.resetError)
-                    }
-                }
-            ),
-            title: viewModel.output.presentedError?.message.title,
-            message: viewModel.output.presentedError?.message.msg
-        )
+        .withCommonUIHandling(viewModel) { code in
+            if code == 418 {
+                appState.isLoggedIn = false
+            }
+        }
         .commonAlert(
             isPresented: $isBanner,
             title: "안내",
             message: bannerMessage
         )
-   
         .onAppear {
-            // 탭바 터치 가능 여뷰
+            // 탭바 터치 가능 여부
             appState.isLoding = viewModel.output.isLoading
             
         }
         .loadingOverlayModify(viewModel.output.isLoading)
         
-            
     }
     
 
@@ -115,21 +104,5 @@ extension SearchView {
 
 }
 
-// MARK: 추천 영역
-extension SearchView {
-    
-    private func makeRecommendView() -> some View {
-        ZStack {
-            Rectangle()
-                .fill(.blackSeafoam) // 원하는 색상으로 설정
-                .frame(maxWidth: .infinity)
-                .frame(height: 150)
-            
-            Text("추천뷰입니다.")
-        }
-        
-    }
-
-}
 
 

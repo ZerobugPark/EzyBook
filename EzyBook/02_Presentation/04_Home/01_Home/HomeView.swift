@@ -175,7 +175,7 @@ extension HomeView {
         
         private func makeTags(data:  NewActivityModel) -> some View {
             
-            VStack {
+            VStack(alignment: .leading) {
                 VStack(spacing: 10) {
                     HStack(alignment: .center) {
                         LocationTagView(country: data.country)
