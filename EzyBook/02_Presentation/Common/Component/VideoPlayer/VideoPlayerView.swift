@@ -9,9 +9,13 @@ import SwiftUI
 import AVKit
 
 struct VideoPlayerView: View {
-    let path: String
-    @StateObject var viewModel: VideoPlayerViewModel
+
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var appState: AppState
+    
+    @StateObject var viewModel: VideoPlayerViewModel
+    
+    let path: String
     
     var body: some View {
         ZStack(alignment: .topTrailing) {
@@ -36,18 +40,14 @@ struct VideoPlayerView: View {
             .padding(.top, 60)
             .padding(.trailing, 20)
         }
-        .commonAlert(
-            isPresented: Binding(
-                get: { viewModel.output.isShowingError },
-                set: { isPresented in
-                    if !isPresented {
-                        dismiss()
-                    }
-                }
-            ),
-            title: viewModel.output.presentedError?.message.title,
-            message: viewModel.output.presentedError?.message.msg
-        )
+        .withCommonUIHandling(viewModel) { code in
+            if code == 418 {
+                appState.isLoggedIn = false
+            } else {
+                dismiss()
+            }
+            
+        }
         .onAppear {
             viewModel.action(.onAppearRequested(path: path))
         }

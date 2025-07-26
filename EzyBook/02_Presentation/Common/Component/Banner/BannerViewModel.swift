@@ -9,7 +9,6 @@ import SwiftUI
 import Combine
 
 final class BannerViewModel: ViewModelType {
-    
 
     var input = Input()
     @Published var output = Output()
@@ -17,7 +16,7 @@ final class BannerViewModel: ViewModelType {
     
     var cancellables = Set<AnyCancellable>()
     
-    private var scale: CGFloat = 0
+    private var scale: CGFloat
     
     private let imageLoadUseCases: ImageLoadUseCases
     private let bannerUseCase: BannerInfoUseCase
@@ -25,13 +24,16 @@ final class BannerViewModel: ViewModelType {
     
     init(
         imageLoadUseCases: ImageLoadUseCases,
-        bannerUseCase: BannerInfoUseCase
+        bannerUseCase: BannerInfoUseCase,
+        scale: CGFloat
     ) {
 
         self.imageLoadUseCases = imageLoadUseCases
         self.bannerUseCase = bannerUseCase
+        self.scale = scale
         
         transform()
+        loadInitialBannerList()
     }
     
     
@@ -52,59 +54,56 @@ extension BannerViewModel {
         }
         
         var bannerList: [BannerEntity] = []
+        
+    }
+    
 
+    func transform() {  }
+    
+    
+    private func handleResetError() {
+        output.presentedError = nil
     }
     
-    
- 
-    
-    func transform() {
+    @MainActor
+    private func handleError(_ error: Error) {
+        if let apiError = error as? APIError {
+            output.presentedError = DisplayError.error(code: apiError.code, msg: apiError.userMessage)
+        } else {
+            output.presentedError = DisplayError.error(code: -1, msg: error.localizedDescription)
+        }
     }
-    
-    private func handleUpdateScale(_ scale: CGFloat) {
-        self.scale = scale
-    }
-    
     
 }
 
 // MARK: 배너 관련
-
 extension BannerViewModel {
     
-
-    private func handleRequestBanner() {
-            
+    private func loadInitialBannerList() {
         Task {
             await loadBannerList()
         }
-        
     }
     
     private func loadBannerList() async {
         do {
             let data = try await bannerUseCase.execute()
-            let resultData = await loadBanners(from: data)
-            
-            await MainActor.run {
-                output.bannerList = resultData
-            }
-            
-        } catch let error as APIError {
-            await MainActor.run {
-                output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
-            }
+            let resultData = await attachImagesToBanners(from: data)
+            await updateBannerListUI(resultData)
         } catch {
-            print(#function,  "알 수 없는 오류")
+            await handleError(error)
         }
-        
     }
     
     
+    @MainActor
+    private func updateBannerListUI(_ banners: [BannerEntity]) {
+        output.bannerList = banners
+    }
     
-    func loadBanners(from entities: [BannerEntity]) async -> [BannerEntity] {
-        
-        
+    
+    private func attachImagesToBanners(from entities: [BannerEntity]) async -> [BannerEntity] {
+         
         let images = await loadImages(from: entities, scale: scale)
         var resultData = entities
         
@@ -116,7 +115,7 @@ extension BannerViewModel {
     }
 
     
-    func loadImages(from entities: [BannerEntity], scale: CGFloat) async -> [UIImage] {
+    private func loadImages(from entities: [BannerEntity], scale: CGFloat) async -> [UIImage] {
         await withTaskGroup(of: (Int, UIImage).self) { group in
             for (index, entity) in entities.enumerated() {
                 group.addTask {
@@ -145,27 +144,32 @@ extension BannerViewModel {
 }
 
 
-
-// MARK: Action
 extension BannerViewModel {
     
     enum Action {
-        case onAppearRequested
-        case updateScale(scale: CGFloat)
-        
+        case resetError
     }
     
-    /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
     func action(_ action: Action) {
         switch action {
-        case .onAppearRequested:
-            handleRequestBanner()
-        case .updateScale(let scale):
-            handleUpdateScale(scale)
-
+        case .resetError:
+                handleResetError()
         }
     }
-    
-    
 }
 
+
+// MARK: Alert 처리
+extension BannerViewModel: AnyObjectWithCommonUI {
+    
+    var isShowingError: Bool { output.isShowingError }
+    
+    var presentedErrorTitle: String? { output.presentedError?.message.title }
+    
+    var presentedErrorMessage: String? { output.presentedError?.message.msg }
+    
+    var presentedErrorCode: Int?  { output.presentedError?.code }
+    
+    func resetErrorAction() { action(.resetError) }
+    
+}

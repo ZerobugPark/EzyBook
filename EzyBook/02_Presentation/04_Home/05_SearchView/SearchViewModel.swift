@@ -13,12 +13,13 @@ final class SearchViewModel: ViewModelType {
     private let activityUseCases: ActivityUseCases
     private let imageLoadUseCases: ImageLoadUseCases
     
+    private var scale: CGFloat
+    
     var input = Input()
     @Published var output = Output()
     
     var cancellables = Set<AnyCancellable>()
     
-    private var scale: CGFloat = 0
     
     /// Result Storage  Property
     /// 통신을 할 인덱스 관리 및 저장되는 데이터
@@ -33,19 +34,21 @@ final class SearchViewModel: ViewModelType {
                 .map { $0.value }
             
             output.activitySearchDetailList = sortedValues
-           
+            
         }
     }
     
- 
+    
     
     init(
         activityUseCases: ActivityUseCases,
-        imageLoadUseCases: ImageLoadUseCases
+        imageLoadUseCases: ImageLoadUseCases,
+        scale: CGFloat
     ) {
-
+        
         self.activityUseCases = activityUseCases
         self.imageLoadUseCases = imageLoadUseCases
+        self.scale = scale
         
         transform()
     }
@@ -73,53 +76,81 @@ extension SearchViewModel {
         
         var activitySearchDetailList: [FilterActivityModel] = []
         
-      
     }
     
     func transform() {
-
-        input.searchButtonTapped.removeDuplicates()
-        .sink { [weak self] query in
-            self?.requestSearchList(query: query)
+        
+        input.searchButtonTapped
+            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
+            .removeDuplicates()
+            .sink { [weak self] query in
+                self?.handleSearchRequest(query)
             }
             .store(in: &cancellables)
-            
+        
     }
-    
-    
-
     
     private func handleResetError() {
         output.presentedError = nil
     }
     
-    private func handleUpdateScale(_ scale: CGFloat) {
-        self.scale = scale
+    
+    @MainActor
+    private func handleError(_ error: Error) {
+        if let apiError = error as? APIError {
+            output.presentedError = DisplayError.error(code: apiError.code, msg: apiError.userMessage)
+        } else {
+            output.presentedError = DisplayError.error(code: -1, msg: error.localizedDescription)
+        }
     }
     
-    
-    
+
 }
 
 // MARK: 검색 관련
 extension SearchViewModel {
     
-    func requestSearchList(query: String) {
+    private func handleSearchRequest(_ query: String) {
         Task {
-            await MainActor.run {
-                searchActivityindicats.removeAll() // Set indicats 초기화
-            }
-            
-            await fetchSearchList(query)
-    
-            await MainActor.run {
-                output.isLoading = false
-                
-            }
+            await resetSearchState()
+            await performSearchActivities(query)
+            await stopLoading()
         }
     }
     
+    @MainActor
+    private func resetSearchState() {
+        searchActivityindicats.removeAll()
+        output.isLoading = true
+    }
     
+    
+    private func performSearchActivities(_ query: String) async {
+        do {
+            let summary = try await activityUseCases.activitySearch.execute(title: query)
+            let details = try await prefetchInitial(for: summary, type: FilterActivityModel.self)
+            searchActivitySummaryList = summary
+            await updateSearchUI(with: details)
+        } catch {
+            await handleError(error)
+        }
+    }
+    
+    @MainActor
+    private func updateSearchUI(with details: [Int: FilterActivityModel]) {
+        _searchActivityDetailList = [:]
+        for (index, data) in details {
+            _searchActivityDetailList[index] = data
+        }
+    }
+    
+    @MainActor
+    private func stopLoading() {
+        output.isLoading = false
+    }
+    
+    
+    /// 상세보기 항목 몇개만 미리 가져오기
     private func prefetchInitial<T: ActivityModelBuildable>(for list: [ActivitySummaryEntity], type: T.Type) async throws -> [Int: T] {
         var result: [Int: T] = [:]
         for i in 0..<min(3, list.count) {
@@ -127,8 +158,6 @@ extension SearchViewModel {
             result[i] = detail
             
             searchActivityindicats.insert(i)
-            
-            
         }
         return result
     }
@@ -143,156 +172,132 @@ extension SearchViewModel {
         
     }
     
-    private func requestThumbnailImage(_ paths: [String]) async throws -> UIImage {
-        
-        let imagePaths = paths.filter {
-            $0.hasSuffix(".jpg") || $0.hasSuffix(".png")
-        }
-        
-        guard let path = imagePaths.first else {
-            let fallback = UIImage(systemName: "star")!
-            return fallback
-        }
-        return try await imageLoadUseCases.thumbnailImage.execute(path: path, scale: scale)
-      
-        
-    }
-    
     
 }
 
-// MARK: 검색 데이터 관련
+
+// MARK: Helper
 extension SearchViewModel {
     
-    private func handleRequestQuery() {
+    /// 이미지 로드 함수
+    private func requestThumbnailImage(_ paths: [String]) async throws -> UIImage {
         
-        if input.query.isEmpty {
-            output.presentedError = DisplayError.error(code: -1, msg: "공백 제외\n1글자 이상 입렵해주세요")
-            return
+        guard !paths.isEmpty else {
+            let fallback = UIImage(systemName: "star")!
+            return fallback
         }
-        
-        let _query = input.query.trimmingCharacters(in: .whitespaces)
-        input.searchButtonTapped.send(_query)
+        /// 확장자에 따라 이미지 또는 동영상 썸넴일 이미지 보여줌
+        return try await imageLoadUseCases.thumbnailImage.execute(path: paths[0], scale: scale)
         
     }
     
-    ///검색리 로드되는 함수
-    private func fetchSearchList(_ query: String) async {
-        
-        do {
-            let summary = try await activityUseCases.activitySearch.execute(title: query)
-            let details = try await prefetchInitial(for: summary, type: FilterActivityModel.self)
-            searchActivitySummaryList = summary
-            
-            await MainActor.run {
-                /// 데이터 초기화
-                _searchActivityDetailList = [:]
-                for (index, data)in details {
-                    _searchActivityDetailList[index] = data
-                }
-                
-            }
-        } catch let error as APIError {
-            await MainActor.run {
-                output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
-            }
-        } catch {
-            print(error)
-        }
-    }
+}
+
+// MARK: 검색 데이터 (프리패치)
+extension SearchViewModel {
     
-   
-    private func triggerSearchListPrefetch(_ index: Int) {
+
+    // MARK: 프리패치
+    private func handleSearchListPrefetch(_ index: Int) {
         Task {
             await fetchSearchListNeeded(for: index)
         }
     }
     
-    /// Prefetch
-    private func fetchSearchListNeeded(for index: Int) async   {
-        /// +2, 최초 로딩시, 3개의 [0, 1,  2]데이터를 가져옴, 이후 1번 인덱스에도착하면 3번 데이터를 호출
+    private func fetchSearchListNeeded(for index: Int) async {
         let fetchIndex = index + 1
-        
-        /// 해결방안 Set 사용
-        guard !searchActivityindicats.contains(fetchIndex), fetchIndex < searchActivitySummaryList.count else { return }
-        searchActivityindicats.insert(fetchIndex)
-        
+
+        guard await shouldFetchSearchDetail(at: fetchIndex) else { return }
+
         do {
-            let detail = try await reqeuestActivityDetailList(searchActivitySummaryList[fetchIndex], type: FilterActivityModel.self)
-            await MainActor.run {
-                _searchActivityDetailList[fetchIndex] = detail
-            }
-        } catch let error as APIError {
-            // 요청 실패 시 Set에서 제거
-            searchActivityindicats.remove(fetchIndex)
-            print(#function, error.userMessage)
+            let detail = try await requestSearchDetail(at: fetchIndex)
+            await updateSearchDetailUI(detail, at: fetchIndex)
         } catch {
             searchActivityindicats.remove(fetchIndex)
-            print(#function, error)
+            await handleError(error)
         }
-    
     }
     
+    @MainActor
+    private func shouldFetchSearchDetail(at index: Int) -> Bool {
+        if index < 0 || index >= searchActivitySummaryList.count {
+            print("🚨 Invalid index detected: \(index), listCount: \(searchActivitySummaryList.count)")
+            return false
+        }
+        if searchActivityindicats.contains(index) {
+            return false
+        }
+        searchActivityindicats.insert(index)
+        return true
+    }
+
+    private func requestSearchDetail(at index: Int) async throws -> FilterActivityModel {
+        return try await reqeuestActivityDetailList(searchActivitySummaryList[index], type: FilterActivityModel.self)
+    }
+
+    @MainActor
+    private func updateSearchDetailUI(_ detail: FilterActivityModel, at index: Int) {
+        _searchActivityDetailList[index] = detail
+    }
+
 }
-
-
-
-// MARK: 추천 관련
-extension SearchViewModel {
-    
-    //TODO: 추후 구현
-    
-}
-
 
 
 
 // MARK:  Keep Status
 extension SearchViewModel {
-    private func triggerKeepActivity(_ index: Int) {
+    
+    private func handleKeepActivity(_ index: Int) {
         Task {
-            await requestAcitivityKeep(for: index)
+            await performKeepActivity(for: index)
         }
     }
     
-    /// 여기 메인액터로 묶는게 더 좋을까?
-    private func requestAcitivityKeep(for index: Int) async   {
-      
-        let data = _searchActivityDetailList[index]
-        
-        guard let data else {
+    private func performKeepActivity(for index: Int) async {
+        guard let data = _searchActivityDetailList[index] else {
             print("존재하지 않는 아이디 입니다.")
             return
         }
         
         /// 일단 네트워크 통신과 상관없이 상태 변경 (이후 실패시 기존 상태로 변경)
         /// 유저입장에서 통신전에 상태를 변경하는것을 먼저 인지하게 하고, 만약 실패시, UI를 다시 업데이트 하는 형태로 변경
-        await MainActor.run {
-            _searchActivityDetailList[index]?.isKeep.toggle()
-        }
-  
+        await toggleKeepUI(index) // UI 업데이트
+        
+        
+        
         do {
-            var statusChanged =  data.isKeep
-            statusChanged.toggle()
-            print(statusChanged)
-            let detail = try await activityUseCases.activityKeepCommand.execute(id: data.activityID, stauts: statusChanged)
-            
-            await MainActor.run {
-                _searchActivityDetailList[index]?.isKeep = detail.keepStatus
-            }
-        } catch let error as APIError {
-            await MainActor.run {
-                _searchActivityDetailList[index]?.isKeep.toggle()
-            }
-            print(#function, error.userMessage)
+            try await updateKeepStatus(for: data, at: index)
         } catch {
-            /// 실패시 원래대로 상태 변경
-            await MainActor.run {
-                _searchActivityDetailList[index]?.isKeep.toggle()
-            }
+            await rollbackKeepUI(index, error: error)
         }
         
     }
+    
+    @MainActor
+    private func toggleKeepUI(_ index: Int) {
+        _searchActivityDetailList[index]?.isKeep.toggle()
+    }
+    
+    private func updateKeepStatus(for data: FilterActivityModel, at index: Int) async throws {
+        var statusChanged = data.isKeep
+        statusChanged.toggle()
+        
+        let detail = try await activityUseCases.activityKeepCommand.execute(
+            id: data.activityID,
+            stauts: statusChanged
+        )
+        
+        await MainActor.run {
+            _searchActivityDetailList[index]?.isKeep = detail.keepStatus
+        }
+    }
+    
+    @MainActor
+    private func rollbackKeepUI(_ index: Int, error: Error) {
+        _searchActivityDetailList[index]?.isKeep.toggle()
+        handleError(error)
+    }
+    
 }
 
 
@@ -300,7 +305,6 @@ extension SearchViewModel {
 extension SearchViewModel {
     
     enum Action {
-        case updateScale(scale: CGFloat)
         case searchButtonTapped
         case prefetchSearchContent(index: Int)
         case keepButtonTapped(index: Int)
@@ -311,20 +315,43 @@ extension SearchViewModel {
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
     func action(_ action: Action) {
         switch action {
-        case .updateScale(let scale):
-            handleUpdateScale(scale)
         case .searchButtonTapped:
-            handleRequestQuery()
+            if input.query.isEmpty {
+                output.presentedError = DisplayError.error(code: -1, msg: "공백 제외\n1글자 이상 입렵해주세요")
+                return
+            }
+            let _query = input.query.trimmingCharacters(in: .whitespaces)
+            input.searchButtonTapped.send(_query)
+
         case .prefetchSearchContent(let index):
-            triggerSearchListPrefetch(index)
+            handleSearchListPrefetch(index)
         case .keepButtonTapped(let index):
-            triggerKeepActivity(index)
+            handleKeepActivity(index)
         case .resetError:
             handleResetError()
             
-      
+            
         }
     }
+    
+    
+}
+
+// MARK: Alert 처리
+extension SearchViewModel: AnyObjectWithCommonUI {
+    
+    var isShowingError: Bool { output.isShowingError }
+    
+    var presentedErrorTitle: String? { output.presentedError?.message.title }
+    
+    var presentedErrorMessage: String? { output.presentedError?.message.msg }
+    
+    var isLoading: Bool { output.isLoading }
+    
+    var presentedErrorCode: Int?  { output.presentedError?.code }
+    
+    func resetErrorAction() { action(.resetError) }
+    
     
     
 }

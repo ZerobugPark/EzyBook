@@ -15,7 +15,7 @@ protocol ViewModelType: AnyObject, ObservableObject {
     var cancellables: Set<AnyCancellable> { get set } //disposeBag
     
     var input: Input { get set }
-    var output: Output { get set }
+    var output: Output { get }
     
     func transform()
 }

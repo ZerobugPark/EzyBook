@@ -67,12 +67,11 @@ struct PaymentView: UIViewRepresentable {
                     return
                 }
                 
-                viewModel.action(.vaildation(impUid: impUid, merchantUid: merchantUid))
-                dismiss()
+                viewModel.action(.vaildation(impUid: impUid, merchantUid: merchantUid) { error in
+                    dismiss()
+                    onFinish(error)
+                })
                 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    onFinish(nil)
-                }
             } else {
                 dismiss()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -82,12 +81,7 @@ struct PaymentView: UIViewRepresentable {
             }
             
             
-
-            
         }
         
     }
 }
-
-
-

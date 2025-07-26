@@ -70,8 +70,14 @@ struct WebView: UIViewRepresentable {
                 }
             case "complete_attendance":
                 //3. 출석 완료 처리(ex. 얼럿, 토스트, 뒤로가기 액션 등)
-                let result = String(describing: message.body)
-                parent.onCompleteAttendance?(result)
+                Task { @MainActor in
+                    
+                    try? await Task.sleep(nanoseconds: 1_000_000_000)
+                    let result = String(describing: message.body)
+                    parent.onCompleteAttendance?(result)
+                }
+                
+                
 
                 break
             default:

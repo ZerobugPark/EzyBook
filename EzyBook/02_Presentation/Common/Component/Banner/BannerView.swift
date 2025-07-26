@@ -9,13 +9,14 @@ import SwiftUI
 
 struct BannerView: View {
     
+    @EnvironmentObject var appState: AppState
     @ObservedObject var viewModel: BannerViewModel
+    
     var onBannerTap: ((BannerEntity) -> Void)? = nil
     
     @State private var currentIndex = 0
-    @State private var timer: Timer? = nil
-    @Environment(\.displayScale) var scale
     
+    @State private var autoScrollTask: Task<Void, Never>? = nil
     
     var body: some View {
         TabView(selection: $currentIndex) {
@@ -39,10 +40,6 @@ struct BannerView: View {
         }
         .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic)) // ... 인디케이터 자동 생성
         .frame(height: 130)
-        .onAppear {
-            viewModel.action(.updateScale(scale: scale))
-            viewModel.action(.onAppearRequested)
-        }
         .onDisappear {
             stopAutoScroll()
         }
@@ -58,11 +55,11 @@ struct BannerView: View {
         }
         .onChange(of: currentIndex) { _ in
             ///  유저 스와이프 시 타이머 재시작
-            stopAutoScroll()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                if viewModel.output.bannerList.count > 1 {
-                    startAutoScroll()
-                }
+            restartAutoScroll(after: 1.5)
+        }
+        .withCommonUIHandling(viewModel) { code in
+            if code == 418 {
+                appState.isLoggedIn = false
             }
         }
     }
@@ -73,17 +70,37 @@ struct BannerView: View {
         let imageCount = viewModel.output.bannerList.count
         guard imageCount > 1 else { return }
         
-        timer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { _ in
-            withAnimation {
-                currentIndex = (currentIndex + 1) % imageCount
+        autoScrollTask = Task {
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 1_500_000_000)
+                guard !Task.isCancelled else { return }
+                
+                await MainActor.run {
+                    withAnimation {
+                        currentIndex = (currentIndex + 1) % imageCount
+                    }
+                }
             }
         }
     }
+     
     
     
     private func stopAutoScroll() {
-        timer?.invalidate()
-        timer = nil
+        autoScrollTask?.cancel()
+        autoScrollTask = nil
+    }
+    
+    @MainActor
+    private func restartAutoScroll(after delay: Double = 0) {
+        stopAutoScroll()
+        guard viewModel.output.bannerList.count > 1 else { return }
+
+        autoScrollTask = Task {
+            try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+            guard !Task.isCancelled else { return }
+            startAutoScroll()
+        }
     }
     
     

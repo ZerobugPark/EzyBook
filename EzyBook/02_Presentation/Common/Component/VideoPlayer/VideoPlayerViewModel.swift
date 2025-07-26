@@ -44,54 +44,43 @@ extension VideoPlayerViewModel {
     
     func transform() { }
     
-    // Player 생성 및 delegate 연결
+
     private func preparePlayer(with path: String) {
-        
-        /// AVPlayer는 일반적으로 `http://` 또는 `file://` URL을 요구하지만,
-        /// 여기서는 `customscheme://`로 가짜 URL을 생성해 사용합니다.
-        let fakeURL = URL(string: "customscheme://\(path)")!
-        
-        /// 델리게이트의 실제 패스 추가
-        videoLoaderDelegate.path = path
-        
-        
-        ///  AVURLAsset 생성 → AVPlayer가 비디오 재생에 사용할 자원
-        let asset = AVURLAsset(url: fakeURL)
-        
-        ///  AVAssetResourceLoaderDelegate로 우리가 만든 `videoLoader`를 연결
-        ///  AVPlayer는 이제 네트워크 요청 대신, delegate에게 "데이터 줘"라고 요청하게 됩니다.
-        asset.resourceLoader.setDelegate(videoLoaderDelegate, queue: .main)
-        
-
-        /// AVPlayerItem은 KVO(Key-Value Observing)
-        /// KVO 속성은 .publihser(for:) 제공
-        ///  AVPlayerItem.status는 내부적으로 Objective-C 기반으로 선언된 @objc dynamic
-        let item = AVPlayerItem(asset: asset)
-        
-        let player = AVPlayer(playerItem: item)
-
-         item.publisher(for: \.status)
-             .sink { [weak self] status in
-                 switch status {
-                 case .readyToPlay:
-                     /// .readyToPlay: 재생할 만큼 데이터가 있다.
-                     print("✅ ready to play, playing now")
-                     player.play()
-                 case .failed:
-                     self?.output.presentedError = DisplayError.error(code: -1, msg: "비디오 로딩 오류")
-                 case .unknown:
-                     /// 아직 로딩 전
-                     break
-                 @unknown default:
-                     break
-                 }
-                 
-             
-             }
-             .store(in: &cancellables)
-        
+        let player = createPlayer(with: path)
+        observePlayerStatus(player)
         output.player = player
     }
+    
+    // Player 생성 및 delegate 연결
+    private func createPlayer(with path: String) -> AVPlayer {
+        let fakeURL = URL(string: "customscheme://\(path)")!
+        videoLoaderDelegate.path = path
+        
+        let asset = AVURLAsset(url: fakeURL)
+        asset.resourceLoader.setDelegate(videoLoaderDelegate, queue: .main)
+        
+        let item = AVPlayerItem(asset: asset)
+        return AVPlayer(playerItem: item)
+    }
+
+    
+    private func observePlayerStatus(_ player: AVPlayer) {
+        guard let item = player.currentItem else { return }
+        
+        item.publisher(for: \.status)
+            .sink { [weak self] status in
+                switch status {
+                case .readyToPlay:
+                    player.play()
+                case .failed:
+                    self?.output.presentedError = DisplayError.error(code: -1, msg: "비디오 로딩 오류")
+                default: break
+                }
+            }
+            .store(in: &cancellables)
+    }
+    
+    
 }
 
 // MARK: Action
@@ -108,6 +97,21 @@ extension VideoPlayerViewModel {
                   
         }
     }
+    
+    
+}
+
+
+// MARK: Alert 처리
+extension VideoPlayerViewModel: AnyObjectWithCommonUI {
+    
+    var isShowingError: Bool { output.isShowingError }
+    
+    var presentedErrorTitle: String? { output.presentedError?.message.title }
+    
+    var presentedErrorMessage: String? { output.presentedError?.message.msg }
+    
+    var presentedErrorCode: Int?  { output.presentedError?.code }
     
     
 }

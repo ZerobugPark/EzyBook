@@ -31,7 +31,6 @@ extension ZoomableImageFullScreenViewModel {
     struct Input { }
     
     struct Output {
-        
         var presentedError: DisplayError? = nil
         var isShowingError: Bool {
             presentedError != nil
@@ -42,31 +41,40 @@ extension ZoomableImageFullScreenViewModel {
     
     func transform() { }
     
-    private func hadleImageView(with path: String) {
-        
+    
+    private func handleLoadImage(with path: String) {
         Task {
-            do {
-                let image = try await requestThumbnailImage(path)
-                print(image.size)
-                await MainActor.run {
-                    output.image = image
-                }
-                
-            } catch let error as APIError {
-                await MainActor.run {
-                    print("d에러 발생 에러 발생")
-                    output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
-                }
-            }
-            
+            await performImageLoad(path)
         }
     }
 
     
-    private func requestThumbnailImage(_ path: String) async throws -> UIImage {
-        
+    
+    private func performImageLoad(_ path: String) async {
+        do {
+            let image = try await requestOriginalImage(path)
+            await MainActor.run {
+                output.image = image
+            }
+        } catch {
+            await handleError(error)
+        }
+    }
+
+    @MainActor
+    private func handleError(_ error: Error) {
+        if let apiError = error as? APIError {
+            output.presentedError = DisplayError.error(code: apiError.code, msg: apiError.userMessage)
+        } else {
+            output.presentedError = DisplayError.error(code: -1, msg: error.localizedDescription)
+        }
+    }
+
+
+    
+    //TODO: 이것도 나중에 공통 모듈로 뺄 수 있을거 같다.
+    private func requestOriginalImage(_ path: String) async throws -> UIImage {
         return try await imageLoadUseCases.originalImage.execute(path: path)
-        
     }
     
     
@@ -82,7 +90,7 @@ extension ZoomableImageFullScreenViewModel {
     func action(_ action: Action) {
         switch action {
         case .onAppearRequested(let path):
-            hadleImageView(with: path)
+            handleLoadImage(with: path)
                   
         }
     }
@@ -90,4 +98,16 @@ extension ZoomableImageFullScreenViewModel {
     
 }
 
-
+// MARK: Alert 처리
+extension ZoomableImageFullScreenViewModel: AnyObjectWithCommonUI {
+    
+    var isShowingError: Bool { output.isShowingError }
+    
+    var presentedErrorTitle: String? { output.presentedError?.message.title }
+    
+    var presentedErrorMessage: String? { output.presentedError?.message.msg }
+    
+    var presentedErrorCode: Int?  { output.presentedError?.code }
+    
+    
+}

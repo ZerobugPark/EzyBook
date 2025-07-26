@@ -98,12 +98,12 @@ final class HomeCoordinator: ObservableObject {
 extension HomeCoordinator {
     func makeVideoPlayerView(path: String) -> some View {
         let viewModel = container.homeDIContainer.makeVideoPlayerViewModel()
-        return VideoPlayerView(path: path, viewModel: viewModel)
+        return VideoPlayerView(viewModel: viewModel, path: path)
     }
     
     func makeImageViewer(path: String) -> some View {
         let viewModel = container.homeDIContainer.makeZoomableImageFullScreenViewModel()
-        return ZoomableImageFullScreenView(path: path, viewModel: viewModel)
+        return ZoomableImageFullScreenView(viewModel: viewModel, path: path)
         
     }
     
