@@ -40,6 +40,8 @@ protocol AnyObjectWithCommonUI {
     func resetErrorAction()
 }
 
+
+
 extension View {
     func withCommonUIHandling<ViewModel: ObservableObject & AnyObjectWithCommonUI>(
         _ viewModel: ViewModel,
