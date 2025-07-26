@@ -101,3 +101,18 @@ extension VideoPlayerViewModel {
     
 }
 
+
+// MARK: Alert 처리
+extension VideoPlayerViewModel: AnyObjectWithCommonUI {
+    
+    var isShowingError: Bool { output.isShowingError }
+    
+    var presentedErrorTitle: String? { output.presentedError?.message.title }
+    
+    var presentedErrorMessage: String? { output.presentedError?.message.msg }
+    
+    var presentedErrorCode: Int?  { output.presentedError?.code }
+    
+    
+}
+

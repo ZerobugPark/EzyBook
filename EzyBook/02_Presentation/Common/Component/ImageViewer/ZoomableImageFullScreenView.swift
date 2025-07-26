@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct ZoomableImageFullScreenView: View {
-    let path: String
+    
+    @EnvironmentObject var appState: AppState
     @Environment(\.dismiss) var dismiss
     
     @State private var scale: CGFloat = 1.0
@@ -17,6 +18,9 @@ struct ZoomableImageFullScreenView: View {
     @State private var dragOffset: CGSize = .zero // 드래그 중 임시 오프셋
     @StateObject var viewModel: ZoomableImageFullScreenViewModel
     
+    
+    let path: String
+
     var body: some View {
         GeometryReader { geometry in
             ZStack {
@@ -30,18 +34,14 @@ struct ZoomableImageFullScreenView: View {
             }
             .overlay(closeButton, alignment: .topTrailing)
         }
-        .commonAlert(
-            isPresented: Binding(
-                get: { viewModel.output.isShowingError },
-                set: { isPresented in
-                    if !isPresented {
-                        dismiss()
-                    }
-                }
-            ),
-            title: viewModel.output.presentedError?.message.title,
-            message: viewModel.output.presentedError?.message.msg
-        )
+        .withCommonUIHandling(viewModel) { code in
+            if code == 418 {
+                appState.isLoggedIn = false
+            } else {
+                dismiss()
+            }
+            
+        }
         .onAppear {
             viewModel.action(.onAppearRequested(path: path))
         }

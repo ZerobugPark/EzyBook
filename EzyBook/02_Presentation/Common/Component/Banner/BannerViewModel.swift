@@ -48,15 +48,13 @@ extension BannerViewModel {
     
     struct Output {
         
-        var isLoading = false
-        
         var presentedError: DisplayError? = nil
         var isShowingError: Bool {
             presentedError != nil
         }
         
         var bannerList: [BannerEntity] = []
-
+        
     }
     
 
@@ -169,8 +167,6 @@ extension BannerViewModel: AnyObjectWithCommonUI {
     var presentedErrorTitle: String? { output.presentedError?.message.title }
     
     var presentedErrorMessage: String? { output.presentedError?.message.msg }
-    
-    var isLoading: Bool { output.isLoading }
     
     var presentedErrorCode: Int?  { output.presentedError?.code }
     

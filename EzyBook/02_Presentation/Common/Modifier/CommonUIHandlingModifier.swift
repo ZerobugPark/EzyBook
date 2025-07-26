@@ -40,6 +40,17 @@ protocol AnyObjectWithCommonUI {
     func resetErrorAction()
 }
 
+extension AnyObjectWithCommonUI {
+    var isLoading: Bool {
+        return false
+    }
+    
+    func resetErrorAction() {
+        /// 기본 구현체
+    }
+    
+    
+}
 
 
 extension View {
