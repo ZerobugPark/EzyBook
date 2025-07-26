@@ -47,9 +47,13 @@ final class DefaultImageLoader: ImageLoder {
             header.add(name: "If-None-Match", value: etag)
         }
         
+        /// 200: 성공
+        /// 204: 성공했지만 응답 본문 X
+        /// 205: 성공했지만 본문 없음
+        /// 304: 리소스 변경 X (ETga
         let response = await session.request(url, headers: header)
             .validate(statusCode: 200...304)
-            .serializingData()
+            .serializingData(emptyResponseCodes: [200, 204, 205, 304])
             .response
         
         let statusCode = response.response?.statusCode ?? -1

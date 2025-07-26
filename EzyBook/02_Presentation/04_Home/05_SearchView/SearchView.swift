@@ -26,7 +26,7 @@ struct SearchView: View {
                 VStack(alignment: .center, spacing: 15) {
                     makeAdvertiseView()
                    // makeRecommendView()
-                    ActivityIntroduceView(data: $viewModel.output.activitySearchDetailList) { index in
+                    ActivityIntroduceView(data: viewModel.output.activitySearchDetailList) { index in
                         viewModel.action(.keepButtonTapped(index: index))
                     } currentIndex: { index in
                         viewModel.action(.prefetchSearchContent(index: index))

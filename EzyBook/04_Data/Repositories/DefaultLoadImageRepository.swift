@@ -28,6 +28,8 @@ final class DefaultLoadImageRepository: LoadOriginalImage, LoadThumbnailImage {
         
         /// 디스크 캐시 확인 (메모리 캐시는 사용하지 않음)
         if let data = imageCache.getData(forKey: fullURL), let image = UIImage(data: data) {
+            print("디스크 캐시")
+            printDataSize(data)
             return image
         }
         
@@ -41,6 +43,7 @@ final class DefaultLoadImageRepository: LoadOriginalImage, LoadThumbnailImage {
                  return image
              }
              UserDefaultManager.etag.removeValue(forKey: fullURL)
+        
              return try await reloadOriginalImageWithoutETag(url: fullURL)
             
         case 200:
@@ -49,18 +52,10 @@ final class DefaultLoadImageRepository: LoadOriginalImage, LoadThumbnailImage {
                 etags[fullURL] = newETag
                 UserDefaultManager.etag = etags
             }
-            
-            //압축해서 저장
-            if let image = UIImage(data: response.data),
-               let compressedData = image.jpegData(compressionQuality: 0.8) {
-                imageCache.setData(compressedData, forKey: fullURL) // 디시크 캐시에 저장
-                return image
-            } else {
-                imageCache.setData(response.data, forKey: fullURL) // fallback
-                return UIImage(data: response.data) ?? UIImage(systemName: "star")! // 데이터가 이미지로 변환 안되면 기본 이미지 처리
-            }
-            
-            
+     
+            imageCache.setData(response.data, forKey: fullURL)  // fallback
+            return UIImage(data: response.data) ?? UIImage(systemName: "star")! // 데이터가 이미지로 변환 안되면 기본 이미지 처리
+ 
         default:
             throw APIError(statusCode: response.statusCode, data: response.data)
             
@@ -69,7 +64,6 @@ final class DefaultLoadImageRepository: LoadOriginalImage, LoadThumbnailImage {
     }
     
 
-    
     
     ///쌈네일/미디어 (메모리 + 디스크 캐시)
     func loadMediaPreview(from path: String, scale: CGFloat) async throws -> UIImage {
@@ -119,21 +113,10 @@ final class DefaultLoadImageRepository: LoadOriginalImage, LoadThumbnailImage {
                 etags[fullURL] = newEtag
                 UserDefaultManager.etag = etags
             }
-            
-            //압축해서 저장
-            if let image = UIImage(data: response.data),
-               let compressedData = image.jpegData(compressionQuality: 0.8) {
-                /// 원본 크기
-                print("원본 크기")
-                printDataSize(response.data)
-                
-                print("압축된 데이터 크기")
-                printDataSize(compressedData)
-                imageCache.setData(compressedData, forKey: fullURL) // 디시크 캐시에 저장
-            } else {
-                imageCache.setData(response.data, forKey: fullURL) // fallback
-                
-            }
+ 
+            print("원본 크기")
+            printDataSize(response.data)
+            imageCache.setData(response.data, forKey: fullURL) // 디시크 캐시에 저장
 
             let image = await downsampleImage(response.data, scale)
             imageCache.set(image, forKey: fullURL)
@@ -148,11 +131,7 @@ final class DefaultLoadImageRepository: LoadOriginalImage, LoadThumbnailImage {
         
     }
     
-    
 
-    
-    
-    
 }
 
 
@@ -209,15 +188,10 @@ extension DefaultLoadImageRepository {
                 UserDefaultManager.etag = etags
             }
             
-            //압축해서 저장
-            if let image = UIImage(data: response.data),
-               let compressedData = image.jpegData(compressionQuality: 0.8) {
-                imageCache.setData(compressedData, forKey: url) // 디시크 캐시에 저장
-                return image
-            } else {
-                imageCache.setData(response.data, forKey: url) // fallback
-                return UIImage(data: response.data) ?? UIImage(systemName: "star")! // 데이터가 이미지로 변환 안되면 기본 이미지 처리
-            }
+            printDataSize(response.data)
+            
+            imageCache.setData(response.data, forKey: url) // fallback
+            return UIImage(data: response.data) ?? UIImage(systemName: "star")!
             
         }
 
@@ -229,15 +203,9 @@ extension DefaultLoadImageRepository {
                 UserDefaultManager.etag = etags
             }
             
-            //압축해서 저장
-            if let image = UIImage(data: response.data),
-               let compressedData = image.jpegData(compressionQuality: 0.8) {
-                imageCache.setData(compressedData, forKey: url) // 디시크 캐시에 저장
-            } else {
-                imageCache.setData(response.data, forKey: url) // fallback
-                
-            }
-
+            
+            imageCache.setData(response.data, forKey: url) // fallback
+            
             let image = await downsampleImage(response.data, scale)
             imageCache.set(image, forKey: url)
             

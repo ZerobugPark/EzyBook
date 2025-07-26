@@ -11,6 +11,16 @@ enum DisplayError {
     case error(code: Int, msg: String)
     case sucess(msg: String)
     
+    var code: Int? {
+        switch self {
+        case let .error(code, _):
+            return code
+        case .sucess:
+            return nil
+        }
+    }
+    
+    
     var message: (title: String, msg: String) {
         switch self {
         case let .error(code, msg):

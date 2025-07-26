@@ -80,7 +80,7 @@ final class HomeCoordinator: ObservableObject {
             }
         case .advertiseView(let callbackID):
             WebViewScreen(
-                tokenManager: container.tokenService,
+                tokenManager: container.storage,
                 coordinator: self) { [weak self] msg in
                     self?.completeAdvertise(id: callbackID, message: msg)
                     

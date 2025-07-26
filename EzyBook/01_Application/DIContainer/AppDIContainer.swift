@@ -11,7 +11,7 @@ final class AppDIContainer: ObservableObject {
     
     // MARK: - Infrastructure
     private let decoder = ResponseDecoder()
-    private let storage = KeyChainTokenStorage()
+    let storage = KeyChainTokenStorage()
     
     private let tokenNetworkService: DefaultNetworkService // 토큰 전용 네트워크 서비스
     
@@ -19,11 +19,13 @@ final class AppDIContainer: ObservableObject {
     private let networkService: DefaultNetworkService
     private let imageLoader: DefaultImageLoader
     
-    let tokenService: DefaultTokenService
-    let imageCache: ImageCache
+    private let tokenService: DefaultTokenService
+    private let imageCache: ImageCache
     
     
-    
+    // MARK: Data
+    let cacheManager: CacheManageable
+
     
     // MARK: - DIContainer Factory
     private let commonDICotainer: CommonDIContainer
@@ -85,6 +87,8 @@ final class AppDIContainer: ObservableObject {
             networkService: networkService,
             commonDIContainer: commonDICotainer
         )
+        
+        cacheManager = CacheManager(imageCache: imageCache)
         
     }
     
