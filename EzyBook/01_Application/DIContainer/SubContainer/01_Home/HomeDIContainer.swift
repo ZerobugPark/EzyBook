@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 
 final class HomeDIContainer {
@@ -116,10 +117,10 @@ extension HomeDIContainer {
 extension HomeDIContainer {
     
     func makeHomeViewModel() -> HomeViewModel {
-        
         HomeViewModel(
             activityUseCases: makeActivityUseCase(),
-            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase()
+            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase(),
+            scale: UIScreen.main.scale
         )
     }
     
