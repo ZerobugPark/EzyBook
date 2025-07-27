@@ -15,7 +15,7 @@ final class EmailLoginViewModel: ViewModelType {
     
     var input = Input()
     @Published var output = Output()
-        
+    
     var cancellables = Set<AnyCancellable>()
     
     init(emailLoginUseCase: EmailLoginUseCase) {
@@ -42,30 +42,39 @@ extension EmailLoginViewModel {
     
     func transform() { }
     
-  
-    private func requestLogin() {
+    
+    private func handleRequestLogin() {
+        
+        guard validateInputs() else { return }
+        
+        Task {
+            await performLogin()
+        }
+        
+    }
+    
+    ///  이메일 및 비밀번호 유효성 검사
+    private func validateInputs() -> Bool {
         
         guard input.emailTextField.validateEmail() else {
             output.loginError = .emailInvalidFormat
-            return
+            return false
         }
-
+        
         guard input.passwordTextField.validatePasswordLength(),
               input.passwordTextField.validatePasswordCmplexEnough() else {
             output.loginError = .passwordInvalidFormat
-            return
+            return false
         }
         
         return true
     }
     
-  
-    
     private func performLogin() async {
         
         do {
             
-            let data = try await emailLoginUseCase.execute(email: input.emailTextField, password: input.passwordTextField)
+            let data = try await emailLoginUseCase.execute(email: input.emailTextField, password: input.passwordTextField, deviceToken: nil)
             
             UserSession.shared.update(data)
             
@@ -81,8 +90,8 @@ extension EmailLoginViewModel {
         }
     }
     
-
-  
+    
+    
     private func handleResetError() {
         output.loginError = nil
     }
@@ -100,7 +109,7 @@ extension EmailLoginViewModel {
     func action(_ action: Action) {
         switch action {
         case .logunButtonTapped:
-            requestLogin()
+            handleRequestLogin()
         case .resetError:
             handleResetError()
         }

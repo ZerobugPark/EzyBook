@@ -41,8 +41,8 @@ final class AuthCoordinator: ObservableObject {
         case .emailLogin:
             LoginSignUpPagerView(
                 coordinator: self,
-                loginViewModel: self.container.loginDIContainer.makeEmailLoginViewModel(),
-                acountViewModel: self.container.loginDIContainer.makeAccountViewModel()
+                loginViewModel: self.container.makeEmailLoginViewModel(),
+                acountViewModel: self.container.makeAccountViewModel()
             )
         }
     }

@@ -20,12 +20,16 @@ protocol KakaoLoginRepository {
     func requestKakaoLogin(_ token: String) async throws -> LoginEntity
 }
 
-protocol SignUpRepository {
-    func verifyEmailAvailability(_ email: String) async throws
-    func signUp(_ router: UserRequest.Post) async throws
-}
 
 protocol SocialLoginService {
     func loginWithKakao() async throws -> String
     func loginWithApple(_ result: Result<ASAuthorization, any Error>) async throws -> (token: String, name: String?)
+}
+
+protocol SignUpRepository {
+    func signUp(_ email: String, _ password: String, _ nick: String, _ phoneNum: String?, _ introduction: String?, _ deviceToken: String?) async throws
+}
+
+protocol VerifyEmailRepository {
+    func verifyEmailAvailability(_ email: String) async throws
 }

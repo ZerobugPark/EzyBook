@@ -10,9 +10,14 @@ import Foundation
 
 struct SocialLoginUseCases {
     
-    let appleLogin: AppleLogin
-    let kakaoLogin: KakaoLogin
+    let appleLogin: AppleLoginUseCase
+    let kakaoLogin: KakaoLoginUseCase
     
 }
 
 
+struct CreateAccountUseCases  {
+    let signUp: SignUpUseCase
+    let verifyEmail: VerifyEmailUseCase
+    
+}

@@ -10,7 +10,7 @@ import Combine
 
 final class CreateAccountViewModel: ViewModelType {
     
-    var createUseCase: DefaultCreateAccountUseCase
+    private let createUseCases: CreateAccountUseCases
     
     var input = Input()
     @Published var output = Output()
@@ -24,8 +24,8 @@ final class CreateAccountViewModel: ViewModelType {
         
     var cancellables = Set<AnyCancellable>()
     
-    init(createUseCase: DefaultCreateAccountUseCase) {
-        self.createUseCase = createUseCase
+    init(createUseCases: CreateAccountUseCases) {
+        self.createUseCases = createUseCases
         self.phoneNumberTextField = input.phoneNumberTextField
         transform()
     }
@@ -104,7 +104,7 @@ extension CreateAccountViewModel {
         if output.isVaildEmail {
             Task {
                 do {
-                    try await createUseCase.verifyEmail(input.emailTextField)
+                    try await createUseCases.verifyEmail.execute(input.emailTextField)
                     await MainActor.run {
                         output.isAvailableEmail = true
                     }
@@ -154,19 +154,17 @@ extension CreateAccountViewModel {
     
     private func requestSignUp() {
         
-        let body = JoinRequestDTO(
-            email: input.emailTextField,
-            password: input.passwordConfirmTextField,
-            nick: input.nicknameTextField,
-            phoneNum: input.phoneNumberTextField.isEmpty ? nil : input.phoneNumberTextField,
-            introduction: input.introduceTextField.isEmpty ? nil : input.introduceTextField,
-            deviceToken: nil
-        )
-        let router = UserRequest.Post.join(body: body)
-        
         Task {
             do {
-                try await createUseCase.signUp(router)
+                try await createUseCases.signUp.execute(
+                    email: input.emailTextField,
+                    password: input.passwordConfirmTextField,
+                    nick: input.nicknameTextField,
+                    phoneNum: input.phoneNumberTextField.isEmpty ? nil : input.phoneNumberTextField,
+                    introduction: input.introduceTextField.isEmpty ? nil : input.introduceTextField,
+                    deviceToken: nil
+                )
+                
                 await MainActor.run {
                     output.isAccountCreated = true
                 }

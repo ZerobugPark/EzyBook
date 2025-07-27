@@ -13,7 +13,6 @@
 		D04729622DF88B8D00B13012 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = D04729612DF88B8D00B13012 /* FirebaseCrashlytics */; };
 		D04729642DF88B8D00B13012 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = D04729632DF88B8D00B13012 /* FirebaseMessaging */; };
 		D0472C772DF9582800B13012 /* iamport-ios in Frameworks */ = {isa = PBXBuildFile; productRef = D0472C762DF9582800B13012 /* iamport-ios */; };
-		D04DA72D2DCF7D5C0031AA2F /* Secrets.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = D04DA72C2DCF7D5C0031AA2F /* Secrets.xcconfig */; };
 		D050A5C12DD104AA00E79E59 /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = D050A5C02DD104AA00E79E59 /* KakaoSDKAuth */; };
 		D050A5C32DD104AA00E79E59 /* KakaoSDKCommon in Frameworks */ = {isa = PBXBuildFile; productRef = D050A5C22DD104AA00E79E59 /* KakaoSDKCommon */; };
 		D050A5C52DD104AA00E79E59 /* KakaoSDKUser in Frameworks */ = {isa = PBXBuildFile; productRef = D050A5C42DD104AA00E79E59 /* KakaoSDKUser */; };
@@ -143,7 +142,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1620;
-				LastUpgradeCheck = 1620;
+				LastUpgradeCheck = 1640;
 				TargetAttributes = {
 					D04DA7182DCF7C750031AA2F = {
 						CreatedOnToolsVersion = 16.2;
@@ -182,7 +181,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D04DA72D2DCF7D5C0031AA2F /* Secrets.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -234,6 +232,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 9ZR9M5J9M6;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -297,6 +296,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 9ZR9M5J9M6;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -328,7 +328,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"EzyBook/Preview Content\"";
-				DEVELOPMENT_TEAM = 9ZR9M5J9M6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = EzyBook/01_Application/Info.plist;
@@ -368,7 +367,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"EzyBook/Preview Content\"";
-				DEVELOPMENT_TEAM = 9ZR9M5J9M6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = EzyBook/01_Application/Info.plist;
