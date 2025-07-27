@@ -20,8 +20,7 @@ protocol KakaoLoginUseCase {
 protocol EmailLoginUseCase {
     func execute(email: String, password: String, deviceToken: String?) async throws -> UserEntity
 }
-    
-  
+
 // MARK: 회원가입
 protocol SignUpUseCase {
     func execute(email: String, password: String, nick: String, phoneNum: String?, introduction: String?, deviceToken: String?) async throws -> Void

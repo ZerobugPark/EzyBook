@@ -73,8 +73,12 @@ extension EmailLoginViewModel {
     private func performLogin() async {
         
         do {
-            
-            let data = try await emailLoginUseCase.execute(email: input.emailTextField, password: input.passwordTextField, deviceToken: nil)
+           
+            let data = try await emailLoginUseCase.execute(
+                email: input.emailTextField,
+                password: input.passwordTextField,
+                deviceToken: nil
+            )
             
             UserSession.shared.update(data)
             
