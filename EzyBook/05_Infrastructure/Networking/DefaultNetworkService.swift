@@ -35,8 +35,8 @@ final class DefaultNetworkService: NetworkService {
             guard let endpoint = router.endpoint else {
                 throw APIError(localErrorType: .missingEndpoint)
             }
-            
-      
+
+
             response = await session
                 .upload(multipartFormData: multipartForm,
                         to: endpoint,
@@ -45,6 +45,8 @@ final class DefaultNetworkService: NetworkService {
                 .validate(statusCode: 200...299)
                 .serializingData()
                 .response
+
+
             
         } else {
             response = await session
@@ -60,6 +62,8 @@ final class DefaultNetworkService: NetworkService {
             print("HTTP Method:", request.httpMethod ?? "nil")
             print("Headers:", request.headers)
         }
+        
+        
         
         #if DEBUG
         let urlString = urlRequest.url?.absoluteString ?? "Invalid URL"
@@ -102,3 +106,31 @@ final class DefaultNetworkService: NetworkService {
 }
 
 
+extension URLRequest {
+    var curlString: String {
+        var components: [String] = ["curl -v"]
+
+        // HTTP Method
+        if let method = httpMethod {
+            components.append("-X \(method)")
+        }
+
+        // Headers
+        allHTTPHeaderFields?.forEach { key, value in
+            components.append("-H '\(key): \(value)'")
+        }
+
+        // Body
+        if let httpBody = httpBody,
+           let bodyString = String(data: httpBody, encoding: .utf8) {
+            components.append("--data-binary '\(bodyString)'")
+        }
+
+        // URL
+        if let url = url {
+            components.append("'\(url.absoluteString)'")
+        }
+
+        return components.joined(separator: " \\\n\t")
+    }
+}

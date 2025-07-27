@@ -168,3 +168,5 @@ extension WriteReviewViewModel: AnyObjectWithCommonUI {
         output.presentedMessage = nil
     }
 }
+
+

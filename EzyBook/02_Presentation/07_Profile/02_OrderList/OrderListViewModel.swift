@@ -106,6 +106,7 @@ extension OrderListViewModel {
             let newOrderList = makeOrderList(from: results, data: data)
             
             orderList = newOrderList
+            dump(orderList)
             let grouped = makeGroupedOrderList(from: newOrderList)
 
             await MainActor.run {
