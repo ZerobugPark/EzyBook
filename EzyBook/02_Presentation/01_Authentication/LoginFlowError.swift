@@ -10,18 +10,18 @@ import Foundation
 enum LoginFlowError {
     case emailInvalidFormat
     case passwordInvalidFormat
-    case serverError(DisplayError)
+    case serverError(DisplayMessage)
     case kakaoLoginError(code: Int)
     case appleLoginError(code: Int)
 
     var title: String {
         switch self {
         case .serverError(let err):
-            return err.message.title
+            return err.title
         case .kakaoLoginError(let code):
-            return  "Error: \(code)"
+            return "Error: \(code)"
         case .appleLoginError(let code):
-            return  "Error: \(code)"
+            return "Error: \(code)"
         default:
             return "입력 오류"
         }
@@ -34,7 +34,7 @@ enum LoginFlowError {
         case .passwordInvalidFormat:
             return "비밀번호는 8자리 이상이며, 특수문자, 영문자, 숫자를 포함해야 합니다."
         case .serverError(let err):
-            return err.message.msg
+            return err.message
         case .kakaoLoginError:
             return "카카오 로그인 오류"
         case .appleLoginError:
@@ -42,4 +42,3 @@ enum LoginFlowError {
         }
     }
 }
-

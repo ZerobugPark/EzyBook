@@ -42,15 +42,26 @@ extension ProfileViewModel {
     struct Output {
         var isLoading = false
         
-        var presentedError: DisplayError? = nil
-        var isShowingError: Bool {
-            presentedError != nil
+        var presentedMessage: DisplayMessage? = nil
+        var isShowingMessage: Bool {
+            presentedMessage != nil
         }
         /// 하나의 모델로 처리하기엔, UIImage랑 이미지 리소스랑 타입이 달라서 분리하는게 나을 듯
         var profile: ProfileLookUpModel = .skeleton
     }
     
     func transform() { }
+    
+    //  supplementviewModel을 받아서 Alert 상태만 바인딩
+    private func handleBindSupplement(_ supplement: ProfileSupplementaryViewModel) {
+        supplement.$output
+            .map { $0.presentedMessage }
+            .receive(on: DispatchQueue.main) // 메인스레드 보장
+            .sink { [weak self] message in
+                self?.output.presentedMessage = message
+            }
+            .store(in: &cancellables)
+    }
     
     private func handleProfileData() {
         Task {
@@ -88,7 +99,7 @@ extension ProfileViewModel {
             }
         } catch let error as APIError {
             await MainActor.run {
-                output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+                output.presentedMessage = DisplayMessage.error(code: error.code, msg: error.userMessage)
             }
         } catch {
             print(error)
@@ -131,7 +142,7 @@ extension ProfileViewModel {
 
               } catch let error as APIError {
                   await MainActor.run {
-                      output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+                      output.presentedMessage = DisplayMessage.error(code: error.code, msg: error.userMessage)
                   }
               } catch {
                   print(error)
@@ -149,10 +160,7 @@ extension ProfileViewModel {
         return try await profileUseCases.profileUploadImage.execute(image: image)
         
     }
-    
-    private func handleResetError() {
-        output.presentedError = nil
-    }
+   
     
     private func handleUpdateScale(_ scale: CGFloat) {
         self.scale = scale
@@ -167,7 +175,7 @@ extension ProfileViewModel {
         case onAppearRequested
         case updateScale(scale: CGFloat)
         case didSelectedImageData(image: UIImage)
-        case resetError
+        case bindSupplement(ProfileSupplementaryViewModel)
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
@@ -179,9 +187,8 @@ extension ProfileViewModel {
             handleUpdateScale(scale)
         case .didSelectedImageData(let image):
             handleDidSelectedImageData(image)
-        case .resetError:
-            handleResetError()
- 
+        case .bindSupplement(let supplement):
+            handleBindSupplement(supplement)
         }
     }
     
@@ -192,18 +199,14 @@ extension ProfileViewModel {
 // MARK: Alert 처리
 extension ProfileViewModel: AnyObjectWithCommonUI {
     
-    var isShowingError: Bool { output.isShowingError }
+    var isShowingError: Bool { output.isShowingMessage }
+    var isShowingMessage: Bool { output.isShowingMessage }
+    var presentedMessageTitle: String? { output.presentedMessage?.title }
+    var presentedMessageBody: String? { output.presentedMessage?.message }
+    var presentedMessageCode: Int? { output.presentedMessage?.code }
     
-    var presentedErrorTitle: String? { output.presentedError?.message.title }
-    
-    var presentedErrorMessage: String? { output.presentedError?.message.msg }
-    
-    var isLoading: Bool { output.isLoading }
-    
-    var presentedErrorCode: Int?  { output.presentedError?.code }
-    
-    func resetErrorAction() { action(.resetError) }
-    
-    
+    func resetMessageAction() {
+        output.presentedMessage = nil
+    }
     
 }

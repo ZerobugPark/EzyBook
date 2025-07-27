@@ -39,26 +39,13 @@ struct CreateAccountView: View {
                 
             }
             .padding(.horizontal)
-            .commonAlert(
-                isPresented: Binding(
-                    get: { viewModel.output.isShowingError },
-                    set: { isPresented in
-                        if !isPresented {
-                            viewModel.action(.resetError)
-                        }
-                    }
-                ),
-                title: viewModel.output.currentError?.message.title,
-                message: viewModel.output.currentError?.message.msg
-            )
-            .commonAlert(
-                isPresented: $viewModel.output.isAccountCreated,
-                title: "안내",
-                message: "회원가입이 완료되었습니다.") {
-                    withAnimation(.easeInOut) {
-                        selectedIndex = 0
-                    }
+        }
+        .withCommonUIHandling(viewModel) { _, isSuccess in
+            if isSuccess {
+                withAnimation(.easeInOut) {
+                    selectedIndex = 0
                 }
+            }
         }
         .onChange(of: focusedField) { newValue in
             

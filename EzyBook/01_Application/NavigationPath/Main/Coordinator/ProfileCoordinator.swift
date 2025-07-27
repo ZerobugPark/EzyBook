@@ -37,9 +37,11 @@ final class ProfileCoordinator: ObservableObject {
     func destinationView(route: ProfileRoute) -> some View {
         switch route {
         case .profileView:
+            let vm = self.container.makeProfileViewModel()
+            let sVm = self.container.makeProfileSupplementaryViewModel()
             ProfileView(
-                viewModel: self.container.makeProfileViewModel(),
-                supplementviewModel: self.container.makeProfileSupplementaryViewModel(),
+                viewModel: vm,
+                supplementviewModel: sVm,
                 coordinator: self
             )
         case .orderListView(let list):
@@ -60,7 +62,8 @@ extension ProfileCoordinator {
     }
     
     func makeWriteReviewView(_ activityID: String, _ orderCode: String, onConfirm: @escaping (String, Int) -> Void) -> some View {
-        WriteReViewView(activityId: activityID, orderCode: orderCode, onConfirm: onConfirm, viewModel: self.container.makeWriteReviewViewModel())
+        let vm = self.container.makeWriteReviewViewModel(id: activityID, code: orderCode)
+        return WriteReViewView(onConfirm: onConfirm, viewModel: vm)
     }
     
 }

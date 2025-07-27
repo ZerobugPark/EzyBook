@@ -40,7 +40,7 @@ struct VideoPlayerView: View {
             .padding(.top, 60)
             .padding(.trailing, 20)
         }
-        .withCommonUIHandling(viewModel) { code in
+        .withCommonUIHandling(viewModel) { code, _ in
             if code == 418 {
                 appState.isLoggedIn = false
             } else {

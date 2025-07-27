@@ -50,9 +50,9 @@ extension ChatListViewModel {
     
     struct Output {
         
-        var presentedError: DisplayError? = nil
-        var isShowingError: Bool {
-            presentedError != nil
+        var presentedMessage: DisplayMessage? = nil
+        var isShowingMessage: Bool {
+            presentedMessage != nil
         }
         
         var chatRoomList: [ChatRoomEntity] = []
@@ -95,7 +95,7 @@ extension ChatListViewModel {
             }
         } catch let error as APIError {
             await MainActor.run {
-                output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+                output.presentedMessage = DisplayMessage.error(code: error.code, msg: error.userMessage)
             }
         } catch {
             print(#function,  "알 수 없는 오류")
@@ -168,7 +168,7 @@ extension ChatListViewModel {
             return nil
         } catch let error as APIError {
             await MainActor.run {
-                output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+                output.presentedMessage = DisplayMessage.error(code: error.code, msg: error.userMessage)
             }
             
         } catch {
@@ -187,9 +187,7 @@ extension ChatListViewModel {
     }
     
     
-    private func handleResetError() {
-        output.presentedError = nil
-    }
+
 }
 
 // MARK: Action
@@ -197,7 +195,6 @@ extension ChatListViewModel {
     
     enum Action {
         case showChatRoomList
-        case resetError
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
@@ -205,10 +202,21 @@ extension ChatListViewModel {
         switch action {
         case .showChatRoomList:
             requestChatRoomList()
-        case .resetError:
-            handleResetError()
         }
     }
     
     
+}
+
+// MARK: Alert 처리
+extension ChatListViewModel: AnyObjectWithCommonUI {
+    var isShowingMessage: Bool { output.isShowingMessage }
+    var presentedMessageTitle: String? { output.presentedMessage?.title }
+    var presentedMessageBody: String? { output.presentedMessage?.message }
+    var presentedMessageCode: Int? { output.presentedMessage?.code }
+    var isSuccessMessage: Bool { output.presentedMessage?.isSuccess ?? false }
+    
+    func resetMessageAction() {
+        output.presentedMessage = nil
+    }
 }

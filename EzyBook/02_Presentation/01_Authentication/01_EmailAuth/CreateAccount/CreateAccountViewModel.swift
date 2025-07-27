@@ -79,8 +79,7 @@ extension CreateAccountViewModel {
         var isValidNickname = false
         var isValidPhoneNumber = false
         var isFormValid = false
-        var currentError: DisplayError? = nil
-        var isAccountCreated = false
+    
         
         // 비밀번호 히든 체크
         var visibleStates: [PasswordInputFieldType: Bool] = [
@@ -88,8 +87,9 @@ extension CreateAccountViewModel {
             .confirmPassword: false
         ]
         
-        var isShowingError: Bool {
-            currentError != nil
+        var presentedMessage: DisplayMessage? = nil
+        var isShowingMessage: Bool {
+            presentedMessage != nil
         }
 
 
@@ -97,6 +97,26 @@ extension CreateAccountViewModel {
     
     func transform() { }
     
+    @MainActor
+    private func handleError(_ error: Error) {
+        if let apiError = error as? APIError {
+            output.presentedMessage = DisplayMessage.error(code: apiError.code, msg: apiError.userMessage)
+        } else {
+            output.presentedMessage = DisplayMessage.error(code: -1, msg: error.localizedDescription)
+        }
+        
+    }
+    
+    @MainActor
+    private func handleSuccess() {
+        output.presentedMessage = .success(msg: "회원가입이 완료되었습니다.")
+    }
+    
+
+    
+}
+
+extension CreateAccountViewModel {
     /// 이메일 유효성 검사 및 중복확인
     private func handleEmailEditingCompleted() {
         output.isVaildEmail =  input.emailTextField.validateEmail()
@@ -108,10 +128,10 @@ extension CreateAccountViewModel {
                     await MainActor.run {
                         output.isAvailableEmail = true
                     }
-                } catch let error as APIError {
+                } catch  {
                     await MainActor.run {
                         output.isAvailableEmail = false
-                        output.currentError = DisplayError.error(code: error.code, msg: error.userMessage)
+                        handleError(error)
                     }
                 }
             }
@@ -166,12 +186,13 @@ extension CreateAccountViewModel {
                 )
                 
                 await MainActor.run {
-                    output.isAccountCreated = true
+                    handleSuccess()
                 }
-            } catch let error as APIError {
+            } catch {
                 await MainActor.run {
                     output.isAvailableEmail = false
-                    output.currentError = DisplayError.error(code: error.code, msg: error.userMessage)
+                    handleError(error)
+                    
                 }
             }
         }
@@ -182,12 +203,6 @@ extension CreateAccountViewModel {
     private func updateFormValidation() {
         output.isFormValid = output.isVaildEmail && output.isAvailableEmail && output.isValidPassword && output.isValidNickname
     }
-    
-    private func handleResetError() {
-        output.currentError = nil
-    }
-    
-    
 }
 
 // MARK: Action
@@ -200,7 +215,6 @@ extension CreateAccountViewModel {
         case nickNameEditingCompleted
         case phoneNumberEditingCompleted
         case signUpButtonTapped
-        case resetError
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
@@ -218,9 +232,22 @@ extension CreateAccountViewModel {
             handlerPhoneNumberEditingCompleted()
         case .signUpButtonTapped:
             requestSignUp()
-        case .resetError:
-            handleResetError()
         }
+    }
+    
+    
+}
+// MARK: Alert 처리
+extension CreateAccountViewModel: AnyObjectWithCommonUI {
+    
+    var isShowingError: Bool { output.isShowingMessage }
+    var isShowingMessage: Bool { output.isShowingMessage }
+    var presentedMessageTitle: String? { output.presentedMessage?.title }
+    var presentedMessageBody: String? { output.presentedMessage?.message }
+    var presentedMessageCode: Int? { output.presentedMessage?.code }
+    
+    func resetMessageAction() {
+        output.presentedMessage = nil
     }
     
     

@@ -14,7 +14,7 @@ import iamport_ios
 struct PaymentView: UIViewRepresentable {
     
     let item: PayItem
-    let onFinish: (DisplayError?) -> Void
+    let onFinish: (DisplayMessage?) -> Void
     
     @Environment(\.dismiss) var dismiss
     @StateObject var viewModel: PaymentViewModel
@@ -49,7 +49,7 @@ struct PaymentView: UIViewRepresentable {
                 dismiss()
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    onFinish(DisplayError.error(code: -1, msg: iamportResponse?.error_msg ?? "알 수 없는 오류가 발생했습니다."))
+                    onFinish(DisplayMessage.error(code: -1, msg: iamportResponse?.error_msg ?? "알 수 없는 오류가 발생했습니다."))
                 }
                 
                 return
@@ -62,7 +62,7 @@ struct PaymentView: UIViewRepresentable {
                 guard let impUid = data.imp_uid, let merchantUid = data.merchant_uid else {
                     dismiss()
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        onFinish(DisplayError.error(code: -1, msg: "imp 또는 merchant가 nil입니다."))
+                        onFinish(DisplayMessage.error(code: -1, msg: "imp 또는 merchant가 nil입니다."))
                     }
                     return
                 }
@@ -75,7 +75,7 @@ struct PaymentView: UIViewRepresentable {
             } else {
                 dismiss()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    onFinish(DisplayError.error(code: -1, msg: data.error_msg ?? "결제가 취소되었습니다."))
+                    onFinish(DisplayMessage.error(code: -1, msg: data.error_msg ?? "결제가 취소되었습니다."))
                 }
                 
             }

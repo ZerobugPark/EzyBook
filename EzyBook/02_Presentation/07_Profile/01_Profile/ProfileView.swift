@@ -61,7 +61,9 @@ struct ProfileView: View {
         )
         .onAppear {
             viewModel.action(.onAppearRequested)
+            viewModel.action(.bindSupplement(supplementviewModel))
             supplementviewModel.action(.onAppearRequested)
+            
         }
         .onChange(of: photoItems) { newItems in
             guard let firstItem = newItems.first else {
@@ -91,12 +93,7 @@ struct ProfileView: View {
                 }
             )
         }
-        .withCommonUIHandling(viewModel) { code in
-            if code == 418 {
-                appState.isLoggedIn = false
-            }
-        }
-        .withCommonUIHandling(supplementviewModel) { code in
+        .withCommonUIHandling(viewModel) { code, _ in
             if code == 418 {
                 appState.isLoggedIn = false
             }

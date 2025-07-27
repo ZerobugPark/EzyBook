@@ -95,18 +95,18 @@ struct DetailView: View {
                 }
             }
         }
-        .commonAlert(
-            isPresented: Binding(
-                get: { viewModel.output.isShowingError },
-                set: { isPresented in
-                    if !isPresented {
-                        viewModel.action(.resetError)
-                    }
-                }
-            ),
-            title: viewModel.output.presentedError?.message.title,
-            message: viewModel.output.presentedError?.message.msg
-        )
+//        .commonAlert(
+//            isPresented: Binding(
+//                get: { viewModel.output.isShowingError },
+//                set: { isPresented in
+//                    if !isPresented {
+//                        viewModel.action(.resetError)
+//                    }
+//                }
+//            ),
+//            title: viewModel.output.presentedError?.message.title,
+//            message: viewModel.output.presentedError?.message.msg
+//        )
         .onAppear {
             /// 최초 한번만 되게? 수정해야할거 같은데. (그 다음은 강제 업데이트)
             /// onAppear를 하다보니까, 알라모가 1~2초 이내에 들어온것은 같은 통신인줄 알고 걍 304 해버리는 듯

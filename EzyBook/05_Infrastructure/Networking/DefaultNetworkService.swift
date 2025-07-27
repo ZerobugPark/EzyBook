@@ -36,6 +36,7 @@ final class DefaultNetworkService: NetworkService {
                 throw APIError(localErrorType: .missingEndpoint)
             }
             
+      
             response = await session
                 .upload(multipartFormData: multipartForm,
                         to: endpoint,

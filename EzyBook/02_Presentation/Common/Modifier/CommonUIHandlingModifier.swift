@@ -10,53 +10,54 @@ import SwiftUI
 // MARK: - Common UI Handling
 struct CommonUIHandlingModifier<ViewModel: ObservableObject & AnyObjectWithCommonUI>: ViewModifier {
     @ObservedObject var viewModel: ViewModel
-    var onConfirm: ((Int?) -> Void)? = nil
+    var onConfirm: ((Int?, Bool) -> Void)? = nil // ✅ 성공 여부까지 전달
     
     func body(content: Content) -> some View {
         content
             .commonAlert(
                 isPresented: Binding(
-                    get: { viewModel.isShowingError },
+                    get: { viewModel.isShowingMessage },
                     set: { isPresented in
                         if !isPresented {
-                            onConfirm?(viewModel.presentedErrorCode)
-                            viewModel.resetErrorAction()
+                            onConfirm?(
+                                viewModel.presentedMessageCode,
+                                viewModel.isSuccessMessage
+                            )
+                            viewModel.resetMessageAction()
                         }
                     }
                 ),
-                title: viewModel.presentedErrorTitle,
-                message: viewModel.presentedErrorMessage
+                title: viewModel.presentedMessageTitle,
+                message: viewModel.presentedMessageBody
             )
-            .loadingOverlayModify(viewModel.isLoading)
+            
     }
 }
-
 protocol AnyObjectWithCommonUI {
-    var isShowingError: Bool { get }
-    var presentedErrorTitle: String? { get }
-    var presentedErrorMessage: String? { get }
-    var isLoading: Bool { get }
-    var presentedErrorCode: Int? { get }
-    func resetErrorAction()
+    var isShowingMessage: Bool { get }
+    var presentedMessageTitle: String? { get }
+    var presentedMessageBody: String? { get }
+    var presentedMessageCode: Int? { get }
+    var isSuccessMessage: Bool { get }
+    func resetMessageAction()
 }
 
 extension AnyObjectWithCommonUI {
-    var isLoading: Bool {
-        return false
+    var isSuccessMessage: Bool {
+        false
     }
     
-    func resetErrorAction() {
-        /// 기본 구현체
+    func resetMessageAction() {
+        
     }
-    
-    
 }
+
 
 
 extension View {
     func withCommonUIHandling<ViewModel: ObservableObject & AnyObjectWithCommonUI>(
         _ viewModel: ViewModel,
-        onConfirm: ((Int?) -> Void)? = nil
+        onConfirm: ((Int?, Bool) -> Void)?
     ) -> some View {
         self.modifier(CommonUIHandlingModifier(viewModel: viewModel, onConfirm: onConfirm))
     }

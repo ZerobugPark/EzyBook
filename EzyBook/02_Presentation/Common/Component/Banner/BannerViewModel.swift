@@ -48,9 +48,9 @@ extension BannerViewModel {
     
     struct Output {
         
-        var presentedError: DisplayError? = nil
-        var isShowingError: Bool {
-            presentedError != nil
+        var presentedMessage: DisplayMessage? = nil
+        var isShowingMessage: Bool {
+            presentedMessage != nil
         }
         
         var bannerList: [BannerEntity] = []
@@ -61,16 +61,12 @@ extension BannerViewModel {
     func transform() {  }
     
     
-    private func handleResetError() {
-        output.presentedError = nil
-    }
-    
     @MainActor
     private func handleError(_ error: Error) {
         if let apiError = error as? APIError {
-            output.presentedError = DisplayError.error(code: apiError.code, msg: apiError.userMessage)
+            output.presentedMessage = DisplayMessage.error(code: apiError.code, msg: apiError.userMessage)
         } else {
-            output.presentedError = DisplayError.error(code: -1, msg: error.localizedDescription)
+            output.presentedMessage = DisplayMessage.error(code: -1, msg: error.localizedDescription)
         }
     }
     
@@ -144,32 +140,15 @@ extension BannerViewModel {
 }
 
 
-extension BannerViewModel {
-    
-    enum Action {
-        case resetError
-    }
-    
-    func action(_ action: Action) {
-        switch action {
-        case .resetError:
-                handleResetError()
-        }
-    }
-}
-
-
 // MARK: Alert 처리
 extension BannerViewModel: AnyObjectWithCommonUI {
+    var isShowingMessage: Bool { output.isShowingMessage }
+    var presentedMessageTitle: String? { output.presentedMessage?.title }
+    var presentedMessageBody: String? { output.presentedMessage?.message }
+    var presentedMessageCode: Int? { output.presentedMessage?.code }
+    var isSuccessMessage: Bool { output.presentedMessage?.isSuccess ?? false }
     
-    var isShowingError: Bool { output.isShowingError }
-    
-    var presentedErrorTitle: String? { output.presentedError?.message.title }
-    
-    var presentedErrorMessage: String? { output.presentedError?.message.msg }
-    
-    var presentedErrorCode: Int?  { output.presentedError?.code }
-    
-    func resetErrorAction() { action(.resetError) }
-    
+    func resetMessageAction() {
+        output.presentedMessage = nil
+    }
 }
