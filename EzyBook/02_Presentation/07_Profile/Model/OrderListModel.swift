@@ -21,6 +21,7 @@ struct OrderList: Identifiable {
     let time: String
     var rating: Int?
     let image: UIImage
+    let paidDate: String
 
     
     init(
@@ -32,7 +33,8 @@ struct OrderList: Identifiable {
         date: String,
         time: String,
         rating: Int?,
-        image: UIImage
+        image: UIImage,
+        paidDate: String
     ) {
         self.orderID = orderID
         self.orderCode = orderCode
@@ -43,6 +45,7 @@ struct OrderList: Identifiable {
         self.time = time
         self.rating = rating
         self.image = image
+        self.paidDate = paidDate
     }
     
     var hasRating: Bool {

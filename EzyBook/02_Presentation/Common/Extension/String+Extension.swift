@@ -50,3 +50,30 @@ extension String {
     }
 }
 
+
+// MARK: - String Extension for Date Parsing and Formatting
+extension String {
+    func toDate(using formatter: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return f
+    }()) -> Date? {
+        return formatter.date(from: self)
+    }
+    
+    func toDisplayDate(format: String = "yyyy-MM-dd") -> String {
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        
+        let displayFormatter = DateFormatter()
+        displayFormatter.dateFormat = format
+        displayFormatter.locale = Locale(identifier: "ko_KR")
+        
+        if let date = isoFormatter.date(from: self) {
+            return displayFormatter.string(from: date)
+        } else {
+            return self
+        }
+    }
+}
+

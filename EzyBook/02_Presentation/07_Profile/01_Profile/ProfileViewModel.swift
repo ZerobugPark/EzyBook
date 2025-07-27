@@ -188,3 +188,22 @@ extension ProfileViewModel {
     
 }
 
+
+// MARK: Alert 처리
+extension ProfileViewModel: AnyObjectWithCommonUI {
+    
+    var isShowingError: Bool { output.isShowingError }
+    
+    var presentedErrorTitle: String? { output.presentedError?.message.title }
+    
+    var presentedErrorMessage: String? { output.presentedError?.message.msg }
+    
+    var isLoading: Bool { output.isLoading }
+    
+    var presentedErrorCode: Int?  { output.presentedError?.code }
+    
+    func resetErrorAction() { action(.resetError) }
+    
+    
+    
+}

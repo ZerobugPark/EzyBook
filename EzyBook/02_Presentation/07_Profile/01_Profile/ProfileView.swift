@@ -91,31 +91,16 @@ struct ProfileView: View {
                 }
             )
         }
-        
-        .commonAlert(
-            isPresented: Binding(
-                get: { viewModel.output.isShowingError },
-                set: { isPresented in
-                    if !isPresented {
-                        viewModel.action(.resetError)
-                    }
-                }
-            ),
-            title: viewModel.output.presentedError?.message.title,
-            message: viewModel.output.presentedError?.message.msg
-        )
-        .commonAlert(
-            isPresented: Binding(
-                get: { supplementviewModel.output.isShowingError },
-                set: { isPresented in
-                    if !isPresented {
-                        supplementviewModel.action(.resetError)
-                    }
-                }
-            ),
-            title: supplementviewModel.output.presentedError?.message.title,
-            message: supplementviewModel.output.presentedError?.message.msg
-        )
+        .withCommonUIHandling(viewModel) { code in
+            if code == 418 {
+                appState.isLoggedIn = false
+            }
+        }
+        .withCommonUIHandling(supplementviewModel) { code in
+            if code == 418 {
+                appState.isLoggedIn = false
+            }
+        }
         .loadingOverlayModify(viewModel.output.isLoading)
     }
     
@@ -235,14 +220,6 @@ extension ProfileView {
             Text(data.introduction)
                 .appFont(PretendardFontStyle.body2, textColor: .grayScale100)
                 .multilineTextAlignment(.center)
-            
-            // 태그들
-            HStack(spacing: 8) {
-                tagView(text: "1위 튜어", color: .blue)
-                tagView(text: "2위 액티비티", color: .blue)
-                tagView(text: "3위 체험", color: .blue)
-            }
-            .frame(maxWidth: .infinity, alignment: .center)
             
             Spacer(minLength: 20)
             

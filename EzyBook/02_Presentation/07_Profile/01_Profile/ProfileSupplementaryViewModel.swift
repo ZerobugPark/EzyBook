@@ -44,29 +44,49 @@ extension ProfileSupplementaryViewModel {
     
     func transform() {}
     
-    
-    private func handleRequestOrderList() {
-        
-        Task {
-            do {
-                let data = try await orderListUseCase.execute()
-                await MainActor.run {
-                    output.orderList = data
-                    dump(data)
-                }
-            } catch let error as APIError {
-                await MainActor.run {
-                    output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
-                }
-            }
-        }
-    }
+
     
     private func handleResetError() {
         output.presentedError = nil
     }
     
     
+    @MainActor
+    private func handleError(_ error: Error) {
+        if let apiError = error as? APIError {
+            output.presentedError = DisplayError.error(code: apiError.code, msg: apiError.userMessage)
+        } else {
+            output.presentedError = DisplayError.error(code: -1, msg: error.localizedDescription)
+        }
+    }
+    
+}
+
+// MARK: 주문내역
+extension ProfileSupplementaryViewModel {
+    
+    private func handleOrderList() {
+        
+        Task {
+           await performOrderListLoad()
+        }
+    }
+    
+    private func performOrderListLoad() async {
+        
+        do {
+            let data = try await orderListUseCase.execute()
+            await MainActor.run {
+                output.orderList = data
+            }
+        } catch {
+            await handleError(error)
+        }
+    }
+        
+        
+        
+        
 }
 
 
@@ -82,7 +102,7 @@ extension ProfileSupplementaryViewModel {
     func action(_ action: Action) {
         switch action {
         case .onAppearRequested:
-            handleRequestOrderList()
+            handleOrderList()
         case .resetError:
             handleResetError()
         }
@@ -90,4 +110,22 @@ extension ProfileSupplementaryViewModel {
     
     
 }
+
+// MARK: Alert 처리
+extension ProfileSupplementaryViewModel: AnyObjectWithCommonUI {
+    
+    var isShowingError: Bool { output.isShowingError }
+    
+    var presentedErrorTitle: String? { output.presentedError?.message.title }
+    
+    var presentedErrorMessage: String? { output.presentedError?.message.msg }
+    
+    var presentedErrorCode: Int?  { output.presentedError?.code }
+    
+    func resetErrorAction() { action(.resetError) }
+    
+    
+    
+}
+
 

@@ -43,7 +43,12 @@ final class ProfileCoordinator: ObservableObject {
                 coordinator: self
             )
         case .orderListView(let list):
-            OrderListView(orderList: list, viewModel: self.container.makeOrderListViewModel(), coordinator: self)
+            let vm = self.container.makeOrderListViewModel(orderList: list)
+            OrderListView(
+                viewModel: vm,
+                coordinator: self) { orderCode, rating in
+                    vm.action(.updateRating(orderCode: orderCode, rating: rating))
+                }
         }
     }
 

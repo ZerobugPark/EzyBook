@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 final class ProfileDIContainer {
     
@@ -102,9 +103,12 @@ extension ProfileDIContainer {
     }
     
     
-    func makeOrderListViewModel() -> OrderListViewModel {
+    func makeOrderListViewModel(orderList: [OrderEntity]) -> OrderListViewModel {
+        
         OrderListViewModel(
-            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase()
+            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase(),
+            orderList: orderList,
+            scale: UIScreen.main.scale
         )
     }
     
