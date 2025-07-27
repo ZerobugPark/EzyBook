@@ -22,15 +22,7 @@ protocol KakaoLoginRepository {
 
 protocol SignUpRepository {
     func verifyEmailAvailability(_ email: String) async throws
-    func signUp(
-        _ email: String,
-        _ password: String,
-        _ nick: String,
-        _ phoneNum: String?,
-        _ introduction: String?,
-        _ deviceToken: String?
-        
-    ) async throws
+    func signUp(_ router: UserRequest.Post) async throws
 }
 
 protocol SocialLoginService {

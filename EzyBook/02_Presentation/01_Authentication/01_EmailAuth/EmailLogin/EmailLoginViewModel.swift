@@ -38,52 +38,34 @@ extension EmailLoginViewModel {
             loginError != nil
         }
         var loginSuccessed = false
-        
-
     }
     
     func transform() { }
     
-    
-    private func handleRequestLogin() {
-        
-        guard validateInputs() else { return }
-        
-        Task {
-            await performLogin()
-        }
-        
-    }
-    
-    
-    ///  이메일 및 비밀번호 유효성 검사
-    private func validateInputs() -> Bool {
+  
+    private func requestLogin() {
         
         guard input.emailTextField.validateEmail() else {
             output.loginError = .emailInvalidFormat
-            return false
+            return
         }
 
         guard input.passwordTextField.validatePasswordLength(),
               input.passwordTextField.validatePasswordCmplexEnough() else {
             output.loginError = .passwordInvalidFormat
-            return false
+            return
         }
         
         return true
     }
     
   
-    // TODO: 추후 알림을 위해 Device Token 필요
+    
     private func performLogin() async {
         
         do {
             
-            let data = try await emailLoginUseCase.execute(
-                email: input.emailTextField,
-                password: input.passwordTextField,
-                deviceToken: nil
-            )
+            let data = try await emailLoginUseCase.execute(email: input.emailTextField, password: input.passwordTextField)
             
             UserSession.shared.update(data)
             
@@ -118,7 +100,7 @@ extension EmailLoginViewModel {
     func action(_ action: Action) {
         switch action {
         case .logunButtonTapped:
-            handleRequestLogin()
+            requestLogin()
         case .resetError:
             handleResetError()
         }
