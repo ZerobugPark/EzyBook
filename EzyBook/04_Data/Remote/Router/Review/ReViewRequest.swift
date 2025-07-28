@@ -83,7 +83,7 @@ extension ReViewRequest {
         case reviewFiles(id: String,image: [UIImage])
          
         var requiresAuth: Bool {
-            return false
+            return true
         }
         
         var endpoint: URL? {
@@ -105,14 +105,25 @@ extension ReViewRequest {
                 return { form in
                     for (index, image) in images.enumerated() {
                         if let data = image.compressedJPEGData(maxSizeInBytes: 1_000_000) {
+                                          
                             form.append(
                                 data,
                                 withName: "files",
                                 fileName: "review\(index).jpg",
                                 mimeType: "image/jpeg"
                             )
+                            //print("✅ Appending file: review\(index).jpg (\(data.count / 1024) KB)")
+                        } else {
+                            print("❌ Compression failed for image[\(index)]")
                         }
                     }
+//                    // ✅ Final encoded data after all appends
+//                    if let encodedData = try? form.encode() {
+//                        print("✅ Final Encoded size: \(encodedData.count / 1024) KB")
+//                        if let bodyString = String(data: encodedData, encoding: .utf8) {
+//                            print("✅ Encoded body preview: \(bodyString.prefix(500))")
+//                        }
+//                    }
                 }
             }
         }

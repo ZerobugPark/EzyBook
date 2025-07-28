@@ -34,9 +34,9 @@ extension VideoPlayerViewModel {
     
     struct Output {
         
-        var presentedError: DisplayError? = nil
-        var isShowingError: Bool {
-            presentedError != nil
+        var presentedMessage: DisplayMessage? = nil
+        var isShowingMessage: Bool {
+            presentedMessage != nil
         }
         
         var player: AVPlayer?
@@ -73,7 +73,7 @@ extension VideoPlayerViewModel {
                 case .readyToPlay:
                     player.play()
                 case .failed:
-                    self?.output.presentedError = DisplayError.error(code: -1, msg: "비디오 로딩 오류")
+                    self?.output.presentedMessage = DisplayMessage.error(code: -1, msg: "비디오 로딩 오류")
                 default: break
                 }
             }
@@ -104,14 +104,15 @@ extension VideoPlayerViewModel {
 
 // MARK: Alert 처리
 extension VideoPlayerViewModel: AnyObjectWithCommonUI {
+    var isShowingMessage: Bool { output.isShowingMessage }
+    var presentedMessageTitle: String? { output.presentedMessage?.title }
+    var presentedMessageBody: String? { output.presentedMessage?.message }
+    var presentedMessageCode: Int? { output.presentedMessage?.code }
+    var isSuccessMessage: Bool { output.presentedMessage?.isSuccess ?? false }
     
-    var isShowingError: Bool { output.isShowingError }
-    
-    var presentedErrorTitle: String? { output.presentedError?.message.title }
-    
-    var presentedErrorMessage: String? { output.presentedError?.message.msg }
-    
-    var presentedErrorCode: Int?  { output.presentedError?.code }
+    func resetMessageAction() {
+        output.presentedMessage = nil
+    }
     
     
 }

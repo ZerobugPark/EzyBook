@@ -14,16 +14,17 @@ import Combine
 final class ProfileSupplementaryViewModel: ViewModelType {
     
     private let orderListUseCase: OrderListLookUpUseCase
-        
+    
     var input = Input()
     @Published var output = Output()
     
     var cancellables = Set<AnyCancellable>()
     
     init(orderListUseCase: OrderListLookUpUseCase) {
-
+        
         self.orderListUseCase = orderListUseCase
         transform()
+        handleInitialLoad()
     }
     
     
@@ -36,58 +37,79 @@ extension ProfileSupplementaryViewModel {
     
     struct Output {
         var orderList: [OrderEntity] = []
-        var presentedError: DisplayError? = nil
-        var isShowingError: Bool {
-            presentedError != nil
+        var presentedMessage: DisplayMessage? = nil
+        var isShowingMessage: Bool {
+            presentedMessage != nil
         }
+        
+        var userCommerceInfo: (price: Int, reward: Int) = (0, 0)
+        
     }
     
     func transform() {}
     
+    @MainActor
+    private func handleError(_ error: Error) {
+        if let apiError = error as? APIError {
+            output.presentedMessage = DisplayMessage.error(code: apiError.code, msg: apiError.userMessage)
+        } else {
+            output.presentedMessage = DisplayMessage.error(code: -1, msg: error.localizedDescription)
+        }
+    }
     
-    private func handleRequestOrderList() {
-        
+}
+
+// MARK: 주문내역
+extension ProfileSupplementaryViewModel {
+    
+    private func handleInitialLoad() {
         Task {
-            do {
-                let data = try await orderListUseCase.execute()
-                await MainActor.run {
-                    output.orderList = data
-                    dump(data)
-                }
-            } catch let error as APIError {
-                await MainActor.run {
-                    output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
-                }
+            await performOrderListLoad()
+            await MainActor.run {
+                performUpdateUserData(output.orderList)
             }
         }
     }
     
-    private func handleResetError() {
-        output.presentedError = nil
-    }
-    
-    
-}
-
-
-// MARK: Action
-extension ProfileSupplementaryViewModel {
-    
-    enum Action {
-        case onAppearRequested
-        case resetError
-    }
-    
-    /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
-    func action(_ action: Action) {
-        switch action {
-        case .onAppearRequested:
-            handleRequestOrderList()
-        case .resetError:
-            handleResetError()
+    private func performOrderListLoad() async {
+        
+        do {
+            let data = try await orderListUseCase.execute()
+            await MainActor.run {
+                output.orderList = data
+            }
+        } catch {
+            await handleError(error)
         }
     }
     
     
+    
 }
+
+// MARK: 가격 및 포인트 조회
+
+private extension ProfileSupplementaryViewModel {
+    
+    func performUpdateUserData(_ data: [OrderEntity]) {
+        let prcie = performCalcPoint(data)
+        let point = performCalcPice(data)
+        
+        output.userCommerceInfo = (prcie, point)
+
+        
+    }
+    
+    func performCalcPoint(_ data: [OrderEntity]) -> Int {
+        data.map { $0.totalPrice }.reduce(0, +)
+    }
+    
+    func performCalcPice(_ data: [OrderEntity]) -> Int {
+        data.map { $0.activity.pointReward ?? 0 }.reduce(0, +)
+    }
+    
+}
+
+
+
 

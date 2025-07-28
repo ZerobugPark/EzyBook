@@ -11,10 +11,10 @@ struct ProfileLookUpModel {
     
     let userID: String
     let email: String
-    let nick: String
+    var nick: String
     var profileImage: UIImage?
-    let phoneNum: String
-    let introduction: String
+    var phoneNum: String
+    var introduction: String
     
     init (from detail: ProfileLookUpEntity, profileImage: UIImage?) {
         self.userID = detail.userID

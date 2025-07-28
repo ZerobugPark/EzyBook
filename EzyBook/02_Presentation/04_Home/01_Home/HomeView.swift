@@ -66,12 +66,14 @@ struct HomeView: View {
             }
             
         }
-        .withCommonUIHandling(viewModel) { code in
+        .withCommonUIHandling(viewModel) { code, _ in
             if code == 418 {
                 appState.isLoggedIn = false
             }
         }
         .loadingOverlayModify(viewModel.output.isLoading)
+        
+        
     }
      
 }

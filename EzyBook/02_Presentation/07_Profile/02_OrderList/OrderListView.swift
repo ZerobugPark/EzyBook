@@ -10,12 +10,12 @@ import SwiftUI
 
 // MARK: - Main View
 struct OrderListView: View {
-  
-    let orderList: [OrderEntity]
-    
+
     @StateObject var viewModel: OrderListViewModel
     @ObservedObject var coordinator: ProfileCoordinator
+    var onRatingUpdated: ((String, Int) -> Void)?
     
+    @EnvironmentObject var appState: AppState
     @State private var selectedOrder: OrderList?
     
     
@@ -24,8 +24,10 @@ struct OrderListView: View {
         ZStack {
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVStack(spacing: 16) {
-                    ForEach(viewModel.output.orderList, id: \.orderID) { list in
-                        makeOrderListView(list)
+                    ForEach(viewModel.output.groupedOrderList) { group in
+                        OrderListGroupView(group: group) { order in
+                            selectedOrder = order
+                        }
                     }
                 }
                 .padding(.horizontal, 20)
@@ -46,119 +48,136 @@ struct OrderListView: View {
         }
         .fullScreenCover(item: $selectedOrder) { order in
             coordinator.makeWriteReviewView(order.activityID, order.orderCode) { (orderCode, rating) in
-                viewModel.action(.updateRating(orderCode: orderCode, rating: rating))
+                onRatingUpdated?(orderCode, rating)
             }
         }
- 
-        .onAppear {
-            viewModel.action(.onAppearRequested(data: orderList))
+        .withCommonUIHandling(viewModel) { code, _ in
+            if code == 418 {
+                appState.isLoggedIn = false
+            }
         }
-        .commonAlert(
-            isPresented: Binding(
-                get: { viewModel.output.isShowingError },
-                set: { isPresented in
-                    if !isPresented {
-                        viewModel.action(.resetError)
-                    }
-                }
-            ),
-            title: viewModel.output.presentedError?.message.title,
-            message: viewModel.output.presentedError?.message.msg
-        )
         .loadingOverlayModify(viewModel.output.isLoading)
     }
 }
 
-extension OrderListView {
+private extension OrderListView {
     
-    
-    private func makeOrderListView(_ data: OrderList) -> some View {
-        VStack(spacing: 0) {
-            makeMainContent(data)
-            makeRatingView(data)
-        }
-        .background(.grayScale0)
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 2)
-    }
-    
-    
-    private func makeMainContent(_ data: OrderList) -> some View {
-        // Main content card
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top, spacing: 12) {
-                // Text content
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(data.title)
-                        .appFont(PretendardFontStyle.title1, textColor: .grayScale100)
-                        .multilineTextAlignment(.leading)
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("\(data.date) \(data.time)")
-                            .appFont(PretendardFontStyle.body3, textColor: .grayScale60)
-                        
-                        Text(data.country)
-                            .appFont(PretendardFontStyle.body3, textColor: .grayScale75)
+    struct OrderListGroupView: View {
+        
+        let group: GroupedOrder
+        let onSelectOrder: (OrderList) -> Void
+        
+        var body: some View {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(group.date)
+                    .appFont(PaperlogyFontStyle.caption, textColor: .grayScale100)
+                    .padding([.top, .leading], 4)
+                
+                ForEach(group.orders, id: \.orderID) { order in
+                    OrderListCardView(data: order) {
+                        onSelectOrder(order)
                     }
                 }
-                
-                Spacer()
-                
-                Image(uiImage: data.image)
-                    .resizable()
-                    .frame(width: 80, height: 80)
-                    .foregroundColor(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-            
+            }
+        }
         
-            }
-        }
-        .padding(16)
-        .background(.grayScale0)
-        .cornerRadius(12)
     }
     
-    
-    @ViewBuilder
-    private func makeRatingView(_ data: OrderList) -> some View {
-        // Rating section
-        if data.hasRating {
-            HStack(alignment: .center, spacing: 6) {
-                Spacer()
-                
-                Image(.iconStarFill)
-                    .renderingMode(.template)
-                    .resizable()
-                    .frame(width: 20, height: 20)
-                    .foregroundColor(.rosyPunch)
-                
-                
-                Text("\(data.rating!)")
-                    .appFont(PretendardFontStyle.body2, textColor: .grayScale100)
-                
-                Spacer()
+    // MARK: - Card Component
+    struct OrderListCardView: View {
+        let data: OrderList
+        let onSelect: () -> Void
+        
+        var body: some View {
+            VStack(spacing: 0) {
+                OrderListMainContentView(data: data)
+                OrderListRatingView(data: data, onSelect: onSelect)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .background(Color.gray.opacity(0.05))
-            .cornerRadius(12, corners: [.bottomLeft, .bottomRight])
-        } else {
-            // Placeholder for activities without rating
-            Button {
-                selectedOrder = data
-            } label: {
-                Text("리뷰 작성를 작성해주세요")
-            }
-            .font(.system(size: 14))
-            .appFont(PretendardFontStyle.body2, textColor: .grayScale75)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .frame(maxWidth: .infinity)
-            .background(Color.gray.opacity(0.05))
-            .cornerRadius(12, corners: [.bottomLeft, .bottomRight])
-            
+            .background(.grayScale0)
+            .cornerRadius(12)
+            .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 2)
         }
     }
+    
+    // MARK: - Main Content
+    struct OrderListMainContentView: View {
+        let data: OrderList
+        
+        var body: some View {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(alignment: .top, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(data.title)
+                            .appFont(PretendardFontStyle.title1, textColor: .grayScale100)
+                            .multilineTextAlignment(.leading)
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("투어 일시: \(data.date) \(data.time)")
+                                .appFont(PretendardFontStyle.body3, textColor: .grayScale60)
+                            
+                            Text(data.country)
+                                .appFont(PretendardFontStyle.body3, textColor: .grayScale75)
+                            Text("결제 금액: \(data.price)원")
+                                .appFont(PretendardFontStyle.body3, textColor: .grayScale75)
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    Image(uiImage: data.image)
+                        .resizable()
+                        .frame(width: 80, height: 80)
+                        .foregroundColor(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+            }
+            .padding(16)
+            .background(.grayScale0)
+            .cornerRadius(12)
+        }
+    }
+
+    
+    // MARK: - Rating View
+    struct OrderListRatingView: View {
+        let data: OrderList
+        let onSelect: () -> Void
+        
+        var body: some View {
+            if data.hasRating {
+                HStack(alignment: .center, spacing: 6) {
+                    Spacer()
+                    Image(.iconStarFill)
+                        .renderingMode(.template)
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .foregroundColor(.rosyPunch)
+                    
+                    Text("\(data.rating!)")
+                        .appFont(PretendardFontStyle.body2, textColor: .grayScale100)
+                    Spacer()
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(Color.gray.opacity(0.05))
+                .cornerRadius(12, corners: [.bottomLeft, .bottomRight])
+            } else {
+                Button {
+                    onSelect()
+                } label: {
+                    Text("리뷰 작성를 작성해주세요")
+                }
+                .font(.system(size: 14))
+                .appFont(PretendardFontStyle.body2, textColor: .grayScale75)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity)
+                .background(Color.gray.opacity(0.05))
+                .cornerRadius(12, corners: [.bottomLeft, .bottomRight])
+            }
+        }
+    }
+ 
 }
 
 

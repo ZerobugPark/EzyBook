@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 final class ProfileDIContainer {
     
@@ -76,6 +77,12 @@ extension ProfileDIContainer {
         )
         
     }
+    
+    // MARK:  Review Detail 조회
+    private func makeReviewDetailUseCase() -> ReviewDetailUseCase {
+        DefaultReviewDetailUseCase(repo: commonDIContainer.makeReviewRepository())
+    }
+
 
 
     
@@ -97,14 +104,18 @@ extension ProfileDIContainer {
         
         ProfileViewModel(
             profileUseCases: makeProfileUseCases(),
-            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase()
+            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase(),
+            scale: UIScreen.main.scale
         )
     }
     
     
-    func makeOrderListViewModel() -> OrderListViewModel {
+    func makeOrderListViewModel(orderList: [OrderEntity]) -> OrderListViewModel {
+        
         OrderListViewModel(
-            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase()
+            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase(),
+            orderList: orderList,
+            scale: UIScreen.main.scale
         )
     }
     
@@ -114,8 +125,30 @@ extension ProfileDIContainer {
         )
     }
     
-    func makeWriteReviewViewModel() -> WriteReviewViewModel {
-        WriteReviewViewModel(reviewUseCases: makeReviewUseCases())
+    func makeWriteReviewViewModel(id: String, code: String) -> WriteReviewViewModel {
+        WriteReviewViewModel(
+            reviewUseCases: makeReviewUseCases(),
+            activityId: id,
+            orderCode: code
+        )
+    }
+    
+    func makeReviewViewModel(list: [OrderEntity]) -> ReviewDetailViewModel {
+        
+        let filterList = list.filter { $0.review != nil }
+        
+        return ReviewDetailViewModel(
+            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase(),
+            reviewDetailUseCase: makeReviewDetailUseCase(),
+            orderList: filterList,
+            scale: UIScreen.main.scale
+        )
+    }
+    
+    func makeProfileModifyViewModel() -> ProfileModifyViewModel {
+        ProfileModifyViewModel(
+            useCase: makeProfileModifyUseCase()
+        )
     }
     
 }

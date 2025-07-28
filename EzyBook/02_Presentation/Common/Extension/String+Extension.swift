@@ -11,7 +11,7 @@ import CryptoKit
 //Vaildation
 extension String {
     
-    /// 이메일 유효성 검사 (서버에 있는데, 굳이 내가 체크를 할까?)
+    /// 이메일 유효성 검사 
     /// ^:  문자열의 시작,
     /// [A-Z0-9a-z._%+-]+: 이메일의 앞 부분
     /// @: @기호 필수
@@ -50,3 +50,36 @@ extension String {
     }
 }
 
+
+// MARK: - String Extension for Date Parsing and Formatting
+extension String {
+    func toDate(using formatter: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return f
+    }()) -> Date? {
+        return formatter.date(from: self)
+    }
+    
+    func toDisplayDate(format: String = "yyyy-MM-dd") -> String {
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        
+        let displayFormatter = DateFormatter()
+        displayFormatter.dateFormat = format
+        displayFormatter.locale = Locale(identifier: "ko_KR")
+        
+        if let date = isoFormatter.date(from: self) {
+            return displayFormatter.string(from: date)
+        } else {
+            return self
+        }
+    }
+}
+
+/// 빈문자열 비교
+extension String {
+    func or(_ fallback: String) -> String {
+        isEmpty ? fallback : self
+    }
+}

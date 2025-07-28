@@ -148,12 +148,15 @@ extension HomeDIContainer {
         )
     }
     
+    // UIScreen.main.scale -> 삭제될 예정
+    // DI로 주입은 해주나, 나중에 onAppear 사점에서 추가적으로 주입해야 할 수도 있음
     func makeBannerViewModel() -> BannerViewModel {
         BannerViewModel(
             imageLoadUseCases: commonDIContainer.makeImageLoadUseCase(),
             bannerUseCase: makeBannerInfoUseCase(),
             scale: UIScreen.main.scale
         )
+        
     }
 
     func makeZoomableImageFullScreenViewModel() -> ZoomableImageFullScreenViewModel {

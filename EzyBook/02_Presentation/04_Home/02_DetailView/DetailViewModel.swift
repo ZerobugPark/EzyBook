@@ -53,7 +53,7 @@ extension DetailViewModel {
         
         var isLoading = true
         
-        var presentedError: DisplayError? = nil
+        var presentedError: DisplayMessage? = nil
         var isShowingError: Bool {
             presentedError != nil
         }
@@ -93,7 +93,7 @@ extension DetailViewModel {
                 }
             } catch let error as APIError {
                 await MainActor.run {
-                    output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+                    output.presentedError = DisplayMessage.error(code: error.code, msg: error.userMessage)
                 }
             }
             
@@ -238,7 +238,7 @@ extension DetailViewModel {
                 }
             } catch let error as APIError {
                 await MainActor.run {
-                    output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+                    output.presentedError = DisplayMessage.error(code: error.code, msg: error.userMessage)
                 }
             }
             
@@ -248,11 +248,11 @@ extension DetailViewModel {
         }
     }
     
-    private func handleShowPaymentReulst(_ msg: DisplayError?) {
+    private func handleShowPaymentReulst(_ msg: DisplayMessage?) {
         if let msg {
             output.presentedError = msg
         } else {
-            output.presentedError = DisplayError.sucess(msg: "결제가 완료되었습니다.")
+           // output.presentedError = DisplayMessage.sucess(msg: "결제가 완료되었습니다.")
         }
     }
     
@@ -277,7 +277,7 @@ extension DetailViewModel {
                 
             } catch let error as APIError {
                 await MainActor.run {
-                    output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+                    output.presentedError = DisplayMessage.error(code: error.code, msg: error.userMessage)
                 }
             } catch {
                 print(error)
@@ -297,7 +297,7 @@ extension DetailViewModel {
         case updateScale(scale: CGFloat)
         case keepButtonTapped
         case makeOrder(id: String, name: String, time: String, count: Int, price: Int)
-        case showPaymentResult(message: DisplayError?)
+        case showPaymentResult(message: DisplayMessage?)
         case makeChatRoom
         case resetError
         

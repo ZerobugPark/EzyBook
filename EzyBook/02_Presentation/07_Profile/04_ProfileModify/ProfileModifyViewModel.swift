@@ -1,14 +1,28 @@
 //
-//  CreateAccountViewModel.swift
+//  ProfileModifyViewModel.swift
 //  EzyBook
 //
-//  Created by youngkyun park on 5/11/25.
+//  Created by youngkyun park on 7/28/25.
 //
 
 import SwiftUI
 import Combine
 
-final class CreateAccountViewModel: ViewModelType {
+struct ConfirmPayload {
+    let nick: String
+    let phone: String
+    let intro: String
+    
+    init(title: String = "", phone: String = "", intro: String = "") {
+        self.nick = title
+        self.phone = phone
+        self.intro = intro
+    }
+}
+
+
+
+final class ProfileModifyViewModel: ViewModelType {
     
     var input = Input()
     @Published var output = Output()
@@ -16,23 +30,21 @@ final class CreateAccountViewModel: ViewModelType {
         
     var cancellables = Set<AnyCancellable>()
     
-    private let createUseCases: CreateAccountUseCases
+    private let useCase: ProfileModifyUseCase
     
-    init(createUseCases: CreateAccountUseCases) {
-        self.createUseCases = createUseCases
+    init(useCase: ProfileModifyUseCase) {
+        self.useCase = useCase
         transform()
     }
     
 }
 
 // MARK: Input/Output
-extension CreateAccountViewModel {
+extension ProfileModifyViewModel {
         
 
     struct Input {
-        var emailTextField = ""
-        var passwordTextField = ""
-        var passwordConfirmTextField = ""
+        
         var nicknameTextField = ""
         var phoneNumberTextField = ""
         var introduceTextField = ""
@@ -40,25 +52,14 @@ extension CreateAccountViewModel {
     
     struct Output {
         /// 뷰의 상태 표시
-        var isVaildEmail = false
-        var isAvailableEmail = false
-        var isPasswordLongEnough = false
-        var isPasswordComplexEnough = false
-        var isValidPassword = false
         var isValidNickname = false
         var isValidPhoneNumber = false
-
         var presentedMessage: DisplayMessage? = nil
-                
-        var isFormValid: Bool {
-            isVaildEmail && isAvailableEmail && isValidPassword && isValidNickname
-        }
-    
         
         var isShowingMessage: Bool {
             presentedMessage != nil
         }
-
+        var userPayload = ConfirmPayload()
 
     }
     
@@ -78,80 +79,15 @@ extension CreateAccountViewModel {
     
     @MainActor
     private func handleSuccess() {
-        output.presentedMessage = .success(msg: "회원가입이 완료되었습니다.")
+        output.presentedMessage = .success(msg: "프로필 수정이 완료되었습니다.")
     }
     
 
-
-}
-
-// MARK: Email TextField
-extension CreateAccountViewModel {
-
-    /// 이메일 유효성 검사 및 중복확인
-    /// Validates email format and checks for duplication
-    private func handleEmailEditingCompleted() {
-        
-        output.isVaildEmail = checkEmailFormat(input.emailTextField)
-
-        if output.isVaildEmail {
-            Task {
-                await validateEmailAvailability()
-            }
-        }
-    
-    }
-    
-    /// 이메일(로컬) 유효성 검사
-    /// Validates email (locally)
-    private func checkEmailFormat(_ email: String) -> Bool {
-        email.validateEmail()
-    }
-    
-    /// 이메일 유효성 검사 및 중복 체크 (서버)
-    /// Validates the email and checks for duplication on the server
-    private func validateEmailAvailability() async {
-        
-        do {
-            try await createUseCases.verifyEmail.execute(input.emailTextField)
-           
-            await MainActor.run {
-                output.isAvailableEmail = true
-            }
-            
-        } catch {
-            output.isAvailableEmail = false
-            await handleError(error)
-        }
-    }
-
-
-
-}
-
-
-// MARK: Password TextField
-extension CreateAccountViewModel {
-    /// 비밀번호 일치 여부 (사용 가능 여부)
-    var isPasswordMatched: Bool {
-        return input.passwordTextField == input.passwordConfirmTextField
-    }
-    
-    /// 비밀번호 필드, 유효성 검사
-    private func handlePasswordEditingCompleted() {
-        output.isPasswordLongEnough = input.passwordTextField.validatePasswordLength()
-        output.isPasswordComplexEnough = input.passwordTextField.validatePasswordCmplexEnough()
-       
-        if output.isPasswordLongEnough && output.isPasswordComplexEnough {
-            output.isValidPassword = isPasswordMatched
-        }
- 
-    }
 
 }
 
 // MARK: NickName TextField
-extension CreateAccountViewModel {
+extension ProfileModifyViewModel {
     
     /// Validates NickName
     private func handleNicknameEditingCompleted() {
@@ -175,7 +111,7 @@ extension CreateAccountViewModel {
 }
 
 // MARK: Phone Text Field
-extension CreateAccountViewModel {
+extension ProfileModifyViewModel {
     
 
     /// Checks if the given phone number is valid (e.g., exactly 11 digits, etc.)
@@ -194,34 +130,37 @@ extension CreateAccountViewModel {
 }
 
 
-// MARK: SignUp Button Tapped (회원가입 클릭)
-extension CreateAccountViewModel {
+// MARK: SignUp Button Tapped (수정하기 버튼 클릭)
+extension ProfileModifyViewModel {
     
     
-    private func handleSignUpButtonTapped() {
+    private func handleModifyButtonTapped() {
         Task {
-            await performSignUpRequest()
+            await performModifyRequest()
         }
     }
     
-    private func performSignUpRequest() async {
+    private func performModifyRequest() async {
         
         do {
-            try await createUseCases.signUp.execute(
-                email: input.emailTextField,
-                password: input.passwordConfirmTextField,
+            let data = try await useCase.execute(
                 nick: input.nicknameTextField,
+                profileImage: nil,
                 phoneNum: input.phoneNumberTextField.isEmpty ? nil : input.phoneNumberTextField,
-                introduction: input.introduceTextField.isEmpty ? nil : input.introduceTextField,
-                deviceToken: nil
+                introduce: input.introduceTextField.isEmpty ? nil : input.introduceTextField,
             )
-                
+            
+            output.userPayload = ConfirmPayload(
+                title: data.nick,
+                phone: data.phoneNum,
+                intro: data.introduction
+            )
             await MainActor.run {
-                
                 handleSuccess()
+                
             }
         } catch {
-            output.isAvailableEmail = false
+            
             await handleError(error)
         }
         
@@ -233,29 +172,23 @@ extension CreateAccountViewModel {
 
 
 // MARK: Action
-extension CreateAccountViewModel {
+extension ProfileModifyViewModel {
     
     enum Action {
-        case emailEditingCompleted
-        case passwordEditingCompleted
         case nickNameEditingCompleted
         case phoneNumberEditingCompleted
-        case signUpButtonTapped
+        case modifyButtonTapped
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
         func action(_ action: Action) {
         switch action {
-        case .emailEditingCompleted:
-            handleEmailEditingCompleted()
-        case .passwordEditingCompleted:
-            handlePasswordEditingCompleted()
         case .nickNameEditingCompleted:
             handleNicknameEditingCompleted()
         case .phoneNumberEditingCompleted:
             handlePhoneNumberEditingCompleted()
-        case .signUpButtonTapped:
-            handleSignUpButtonTapped()
+        case .modifyButtonTapped:
+            handleModifyButtonTapped()
         }
     }
     
@@ -263,7 +196,7 @@ extension CreateAccountViewModel {
 }
 
 // MARK: Alert 처리
-extension CreateAccountViewModel: AnyObjectWithCommonUI {
+extension ProfileModifyViewModel: AnyObjectWithCommonUI {
     
     var isShowingError: Bool { output.isShowingMessage }
     var isShowingMessage: Bool { output.isShowingMessage }
@@ -278,3 +211,4 @@ extension CreateAccountViewModel: AnyObjectWithCommonUI {
     
     
 }
+

@@ -33,25 +33,25 @@ extension PaymentViewModel {
     struct Input {  }
     
     struct Output {
-        var presentedError: DisplayError? = nil
+        var presentedError: DisplayMessage? = nil
     }
     
     func transform() {}
     
 
     
-    private func handleValidateReceipt(_ impUid: String, _ merchantUid: String, completion: @escaping (DisplayError?) -> Void) {
+    private func handleValidateReceipt(_ impUid: String, _ merchantUid: String, completion: @escaping (DisplayMessage?) -> Void) {
         Task {
             await performValidateReceipt(impUid, merchantUid, completion: completion)
         }
     }
 
-    private func performValidateReceipt(_ impUid: String, _ merchantUid: String, completion: @escaping (DisplayError?) -> Void) async {
+    private func performValidateReceipt(_ impUid: String, _ merchantUid: String, completion: @escaping (DisplayMessage?) -> Void) async {
         do {
             let data = try await vaildationUseCase.execute(impUid: impUid)
             await MainActor.run {
                 if data.orderItem.orderCode != merchantUid {
-                    let error = DisplayError.error(code: 0, msg: "결제는 성공했으나, merchant가 다름")
+                    let error = DisplayMessage.error(code: 0, msg: "결제는 성공했으나, merchant가 다름")
                     output.presentedError = error
                     completion(error)
                 } else {
@@ -69,9 +69,9 @@ extension PaymentViewModel {
     @MainActor
     private func handleError(_ error: Error) {
         if let apiError = error as? APIError {
-            output.presentedError = DisplayError.error(code: apiError.code, msg: apiError.userMessage)
+            output.presentedError = DisplayMessage.error(code: apiError.code, msg: apiError.userMessage)
         } else {
-            output.presentedError = DisplayError.error(code: -1, msg: error.localizedDescription)
+            output.presentedError = DisplayMessage.error(code: -1, msg: error.localizedDescription)
         }
         
         
@@ -83,7 +83,7 @@ extension PaymentViewModel {
 extension PaymentViewModel {
     
     enum Action {
-        case vaildation(impUid: String, merchantUid: String, completion: (DisplayError?) -> Void)
+        case vaildation(impUid: String, merchantUid: String, completion: (DisplayMessage?) -> Void)
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)

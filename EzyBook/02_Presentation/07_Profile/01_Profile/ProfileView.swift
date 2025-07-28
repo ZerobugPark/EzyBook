@@ -14,13 +14,15 @@ struct ProfileView: View {
     @StateObject var supplementviewModel: ProfileSupplementaryViewModel
     @ObservedObject var coordinator: ProfileCoordinator
     @EnvironmentObject var appState: AppState
-    @Environment(\.displayScale) var scale
     
     
     /// 이미지 피커
     @State private var isImagePickerPresented = false
     @State private var photoItems: [PhotosPickerItem] = []
     @State private var selectedImage: IdentifiableImage?
+    
+
+    @State private var modifyTapped = false
     
     var data: ProfileLookUpModel {
         viewModel.output.profile
@@ -43,13 +45,6 @@ struct ProfileView: View {
                 ToolbarItem(placement: .topBarLeading) {
                     TitleTextView(title: "PROFILE")
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {}) {
-                        Image(.iconSetting)
-                            .renderingMode(.template)
-                            .foregroundColor(.grayScale60)
-                    }
-                }
             }
         }
         .photosPicker(
@@ -60,8 +55,7 @@ struct ProfileView: View {
             photoLibrary: .shared()
         )
         .onAppear {
-            viewModel.action(.onAppearRequested)
-            supplementviewModel.action(.onAppearRequested)
+            viewModel.action(.bindSupplement(supplementviewModel))
         }
         .onChange(of: photoItems) { newItems in
             guard let firstItem = newItems.first else {
@@ -69,13 +63,7 @@ struct ProfileView: View {
                 return
             }
             
-            Task {
-                if let data = try? await firstItem.loadTransferable(type: Data.self),
-                   let image = UIImage(data: data) {
-                    selectedImage = IdentifiableImage(image: image)
-                    
-                }
-            }
+            loadSelectedPhotoItem(firstItem)
         }
         .fullScreenCover(item: $selectedImage) { identifiable in
             coordinator.makeConfirmImageView(
@@ -91,34 +79,28 @@ struct ProfileView: View {
                 }
             )
         }
-        
-        .commonAlert(
-            isPresented: Binding(
-                get: { viewModel.output.isShowingError },
-                set: { isPresented in
-                    if !isPresented {
-                        viewModel.action(.resetError)
-                    }
-                }
-            ),
-            title: viewModel.output.presentedError?.message.title,
-            message: viewModel.output.presentedError?.message.msg
-        )
-        .commonAlert(
-            isPresented: Binding(
-                get: { supplementviewModel.output.isShowingError },
-                set: { isPresented in
-                    if !isPresented {
-                        supplementviewModel.action(.resetError)
-                    }
-                }
-            ),
-            title: supplementviewModel.output.presentedError?.message.title,
-            message: supplementviewModel.output.presentedError?.message.msg
-        )
+        .fullScreenCover(isPresented: $modifyTapped) {
+            coordinator.makeProfileModifyView { data in
+                viewModel.action(.modifyProfileData(data))
+            }
+        }
+        .withCommonUIHandling(viewModel) { code, _ in
+            if code == 418 {
+                appState.isLoggedIn = false
+            }
+        }
         .loadingOverlayModify(viewModel.output.isLoading)
     }
     
+    
+    private func loadSelectedPhotoItem(_ item: PhotosPickerItem) {
+        Task {
+            if let data = try? await item.loadTransferable(type: Data.self),
+               let image = UIImage(data: data) {
+                selectedImage = IdentifiableImage(image: image)
+            }
+        }
+    }
     
 }
 
@@ -128,54 +110,13 @@ extension ProfileView {
     private func makeProfileSection() -> some View {
         // MARK: - 프로필 이미지
         VStack(spacing: 40) {
-            makeProfileImageView()
+            ProfileImageView(
+                image: viewModel.output.profile.profileImage,
+                onEditTap: { isImagePickerPresented = true }
+            )
             makeprofileCardView()
         }
         .padding(.vertical, 20)
-    }
-    
-    private func makeProfileImageView() -> some View {
-        ZStack {
-            Circle()
-                .fill(.grayScale0)
-                .frame(width: 140, height: 140)
-                .shadow(color: .gray.opacity(0.3), radius: 10, x: 0, y: 5)
-            
-            Circle()
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: [Color.deepSeafoam.opacity(0.6), Color.blackSeafoam.opacity(0.4)]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(width: 120, height: 120)
-                .overlay {
-                    /// 업로드했는데, 서버에서 다시 받아오면 왜 URL이 없을까?.
-                    if let image = viewModel.output.profile.profileImage {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFill()
-                            .clipShape(Circle())
-                            .frame(width: 120, height: 120)
-                    } else {
-                        Image(.tabBarProfileFill)
-                            .renderingMode(.template)
-                            .resizable()
-                            .frame(width: 80, height: 80)
-                            .foregroundStyle(.grayScale0)
-                    }
-                    
-                    
-                    
-                }
-                .onTapGesture {
-                    //TODO: 미리보기
-                }
-            
-            
-            makeModifyProfileImage()
-        }
     }
     
     
@@ -216,7 +157,7 @@ extension ProfileView {
                 HStack {
                     Spacer()
                     Button(action: {
-                        print("edit profile")
+                        modifyTapped = true
                     }) {
                         Text("수정")
                             .appFont(PretendardFontStyle.body1, textColor: .grayScale75)
@@ -236,33 +177,13 @@ extension ProfileView {
                 .appFont(PretendardFontStyle.body2, textColor: .grayScale100)
                 .multilineTextAlignment(.center)
             
-            // 태그들
-            HStack(spacing: 8) {
-                tagView(text: "1위 튜어", color: .blue)
-                tagView(text: "2위 액티비티", color: .blue)
-                tagView(text: "3위 체험", color: .blue)
-            }
-            .frame(maxWidth: .infinity, alignment: .center)
-            
             Spacer(minLength: 20)
             
             // 통계
-            HStack(spacing: 40) {
-                statView(
-                    icon: "star.fill",
-                    value: "1,342,545원",
-                    label: "총 사용 금액",
-                    iconColor: .blue
-                )
-                
-                statView(
-                    icon: "diamond.fill",
-                    value: "148,400P",
-                    label: "누적 적립 포인트",
-                    iconColor: .blue
-                )
-            }
-            .frame(maxWidth: .infinity, alignment: .center)
+            UserStatSectionView(
+                price: viewModel.output.userCommerceInfo.0,
+                point: viewModel.output.userCommerceInfo.1
+            )
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 24)
@@ -285,27 +206,123 @@ extension ProfileView {
             )
     }
     
-    private func statView(icon: String, value: String, label: String, iconColor: Color) -> some View {
-        VStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.system(size: 24))
-                .foregroundColor(iconColor)
-            
-            Text(value)
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(.black)
-            
-            Text(label)
-                .font(.system(size: 12))
-                .foregroundColor(.gray)
-                .multilineTextAlignment(.center)
+
+    // MARK: - UserStatSectionView
+    private struct UserStatSectionView: View {
+        let price: Int
+        let point: Int
+
+        var body: some View {
+            HStack(spacing: 40) {
+                StatView(
+                    icon: .iconStarFill,
+                    value: "\(price)원",
+                    label: "총 사용 금액",
+                )
+
+                StatView(
+                    icon: .iconHot,
+                    value: "\(point)P",
+                    label: "누적 적립 포인트",
+                )
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+        }
+    }
+
+    private struct StatView: View {
+        let icon: ImageResource
+        let value: String
+        let label: String
+
+        var body: some View {
+            VStack(spacing: 8) {
+                Image(icon)
+                    .renderingMode(.template)
+                    .resizable()
+                    .frame(width: 24, height: 24)
+                    .foregroundStyle(.blackSeafoam)
+                    
+
+                Text(value)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.black)
+
+                Text(label)
+                    .font(.system(size: 12))
+                    .foregroundColor(.gray)
+                    .multilineTextAlignment(.center)
+            }
+        }
+    }
+    
+    private struct ProfileImageView: View {
+        let image: UIImage?
+        let onEditTap: () -> Void
+
+        var body: some View {
+            ZStack {
+                Circle()
+                    .fill(.grayScale0)
+                    .frame(width: 140, height: 140)
+                    .shadow(color: .gray.opacity(0.3), radius: 10, x: 0, y: 5)
+
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.deepSeafoam.opacity(0.6), Color.blackSeafoam.opacity(0.4)]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 120, height: 120)
+                    .overlay {
+                        if let image {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFill()
+                                .clipShape(Circle())
+                                .frame(width: 120, height: 120)
+                        } else {
+                            Image(.tabBarProfileFill)
+                                .renderingMode(.template)
+                                .resizable()
+                                .frame(width: 80, height: 80)
+                                .foregroundStyle(.grayScale0)
+                        }
+                    }
+                    .onTapGesture {
+                        // TODO: 이미지 미리보기
+                    }
+
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Button {
+                            onEditTap()
+                        } label: {
+                            Circle()
+                                .fill(Color.blackSeafoam.opacity(1.0))
+                                .frame(width: 32, height: 32)
+                                .overlay(
+                                    Image(systemName: "camera.fill")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.grayScale0)
+                                )
+                        }
+                        .contentShape(Circle())
+                        .offset(x: -10, y: -10)
+                    }
+                }
+                .frame(width: 140, height: 140)
+            }
         }
     }
     
 }
 
 // MARK: 활동 관련 테이블 뷰
-
 extension ProfileView {
     
     private func makeMenuView() -> some View {
@@ -393,7 +410,7 @@ extension ProfileView {
                         print("내가 좋아요한 액티비티")
                     },
                     MenuItem(icon: "pencil", title: "리뷰 조회") {
-                        print("리뷰 조회")
+                        coordinator.push(.reviewListView(list: supplementviewModel.output.orderList))
                     }
                 ]
             ),
@@ -430,4 +447,3 @@ extension ProfileView {
     }
     
 }
-

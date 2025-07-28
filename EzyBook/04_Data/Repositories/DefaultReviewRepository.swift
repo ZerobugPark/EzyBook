@@ -8,7 +8,7 @@
 import Foundation
 
 
-final class DefaultReviewRepository: ReviewRatingListRepository, ReviewWriteRepository {
+final class DefaultReviewRepository: ReviewRatingListRepository, ReviewWriteRepository, ReviewDetailRepository {
 
 
     private let networkService: NetworkService
@@ -44,6 +44,16 @@ final class DefaultReviewRepository: ReviewRatingListRepository, ReviewWriteRepo
         let data = try await networkService.fetchData(dto: UserReviewResponseDTO.self, router)
         return data.toEntity()
         
+        
+    }
+    
+    func reqeustReviewList(_ activityID: String, _ reviewID: String) async throws -> UserReviewEntity {
+        
+        let router = ReViewRequest.Get.reviewDetail(id: activityID, reviewID: reviewID)
+        
+        let data = try await networkService.fetchData(dto: UserReviewResponseDTO.self, router)
+        
+        return data.toEntity()
         
     }
 

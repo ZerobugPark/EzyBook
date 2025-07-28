@@ -11,17 +11,16 @@ import PhotosUI
 struct WriteReViewView: View {
     
     @Environment(\.dismiss) private var dismiss
-    /// 어디까지 뷰모델에서 관리해줘야할까?
+  
     @State private var rating = 0
     @State private var selectedPhotos: [PhotosPickerItem] = []
-    @State private var selectedImages: [UIImage] = []
+    @State private var selectedMedia: [PickerSelectedMedia] = []
     
-    let activityId: String
-    let orderCode: String
+
     let onConfirm: (String, Int) -> Void
     
     @FocusState private var isTextEditorFocused: Bool
-    
+    @EnvironmentObject var appState: AppState
     @StateObject var viewModel: WriteReviewViewModel
     
     var body: some View {
@@ -36,66 +35,48 @@ struct WriteReViewView: View {
                     }
                     .zIndex(-1) // 다른 뷰들보다 뒤에 배치
             }
-            
             VStack(spacing: 0) {
-                makeNavigationBar()
-                makePhotoSelectionView()
+                CommonNavigationBar(
+                    title: "리뷰 작성", leadingAction: {
+                        dismiss()
+                    })
+                
+                
+                MediaPickerView(
+                    mediaType: .image,
+                    maxImageCount: 5,
+                    selectedMedia: $selectedMedia
+                )
+                
                 makeReviewTextField()
                 makeStarRatingView()
                 Spacer()
-                makeCompleteButton()
-            }
-        }
-        .commonAlert(
-            isPresented: Binding(
-                get: { viewModel.output.isShowingError },
-                set: { isPresented in
-                    if !isPresented {
-                        viewModel.action(.resetError)
-                    }
-                }
-            ),
-            title: viewModel.output.presentedError?.message.title,
-            message: viewModel.output.presentedError?.message.msg
-        )
-        .commonAlert(
-            isPresented: Binding(
-                get: { viewModel.output.writeSuccess },
-                set: { isPresented in
-                    if !isPresented {
-                        onConfirm(orderCode, rating)
-                        dismiss()
-                    }
-                }
-            ),
-            title: "완료",
-            message: "리뷰가 성공적으로 작성되었습니다"
-        )
-    }
-    private func makeCompleteButton() -> some View {
-        VStack {
-            
-            
-            Button(action: {
-                // 작성 완료 액션
-                viewModel.action(.writeReView(id: activityId, image: selectedImages, rating: rating, orderCode: orderCode))
                 
-            }) {
-                Text("작성 완료")
-                    .appFont(PaperlogyFontStyle.body)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
-                    .background(isFormValid ? Color.blue : Color.gray)
-                    .cornerRadius(12)
+                PrimaryActionButton(
+                    title: "작성 완료",
+                    isEnabled: isFormValid
+                ) {
+                    viewModel.action(
+                        .writeReView(
+                            images: selectedMedia.filter { $0.type == .image }.compactMap { $0.image },
+                            rating: rating
+                        )
+                    )
+                }
+                
             }
-            .disabled(!isFormValid)
-            .padding(.horizontal, 20)
-            .padding(.vertical, 15)
         }
-        .background(.grayScale0)
+        .withCommonUIHandling(viewModel) { code, isSuccess in
+            if isSuccess {
+                onConfirm(viewModel.orderCode, rating)
+                dismiss()
+            } else if code == 418 {
+                appState.isLoggedIn = false
+            }
+        }
     }
     
+
     // 폼 유효성 검사
     private var isFormValid: Bool {
         return !viewModel.input.reviewText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && rating > 0
@@ -136,67 +117,6 @@ extension WriteReViewView {
         .background(Color.white)
     }
     
-    private func makePhotoSelectionView() -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("사진 (최대 3장)")
-                .appFont(PretendardFontStyle.body1)
-            
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
-                    // 사진 추가 버튼
-                    if selectedImages.count < 3 {
-                        PhotosPicker(
-                            selection: $selectedPhotos,
-                            maxSelectionCount: 3 - selectedImages.count,
-                            matching: .images
-                        ) {
-                            VStack {
-                                Image(systemName: "plus")
-                                    .appFont(PretendardFontStyle.body1, textColor: .grayScale75)
-                                Text("사진 추가")
-                                    .appFont(PretendardFontStyle.body1, textColor: .grayScale75)
-                            }
-                            .frame(width: 80, height: 80)
-                            .background(Color.gray.opacity(0.1))
-                            .cornerRadius(10)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.gray.opacity(0.3), style: StrokeStyle(lineWidth: 1, dash: [5]))
-                            )
-                        }
-                    }
-                    
-                    // 선택된 이미지들
-                    ForEach(Array(selectedImages.enumerated()), id: \.offset) { index, image in
-                        ZStack(alignment: .topTrailing) {
-                            Image(uiImage: image)
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 80, height: 80)
-                                .clipped()
-                                .cornerRadius(10)
-                            
-                            // 삭제 버튼
-                            Button(action: {
-                                removeImage(at: index)
-                            }) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.red)
-                                    .background(Color.white)
-                                    .clipShape(Circle())
-                            }
-                            .offset(x: -3, y: 3)
-                        }
-                    }
-                }
-                .padding(.horizontal, 5)
-            }
-        }
-        .padding(20)
-        .onChange(of: selectedPhotos) { newItems in
-            loadImages(from: newItems)
-        }
-    }
     
     private func makeReviewTextField() -> some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -224,36 +144,6 @@ extension WriteReViewView {
         .padding(20)
     }
     
-    // 이미지 로드 함수
-    private func loadImages(from items: [PhotosPickerItem]) {
-        for item in items {
-            item.loadTransferable(type: Data.self) { result in
-                switch result {
-                case .success(let data):
-                    if let data = data, let uiImage = UIImage(data: data) {
-                        DispatchQueue.main.async {
-                            if !selectedImages.contains(where: { $0.pngData() == uiImage.pngData() }) {
-                                selectedImages.append(uiImage)
-                            }
-                        }
-                    }
-                case .failure(let error):
-                    print("이미지 로드 실패: \(error)")
-                }
-            }
-        }
-    }
-    
-    // 이미지 삭제 함수
-    private func removeImage(at index: Int) {
-        guard index < selectedImages.count else { return }
-        selectedImages.remove(at: index)
-        
-        // selectedPhotos도 동기화
-        if index < selectedPhotos.count {
-            selectedPhotos.remove(at: index)
-        }
-    }
 }
 
 

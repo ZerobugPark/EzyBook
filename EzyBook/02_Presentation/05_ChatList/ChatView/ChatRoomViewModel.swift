@@ -64,7 +64,7 @@ extension ChatRoomViewModel {
     
     struct Output {
         
-        var presentedError: DisplayError? = nil
+        var presentedError: DisplayMessage? = nil
         var isShowingError: Bool {
             presentedError != nil
         }
@@ -279,7 +279,7 @@ extension ChatRoomViewModel {
                 
             } catch let error as APIError {
                 await MainActor.run {
-                    output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+                    output.presentedError = DisplayMessage.error(code: error.code, msg: error.userMessage)
                 }
             }
             
@@ -339,7 +339,7 @@ extension ChatRoomViewModel {
             
         }  catch let error as APIError {
             await MainActor.run {
-                output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
+                output.presentedError = DisplayMessage.error(code: error.code, msg: error.userMessage)
             }
         } catch {
             

@@ -61,7 +61,7 @@ struct SearchView: View {
             viewModel.action(.searchButtonTapped)
             isSearching = false
         })
-        .withCommonUIHandling(viewModel) { code in
+        .withCommonUIHandling(viewModel) { code, _ in
             if code == 418 {
                 appState.isLoggedIn = false
             }

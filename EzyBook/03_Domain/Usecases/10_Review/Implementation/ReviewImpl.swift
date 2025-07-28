@@ -68,3 +68,20 @@ extension DefaultReviewLookUpUseCase {
     }
 }
 
+
+// MARK: 리뷰 상세 조회
+final class DefaultReviewDetailUseCase {
+    private let repo: ReviewDetailRepository
+    
+    init(repo: ReviewDetailRepository) {
+        self.repo = repo
+    }
+    
+}
+extension DefaultReviewDetailUseCase: ReviewDetailUseCase {
+    
+    func execute(activityID: String, reviewID: String) async throws -> UserReviewEntity {
+        try await repo.reqeustReviewList(activityID, reviewID)
+    }
+    
+}

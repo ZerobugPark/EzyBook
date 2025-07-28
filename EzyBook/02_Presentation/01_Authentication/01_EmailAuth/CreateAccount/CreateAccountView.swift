@@ -10,10 +10,16 @@ import SwiftUI
 struct CreateAccountView: View {
     
     @Binding var selectedIndex: Int
-    @StateObject var viewModel: CreateAccountViewModel
+    @ObservedObject var viewModel: CreateAccountViewModel
     
     @FocusState private var focusedField: SignUpFocusField?
     @State private var lastFocusedField: SignUpFocusField?
+    
+    // 비밀번호 히든 체크
+    @State var visibleStates: [PasswordInputFieldType: Bool] = [
+        .password: false,
+        .confirmPassword: false
+    ]
     
     
     var body: some View {
@@ -26,47 +32,26 @@ struct CreateAccountView: View {
                 introduceField()
                 signUpButton()
                 
-                Button {
-                    withAnimation(.easeInOut) {
-                        selectedIndex = 0
-                    }
-                } label: {
-                    Text("< 로그인 해주세요")
-                        .appFont(PaperlogyFontStyle.caption, textColor: .grayScale75)
-                }
-                .padding(.top, 20)
-                .padding(.bottom, 20)
+    
+                backButton
                 
             }
             .padding(.horizontal)
-            .commonAlert(
-                isPresented: Binding(
-                    get: { viewModel.output.isShowingError },
-                    set: { isPresented in
-                        if !isPresented {
-                            viewModel.action(.resetError)
-                        }
-                    }
-                ),
-                title: viewModel.output.currentError?.message.title,
-                message: viewModel.output.currentError?.message.msg
-            )
-            .commonAlert(
-                isPresented: $viewModel.output.isAccountCreated,
-                title: "안내",
-                message: "회원가입이 완료되었습니다.") {
-                    withAnimation(.easeInOut) {
-                        selectedIndex = 0
-                    }
+
+        }
+        .withCommonUIHandling(viewModel) { _, isSuccess in
+            if isSuccess {
+                focusedField = nil
+                withAnimation(.easeInOut) {
+                    selectedIndex = 0
                 }
+            }
         }
         .onChange(of: focusedField) { newValue in
             
             if let last = lastFocusedField, newValue != last {
                 validateLastFocusedField(last)
             }
-            
-            // 현재 포커스 상태 저장 (nil 포함)
             lastFocusedField = newValue
         }
         .onDisappear {
@@ -78,58 +63,85 @@ struct CreateAccountView: View {
         }
     }
     
+    /// 로그인 화면 이동
+    private var backButton: some View {
+        Button {
+            withAnimation(.easeInOut) {
+                selectedIndex = 0
+            }
+        } label: {
+            Text("< 로그인 해주세요")
+                .appFont(PaperlogyFontStyle.caption, textColor: .grayScale75)
+        }
+        .padding([.top, .bottom], 20)
+    }
+    
     
 }
 
-// MARK: CustomView
+// MARK:  Email TextField
 extension CreateAccountView {
     
     private func emailField() -> some View {
         VStack(alignment: .leading) {
-            fieldTitle("이메일", required: true)
-            TextField("이메일을 입력해주세요.", text: $viewModel.input.emailTextField)
-                .textFieldModify()
-                .appFont(PretendardFontStyle.body1, textColor: .grayScale100)
-                .focused($focusedField, equals: .email)
-                .onSubmit { viewModel.action(.emailEditingCompleted) }
             
-            Text("✓ 유효한 이메일 형식입니다.")
-                .appFont(PretendardFontStyle.caption1)
-                .vaildTextdModify(viewModel.output.isVaildEmail)
-            Text("✓ 사용 가능한 이메일입니다.")
-                .appFont(PretendardFontStyle.caption1)
-                .vaildTextdModify(viewModel.output.isAvailableEmail)
-            
+            SignUpInputField(
+                title: SignUpMessage.Title.email,
+                placeholder: SignUpMessage.Placeholder.email,
+                text: $viewModel.input.emailTextField,
+                isRequired: true,
+                focusField: $focusedField,
+                field: .email,
+                onSubmit: {
+                    viewModel.action(.emailEditingCompleted)
+                },
+                validations: [
+                    .init(message: SignUpMessage.Validation.validEmail, isValid: viewModel.output.isVaildEmail)
+                ])
+                        
         }
     }
+    
+
+}
+
+// MARK: PasswordField
+extension CreateAccountView {
     
     private func passwordField() -> some View {
-        VStack(alignment: .leading) {
-            fieldTitle("비밀번호", required: true)
+        VStack(alignment: .leading, spacing: 5) {
+            FieldTitle(title: SignUpMessage.Title.password, isRequired: true)
+            
+            // MARK: Fliker 현상 발생
+            // https://github.com/facebook/react-native/issues/39411
+            // 다들 문제가 조금씩 있는거 같은데
             passwordTextField(type: .password, focusedField: $focusedField)
             passwordTextField(type: .confirmPassword, focusedField: $focusedField)
-                .padding(.top, 5)
+
             
-            Text("✓ 영문자, 숫자, 특수문자(@$!%*#?&)를 각각 1개 이상 포함해야 합니다.")
-                .appFont(PretendardFontStyle.caption1)
-                .vaildTextdModify(viewModel.output.isPasswordComplexEnough)
-            Text("✓ 최고 글자 수는 8자 이상입니다.")
-                .appFont(PretendardFontStyle.caption1)
-                .vaildTextdModify(viewModel.output.isPasswordLongEnough)
-            Text("✓ 비밀번호가 일치합니다.")
-                .appFont(PretendardFontStyle.caption1)
-                .vaildTextdModify(viewModel.output.isValidPassword)
+            ForEach([
+                ValidationMessage(message: SignUpMessage.Validation.passwordComplex, isValid: viewModel.output.isPasswordComplexEnough),
+                ValidationMessage(message: SignUpMessage.Validation.passwordLength, isValid: viewModel.output.isPasswordLongEnough),
+                ValidationMessage(message: SignUpMessage.Validation.passwordMatch, isValid: viewModel.output.isValidPassword)
+            ], id: \.id) { validation in
+                Text(validation.message)
+                    .appFont(PretendardFontStyle.caption1)
+                    .vaildTextdModify(validation.isValid)
+            }
+            
+  
             
         }
     }
     
+
     private func passwordTextField(type: PasswordInputFieldType, focusedField: FocusState<SignUpFocusField?>.Binding) -> some View{
         let passwordFieldInfo = getPasswordBinding(for: type)
         
         return HStack {
             ZStack(alignment: .trailing) {
                 Group {
-                    if viewModel.output.visibleStates[type] == true {
+                    if visibleStates[type] == true {
                         TextField(passwordFieldInfo.title, text: passwordFieldInfo.binding)
                             .textFieldModify()
                             .appFont(PretendardFontStyle.body1)
@@ -143,9 +155,9 @@ extension CreateAccountView {
                 }
                 
                 Button {
-                    viewModel.action(.togglePasswordVisibility(type: type))
+                    visibleStates[type]?.toggle()
                 } label: {
-                    Image(systemName: viewModel.output.visibleStates[type] == true ?  "eye" : "eye.slash")
+                    Image(systemName: visibleStates[type] == true ?  "eye" : "eye.slash")
                         .foregroundColor(.gray)
                 }
                 .padding(.trailing, 8)
@@ -166,58 +178,66 @@ extension CreateAccountView {
     private func getPasswordBinding(for type: PasswordInputFieldType) -> (title: String, binding: Binding<String>) {
         switch type {
         case .password:
-            return ("비밀번호를 입력해 주세요" ,$viewModel.input.passwordTextField)
+            return (SignUpMessage.Placeholder.password ,$viewModel.input.passwordTextField)
         case .confirmPassword:
-            return ("비밀번호를 다시 입력해 주세요", $viewModel.input.passwordConfirmTextField)
+            return (SignUpMessage.Placeholder.confirmPassword, $viewModel.input.passwordConfirmTextField)
         }
     }
-    
+}
+
+
+// MARK: NickNameField {
+extension CreateAccountView {
     private func nicknameField() -> some View {
-        VStack(alignment: .leading) {
-            fieldTitle("닉네임", required: true)
-            TextField("닉네임을 입력해주세요", text: $viewModel.input.nicknameTextField)
-                .textFieldModify()
-                .appFont(PretendardFontStyle.body1)
-                .focused($focusedField, equals: .nickname)
-                .onSubmit { viewModel.action(.nickNameEditingCompleted) }
-            
-            Text("✓ , ,, ?, *, -, @는 nick으로 사용할 수 없습니다.")
-                .appFont(PretendardFontStyle.caption1)
-                .vaildTextdModify(viewModel.output.isValidNickname)
-        }
-    }
-    
-    private func phonNumberField() -> some View {
-        VStack(alignment: .leading) {
-            fieldTitle("전화번호")
-            TextField("전화번호를 입력해주세요", text: $viewModel.phoneNumberTextField)
-                .textFieldModify()
-                .appFont(PretendardFontStyle.body1)
-                .keyboardType(.numberPad)
-                .focused($focusedField, equals: .phone)
-                .onChange(of: viewModel.phoneNumberTextField) { newValue in
-                    let digitsOnly = newValue.filter { $0.isNumber }
-                    let limited = String(digitsOnly.prefix(11))
-                    
-                    // 변경된 값이 있으면 업데이트
-                    if newValue != limited {
-                        viewModel.phoneNumberTextField = limited
-                    }
-                }
-                .onSubmit {
-                    viewModel.action(.phoneNumberEditingCompleted)
-                }
-            Text("✓ 유효한 형식입니다.")
-                .appFont(PretendardFontStyle.caption1)
-                .vaildTextdModify(viewModel.output.isValidPhoneNumber)
-            
-        }
         
+        SignUpInputField(
+            title: SignUpMessage.Title.nickname,
+            placeholder: SignUpMessage.Placeholder.nickname,
+            text: $viewModel.input.nicknameTextField,
+            isRequired: true,
+            focusField: $focusedField,
+            field: .nickname,
+            onSubmit: {
+                viewModel.action(.nickNameEditingCompleted)
+            },
+            validations: [
+                .init(message:  SignUpMessage.Validation.validNickname, isValid: viewModel.output.isValidNickname)
+            ]
+        )
     }
+}
+
+// MARK: Phone Number {
+extension CreateAccountView {
+    private func phonNumberField() -> some View {
+        
+        SignUpInputField(
+            title: SignUpMessage.Title.phone,
+            placeholder: SignUpMessage.Placeholder.phone,
+            text: $viewModel.input.phoneNumberTextField,
+            isRequired: false,
+            focusField: $focusedField,
+            field: .phone,
+            onSubmit: {
+                viewModel.action(.phoneNumberEditingCompleted)
+            },
+            validations: [
+                .init(
+                    message: SignUpMessage.Validation.validPhone,
+                    isValid: viewModel.output.isValidPhoneNumber
+                )
+            ]
+        )
+
+    }
+}
+
+// MARK: Introduce {
+extension CreateAccountView {
     
     private func introduceField() -> some View {
-        VStack(alignment: .leading) {
-            fieldTitle("소개")
+        VStack(alignment: .leading, spacing: 5) {
+            FieldTitle(title: SignUpMessage.Title.introduce, isRequired: false)
             TextEditor(text: $viewModel.input.introduceTextField)
                 .frame(height: 150) // Set the height for the text input area
                 .cornerRadius(15) // 모서리 둥글게 하기
@@ -225,6 +245,11 @@ extension CreateAccountView {
         }
     }
     
+ 
+}
+
+// MARK: SignUpButton {
+extension CreateAccountView {
     private func signUpButton() -> some View {
         Button {
             viewModel.action(.signUpButtonTapped)
@@ -240,34 +265,57 @@ extension CreateAccountView {
         .disabled(!viewModel.output.isFormValid)
         
     }
-    
-    private func fieldTitle(_ title: String, required: Bool = false) -> some View {
-        HStack(spacing: 2) {
-            Text(title)
-                .appFont(PretendardFontStyle.body1)
-            if required {
-                Text("*")
-                    .foregroundColor(.red)
-                    .appFont(PretendardFontStyle.body2)
-            }
-        }
-    }
+}
+
+
+// MARK: Common Component
+extension CreateAccountView {
     
     
     private func validateLastFocusedField(_ field: SignUpFocusField) {
         switch field {
-        case .email:
+        case .email where !viewModel.input.emailTextField.isEmpty:
             viewModel.action(.emailEditingCompleted)
-        case .password:
+        case .password where !viewModel.input.passwordTextField.isEmpty:
             viewModel.action(.passwordEditingCompleted)
-        case .confirmPassword:
+        case .confirmPassword where !viewModel.input.passwordConfirmTextField.isEmpty:
             viewModel.action(.passwordEditingCompleted)
-        case .nickname:
+        case .nickname where !viewModel.input.nicknameTextField.isEmpty:
             viewModel.action(.nickNameEditingCompleted)
-        case .phone:
+        case .phone where !viewModel.input.phoneNumberTextField.isEmpty:
             viewModel.action(.phoneNumberEditingCompleted)
+        default:
+            break
         }
     }
     
 }
 
+enum SignUpMessage {
+    
+    enum Title {
+        static let email = "이메일"
+        static let password = "비밀번호"
+        static let nickname = "닉네임"
+        static let phone = "전화번호"
+        static let introduce = "소개"
+    }
+    
+    enum Placeholder {
+        static let email = "이메일을 입력해주세요"
+        static let password = "비밀번호를 입력해 주세요"
+        static let confirmPassword = "비밀번호를 다시 입력해 주세요"
+        static let nickname = "닉네임을 입력해주세요"
+        static let phone = "전화번호를 입력해주세요"
+    }
+    
+    enum Validation {
+        static let validEmail = "✓ 유효한 이메일 형식입니다."
+        static let possibleEmail = "✓ 사용 가능한 이메일입니다."
+        static let passwordComplex = "✓ 영문자, 숫자, 특수문자(@$!%*#?&)를 각각 1개 이상 포함해야 합니다."
+        static let passwordLength = "✓ 최소 글자 수는 8자 이상입니다."
+        static let passwordMatch = "✓ 비밀번호가 일치합니다."
+        static let validNickname = "✓ , ,, ?, *, -, @는 nick으로 사용할 수 없습니다."
+        static let validPhone = "✓ 유효한 형식입니다."
+    }
+}

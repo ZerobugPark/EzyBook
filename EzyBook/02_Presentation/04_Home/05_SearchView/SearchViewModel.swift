@@ -69,9 +69,9 @@ extension SearchViewModel {
         
         var isLoading = false
         
-        var presentedError: DisplayError? = nil
-        var isShowingError: Bool {
-            presentedError != nil
+        var presentedMessage: DisplayMessage? = nil
+        var isShowingMessage: Bool {
+            presentedMessage != nil
         }
         
         var activitySearchDetailList: [FilterActivityModel] = []
@@ -90,17 +90,13 @@ extension SearchViewModel {
         
     }
     
-    private func handleResetError() {
-        output.presentedError = nil
-    }
-    
     
     @MainActor
     private func handleError(_ error: Error) {
         if let apiError = error as? APIError {
-            output.presentedError = DisplayError.error(code: apiError.code, msg: apiError.userMessage)
+            output.presentedMessage = DisplayMessage.error(code: apiError.code, msg: apiError.userMessage)
         } else {
-            output.presentedError = DisplayError.error(code: -1, msg: error.localizedDescription)
+            output.presentedMessage = DisplayMessage.error(code: -1, msg: error.localizedDescription)
         }
     }
     
@@ -308,7 +304,6 @@ extension SearchViewModel {
         case searchButtonTapped
         case prefetchSearchContent(index: Int)
         case keepButtonTapped(index: Int)
-        case resetError
         
     }
     
@@ -317,7 +312,7 @@ extension SearchViewModel {
         switch action {
         case .searchButtonTapped:
             if input.query.isEmpty {
-                output.presentedError = DisplayError.error(code: -1, msg: "공백 제외\n1글자 이상 입렵해주세요")
+                output.presentedMessage = DisplayMessage.error(code: -1, msg: "공백 제외\n1글자 이상 입렵해주세요")
                 return
             }
             let _query = input.query.trimmingCharacters(in: .whitespaces)
@@ -327,10 +322,6 @@ extension SearchViewModel {
             handleSearchListPrefetch(index)
         case .keepButtonTapped(let index):
             handleKeepActivity(index)
-        case .resetError:
-            handleResetError()
-            
-            
         }
     }
     
@@ -340,18 +331,15 @@ extension SearchViewModel {
 // MARK: Alert 처리
 extension SearchViewModel: AnyObjectWithCommonUI {
     
-    var isShowingError: Bool { output.isShowingError }
+    var isShowingError: Bool { output.isShowingMessage }
+    var isShowingMessage: Bool { output.isShowingMessage }
+    var presentedMessageTitle: String? { output.presentedMessage?.title }
+    var presentedMessageBody: String? { output.presentedMessage?.message }
+    var presentedMessageCode: Int? { output.presentedMessage?.code }
     
-    var presentedErrorTitle: String? { output.presentedError?.message.title }
-    
-    var presentedErrorMessage: String? { output.presentedError?.message.msg }
-    
-    var isLoading: Bool { output.isLoading }
-    
-    var presentedErrorCode: Int?  { output.presentedError?.code }
-    
-    func resetErrorAction() { action(.resetError) }
-    
+    func resetMessageAction() {
+        output.presentedMessage = nil
+    }
     
     
 }

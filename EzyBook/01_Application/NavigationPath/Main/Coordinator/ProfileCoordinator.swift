@@ -12,6 +12,8 @@ final class ProfileCoordinator: ObservableObject {
     
     @Published var path = NavigationPath()
     @Published var isTabbarHidden: Bool = false
+    private var tabbarHiddenStack: [Bool] = []
+    
     
     private let container: ProfileDIContainer
     
@@ -21,15 +23,22 @@ final class ProfileCoordinator: ObservableObject {
     }
     
     func push(_ route: ProfileRoute) {
+        let shouldHide = route.hidesTabbar
+        tabbarHiddenStack.append(shouldHide)
+        isTabbarHidden = shouldHide
         path.append(route)
     }
 
     func pop() {
         path.removeLast()
+        _ = tabbarHiddenStack.popLast()
+        isTabbarHidden = tabbarHiddenStack.last ?? false
     }
 
     func popToRoot() {
         path = NavigationPath()
+        tabbarHiddenStack = []
+        isTabbarHidden = false
     }
     
     
@@ -37,13 +46,23 @@ final class ProfileCoordinator: ObservableObject {
     func destinationView(route: ProfileRoute) -> some View {
         switch route {
         case .profileView:
+            let vm = self.container.makeProfileViewModel()
+            let sVm = self.container.makeProfileSupplementaryViewModel()
             ProfileView(
-                viewModel: self.container.makeProfileViewModel(),
-                supplementviewModel: self.container.makeProfileSupplementaryViewModel(),
+                viewModel: vm,
+                supplementviewModel: sVm,
                 coordinator: self
             )
         case .orderListView(let list):
-            OrderListView(orderList: list, viewModel: self.container.makeOrderListViewModel(), coordinator: self)
+            let vm = self.container.makeOrderListViewModel(orderList: list)
+            OrderListView(
+                viewModel: vm,
+                coordinator: self) { orderCode, rating in
+                    vm.action(.updateRating(orderCode: orderCode, rating: rating))
+                }
+        case .reviewListView(let list):
+            let vm = self.container.makeReviewViewModel(list: list)
+            ReviewDetailView(viewModel: vm, coordinator: self)
         }
     }
 
@@ -55,7 +74,13 @@ extension ProfileCoordinator {
     }
     
     func makeWriteReviewView(_ activityID: String, _ orderCode: String, onConfirm: @escaping (String, Int) -> Void) -> some View {
-        WriteReViewView(activityId: activityID, orderCode: orderCode, onConfirm: onConfirm, viewModel: self.container.makeWriteReviewViewModel())
+        let vm = self.container.makeWriteReviewViewModel(id: activityID, code: orderCode)
+        return WriteReViewView(onConfirm: onConfirm, viewModel: vm)
+    }
+    
+    func makeProfileModifyView(onConfirm: @escaping (ConfirmPayload) -> Void) -> some View {
+        let vm = self.container.makeProfileModifyViewModel()
+        return ProfileModifyView(viewModel: vm, onConfirm: onConfirm)
     }
     
 }

@@ -12,17 +12,25 @@ import Combine
 final class WriteReviewViewModel: ViewModelType {
     
     private let reviewUseCases: ReviewUseCases
+    private let activityId: String
+    let orderCode: String
     
     var input = Input()
     @Published var output = Output()
     
     var cancellables = Set<AnyCancellable>()
     
+
     private var scale: CGFloat = 0
     
-    init(reviewUseCases: ReviewUseCases) {
-         self.reviewUseCases = reviewUseCases
-         transform()
+    init(reviewUseCases: ReviewUseCases,
+         activityId: String,
+         orderCode: String
+    ) {
+        self.reviewUseCases = reviewUseCases
+        self.activityId = activityId
+        self.orderCode = orderCode
+        transform()
     }
     
 }
@@ -30,94 +38,96 @@ final class WriteReviewViewModel: ViewModelType {
 extension WriteReviewViewModel {
     
     struct Input {
-        var reviewText = ""
-    
+        var reviewText: String = ""
     }
     
     struct Output {
-        var isLoading = false
         
-        var presentedError: DisplayError? = nil
-        var isShowingError: Bool {
-            presentedError != nil
+        var presentedMessage: DisplayMessage? = nil
+        var isShowingMessage: Bool {
+            presentedMessage != nil
         }
-        var writeSuccess: Bool = false
-        
-        var orderList: [OrderList] = []
     }
     
     func transform() { }
     
+        
+    private func handleResetError() {
+        output.presentedMessage = nil
+        
+    }
     
-    private func writeActivityReView(_ id: String, _ images: [UIImage]?,  _ rating: Int, _ orderCode: String) {
-        Task {
-            await MainActor.run {
-                output.isLoading = true
-            }
-            
-          
-            do {
-                
-                let serverPaths: [String]?
-                
-                if let images {
-                    let path = try await requestUploadProfileImage(id: id, images)
-                    serverPaths = path.reviewImageUrls
-                } else {
-                    serverPaths = nil
-                }
-                
-                
-                let dto = ReviewWriteRequestDTO(
-                    content: input.reviewText,
-                    rating: rating,
-                    reviewImageUrls: serverPaths,
-                    orderCode: orderCode
-                )
-                
-                _ = try await  reviewUseCases.reviewWrite.execute(
-                    id: id,
-                    content: input.reviewText,
-                    rating: rating,
-                    reviewImageUrls: serverPaths,
-                    orderCode: orderCode
-                )
-                
-                await MainActor.run {
-                    output.writeSuccess = true
-                }
-                
-                
+    /// 이거 특정 뷰모델로 처리해도 괜찮지 않을까?
+    @MainActor
+    private func handleError(_ error: Error) {
+        if let apiError = error as? APIError {
+            output.presentedMessage = DisplayMessage.error(code: apiError.code, msg: apiError.userMessage)
+        } else {
+            output.presentedMessage = DisplayMessage.error(code: -1, msg: error.localizedDescription)
+        }
+        
+    }
+    
+    @MainActor
+    private func handleSuccess() {
+        output.presentedMessage = .success(msg: "리뷰가 성공적으로 작성되었습니다")
+    }
+    
+    /// 나중에 쓸 수도 있음 (UIScreen.main.scale이 deprecated되면 업데이트 필요
+    private func handleUpdateScale(_ scale: CGFloat) {
+        self.scale = scale
+    }
+    
+}
 
-              } catch let error as APIError {
-                  await MainActor.run {
-                      output.presentedError = DisplayError.error(code: error.code, msg: error.userMessage)
-                  }
-              } catch {
-                  print(error)
-              }
+extension WriteReviewViewModel {
+    
+    private func handleWriteReView(_ images: [UIImage],  _ rating: Int,) {
+        
+        Task {
+            await performWriteReviewFlow(images, rating)
             
+        }
+        
+        
+    }
+    
+    private func performWriteReviewFlow(_ images: [UIImage], _ rating: Int) async {
+        do {
+            let paths = try await performUploadImages(id: activityId, images)
+            try await performReview(id: activityId, rating: rating, serverPaths: paths, code: orderCode)
+            
+            await handleSuccess()
+            
+        } catch {
             await MainActor.run {
-                output.isLoading = false
-                
+                handleError(error)
             }
         }
     }
     
+    private func performUploadImages(id: String, _ images: [UIImage]) async throws -> [String]? {
+        guard !images.isEmpty else { return nil }
+        let path = try await requestUploadProfileImage(id: id, images)
+        return path.reviewImageUrls
+    }
     
+    private func performReview(id: String, rating: Int, serverPaths: [String]?, code: String) async throws {
+        _ = try await reviewUseCases.reviewWrite.execute(
+            id: id,
+            content: input.reviewText,
+            rating: rating,
+            reviewImageUrls: serverPaths,
+            orderCode: code
+        )
+    }
+    
+
     private func requestUploadProfileImage(id: String ,_ images: [UIImage]) async throws ->  ReviewImageEntity {
         return try await reviewUseCases.imageUpload.execute(id: id, images: images)
         
     }
     
-    
-    private func handleResetError() {
-        output.presentedError = nil
-    }
-    
-    private func handleUpdateScale(_ scale: CGFloat) {
-        self.scale = scale
-    }
     
 }
 
@@ -126,7 +136,7 @@ extension WriteReviewViewModel {
     
     enum Action {
         case updateScale(scale: CGFloat)
-        case writeReView(id: String,image: [UIImage]?, rating: Int, orderCode: String)
+        case writeReView(images: [UIImage], rating: Int)
         case resetError
     }
     
@@ -135,8 +145,8 @@ extension WriteReviewViewModel {
         switch action {
         case .updateScale(let scale):
             handleUpdateScale(scale)
-        case let .writeReView(id, images, rating, orderCode):
-            writeActivityReView(id, images, rating, orderCode)
+        case let .writeReView(images, rating):
+            handleWriteReView(images, rating)
         case .resetError:
             handleResetError()
             
@@ -144,6 +154,19 @@ extension WriteReviewViewModel {
     }
     
     
+}
+
+// MARK: Alert 처리
+extension WriteReviewViewModel: AnyObjectWithCommonUI {
+    var isShowingMessage: Bool { output.isShowingMessage }
+    var presentedMessageTitle: String? { output.presentedMessage?.title }
+    var presentedMessageBody: String? { output.presentedMessage?.message }
+    var presentedMessageCode: Int? { output.presentedMessage?.code }
+    var isSuccessMessage: Bool { output.presentedMessage?.isSuccess ?? false }
+    
+    func resetMessageAction() {
+        output.presentedMessage = nil
+    }
 }
 
 

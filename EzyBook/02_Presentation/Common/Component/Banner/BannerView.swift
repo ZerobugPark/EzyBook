@@ -57,7 +57,7 @@ struct BannerView: View {
             ///  유저 스와이프 시 타이머 재시작
             restartAutoScroll(after: 1.5)
         }
-        .withCommonUIHandling(viewModel) { code in
+        .withCommonUIHandling(viewModel) { code, _ in
             if code == 418 {
                 appState.isLoggedIn = false
             }

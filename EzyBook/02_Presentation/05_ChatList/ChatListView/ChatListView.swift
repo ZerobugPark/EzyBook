@@ -11,6 +11,7 @@ struct ChatListView: View {
     
     @StateObject var viewModel: ChatListViewModel
     @ObservedObject var coordinator: ChatCoordinator
+    @EnvironmentObject var appState: AppState
     
     var body: some View {
         
@@ -33,18 +34,11 @@ struct ChatListView: View {
             }
             
         }
-        .commonAlert(
-            isPresented: Binding(
-                get: { viewModel.output.isShowingError },
-                set: { isPresented in
-                    if !isPresented {
-                        viewModel.action(.resetError)
-                    }
-                }
-            ),
-            title: viewModel.output.presentedError?.message.title,
-            message: viewModel.output.presentedError?.message.msg
-        )
+        .withCommonUIHandling(viewModel) { code, _ in
+            if code == 418 {
+                appState.isLoggedIn = false
+            }
+        }
         .onAppear {
             viewModel.action(.showChatRoomList)
         }

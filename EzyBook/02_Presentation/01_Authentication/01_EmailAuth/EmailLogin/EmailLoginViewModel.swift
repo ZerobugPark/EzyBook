@@ -15,7 +15,7 @@ final class EmailLoginViewModel: ViewModelType {
     
     var input = Input()
     @Published var output = Output()
-    
+        
     var cancellables = Set<AnyCancellable>()
     
     init(emailLoginUseCase: EmailLoginUseCase) {
@@ -38,6 +38,8 @@ extension EmailLoginViewModel {
             loginError != nil
         }
         var loginSuccessed = false
+        
+
     }
     
     func transform() { }
@@ -53,6 +55,7 @@ extension EmailLoginViewModel {
         
     }
     
+    
     ///  이메일 및 비밀번호 유효성 검사
     private func validateInputs() -> Bool {
         
@@ -60,7 +63,7 @@ extension EmailLoginViewModel {
             output.loginError = .emailInvalidFormat
             return false
         }
-        
+
         guard input.passwordTextField.validatePasswordLength(),
               input.passwordTextField.validatePasswordCmplexEnough() else {
             output.loginError = .passwordInvalidFormat
@@ -69,6 +72,8 @@ extension EmailLoginViewModel {
         
         return true
     }
+    
+  
     
     private func performLogin() async {
         
@@ -90,8 +95,8 @@ extension EmailLoginViewModel {
         }
     }
     
-    
-    
+
+  
     private func handleResetError() {
         output.loginError = nil
     }
@@ -115,6 +120,3 @@ extension EmailLoginViewModel {
         }
     }
 }
-
-
-
