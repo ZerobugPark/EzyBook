@@ -21,6 +21,9 @@ struct ProfileView: View {
     @State private var photoItems: [PhotosPickerItem] = []
     @State private var selectedImage: IdentifiableImage?
     
+
+    @State private var modifyTapped = false
+    
     var data: ProfileLookUpModel {
         viewModel.output.profile
     }
@@ -41,13 +44,6 @@ struct ProfileView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     TitleTextView(title: "PROFILE")
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {}) {
-                        Image(.iconSetting)
-                            .renderingMode(.template)
-                            .foregroundColor(.grayScale60)
-                    }
                 }
             }
         }
@@ -82,6 +78,11 @@ struct ProfileView: View {
                     photoItems = []
                 }
             )
+        }
+        .fullScreenCover(isPresented: $modifyTapped) {
+            coordinator.makeProfileModifyView { data in
+                viewModel.action(.modifyProfileData(data))
+            }
         }
         .withCommonUIHandling(viewModel) { code, _ in
             if code == 418 {
@@ -156,7 +157,7 @@ extension ProfileView {
                 HStack {
                     Spacer()
                     Button(action: {
-                        print("edit profile")
+                        modifyTapped = true
                     }) {
                         Text("수정")
                             .appFont(PretendardFontStyle.body1, textColor: .grayScale75)

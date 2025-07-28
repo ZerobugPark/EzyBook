@@ -310,7 +310,7 @@ extension HomeViewModel {
         if shouldPendFetch(for: fetchIndex) { return }
         
         /// 페이지네이션 여부 또는 이미 요청 보냈는지 등 체크
-        guard shouldFetchFilterDetail(at: fetchIndex) else { return }
+        guard await shouldFetchFilterDetail(at: fetchIndex) else { return }
         
         
         do {
@@ -337,9 +337,11 @@ extension HomeViewModel {
     
     
     
-    private func shouldFetchFilterDetail(at index: Int) -> Bool {
+    private func shouldFetchFilterDetail(at index: Int)  async -> Bool {
         
-        print("📌 checking index: \(index), total: \(filterActivitySummaryList.count)")
+        print("📌 checking index: \(index), type: \(type(of: index))")
+          print("📌 Set contains type: \(filterActivityindicats.map { type(of: $0) })")
+    
 
         guard !paginationInProgress else { return false }
         guard index >= 0 else {
@@ -355,8 +357,15 @@ extension HomeViewModel {
             return false
         }
         
-        filterActivityindicats.insert(index)
-        return true
+        return await MainActor.run {
+            filterActivityindicats.insert(index)
+            return true
+        }
+    
+
+        
+        //filterActivityindicats.insert(index)
+     
         
         //        guard !paginationInProgress,
         //              !filterActivityindicats.contains(index),

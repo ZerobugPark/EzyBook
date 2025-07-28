@@ -188,6 +188,25 @@ extension ProfileViewModel {
     
 }
 
+extension ProfileViewModel {
+    
+    
+    private func handleModifyProfile(data: ConfirmPayload) {
+        Task {
+            await perfromModifyProfile(data)
+        }
+    }
+    
+    @MainActor
+    private func perfromModifyProfile(_ data: ConfirmPayload) {
+        
+        output.profile.introduction = data.intro.or(output.profile.introduction)
+        output.profile.nick = data.nick.or(output.profile.nick)
+        output.profile.phoneNum = data.phone.or(output.profile.phoneNum)
+        
+    }
+    
+}
 
 // MARK: Helper
 extension ProfileViewModel {
@@ -214,6 +233,7 @@ extension ProfileViewModel {
     enum Action {
         case didSelectedImageData(image: UIImage)
         case bindSupplement(ProfileSupplementaryViewModel)
+        case modifyProfileData(ConfirmPayload)
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
@@ -223,6 +243,8 @@ extension ProfileViewModel {
             handleDidSelectedImageData(image)
         case .bindSupplement(let supplement):
             handleBindSupplement(supplement)
+        case .modifyProfileData(let payload):
+            handleModifyProfile(data: payload)
         }
     }
     

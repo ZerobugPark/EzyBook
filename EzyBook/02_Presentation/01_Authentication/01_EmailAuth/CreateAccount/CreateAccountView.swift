@@ -40,10 +40,8 @@ struct CreateAccountView: View {
 
         }
         .withCommonUIHandling(viewModel) { _, isSuccess in
-            print(isSuccess)
             if isSuccess {
                 focusedField = nil
-                print("here")
                 withAnimation(.easeInOut) {
                     selectedIndex = 0
                 }

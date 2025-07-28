@@ -76,36 +76,7 @@ struct WriteReViewView: View {
         }
     }
     
-    private func makeCompleteButton() -> some View {
-        VStack {
-            
-            
-            Button(
-                action: {
-                    // 작성 완료 액션
-                    
-                    viewModel.action(
-                        .writeReView(
-                            images: selectedMedia.filter { $0.type == .image}.compactMap { $0.image },
-                            rating: rating)
-                    )
-                
-            }) {
-                Text("작성 완료")
-                    .appFont(PaperlogyFontStyle.body)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
-                    .background(isFormValid ? Color.blue : Color.gray)
-                    .cornerRadius(12)
-            }
-            .disabled(!isFormValid)
-            .padding(.horizontal, 20)
-            .padding(.vertical, 15)
-        }
-        .background(.grayScale0)
-    }
-    
+
     // 폼 유효성 검사
     private var isFormValid: Bool {
         return !viewModel.input.reviewText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && rating > 0
@@ -174,4 +145,5 @@ extension WriteReViewView {
     }
     
 }
+
 

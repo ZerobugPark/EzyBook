@@ -78,5 +78,10 @@ extension ProfileCoordinator {
         return WriteReViewView(onConfirm: onConfirm, viewModel: vm)
     }
     
+    func makeProfileModifyView(onConfirm: @escaping (ConfirmPayload) -> Void) -> some View {
+        let vm = self.container.makeProfileModifyViewModel()
+        return ProfileModifyView(viewModel: vm, onConfirm: onConfirm)
+    }
+    
 }
  

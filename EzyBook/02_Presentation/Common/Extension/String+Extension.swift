@@ -77,3 +77,9 @@ extension String {
     }
 }
 
+/// 빈문자열 비교
+extension String {
+    func or(_ fallback: String) -> String {
+        isEmpty ? fallback : self
+    }
+}

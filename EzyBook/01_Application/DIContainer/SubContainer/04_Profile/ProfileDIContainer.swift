@@ -145,4 +145,10 @@ extension ProfileDIContainer {
         )
     }
     
+    func makeProfileModifyViewModel() -> ProfileModifyViewModel {
+        ProfileModifyViewModel(
+            useCase: makeProfileModifyUseCase()
+        )
+    }
+    
 }
