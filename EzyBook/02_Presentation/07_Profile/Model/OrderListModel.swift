@@ -22,6 +22,7 @@ struct OrderList: Identifiable {
     var rating: Int?
     let image: UIImage
     let paidDate: String
+    let price: Int
 
     
     init(
@@ -34,7 +35,8 @@ struct OrderList: Identifiable {
         time: String,
         rating: Int?,
         image: UIImage,
-        paidDate: String
+        paidDate: String,
+        price: Int
     ) {
         self.orderID = orderID
         self.orderCode = orderCode
@@ -46,10 +48,43 @@ struct OrderList: Identifiable {
         self.rating = rating
         self.image = image
         self.paidDate = paidDate
+        self.price = price
     }
     
     var hasRating: Bool {
         rating != nil
     }
     
+}
+
+
+
+struct UserReviewDetailList {
+    let reviewID: String
+    let content: String
+    let rating: Int
+    let activityID: String
+    var title: String
+    let reviewImageURLs: [String]
+    let reservationItemName: String
+    let reservationItemTime: String
+    let creator: UserInfoResponseEntity
+    let createdAt: String
+    let updatedAt: String
+    
+    var image: UIImage?
+    
+    init(dto: UserReviewEntity, image: UIImage?) {
+        self.reviewID = dto.reviewID
+        self.content = dto.content
+        self.rating = dto.rating
+        self.activityID =  dto.activity.id
+        self.title = dto.activity.title ?? ""
+        self.reviewImageURLs = dto.reviewImageURLs
+        self.reservationItemName = dto.reservationItemName
+        self.reservationItemTime = dto.reservationItemTime
+        self.creator = dto.creator
+        self.createdAt = dto.createdAt
+        self.updatedAt = dto.updatedAt
+    }
 }

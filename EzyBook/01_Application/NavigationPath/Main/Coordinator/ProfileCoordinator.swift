@@ -12,6 +12,8 @@ final class ProfileCoordinator: ObservableObject {
     
     @Published var path = NavigationPath()
     @Published var isTabbarHidden: Bool = false
+    private var tabbarHiddenStack: [Bool] = []
+    
     
     private let container: ProfileDIContainer
     
@@ -21,15 +23,22 @@ final class ProfileCoordinator: ObservableObject {
     }
     
     func push(_ route: ProfileRoute) {
+        let shouldHide = route.hidesTabbar
+        tabbarHiddenStack.append(shouldHide)
+        isTabbarHidden = shouldHide
         path.append(route)
     }
 
     func pop() {
         path.removeLast()
+        _ = tabbarHiddenStack.popLast()
+        isTabbarHidden = tabbarHiddenStack.last ?? false
     }
 
     func popToRoot() {
         path = NavigationPath()
+        tabbarHiddenStack = []
+        isTabbarHidden = false
     }
     
     
@@ -51,6 +60,9 @@ final class ProfileCoordinator: ObservableObject {
                 coordinator: self) { orderCode, rating in
                     vm.action(.updateRating(orderCode: orderCode, rating: rating))
                 }
+        case .reviewListView(let list):
+            let vm = self.container.makeReviewViewModel(list: list)
+            ReviewDetailView(viewModel: vm, coordinator: self)
         }
     }
 

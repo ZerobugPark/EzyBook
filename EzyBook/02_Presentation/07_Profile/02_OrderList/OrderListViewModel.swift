@@ -76,12 +76,6 @@ extension OrderListViewModel {
         }
     }
     
-
-    private func handleResetError() {
-        output.presentedMessage = nil
-    }
-    
-    
 }
 
 extension OrderListViewModel {
@@ -154,7 +148,8 @@ extension OrderListViewModel {
                 time: item.reservationItemTime,
                 rating: item.review?.rating,
                 image: image,
-                paidDate: item.paidAt
+                paidDate: item.paidAt,
+                price: item.totalPrice
             )
         }
     }
@@ -196,7 +191,6 @@ extension OrderListViewModel {
     
     enum Action {
         case updateRating(orderCode: String, rating: Int)
-        case resetError
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
@@ -204,9 +198,6 @@ extension OrderListViewModel {
         switch action {
         case let .updateRating(orderCode, rating):
             handleUpdateReviewRating(orderCode, rating)
-        case .resetError:
-            handleResetError()
-            
         }
     }
     

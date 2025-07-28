@@ -60,9 +60,9 @@ struct OrderListView: View {
     }
 }
 
-extension OrderListView {
+private extension OrderListView {
     
-    private struct OrderListGroupView: View {
+    struct OrderListGroupView: View {
         
         let group: GroupedOrder
         let onSelectOrder: (OrderList) -> Void
@@ -112,10 +112,12 @@ extension OrderListView {
                             .multilineTextAlignment(.leading)
                         
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("\(data.date) \(data.time)")
+                            Text("투어 일시: \(data.date) \(data.time)")
                                 .appFont(PretendardFontStyle.body3, textColor: .grayScale60)
                             
                             Text(data.country)
+                                .appFont(PretendardFontStyle.body3, textColor: .grayScale75)
+                            Text("결제 금액: \(data.price)원")
                                 .appFont(PretendardFontStyle.body3, textColor: .grayScale75)
                         }
                     }

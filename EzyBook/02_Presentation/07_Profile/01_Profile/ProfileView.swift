@@ -367,7 +367,7 @@ extension ProfileView {
                         print("내가 좋아요한 액티비티")
                     },
                     MenuItem(icon: "pencil", title: "리뷰 조회") {
-                        print("리뷰 조회")
+                        coordinator.push(.reviewListView(list: supplementviewModel.output.orderList))
                     }
                 ]
             ),

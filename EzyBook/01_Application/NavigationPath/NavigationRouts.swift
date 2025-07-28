@@ -58,5 +58,17 @@ extension ChatRoute {
 enum ProfileRoute: Hashable {
     case profileView
     case orderListView(list: [OrderEntity])
+    case reviewListView(list: [OrderEntity])
     
+}
+
+extension ProfileRoute {
+    var hidesTabbar: Bool {
+        switch self {
+        case .orderListView, .reviewListView:
+            return true
+        default:
+            return false
+        }
+    }
 }

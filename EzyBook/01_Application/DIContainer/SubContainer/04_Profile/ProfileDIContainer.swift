@@ -77,6 +77,12 @@ extension ProfileDIContainer {
         )
         
     }
+    
+    // MARK:  Review Detail 조회
+    private func makeReviewDetailUseCase() -> ReviewDetailUseCase {
+        DefaultReviewDetailUseCase(repo: commonDIContainer.makeReviewRepository())
+    }
+
 
 
     
@@ -123,6 +129,18 @@ extension ProfileDIContainer {
             reviewUseCases: makeReviewUseCases(),
             activityId: id,
             orderCode: code
+        )
+    }
+    
+    func makeReviewViewModel(list: [OrderEntity]) -> ReviewDetailViewModel {
+        
+        let filterList = list.filter { $0.review != nil }
+        
+        return ReviewDetailViewModel(
+            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase(),
+            reviewDetailUseCase: makeReviewDetailUseCase(),
+            orderList: filterList,
+            scale: UIScreen.main.scale
         )
     }
     

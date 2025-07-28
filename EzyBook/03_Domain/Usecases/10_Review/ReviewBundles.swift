@@ -11,5 +11,4 @@ struct ReviewUseCases {
     
     let imageUpload: ReviewImageUpload
     let reviewWrite: ReViewWriteUseCase
-    
 }
