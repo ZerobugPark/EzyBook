@@ -104,7 +104,8 @@ extension ProfileDIContainer {
         
         ProfileViewModel(
             profileUseCases: makeProfileUseCases(),
-            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase()
+            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase(),
+            scale: UIScreen.main.scale
         )
     }
     

@@ -14,7 +14,6 @@ struct ProfileView: View {
     @StateObject var supplementviewModel: ProfileSupplementaryViewModel
     @ObservedObject var coordinator: ProfileCoordinator
     @EnvironmentObject var appState: AppState
-    @Environment(\.displayScale) var scale
     
     
     /// 이미지 피커
@@ -60,10 +59,7 @@ struct ProfileView: View {
             photoLibrary: .shared()
         )
         .onAppear {
-            viewModel.action(.onAppearRequested)
             viewModel.action(.bindSupplement(supplementviewModel))
-            supplementviewModel.action(.onAppearRequested)
-            
         }
         .onChange(of: photoItems) { newItems in
             guard let firstItem = newItems.first else {
@@ -224,14 +220,14 @@ extension ProfileView {
             HStack(spacing: 40) {
                 statView(
                     icon: "star.fill",
-                    value: "1,342,545원",
+                    value: "\(viewModel.output.userCommerceInfo.0)원",
                     label: "총 사용 금액",
                     iconColor: .blue
                 )
                 
                 statView(
                     icon: "diamond.fill",
-                    value: "148,400P",
+                    value: "\(viewModel.output.userCommerceInfo.1)P",
                     label: "누적 적립 포인트",
                     iconColor: .blue
                 )

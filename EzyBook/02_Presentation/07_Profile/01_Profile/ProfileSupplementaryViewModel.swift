@@ -14,16 +14,17 @@ import Combine
 final class ProfileSupplementaryViewModel: ViewModelType {
     
     private let orderListUseCase: OrderListLookUpUseCase
-        
+    
     var input = Input()
     @Published var output = Output()
     
     var cancellables = Set<AnyCancellable>()
     
     init(orderListUseCase: OrderListLookUpUseCase) {
-
+        
         self.orderListUseCase = orderListUseCase
         transform()
+        handleInitialLoad()
     }
     
     
@@ -40,10 +41,13 @@ extension ProfileSupplementaryViewModel {
         var isShowingMessage: Bool {
             presentedMessage != nil
         }
+        
+        var userCommerceInfo: (price: Int, reward: Int) = (0, 0)
+        
     }
     
     func transform() {}
-        
+    
     @MainActor
     private func handleError(_ error: Error) {
         if let apiError = error as? APIError {
@@ -58,10 +62,12 @@ extension ProfileSupplementaryViewModel {
 // MARK: 주문내역
 extension ProfileSupplementaryViewModel {
     
-    private func handleOrderList() {
-        
+    private func handleInitialLoad() {
         Task {
-           await performOrderListLoad()
+            await performOrderListLoad()
+            await MainActor.run {
+                performUpdateUserData(output.orderList)
+            }
         }
     }
     
@@ -76,30 +82,34 @@ extension ProfileSupplementaryViewModel {
             await handleError(error)
         }
     }
-        
-        
-        
-        
-}
-
-
-// MARK: Action
-extension ProfileSupplementaryViewModel {
     
-    enum Action {
-        case onAppearRequested
-    }
-    
-    /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
-    func action(_ action: Action) {
-        switch action {
-        case .onAppearRequested:
-            handleOrderList()
-            
-        }
-    }
     
     
 }
+
+// MARK: 가격 및 포인트 조회
+
+private extension ProfileSupplementaryViewModel {
+    
+    func performUpdateUserData(_ data: [OrderEntity]) {
+        let prcie = performCalcPoint(data)
+        let point = performCalcPice(data)
+        
+        output.userCommerceInfo = (prcie, point)
+
+        
+    }
+    
+    func performCalcPoint(_ data: [OrderEntity]) -> Int {
+        data.map { $0.totalPrice }.reduce(0, +)
+    }
+    
+    func performCalcPice(_ data: [OrderEntity]) -> Int {
+        data.map { $0.activity.pointReward ?? 0 }.reduce(0, +)
+    }
+    
+}
+
+
 
 
