@@ -101,14 +101,3 @@ struct LoginView: View {
     }
     
 }
-
-extension LoginView {
-    
-    // MARK: Layout Constants
-    private enum Layout {
-        static let horizontalPadding: CGFloat = 43
-        static let buttonHeight: CGFloat = 50
-        static let iconPaddingHorizontal: CGFloat = 30
-    }
-    
-}

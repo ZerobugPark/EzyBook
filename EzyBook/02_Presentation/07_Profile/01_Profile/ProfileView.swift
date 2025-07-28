@@ -67,13 +67,7 @@ struct ProfileView: View {
                 return
             }
             
-            Task {
-                if let data = try? await firstItem.loadTransferable(type: Data.self),
-                   let image = UIImage(data: data) {
-                    selectedImage = IdentifiableImage(image: image)
-                    
-                }
-            }
+            loadSelectedPhotoItem(firstItem)
         }
         .fullScreenCover(item: $selectedImage) { identifiable in
             coordinator.makeConfirmImageView(
@@ -98,6 +92,15 @@ struct ProfileView: View {
     }
     
     
+    private func loadSelectedPhotoItem(_ item: PhotosPickerItem) {
+        Task {
+            if let data = try? await item.loadTransferable(type: Data.self),
+               let image = UIImage(data: data) {
+                selectedImage = IdentifiableImage(image: image)
+            }
+        }
+    }
+    
 }
 
 // MARK: 프로필 설정 뷰
@@ -106,54 +109,13 @@ extension ProfileView {
     private func makeProfileSection() -> some View {
         // MARK: - 프로필 이미지
         VStack(spacing: 40) {
-            makeProfileImageView()
+            ProfileImageView(
+                image: viewModel.output.profile.profileImage,
+                onEditTap: { isImagePickerPresented = true }
+            )
             makeprofileCardView()
         }
         .padding(.vertical, 20)
-    }
-    
-    private func makeProfileImageView() -> some View {
-        ZStack {
-            Circle()
-                .fill(.grayScale0)
-                .frame(width: 140, height: 140)
-                .shadow(color: .gray.opacity(0.3), radius: 10, x: 0, y: 5)
-            
-            Circle()
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: [Color.deepSeafoam.opacity(0.6), Color.blackSeafoam.opacity(0.4)]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(width: 120, height: 120)
-                .overlay {
-                    /// 업로드했는데, 서버에서 다시 받아오면 왜 URL이 없을까?.
-                    if let image = viewModel.output.profile.profileImage {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFill()
-                            .clipShape(Circle())
-                            .frame(width: 120, height: 120)
-                    } else {
-                        Image(.tabBarProfileFill)
-                            .renderingMode(.template)
-                            .resizable()
-                            .frame(width: 80, height: 80)
-                            .foregroundStyle(.grayScale0)
-                    }
-                    
-                    
-                    
-                }
-                .onTapGesture {
-                    //TODO: 미리보기
-                }
-            
-            
-            makeModifyProfileImage()
-        }
     }
     
     
@@ -217,22 +179,10 @@ extension ProfileView {
             Spacer(minLength: 20)
             
             // 통계
-            HStack(spacing: 40) {
-                statView(
-                    icon: "star.fill",
-                    value: "\(viewModel.output.userCommerceInfo.0)원",
-                    label: "총 사용 금액",
-                    iconColor: .blue
-                )
-                
-                statView(
-                    icon: "diamond.fill",
-                    value: "\(viewModel.output.userCommerceInfo.1)P",
-                    label: "누적 적립 포인트",
-                    iconColor: .blue
-                )
-            }
-            .frame(maxWidth: .infinity, alignment: .center)
+            UserStatSectionView(
+                price: viewModel.output.userCommerceInfo.0,
+                point: viewModel.output.userCommerceInfo.1
+            )
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 24)
@@ -255,27 +205,123 @@ extension ProfileView {
             )
     }
     
-    private func statView(icon: String, value: String, label: String, iconColor: Color) -> some View {
-        VStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.system(size: 24))
-                .foregroundColor(iconColor)
-            
-            Text(value)
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(.black)
-            
-            Text(label)
-                .font(.system(size: 12))
-                .foregroundColor(.gray)
-                .multilineTextAlignment(.center)
+
+    // MARK: - UserStatSectionView
+    private struct UserStatSectionView: View {
+        let price: Int
+        let point: Int
+
+        var body: some View {
+            HStack(spacing: 40) {
+                StatView(
+                    icon: .iconStarFill,
+                    value: "\(price)원",
+                    label: "총 사용 금액",
+                )
+
+                StatView(
+                    icon: .iconHot,
+                    value: "\(point)P",
+                    label: "누적 적립 포인트",
+                )
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+        }
+    }
+
+    private struct StatView: View {
+        let icon: ImageResource
+        let value: String
+        let label: String
+
+        var body: some View {
+            VStack(spacing: 8) {
+                Image(icon)
+                    .renderingMode(.template)
+                    .resizable()
+                    .frame(width: 24, height: 24)
+                    .foregroundStyle(.blackSeafoam)
+                    
+
+                Text(value)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.black)
+
+                Text(label)
+                    .font(.system(size: 12))
+                    .foregroundColor(.gray)
+                    .multilineTextAlignment(.center)
+            }
+        }
+    }
+    
+    private struct ProfileImageView: View {
+        let image: UIImage?
+        let onEditTap: () -> Void
+
+        var body: some View {
+            ZStack {
+                Circle()
+                    .fill(.grayScale0)
+                    .frame(width: 140, height: 140)
+                    .shadow(color: .gray.opacity(0.3), radius: 10, x: 0, y: 5)
+
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.deepSeafoam.opacity(0.6), Color.blackSeafoam.opacity(0.4)]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 120, height: 120)
+                    .overlay {
+                        if let image {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFill()
+                                .clipShape(Circle())
+                                .frame(width: 120, height: 120)
+                        } else {
+                            Image(.tabBarProfileFill)
+                                .renderingMode(.template)
+                                .resizable()
+                                .frame(width: 80, height: 80)
+                                .foregroundStyle(.grayScale0)
+                        }
+                    }
+                    .onTapGesture {
+                        // TODO: 이미지 미리보기
+                    }
+
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Button {
+                            onEditTap()
+                        } label: {
+                            Circle()
+                                .fill(Color.blackSeafoam.opacity(1.0))
+                                .frame(width: 32, height: 32)
+                                .overlay(
+                                    Image(systemName: "camera.fill")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.grayScale0)
+                                )
+                        }
+                        .contentShape(Circle())
+                        .offset(x: -10, y: -10)
+                    }
+                }
+                .frame(width: 140, height: 140)
+            }
         }
     }
     
 }
 
 // MARK: 활동 관련 테이블 뷰
-
 extension ProfileView {
     
     private func makeMenuView() -> some View {
@@ -400,4 +446,3 @@ extension ProfileView {
     }
     
 }
-
