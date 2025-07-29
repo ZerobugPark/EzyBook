@@ -165,7 +165,7 @@ extension UserRequest {
         case profileImageUpload(image: UIImage)
          
         var requiresAuth: Bool {
-            return false
+            return true
         }
         
         var endpoint: URL? {
@@ -177,7 +177,7 @@ extension UserRequest {
         
         var headers: HTTPHeaders {
             [
-                "SeSACKey": APIConstants.apiKey
+                "SeSACKey": APIConstants.apiKey,
             ]
         }
         
@@ -186,6 +186,7 @@ extension UserRequest {
             case .profileImageUpload(let image):
                 return { form in
                     if let data = image.compressedJPEGData(maxSizeInBytes: 1_000_000) {
+                        
                         form.append(data,
                                     withName: "profile",
                                     fileName: "profile.jpg",

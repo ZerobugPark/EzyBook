@@ -17,16 +17,20 @@ struct ReviewDetailView: View {
     @State private var selectedReview: UserReviewDetailList?
     
     var body: some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            LazyVStack(spacing: 16) {
-                ForEach(viewModel.output.groupedReviewList) { group in
-                    ReviewListGroupeView(group: group) { review in
-                        selectedReview = review
+        ZStack {
+            ScrollView(.vertical, showsIndicators: false) {
+                LazyVStack(spacing: 16) {
+                    ForEach(viewModel.output.groupedReviewList) { group in
+                        ReviewListGroupeView(group: group) { review in
+                            selectedReview = review
+                        }
                     }
                 }
+                .padding(.horizontal, 20)
+                
             }
-            .padding(.horizontal, 20)
-            
+            .disabled(viewModel.output.isLoading)
+            LoadingOverlayView(isLoading: viewModel.output.isLoading)
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)
@@ -124,6 +128,7 @@ private extension ReviewDetailView {
                     }
                     
                     Spacer()
+                    
                     
                     if let image = data.image {
                         Image(uiImage: image)

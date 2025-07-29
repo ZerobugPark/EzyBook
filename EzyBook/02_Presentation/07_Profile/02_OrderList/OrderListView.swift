@@ -20,7 +20,6 @@ struct OrderListView: View {
     
     
     var body: some View {
-        
         ZStack {
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVStack(spacing: 16) {
@@ -32,6 +31,8 @@ struct OrderListView: View {
                 }
                 .padding(.horizontal, 20)
             }
+            .disabled(viewModel.output.isLoading)
+            LoadingOverlayView(isLoading: viewModel.output.isLoading)
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)

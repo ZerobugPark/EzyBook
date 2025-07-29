@@ -71,8 +71,7 @@ struct UserReviewDetailList {
     let creator: UserInfoResponseEntity
     let createdAt: String
     let updatedAt: String
-    
-    var image: UIImage?
+    let image: UIImage?
     
     init(dto: UserReviewEntity, image: UIImage?) {
         self.reviewID = dto.reviewID
@@ -86,5 +85,6 @@ struct UserReviewDetailList {
         self.creator = dto.creator
         self.createdAt = dto.createdAt
         self.updatedAt = dto.updatedAt
+        self.image = image
     }
 }

@@ -7,13 +7,13 @@
 
 import Foundation
 import Alamofire
+import UIKit
 
 final class DefaultNetworkService: NetworkService {
 
     private let decodingService: ResponseDecoder
     private let interceptor: TokenInterceptor? // 이것도 추상화를 해줘야하나
     private let session: Session
-    
     init(decodingService: ResponseDecoder, interceptor: TokenInterceptor?) {
         self.decodingService = decodingService
         self.interceptor = interceptor
@@ -39,14 +39,19 @@ final class DefaultNetworkService: NetworkService {
 
             response = await session
                 .upload(multipartFormData: multipartForm,
-                        to: endpoint,
+                        to: endpoint, //URL(string: "https://httpbin.org/post")!
                         method: router.method,
                         headers: router.headers)
+                .cURLDescription { description in
+                    //print("🔍 Actual cURL command:")
+                    //print(description)
+                }
+                .uploadProgress { progress in
+                    //print("📤 Upload progress: \(progress.fractionCompleted)")
+                }
                 .validate(statusCode: 200...299)
                 .serializingData()
                 .response
-
-
             
         } else {
             response = await session
@@ -63,15 +68,13 @@ final class DefaultNetworkService: NetworkService {
             print("Headers:", request.headers)
         }
         
-        
-        
+
         #if DEBUG
         let urlString = urlRequest.url?.absoluteString ?? "Invalid URL"
         #endif
         
         let statusCode = response.response?.statusCode
         
-
         switch response.result {
         case .success(let data):
             

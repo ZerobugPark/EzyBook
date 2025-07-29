@@ -32,6 +32,7 @@ final class ProfileModifyViewModel: ViewModelType {
     
     private let useCase: ProfileModifyUseCase
     
+    
     init(useCase: ProfileModifyUseCase) {
         self.useCase = useCase
         transform()
@@ -44,7 +45,6 @@ extension ProfileModifyViewModel {
         
 
     struct Input {
-        
         var nicknameTextField = ""
         var phoneNumberTextField = ""
         var introduceTextField = ""
@@ -53,6 +53,7 @@ extension ProfileModifyViewModel {
     struct Output {
         /// 뷰의 상태 표시
         var isValidNickname = false
+        
         var isValidPhoneNumber = false
         var presentedMessage: DisplayMessage? = nil
         
