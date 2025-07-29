@@ -112,7 +112,6 @@ extension ReviewDetailViewModel {
             
             
             let grouped = makeGroupeReviewList(from: reviewList)
-            dump(grouped)
             
             await MainActor.run {
                 output.groupedReviewList = grouped
@@ -197,7 +196,7 @@ extension ReviewDetailViewModel {
     /// GroupedReview(date: "2025-07-25", reviews: [review4, review5, review6])
     ///  ]
     private func makeGroupeReviewList(from reviewList: [UserReviewDetailList]) -> [GroupedReview] {
-        let grouped = Dictionary(grouping: reviewList) { $0.createdAt.toDisplayDate() }
+        let grouped = Dictionary(grouping: reviewList) { $0.createdAt.toDisplayDateTime() }
         return grouped.compactMap { key, reviews in
             guard let rawDate = reviews.first?.createdAt.toDate() else { return nil }
             return GroupedReview(date: key, rawDate: rawDate, reviews: reviews)

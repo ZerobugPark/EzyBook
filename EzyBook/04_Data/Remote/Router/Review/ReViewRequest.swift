@@ -9,7 +9,7 @@ import SwiftUI
 import Alamofire
 
 enum ReViewRequest {
- 
+    
     enum Get: GetRouter {
         case reviewList(id: String)
         case reviewDetail(id: String, reviewID: String)
@@ -30,14 +30,14 @@ enum ReViewRequest {
             }
         }
         
-    
+        
         var headers: HTTPHeaders {
             [
                 "SeSACKey": APIConstants.apiKey
             ]
             
         }
-
+        
     }
 }
 
@@ -46,7 +46,7 @@ extension ReViewRequest {
     
     enum Post: PostRouter {
         case writeReview(id: String, dto: ReviewWriteRequestDTO)
-     
+        
         var requiresAuth: Bool {
             true
         }
@@ -79,9 +79,9 @@ extension ReViewRequest {
 extension ReViewRequest {
     
     enum Multipart: MultipartRouter {
-       
-        case reviewFiles(id: String,image: [UIImage])
-         
+        
+        case reviewFiles(id: String, image: [UIImage])
+        
         var requiresAuth: Bool {
             return true
         }
@@ -105,25 +105,20 @@ extension ReViewRequest {
                 return { form in
                     for (index, image) in images.enumerated() {
                         if let data = image.compressedJPEGData(maxSizeInBytes: 1_000_000) {
-                                          
-                            form.append(
+                            let filename = "review\(index).jpg"
+                                            
+                        form.append(
                                 data,
                                 withName: "files",
-                                fileName: "review\(index).jpg",
+                                fileName: filename,
                                 mimeType: "image/jpeg"
                             )
-                            //print("✅ Appending file: review\(index).jpg (\(data.count / 1024) KB)")
+                            
+                            print("✅ Appending file: review\(index).jpg (\(data.count / 1024) KB)")
                         } else {
                             print("❌ Compression failed for image[\(index)]")
                         }
                     }
-//                    // ✅ Final encoded data after all appends
-//                    if let encodedData = try? form.encode() {
-//                        print("✅ Final Encoded size: \(encodedData.count / 1024) KB")
-//                        if let bodyString = String(data: encodedData, encoding: .utf8) {
-//                            print("✅ Encoded body preview: \(bodyString.prefix(500))")
-//                        }
-//                    }
                 }
             }
         }

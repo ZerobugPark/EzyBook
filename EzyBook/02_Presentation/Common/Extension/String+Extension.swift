@@ -75,6 +75,21 @@ extension String {
             return self
         }
     }
+    
+    func toDisplayDateTime(format: String = "yyyy-MM-dd HH:mm") -> String {
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        
+        let displayFormatter = DateFormatter()
+        displayFormatter.dateFormat = format
+        displayFormatter.locale = Locale(identifier: "ko_KR")
+        
+        if let date = isoFormatter.date(from: self) {
+            return displayFormatter.string(from: date)
+        } else {
+            return self
+        }
+    }
 }
 
 /// 빈문자열 비교

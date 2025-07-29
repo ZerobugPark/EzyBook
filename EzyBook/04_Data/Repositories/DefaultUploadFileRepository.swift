@@ -33,7 +33,7 @@ final class DefaultUploadFileRepository: ProfileImageUploadRepository, ReviewIma
         let router = ReViewRequest.Multipart.reviewFiles(id: id, image: images)
       
         let data = try await networkService.fetchData(dto: ReviewImageResponseDTO.self, router)
-        
+    
         return data.toEntity()
     }
     
