@@ -496,7 +496,7 @@ extension HomeViewModel {
         
         let detail = try await activityUseCases.activityDetail.execute(id: data.activityID)
         
-        let thumbnailImage = try await self.requestThumbnailImage(detail.thumbnails)
+        let thumbnailImage = try await self.requestThumbnailImage(detail.thumbnailPaths)
         
         
         return T(from: detail, thumbnail: thumbnailImage)

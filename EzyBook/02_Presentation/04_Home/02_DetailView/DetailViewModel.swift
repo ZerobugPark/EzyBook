@@ -134,7 +134,7 @@ private extension DetailViewModel {
         do {
             
             let detail = try await fetchActivityDetail(activityID)
-            let sortedThumbnails = sortThumbnails(detail.thumbnails)
+            let sortedThumbnails = sortThumbnails(detail.thumbnailPaths)
             let thumbnailImages = try await loadThumbnailImages(sortedThumbnails)
             let reviews = try await requestReviews(activityID)
             
@@ -257,7 +257,7 @@ extension DetailViewModel {
                 output.isLoading = true
             }
             
-   
+            await performOrder(id, name, time, count, price)
             
             await MainActor.run {
                 output.isLoading = false
@@ -265,7 +265,7 @@ extension DetailViewModel {
         }
     }
     
-    private func performOrder( id: String, _ name: String, _ time: String, _  count: Int, _ price: Int) async {
+    private func performOrder(_ id: String, _ name: String, _ time: String, _  count: Int, _ price: Int) async {
         
         do {
             let detail = try await orderUseCase.execute(
