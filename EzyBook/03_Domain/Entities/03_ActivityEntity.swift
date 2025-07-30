@@ -122,9 +122,18 @@ struct ActivityDetailEntity {
         self.updatedAt = dto.updatedAt
     }
     
-    
 }
 
+/// 자기 자신을 복사한 후, 값을 변경  후 리턴
+/// 구조체에서는 부분 수정보다는 새로운 값을 만들어서 교체하는 방식
+/// Swfit의 철학
+extension ActivityDetailEntity {
+    func with(thumbnails: [String]) -> ActivityDetailEntity {
+        var copy = self
+        copy.thumbnails = thumbnails
+        return copy
+    }
+}
 
 
 

@@ -71,13 +71,17 @@ final class DefaultLoadImageRepository: LoadOriginalImage, LoadThumbnailImage {
         let fullURL = APIConstants.baseURL + "/v1" + path
 
         // UTType 기반 분기
-        let fileExtension = URL(fileURLWithPath: path).pathExtension.lowercased()
+        let fileExtension = URL(fileURLWithPath: path).pathExtension.lowercased() /// 확장자 추출
         if let utType = UTType(filenameExtension: fileExtension) {
             if utType.conforms(to: .movie) {
                 return try await loadVideoThumbnail(from: fullURL, scale: scale)
             }
         }
 
+        
+        /// 확장자가 이미지 일때 (UTType.jpeg / Png 등)
+
+        
         /// 1.  메모리 캐시 확인
         if let image = imageCache.get(forKey: fullURL) {
             return image

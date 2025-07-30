@@ -15,17 +15,16 @@ struct SelectedMedia: Identifiable {
 
 struct DetailView: View {
     
-    @Environment(\.displayScale) var scale
     @EnvironmentObject var appState: AppState
     
     @StateObject var viewModel: DetailViewModel
     @ObservedObject  var coordinator: HomeCoordinator
     
-    private(set) var activityID: String
     
     @State private var personCount = 1
     @State private var selectedDate: String? = nil
     @State private var selectedTime: String? = nil
+    @State private var selectedIndex = 0
     
     /// 화면전환 트리거
     @State private var selectedMedia: SelectedMedia?
@@ -33,8 +32,6 @@ struct DetailView: View {
     private var data: ActivityDetailEntity {
         viewModel.output.activityDetailInfo
     }
-    
-    @State private var selectedIndex = 0
     
     var body: some View {
         
@@ -55,10 +52,13 @@ struct DetailView: View {
             }
             .disabled(viewModel.output.isLoading)
             
+            LoadingOverlayView(isLoading: viewModel.output.isLoading)
+            
             VStack {
                 makeChatButton()
                 makePayView()
             }
+            .disabled(viewModel.output.isLoading)
             
             LoadingOverlayView(isLoading: viewModel.output.isLoading)
         }
@@ -95,24 +95,10 @@ struct DetailView: View {
                 }
             }
         }
-//        .commonAlert(
-//            isPresented: Binding(
-//                get: { viewModel.output.isShowingError },
-//                set: { isPresented in
-//                    if !isPresented {
-//                        viewModel.action(.resetError)
-//                    }
-//                }
-//            ),
-//            title: viewModel.output.presentedError?.message.title,
-//            message: viewModel.output.presentedError?.message.msg
-//        )
-        .onAppear {
-            /// 최초 한번만 되게? 수정해야할거 같은데. (그 다음은 강제 업데이트)
-            /// onAppear를 하다보니까, 알라모가 1~2초 이내에 들어온것은 같은 통신인줄 알고 걍 304 해버리는 듯
-            /// 즉, 결제 -> OnAppear -> 결제가 성공되면 다시 onAppearRequested 호출
-            viewModel.action(.onAppearRequested(id: activityID))
-            
+        .withCommonUIHandling(viewModel) { code, _ in
+            if code == 418 {
+                appState.isLoggedIn = false
+            }
         }
         .onChange(of: viewModel.output.roomID) { newRoomID in
             if let id = newRoomID {
@@ -127,8 +113,8 @@ struct DetailView: View {
     }
     
     
-    
 }
+
 
 
 /// 메인 섹션
@@ -146,8 +132,7 @@ extension DetailView {
                             .frame(maxWidth: .infinity)
                             .clipped()
                         
-                        //TODO: 첫번째 뿐마 아니라, 두번째나 세번째도 동영상일 수 있음, 수정 필요
-                        if index == 0 && viewModel.output.hasMovieThumbnail {
+                        if viewModel.output.activityDetailInfo.thumbnails[index].hasSuffix(".mp4") {
                             Image(.playButton)
                                 .resizable()
                                 .frame(width: 30, height: 30)
@@ -155,7 +140,8 @@ extension DetailView {
                         }
                     }
                     .onTapGesture {
-                        selectedMedia = SelectedMedia(id: index, isVideo: index == 0 && viewModel.output.hasMovieThumbnail)
+                        let isVideo = viewModel.output.activityDetailInfo.thumbnails[index].hasSuffix(".mp4")
+                        selectedMedia = SelectedMedia(id: index, isVideo: isVideo)
                     }
                     .tag(index)
                 }
@@ -267,7 +253,7 @@ extension DetailView {
     private func makeReviewView() -> some View {
         
         Button {
-            coordinator.push(.reviewView(activityID: activityID))
+            coordinator.push(.reviewView(activityID: viewModel.activityID))
         } label: {
             HStack(spacing: 4) {
                 Image(.iconStarFill)
@@ -836,7 +822,7 @@ extension DetailView {
                 guard let selectedDate, let selectedTime else { return }
                 
                 
-                viewModel.action(.makeOrder(id: activityID, name: selectedDate, time: selectedTime, count: personCount, price: data.price.final * personCount))
+                viewModel.action(.makeOrder(id: viewModel.activityID, name: selectedDate, time: selectedTime, count: personCount, price: data.price.final * personCount))
                 
             } label: {
                 Text("결제하기")
