@@ -24,8 +24,15 @@ final class CommonDIContainer {
 }
 
 
-// MARK: Make UseCase
+// MARK: Shared Feature Service (공통 모듈)
 extension CommonDIContainer {
+    
+    func makeDetailFeatureService() -> DetailFeatureService {
+        DefaultDetailFeatureService(
+            chatRoom: makeChatRoomService(),
+            favorite: makeFavoriteService()
+        )
+    }
 
     /// 내 프로필 조회
     func makeProfilLookupUseCase() -> ProfileLookUpUseCase {
@@ -51,9 +58,14 @@ extension CommonDIContainer {
         DefaultActivityKeepCommandUseCase(repo: makeKeepStatusRepository())
     }
     
-
-  
-
+    // MARK: 서비스 구현체 생성
+    private func makeChatRoomService() -> ChatRoomServiceProtocol {
+        ChatRoomService(createChatRoomUseCase: makeCreateChatRoomUseCase())
+    }
+    
+    private func makeFavoriteService() -> FavoriteServiceProtocol {
+        FavoriteService(activityKeepUseCase: makeActivityKeepCommandUseCase())
+    }
 }
 
 // MARK: Use Cases (내부용)
@@ -73,6 +85,10 @@ extension CommonDIContainer {
         )
     }
     
+    /// 채팅방 생성
+    private func makeCreateChatRoomUseCase() -> CreateChatRoomUseCase {
+        DefaultCreateChatRoomUseCase(repo: makeChatRoomRepository())
+    }
     
 }
 // MARK: Data (내부용)
@@ -127,15 +143,11 @@ extension CommonDIContainer {
     }
     
     
+    /// 채팅 방 관련
+    func makeChatRoomRepository() -> DefaultChatRepository {
+        DefaultChatRepository(networkService: networkService)
+    }
   
 }
 
     
-
-
-
-
-
-
-
-

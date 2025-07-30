@@ -496,7 +496,7 @@ extension HomeViewModel {
         
         let detail = try await activityUseCases.activityDetail.execute(id: data.activityID)
         
-        let thumbnailImage = try await self.requestThumbnailImage(detail.thumbnails)
+        let thumbnailImage = try await self.requestThumbnailImage(detail.thumbnailPaths)
         
         
         return T(from: detail, thumbnail: thumbnailImage)
@@ -524,9 +524,6 @@ extension HomeViewModel {
         /// 일단 네트워크 통신과 상관없이 상태 변경 (이후 실패시 기존 상태로 변경)
         /// 유저입장에서 통신전에 상태를 변경하는것을 먼저 인지하게 하고, 만약 실패시, UI를 다시 업데이트 하는 형태로 변경
         await toggleKeepUI(index) // UI 업데이트
-        
-        
-        
         do {
             try await updateKeepStatus(for: data, at: index)
         } catch {

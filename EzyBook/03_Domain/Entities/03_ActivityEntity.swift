@@ -70,7 +70,7 @@ struct ActivityDetailEntity {
     let title: String // 제목
     let country: String // 국가
     let category: String // 투어
-    var thumbnails: [String] // 썸네일 이미지 경로
+    var thumbnailPaths: [String] // 썸네일 이미지 경로
     let geolocation: ActivityGeolocationEntity // 위치
     let startDate: String // 액비비티 운영 기간(시작)
     let endDate: String? // 액비비티 운영 기간(종료)
@@ -102,7 +102,7 @@ struct ActivityDetailEntity {
         self.title = dto.title ?? ""
         self.country = dto.country ?? ""
         self.category = dto.category ?? ""
-        self.thumbnails = dto.thumbnails
+        self.thumbnailPaths = dto.thumbnails
         self.geolocation = ActivityGeolocationEntity(dto: dto.geolocation)
         self.startDate = dto.startDate ?? ""
         self.endDate = dto.endDate ?? ""
@@ -122,9 +122,18 @@ struct ActivityDetailEntity {
         self.updatedAt = dto.updatedAt
     }
     
-    
 }
 
+/// 자기 자신을 복사한 후, 값을 변경  후 리턴
+/// 구조체에서는 부분 수정보다는 새로운 값을 만들어서 교체하는 방식
+/// Swfit의 철학
+extension ActivityDetailEntity {
+    func with(thumbnails: [String]) -> ActivityDetailEntity {
+        var copy = self
+        copy.thumbnailPaths = thumbnails
+        return copy
+    }
+}
 
 
 

@@ -71,7 +71,9 @@ final class HomeCoordinator: ObservableObject {
                 bannerViewModel: self.container.homeDIContainer.makeBannerViewModel(), coordinator: self
             )
         case .detailView(let id):
-            DetailView(viewModel: self.container.homeDIContainer.makeDetailViewModel(), coordinator: self, activityID: id)
+            
+            let vm = self.container.homeDIContainer.makeDetailViewModel(id: id)
+            DetailView(viewModel: vm, coordinator: self)
         case .reviewView(let id):
             ReviewView(activityID: id)
         case .chatRoomView(let roomID, let opponentNick):

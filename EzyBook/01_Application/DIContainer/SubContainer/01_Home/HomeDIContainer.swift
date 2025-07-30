@@ -124,13 +124,16 @@ extension HomeDIContainer {
         )
     }
     
-    func makeDetailViewModel() -> DetailViewModel {
+    func makeDetailViewModel(id: String) -> DetailViewModel {
         DetailViewModel(
             activityUseCases: makeActivityUseCase(),
             reviewLookupUseCase: makeReviewLookUpUseCase(),
             orderUseCaes: makeCreateOrderUseCase(),
-            createChatRoomUseCase: makeCreateChatRoomUseCase(),
-            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase()
+            chatService: commonDIContainer.makeDetailFeatureService().chatRoom,
+            favoirteService: commonDIContainer.makeDetailFeatureService().favorite,
+            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase(),
+            activityID: id,
+            scale: UIScreen.main.scale
         )
     }
     
