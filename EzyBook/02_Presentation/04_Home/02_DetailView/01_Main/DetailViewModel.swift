@@ -11,7 +11,7 @@ import Combine
 final class DetailViewModel: ViewModelType {
     
     private let activityUseCases: ActivityUseCases
-    private let reviewLookupUseCase: ReviewLookUpUseCase
+    private let reviewLookupUseCase: ReviewRatingLookUpUseCase
     private let orderUseCase: CreateOrderUseCase
     private let chatService: ChatRoomServiceProtocol
     private let favoirteService: FavoriteServiceProtocol
@@ -30,7 +30,7 @@ final class DetailViewModel: ViewModelType {
     
     init(
         activityUseCases: ActivityUseCases,
-        reviewLookupUseCase: ReviewLookUpUseCase,
+        reviewLookupUseCase: ReviewRatingLookUpUseCase,
         orderUseCaes: CreateOrderUseCase,
         chatService: ChatRoomServiceProtocol,
         favoirteService: FavoriteServiceProtocol,

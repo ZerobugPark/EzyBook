@@ -8,7 +8,7 @@
 import SwiftUI
 import Alamofire
 
-enum ReViewRequest {
+enum ReviewRequest {
     
     enum Get: GetRouter {
         case reviewList(id: String)
@@ -42,7 +42,7 @@ enum ReViewRequest {
 }
 
 // MARK: Post
-extension ReViewRequest {
+extension ReviewRequest {
     
     enum Post: PostRouter {
         case writeReview(id: String, dto: ReviewWriteRequestDTO)
@@ -76,7 +76,7 @@ extension ReViewRequest {
 
 
 // MARK: MultiPart
-extension ReViewRequest {
+extension ReviewRequest {
     
     enum Multipart: MultipartRouter {
         

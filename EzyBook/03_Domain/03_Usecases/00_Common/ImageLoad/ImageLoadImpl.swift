@@ -9,7 +9,7 @@ import SwiftUI
 
 
 /// 원본 이미지
-final class DefaultLoadImageOriginalUseCase {
+final class DefaultLoadImageOriginalUseCase: LoadImageOriginalUseCase {
     
     
     private let repo: LoadOriginalImage
@@ -30,8 +30,8 @@ extension DefaultLoadImageOriginalUseCase {
 }
 
 
-/// 원본 이미지
-final class DefaultThumbnailImageUseCase {
+/// 썸네일 이미지
+final class DefaultThumbnailImageUseCase: ThumbnailImageUseCase {
     
     
     private let repo: LoadThumbnailImage
@@ -50,3 +50,4 @@ extension DefaultThumbnailImageUseCase {
     }
     
 }
+

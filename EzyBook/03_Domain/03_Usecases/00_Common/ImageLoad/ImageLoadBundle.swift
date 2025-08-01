@@ -9,7 +9,7 @@ import Foundation
 
 struct ImageLoadUseCases {
     
-    let originalImage: DefaultLoadImageOriginalUseCase
-    let thumbnailImage: DefaultThumbnailImageUseCase
+    let originalImage: LoadImageOriginalUseCase
+    let thumbnailImage: ThumbnailImageUseCase
     
 }

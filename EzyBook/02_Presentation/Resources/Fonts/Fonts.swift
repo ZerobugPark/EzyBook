@@ -5,7 +5,7 @@
 //  Created by youngkyun park on 5/23/25.
 //
 
-import Foundation
+import UIKit
 
 protocol FontStyle {
     var fontName: String { get }
@@ -79,5 +79,8 @@ extension PretendardFontStyle: FontStyle {
         }
     }
     
+    var uiFont: UIFont {
+        UIFont(name: fontName, size: size)!
+    }
     
 }

@@ -52,7 +52,7 @@ extension DefaultReViewWriteUseCase {
 
 
 // MARK: 리뷰 평점 조회
-final class DefaultReviewLookUpUseCase: ReviewLookUpUseCase {
+final class DefaultReviewRatingLookUpUseCase: ReviewRatingLookUpUseCase {
     
     private let repo: ReviewRatingListRepository
     
@@ -62,7 +62,7 @@ final class DefaultReviewLookUpUseCase: ReviewLookUpUseCase {
 
 }
 
-extension DefaultReviewLookUpUseCase {
+extension DefaultReviewRatingLookUpUseCase {
     func execute(id: String) async throws -> ReviewRatingListEntity {
         try await repo.requestReviewRatingist(id)
     }
@@ -70,7 +70,7 @@ extension DefaultReviewLookUpUseCase {
 
 
 // MARK: 리뷰 상세 조회
-final class DefaultReviewDetailUseCase {
+final class DefaultReviewDetailUseCase: ReviewDetailUseCase {
     private let repo: ReviewDetailRepository
     
     init(repo: ReviewDetailRepository) {
@@ -78,10 +78,29 @@ final class DefaultReviewDetailUseCase {
     }
     
 }
-extension DefaultReviewDetailUseCase: ReviewDetailUseCase {
+extension DefaultReviewDetailUseCase  {
     
     func execute(activityID: String, reviewID: String) async throws -> UserReviewEntity {
-        try await repo.reqeustReviewList(activityID, reviewID)
+        try await repo.reqeustReviewDetailList(activityID, reviewID)
     }
     
 }
+
+// MARK: 액티비티 리뷰 목록 조회
+final class DefaultActivityReviewLookUpUseCase: ActivityReviewLookUpUseCase {
+    
+    private let repo: ActivityReviewListRepository
+    
+    init(repo: ActivityReviewListRepository) {
+        self.repo = repo
+    }
+    
+}
+
+extension DefaultActivityReviewLookUpUseCase {
+    
+    func execute(activityID: String) async throws -> ReviewListEntity {
+        try await repo.requestActivityReviewList(activityID)
+    }
+}
+

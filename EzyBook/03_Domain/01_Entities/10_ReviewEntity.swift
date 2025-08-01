@@ -5,7 +5,7 @@
 //  Created by youngkyun park on 6/7/25.
 //
 
-import Foundation
+import UIKit
 
 struct ReviewImageEntity {
     let reviewImageUrls: [String]
@@ -16,13 +16,13 @@ struct ReviewImageEntity {
 }
 
 
-/// 회원가입
+
 struct ReviewListEntity {
-    let data: ReviewResponseEntity
+    let data: [ReviewResponseEntity]
     let nextCursor: String
     
     init(dto: ReviewListResponseDTO) {
-        self.data = dto.data.toEntity()
+        self.data = dto.data.map { $0.toEntity() }
         self.nextCursor = dto.nextCursor
     }
     
@@ -56,6 +56,48 @@ struct ReviewResponseEntity {
         self.updatedAt = dto.updatedAt
     }
     
+    init(reviewId: String, content: String, rating: Int, reviewImageUrls: [String], reservationItemName: String, reservationItemTime: String, creator: UserInfoResponseEntity, userTotalReviewCount: Int, userTotalRating: Float, createdAt: String, updatedAt: String) {
+        self.reviewId = reviewId
+        self.content = content
+        self.rating = rating
+        self.reviewImageUrls = reviewImageUrls
+        self.reservationItemName = reservationItemName
+        self.reservationItemTime = reservationItemTime
+        self.creator = creator
+        self.userTotalReviewCount = userTotalReviewCount
+        self.userTotalRating = userTotalRating
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+    }
+    
+}
+
+
+extension ReviewResponseEntity {
+    var isTextOverThreeLines: Bool {
+        let font = PretendardFontStyle.body2.uiFont
+        let textStorage = NSTextStorage(string: self.content)
+        let textContainer = NSTextContainer(size: CGSize(width: UIScreen.main.bounds.width - 40, height: .greatestFiniteMagnitude))
+        let layoutManager = NSLayoutManager()
+        
+        layoutManager.addTextContainer(textContainer)
+        textStorage.addLayoutManager(layoutManager)
+        textStorage.addAttribute(.font, value: font, range: NSRange(location: 0, length: textStorage.length))
+        
+        layoutManager.ensureLayout(for: textContainer)
+        
+        var numberOfLines = 0
+        var index = 0
+        var lineRange = NSRange(location: 0, length: 0)
+        
+        while index < layoutManager.numberOfGlyphs {
+            layoutManager.lineFragmentRect(forGlyphAt: index, effectiveRange: &lineRange)
+            index = NSMaxRange(lineRange)
+            numberOfLines += 1
+        }
+        
+        return numberOfLines > 3
+    }
 }
 
 

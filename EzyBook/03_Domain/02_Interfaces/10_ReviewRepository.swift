@@ -24,5 +24,11 @@ protocol ReviewWriteRepository {
 
 
 protocol ReviewDetailRepository {
-    func reqeustReviewList(_ activityID: String, _ reviewID: String) async throws -> UserReviewEntity
+    func reqeustReviewDetailList(_ activityID: String, _ reviewID: String) async throws -> UserReviewEntity
 }
+
+
+protocol ActivityReviewListRepository {
+    func requestActivityReviewList(_ activityID: String) async throws -> ReviewListEntity
+}
+

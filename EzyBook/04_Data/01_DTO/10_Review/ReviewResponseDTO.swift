@@ -22,7 +22,7 @@ struct ReviewImageResponseDTO: Decodable, EntityConvertible {
 /// 리뷰 목록 조회
 struct ReviewListResponseDTO: Decodable, EntityConvertible {
     
-    let data: ReviewResponseDTO
+    let data: [ReviewResponseDTO]
     let nextCursor: String
     
     enum CodingKeys: String, CodingKey {
@@ -62,7 +62,6 @@ struct ReviewResponseDTO: Decodable, EntityConvertible {
 }
 
 /// 별점별 리뷰 개수
-
 struct ReViewRatingListResponseDTO: Decodable, EntityConvertible {
     let data: [ReviewRatingResponseDTO]
 }
