@@ -125,8 +125,7 @@ private extension OrderListView {
                     
                     Spacer()
                     
-                    Image(uiImage: data.image)
-                        .resizable()
+                    RemoteImageView(path: data.imagePath)
                         .frame(width: 80, height: 80)
                         .foregroundColor(.white)
                         .clipShape(RoundedRectangle(cornerRadius: 12))

@@ -20,36 +20,28 @@ struct OrderList: Identifiable {
     let date: String
     let time: String
     var rating: Int?
-    let image: UIImage
+    let imagePath: String
     let paidDate: String
     let price: Int
 
     
     init(
-        orderID: String,
-        orderCode: String,
-        activityID: String,
-        title: String?,
-        country: String?,
-        date: String,
-        time: String,
-        rating: Int?,
-        image: UIImage,
-        paidDate: String,
-        price: Int
+        entitiy: OrderEntity
     ) {
-        self.orderID = orderID
-        self.orderCode = orderCode
-        self.activityID = activityID
-        self.title = title ?? ""
-        self.country = country ?? ""
-        self.date = date
-        self.time = time
-        self.rating = rating
-        self.image = image
-        self.paidDate = paidDate
-        self.price = price
+        self.orderID = entitiy.orderId
+        self.orderCode = entitiy.orderCode
+        self.activityID = entitiy.activity.id
+        self.title = entitiy.activity.title ?? ""
+        self.country =  entitiy.activity.country ?? ""
+        self.date = entitiy.reservationItemName
+        self.time = entitiy.reservationItemTime
+        self.rating = entitiy.review?.rating
+        self.imagePath = entitiy.activity.thumbnails[0]
+        self.paidDate = entitiy.paidAt
+        self.price =  entitiy.totalPrice
     }
+    
+
     
     var hasRating: Bool {
         rating != nil
@@ -71,9 +63,8 @@ struct UserReviewDetailList {
     let creator: UserInfoResponseEntity
     let createdAt: String
     let updatedAt: String
-    let image: UIImage?
     
-    init(dto: UserReviewEntity, image: UIImage?) {
+    init(dto: UserReviewEntity) {
         self.reviewID = dto.reviewID
         self.content = dto.content
         self.rating = dto.rating
@@ -85,6 +76,5 @@ struct UserReviewDetailList {
         self.creator = dto.creator
         self.createdAt = dto.createdAt
         self.updatedAt = dto.updatedAt
-        self.image = image
     }
 }

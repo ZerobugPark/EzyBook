@@ -114,8 +114,7 @@ extension ProfileDIContainer {
         
         OrderListViewModel(
             imageLoadUseCases: commonDIContainer.makeImageLoadUseCase(),
-            orderList: orderList,
-            scale: UIScreen.main.scale
+            orderList: orderList
         )
     }
     
