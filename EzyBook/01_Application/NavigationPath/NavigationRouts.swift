@@ -26,7 +26,7 @@ enum HomeRoute: Hashable {
 extension HomeRoute {
     var hidesTabbar: Bool {
         switch self {
-        case .detailView, .reviewView, .chatRoomView, .advertiseView:
+        case .detailView, .reviewView, .chatRoomView, .advertiseView, .searchView:
             return true
         default:
             return false

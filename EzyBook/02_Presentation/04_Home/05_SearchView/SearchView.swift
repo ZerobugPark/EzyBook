@@ -16,8 +16,6 @@ struct SearchView: View {
     @ObservedObject var coordinator: HomeCoordinator
    
     @State private var isSearching = false
-    @State private var isBanner = false
-    @State private var bannerMessage = ""
     
     var body: some View {
         ZStack {
@@ -66,11 +64,6 @@ struct SearchView: View {
                 appState.isLoggedIn = false
             }
         }
-        .commonAlert(
-            isPresented: $isBanner,
-            title: "안내",
-            message: bannerMessage
-        )
         .onAppear {
             // 탭바 터치 가능 여부
             appState.isLoding = viewModel.output.isLoading
@@ -93,10 +86,8 @@ extension SearchView {
         ZStack {
             BannerView(viewModel: bannerViewModel) { _ in
                 coordinator.pushAdvertiseView { result in
-                    
-                    self.bannerMessage = "\(result)번째 출석이 완료되었습니다."
-                    self.isBanner = true
-                    
+                    viewModel.action(.bannerResult(msg: result))
+                
                 }
             }
         }

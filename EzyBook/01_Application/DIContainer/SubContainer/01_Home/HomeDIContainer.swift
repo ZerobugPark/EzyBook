@@ -59,10 +59,15 @@ extension HomeDIContainer {
     
     
     // MARK: ReView
-    private func makeReviewLookUpUseCase() -> ReviewLookUpUseCase {
-        DefaultReviewLookUpUseCase(repo: commonDIContainer.makeReviewRepository())
+    private func makeReviewRatingLookUpUseCase() -> ReviewRatingLookUpUseCase {
+        DefaultReviewRatingLookUpUseCase(repo: commonDIContainer.makeReviewRepository())
+    }
+    
+    private func makeActivityRivewLookUpUseCase() -> ActivityReviewLookUpUseCase {
+        DefaultActivityReviewLookUpUseCase(repo: commonDIContainer.makeReviewRepository())
     }
 
+    
     // MARK: Chat
     private func makeCreateChatRoomUseCase() -> CreateChatRoomUseCase {
         DefaultCreateChatRoomUseCase(repo: commonDIContainer.makeChatRepository())
@@ -127,7 +132,7 @@ extension HomeDIContainer {
     func makeDetailViewModel(id: String) -> DetailViewModel {
         DetailViewModel(
             activityUseCases: makeActivityUseCase(),
-            reviewLookupUseCase: makeReviewLookUpUseCase(),
+            reviewLookupUseCase: makeReviewRatingLookUpUseCase(),
             orderUseCaes: makeCreateOrderUseCase(),
             chatService: commonDIContainer.makeDetailFeatureService().chatRoom,
             favoirteService: commonDIContainer.makeDetailFeatureService().favorite,
@@ -168,6 +173,13 @@ extension HomeDIContainer {
     
     func makeVideoPlayerViewModel() -> VideoPlayerViewModel {
         VideoPlayerViewModel(videoLoader: videoLoader)
+    }
+    
+    func makeReviewViewModel(id: String) -> ReviewViewModel {
+        ReviewViewModel(
+            activityID: id,
+            reviewUseCase: makeActivityRivewLookUpUseCase()
+        )
     }
     
 }

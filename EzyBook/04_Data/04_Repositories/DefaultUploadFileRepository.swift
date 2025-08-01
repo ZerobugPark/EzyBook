@@ -30,7 +30,7 @@ final class DefaultUploadFileRepository: ProfileImageUploadRepository, ReviewIma
     
     func requestReviewUploadImage(_ id: String, _ images: [UIImage]) async throws -> ReviewImageEntity {
        
-        let router = ReViewRequest.Multipart.reviewFiles(id: id, image: images)
+        let router = ReviewRequest.Multipart.reviewFiles(id: id, image: images)
       
         let data = try await networkService.fetchData(dto: ReviewImageResponseDTO.self, router)
     

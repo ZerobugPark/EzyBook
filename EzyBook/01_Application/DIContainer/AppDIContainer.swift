@@ -28,7 +28,7 @@ final class AppDIContainer: ObservableObject {
 
     
     // MARK: - DIContainer Factory
-    private let commonDICotainer: CommonDIContainer
+    let commonDICotainer: CommonDIContainer
     
     let loginDIContainer: LoginDIContainer
     let homeDIContainer: HomeDIContainer

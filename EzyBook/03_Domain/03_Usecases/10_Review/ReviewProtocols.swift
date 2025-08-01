@@ -16,10 +16,14 @@ protocol ReViewWriteUseCase {
         id: String, content: String, rating: Int, reviewImageUrls: [String]?, orderCode: String) async throws -> UserReviewEntity
 }
 
-protocol ReviewLookUpUseCase {
+protocol ReviewRatingLookUpUseCase {
     func execute(id: String) async throws -> ReviewRatingListEntity
 }
 
 protocol ReviewDetailUseCase {
     func execute(activityID: String, reviewID: String) async throws -> UserReviewEntity
+}
+
+protocol ActivityReviewLookUpUseCase {
+    func execute(activityID: String) async throws -> ReviewListEntity
 }

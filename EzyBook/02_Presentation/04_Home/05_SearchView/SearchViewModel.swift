@@ -100,6 +100,11 @@ extension SearchViewModel {
         }
     }
     
+    @MainActor
+    private func handleSuccess(_ msg: DisplayMessage) {
+        output.presentedMessage = msg
+    }
+    
 
 }
 
@@ -296,6 +301,21 @@ extension SearchViewModel {
     
 }
 
+// MARK: Banner
+extension SearchViewModel {
+    
+    private func handleBannerResult(msg: String) {
+        
+        let result = DisplayMessage.success(msg: "\(msg)번째 출석이 완료되었습니다.")
+        
+        Task {
+            await handleSuccess(result)
+        }
+        
+    }
+}
+
+
 
 //// MARK: Action
 extension SearchViewModel {
@@ -304,6 +324,7 @@ extension SearchViewModel {
         case searchButtonTapped
         case prefetchSearchContent(index: Int)
         case keepButtonTapped(index: Int)
+        case bannerResult(msg: String)
         
     }
     
@@ -322,6 +343,8 @@ extension SearchViewModel {
             handleSearchListPrefetch(index)
         case .keepButtonTapped(let index):
             handleKeepActivity(index)
+        case .bannerResult(let msg):
+            handleBannerResult(msg: msg)
         }
     }
     
