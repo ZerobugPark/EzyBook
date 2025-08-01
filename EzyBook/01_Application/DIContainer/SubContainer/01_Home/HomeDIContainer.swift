@@ -122,11 +122,7 @@ extension HomeDIContainer {
 extension HomeDIContainer {
     
     func makeHomeViewModel() -> HomeViewModel {
-        HomeViewModel(
-            activityUseCases: makeActivityUseCase(),
-            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase(),
-            scale: UIScreen.main.scale
-        )
+        HomeViewModel(activityUseCases: makeActivityUseCase())
     }
     
     func makeDetailViewModel(id: String) -> DetailViewModel {

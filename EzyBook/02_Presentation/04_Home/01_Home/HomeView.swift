@@ -52,7 +52,6 @@ struct HomeView: View {
             
             LoadingOverlayView(isLoading: viewModel.output.isLoading)
         
-         
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
