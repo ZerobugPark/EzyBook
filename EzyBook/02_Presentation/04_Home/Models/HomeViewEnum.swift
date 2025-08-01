@@ -52,7 +52,6 @@ enum Filter: String, CaseIterable, Identifiable {
     case package = "패키지"
     case exciting = "익사이팅"
     case experience = "체험"
-    case random = "랜덤"
     
     var id: String { self.rawValue }
     

@@ -14,10 +14,11 @@ struct CommunityCoordinatorView: View {
     
     var body: some View {
         NavigationStack(path: $coordinator.path) {
-            CommunityView(coordinator: coordinator)
-                .navigationDestination(for: CommunityRoute.self) { route in
-                    coordinator.destinationView(route: route)
-                }
+            CommunityView()
+//            CommunityView(coordinator: coordinator)
+//                .navigationDestination(for: CommunityRoute.self) { route in
+//                    coordinator.destinationView(route: route)
+//                }
         }
     }
 }

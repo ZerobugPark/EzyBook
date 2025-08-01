@@ -10,11 +10,12 @@ import SwiftUI
 struct SearchModifier: ViewModifier {
     @Binding var query: String
     @Binding var isSearching: Bool
+    let prompt: String
 
     func body(content: Content) -> some View {
         if #available(iOS 17.0, *) {
             content
-                .searchable(text: $query, isPresented: $isSearching, placement: .navigationBarDrawer(displayMode: .always), prompt: "국가 또는 투어를 입력해주세요.") 
+                .searchable(text: $query, isPresented: $isSearching, placement: .navigationBarDrawer(displayMode: .always), prompt: prompt)
         } else {
             content
                 .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always)) {
@@ -26,7 +27,7 @@ struct SearchModifier: ViewModifier {
 
 extension View {
     
-    func searchModify(_ query: Binding<String>, _ isSearching: Binding<Bool>) -> some View {
-        modifier(SearchModifier(query: query, isSearching: isSearching))
+    func searchModify(_ query: Binding<String>, _ isSearching: Binding<Bool>, _ prompt: String) -> some View {
+        modifier(SearchModifier(query: query, isSearching: isSearching, prompt: prompt))
     }
 }

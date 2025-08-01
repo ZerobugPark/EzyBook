@@ -37,7 +37,8 @@ final class CommunityCoordinator: ObservableObject {
     func destinationView(route: CommunityRoute) -> some View {
         switch route {
         case .communityView:
-            CommunityView(coordinator: self)
+            CommunityView()
+            //CommunityView(coordinator: self)
         }
     }
 
