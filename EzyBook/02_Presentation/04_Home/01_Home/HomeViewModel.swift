@@ -499,7 +499,7 @@ extension HomeViewModel {
         let thumbnailImage = try await self.requestThumbnailImage(detail.thumbnailPaths)
         
         
-        return T(from: detail, thumbnail: thumbnailImage)
+        return T(from: detail)
         
     }
 }

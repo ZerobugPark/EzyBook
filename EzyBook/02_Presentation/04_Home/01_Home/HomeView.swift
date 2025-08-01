@@ -154,8 +154,7 @@ extension HomeView {
                 GeometryReader { geo in
                     ZStack(alignment: .bottomLeading) {
                
-                        Image(uiImage: activities[index].thumnail)
-                            .resizable()
+                        RemoteImageView(path: activities[index].thumnail)
                             .scaledToFill()
                             .frame(width: geo.size.width, height: geo.size.height)
                             .clipped()

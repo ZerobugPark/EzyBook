@@ -16,22 +16,12 @@ final class BannerViewModel: ViewModelType {
     
     var cancellables = Set<AnyCancellable>()
     
-    private var scale: CGFloat
-    
-    private let imageLoadUseCases: ImageLoadUseCases
     private let bannerUseCase: BannerInfoUseCase
   
     
-    init(
-        imageLoadUseCases: ImageLoadUseCases,
-        bannerUseCase: BannerInfoUseCase,
-        scale: CGFloat
-    ) {
-
-        self.imageLoadUseCases = imageLoadUseCases
+    init(bannerUseCase: BannerInfoUseCase) {
         self.bannerUseCase = bannerUseCase
-        self.scale = scale
-        
+
         transform()
         loadInitialBannerList()
     }
@@ -84,8 +74,9 @@ extension BannerViewModel {
     private func loadBannerList() async {
         do {
             let data = try await bannerUseCase.execute()
-            let resultData = await attachImagesToBanners(from: data)
-            await updateBannerListUI(resultData)
+            
+            await updateBannerListUI(data)
+            
         } catch {
             await handleError(error)
         }
@@ -96,45 +87,7 @@ extension BannerViewModel {
     private func updateBannerListUI(_ banners: [BannerEntity]) {
         output.bannerList = banners
     }
-    
-    
-    private func attachImagesToBanners(from entities: [BannerEntity]) async -> [BannerEntity] {
-         
-        let images = await loadImages(from: entities, scale: scale)
-        var resultData = entities
-        
-        for (index, image) in images.enumerated() {
-            resultData[index].bannerImage = image
-        }
-            
-        return resultData
-    }
 
-    
-    private func loadImages(from entities: [BannerEntity], scale: CGFloat) async -> [UIImage] {
-        await withTaskGroup(of: (Int, UIImage).self) { group in
-            for (index, entity) in entities.enumerated() {
-                group.addTask {
-                    do {
-                        let image = try await self .imageLoadUseCases.thumbnailImage.execute(path: entity.imageURL, scale: scale)
-                            
-                        return (index, image)
-                    } catch {
-                        return (index, UIImage(resource: .iconStarFill))
-                    }
-                }
-            }
-
-            var results: [(Int, UIImage)] = []
-            for await result in group {
-                results.append(result)
-            }
-
-            return results
-                .sorted { $0.0 < $1.0 }
-                .map { $0.1 }
-        }
-    }
     
 
 }

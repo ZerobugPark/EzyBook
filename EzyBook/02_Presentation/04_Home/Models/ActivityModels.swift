@@ -16,7 +16,7 @@ enum MediaType {
 
 
 protocol ActivityModelBuildable {
-    init(from detail: ActivityDetailEntity, thumbnail: UIImage)
+    init(from detail: ActivityDetailEntity)
 }
 
 
@@ -25,20 +25,19 @@ struct NewActivityModel: ActivityModelBuildable {
     let activityID: String
     let title: String
     let country: String
-    let thumnail: UIImage
+    let thumnail: String
     let tag: String?
     let description: String
     let originalPrice: Int
     let finalPrice: Int
     var mediaType: MediaType = .image
     
-    // 금액이 다를 경우 어떻게 비교를 해줄까?
     
-    init (from detail: ActivityDetailEntity, thumbnail: UIImage) {
+    init (from detail: ActivityDetailEntity) {
         self.activityID = detail.activityID
         self.title = detail.title
         self.country =  detail.country
-        self.thumnail =  thumbnail
+        self.thumnail =  detail.thumbnailPaths[0]
         self.tag = detail.tags.isEmpty ? nil : detail.tags[0]
         self.description = detail.description
         self.originalPrice = detail.price.original
@@ -53,7 +52,7 @@ struct FilterActivityModel: ActivityModelBuildable, Identifiable {
     let activityID: String
     let title: String
     let country: String
-    let thumnail: UIImage
+    let thumnail: String
     let tag: String?
     let description: String
     let originalPrice: Int
@@ -97,11 +96,11 @@ struct FilterActivityModel: ActivityModelBuildable, Identifiable {
          
     }
     
-    init(from detail: ActivityDetailEntity, thumbnail: UIImage) {
+    init(from detail: ActivityDetailEntity) {
         self.activityID = detail.activityID
         self.title = detail.title
         self.country = detail.country
-        self.thumnail = thumbnail
+        self.thumnail = detail.thumbnailPaths[0]
         self.tag = detail.tags.isEmpty ? nil : detail.tags[0]
         self.description = detail.description
         self.originalPrice = detail.price.original
