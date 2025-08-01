@@ -24,9 +24,6 @@ struct ProfileView: View {
 
     @State private var modifyTapped = false
     
-    var data: ProfileLookUpEntity {
-        viewModel.output.profile
-    }
     
     var body: some View {
         ZStack {
@@ -152,7 +149,7 @@ extension ProfileView {
         VStack(spacing: 20) {
             // 이름과 편집 버튼
             ZStack {
-                Text(data.nick)
+                Text(viewModel.output.profile.nick)
                     .appFont(PaperlogyFontStyle.body, textColor: .grayScale100)
                 
                 HStack {
@@ -174,7 +171,7 @@ extension ProfileView {
             .frame(maxWidth: .infinity)
             
             // 한줄 소개
-            Text(data.introduction)
+            Text( viewModel.output.profile.introduction)
                 .appFont(PretendardFontStyle.body2, textColor: .grayScale100)
                 .multilineTextAlignment(.center)
             
@@ -280,6 +277,7 @@ extension ProfileView {
                     .overlay {
                         if !path.isEmpty {
                             RemoteImageView(path: path)
+                                .id(path) // 강제 리렌더링 (패스가 바뀌었는데 인식 못하는 경우가 있음)
                                 .scaledToFill()
                                 .clipShape(Circle())
                                 .frame(width: 120, height: 120)

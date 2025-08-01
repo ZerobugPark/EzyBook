@@ -136,10 +136,13 @@ extension ProfileViewModel {
           do {
               
               let path = try await requestUploadProfileImage(image)
+              print(output.profile)
               let data = try await performModifyUserImagePath(path)
+              
             
               await MainActor.run {
                   output.profile = data
+                  print(output.profile)
               }
 
           } catch {

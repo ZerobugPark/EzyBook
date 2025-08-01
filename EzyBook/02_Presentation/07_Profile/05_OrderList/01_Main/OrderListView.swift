@@ -165,7 +165,12 @@ private extension OrderListView {
                 Button {
                     onSelect()
                 } label: {
-                    Text("리뷰 작성를 작성해주세요")
+                    if data.isWritableReviewAvailable {
+                        Text("리뷰를 작성해 주세요")
+                    } else {
+                        Text("리뷰 작성은 투어 다음날부터 작성이 가능합니다.")
+                    }
+                    
                 }
                 .font(.system(size: 14))
                 .appFont(PretendardFontStyle.body2, textColor: .grayScale75)
@@ -174,11 +179,9 @@ private extension OrderListView {
                 .frame(maxWidth: .infinity)
                 .background(Color.gray.opacity(0.05))
                 .cornerRadius(12, corners: [.bottomLeft, .bottomRight])
+                .disabled(!data.isWritableReviewAvailable)
             }
         }
     }
  
 }
-
-
-
