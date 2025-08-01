@@ -7,10 +7,6 @@
 
 import Foundation
 
-/// 파일업로드
-struct ActivityFileUploadRequestDTO: Encodable {
-    
-}
 
 /// 액티비티 (요약)목록 조회
 /// 내가 킵한 액티비티 조회
