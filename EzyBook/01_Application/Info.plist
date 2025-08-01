@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>&quot;게시글을 확인하려면 현재 위치가 필요합니다&quot;</string>
 	<key>API_KEY</key>
 	<string>$(API_KEY)</string>
 	<key>App Transport Security</key>
