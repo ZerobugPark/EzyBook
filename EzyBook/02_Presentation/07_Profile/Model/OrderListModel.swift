@@ -5,12 +5,12 @@
 //  Created by youngkyun park on 6/19/25.
 //
 
-import SwiftUI
+import Foundation
 
 
 struct OrderList: Identifiable {
     
-    var id: String { orderID } 
+    var id: String { orderID }
     
     let orderID: String
     let orderCode: String
@@ -47,6 +47,25 @@ struct OrderList: Identifiable {
         rating != nil
     }
     
+
+    
+}
+
+extension OrderList {
+    var isWritableReviewAvailable: Bool {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "yyyy-MM-dd"
+        
+        guard let tourDate = formatter.date(from: date) else {
+            return false
+        }
+        
+        let nextDay = Calendar.current.date(byAdding: .day, value: 1, to: tourDate)
+        let today = Calendar.current.startOfDay(for: Date())
+        
+        return (nextDay ?? Date.distantPast) <= today
+    }
 }
 
 
