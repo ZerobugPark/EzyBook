@@ -130,9 +130,8 @@ private extension ReviewDetailView {
                     Spacer()
                     
                     
-                    if let image = data.image {
-                        Image(uiImage: image)
-                            .resizable()
+                    if !data.reviewImageURLs.isEmpty {
+                        RemoteImageView(path: data.reviewImageURLs[0])
                             .frame(width: 80, height: 80)
                             .foregroundColor(.white)
                             .clipShape(RoundedRectangle(cornerRadius: 12))

@@ -18,10 +18,7 @@ struct GroupedOrder: Identifiable {
 
 final class OrderListViewModel: ViewModelType {
     
-    private let imageLoadUseCases: ImageLoadUseCases
     private let orderEntity: [OrderEntity]
-    
-    private var scale: CGFloat = 0 // 나중에 수정 필요
     
     private var orderList: [OrderList] = []
     
@@ -32,15 +29,11 @@ final class OrderListViewModel: ViewModelType {
     
     
     init(
-        imageLoadUseCases: ImageLoadUseCases,
-        orderList: [OrderEntity],
-        scale: CGFloat
+        orderList: [OrderEntity]
     ) {
-        self.imageLoadUseCases = imageLoadUseCases
         self.orderEntity = orderList
-        self.scale = scale
-        transform()
         
+        transform()
         handleLoadInitialOrderList()
         
     }
@@ -96,11 +89,11 @@ extension OrderListViewModel {
     /// Performs fetching the order list, including image loading and grouping.
     private func performFetchOrderList(_ data: [OrderEntity]) async {
         do {
-            let results = await performLoadImages(for: data)
-            let newOrderList = makeOrderList(from: results, data: data)
+
+            let newOrderList = makeOrderList(data: data)
             
             orderList = newOrderList
-            dump(orderList)
+
             let grouped = makeGroupedOrderList(from: newOrderList)
 
             await MainActor.run {
@@ -109,49 +102,10 @@ extension OrderListViewModel {
         }
     }
 
-    /// Loads images in parallel for each order entity.
-    private func performLoadImages(for data: [OrderEntity]) async -> [(Int, UIImage)] {
-        await withTaskGroup(of: (Int, UIImage)?.self) { group in
-            for (index, item) in data.enumerated() {
-                group.addTask { [weak self] in
-                    guard let self else { return nil }
-                    do {
-                        let image = try await self.requestThumbnailImage(item.activity.thumbnails[0])
-                        return (index, image)
-                    } catch {
-                        await self.handleError(error)
-                        return nil
-                    }
-                }
-            }
-            var results: [(Int, UIImage)] = []
-            for await result in group {
-                if let result = result {
-                    results.append(result)
-                }
-            }
-            return results.sorted { $0.0 < $1.0 }
-        }
-    }
 
     /// Pure function: creates an OrderList array from image results and order entities.
-    private func makeOrderList(from results: [(Int, UIImage)], data: [OrderEntity]) -> [OrderList] {
-        results.map { index, image in
-            let item = data[index]
-            return OrderList(
-                orderID: item.orderId,
-                orderCode: item.orderCode,
-                activityID: item.activity.id,
-                title: item.activity.title,
-                country: item.activity.country,
-                date: item.reservationItemName,
-                time: item.reservationItemTime,
-                rating: item.review?.rating,
-                image: image,
-                paidDate: item.paidAt,
-                price: item.totalPrice
-            )
-        }
+    private func makeOrderList(data: [OrderEntity]) -> [OrderList] {
+        return data.map { OrderList(entitiy: $0) }
     }
 
     /// Pure function: groups OrderList by paid date, returns sorted GroupedOrder array.
@@ -177,12 +131,7 @@ extension OrderListViewModel {
         }
     }
     
-    /// 이미지 로드 함수
-    private func requestThumbnailImage(_ path: String) async throws -> UIImage {
-        
-        return try await imageLoadUseCases.thumbnailImage.execute(path: path, scale: scale)
-        
-    }
+
     
 }
 

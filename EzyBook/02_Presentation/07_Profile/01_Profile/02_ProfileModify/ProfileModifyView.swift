@@ -11,7 +11,7 @@ import SwiftUI
 struct ProfileModifyView: View {
     
     @StateObject var viewModel: ProfileModifyViewModel
-    let onConfirm: (ConfirmPayload) -> Void
+    let onConfirm: (ProfileLookUpEntity?) -> Void
     
     @EnvironmentObject var appState: AppState
     @Environment(\.dismiss) private var dismiss

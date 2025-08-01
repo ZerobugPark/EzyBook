@@ -58,6 +58,11 @@ extension RemoteImageViewModel {
     
     private func loadInitialImage(_ path: String) {
         Task {
+            guard !Task.isCancelled else {
+                print("⚠️ Task cancelled for \(path)")
+                return
+            }
+            
             await performLoadImage(path)
         }
     }

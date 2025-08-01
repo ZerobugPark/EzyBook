@@ -11,9 +11,6 @@ import Combine
 final class SearchViewModel: ViewModelType {
     
     private let activityUseCases: ActivityUseCases
-    private let imageLoadUseCases: ImageLoadUseCases
-    
-    private var scale: CGFloat
     
     var input = Input()
     @Published var output = Output()
@@ -40,16 +37,8 @@ final class SearchViewModel: ViewModelType {
     
     
     
-    init(
-        activityUseCases: ActivityUseCases,
-        imageLoadUseCases: ImageLoadUseCases,
-        scale: CGFloat
-    ) {
-        
+    init(activityUseCases: ActivityUseCases) {
         self.activityUseCases = activityUseCases
-        self.imageLoadUseCases = imageLoadUseCases
-        self.scale = scale
-        
         transform()
     }
     
@@ -167,9 +156,8 @@ extension SearchViewModel {
     private func  reqeuestActivityDetailList<T: ActivityModelBuildable>(_ data:  ActivitySummaryEntity, type: T.Type) async throws -> T {
         
         let detail = try await activityUseCases.activityDetail.execute(id: data.activityID)
-        let thumbnailImage = try await self.requestThumbnailImage(detail.thumbnailPaths)
-        
-        return T(from: detail, thumbnail: thumbnailImage)
+       
+        return T(from: detail)
         
     }
     
@@ -177,22 +165,7 @@ extension SearchViewModel {
 }
 
 
-// MARK: Helper
-extension SearchViewModel {
-    
-    /// 이미지 로드 함수
-    private func requestThumbnailImage(_ paths: [String]) async throws -> UIImage {
-        
-        guard !paths.isEmpty else {
-            let fallback = UIImage(systemName: "star")!
-            return fallback
-        }
-        /// 확장자에 따라 이미지 또는 동영상 썸넴일 이미지 보여줌
-        return try await imageLoadUseCases.thumbnailImage.execute(path: paths[0], scale: scale)
-        
-    }
-    
-}
+
 
 // MARK: 검색 데이터 (프리패치)
 extension SearchViewModel {

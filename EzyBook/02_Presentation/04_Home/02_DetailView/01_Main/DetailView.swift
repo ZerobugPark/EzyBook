@@ -29,9 +29,6 @@ struct DetailView: View {
     /// 화면전환 트리거
     @State private var selectedMedia: SelectedMedia?
     
-    private var data: ActivityDetailEntity {
-        viewModel.output.activityDetailInfo
-    }
     
     var body: some View {
         
@@ -41,8 +38,8 @@ struct DetailView: View {
                     ZStack(alignment: .top) {
                         
                         ActivityTopMediaSection(
-                            thumbnails: viewModel.output.thumbnails,
                             data: viewModel.output.activityDetailInfo,
+                            thumbnails: viewModel.output.activityDetailInfo.thumbnailPaths,
                             reviews: viewModel.output.reviews,
                             selectedIndex: $selectedIndex,
                             selectedMedia: $selectedMedia
@@ -51,7 +48,7 @@ struct DetailView: View {
                         }
                         
                         ThumbnailSelectorView(
-                            thumbnails: viewModel.output.thumbnails,
+                            thumbnails: viewModel.output.activityDetailInfo.thumbnailPaths,
                             selectedIndex: $selectedIndex
                         )
                     }
@@ -84,7 +81,7 @@ struct DetailView: View {
                 }
                 
                 ReservationPayBar(
-                    finalPrice: data.price.final,
+                    finalPrice: viewModel.output.activityDetailInfo.price.final,
                     personCount: personCount,
                     selectedDate: selectedDate,
                     selectedTime: selectedTime
@@ -96,7 +93,7 @@ struct DetailView: View {
                             name: selectedDate,
                             time: selectedTime,
                             count: personCount,
-                            price: data.price.final * personCount
+                            price: viewModel.output.activityDetailInfo.price.final * personCount
                         )
                     )
                 }
@@ -110,9 +107,9 @@ struct DetailView: View {
         /// TabView에다가 붙이면
         .fullScreenCover(item: $selectedMedia) { media in
             if media.isVideo {
-                coordinator.makeVideoPlayerView(path: data.thumbnailPaths[media.id])
+                coordinator.makeVideoPlayerView(path: viewModel.output.activityDetailInfo.thumbnailPaths[media.id])
             } else {
-                coordinator.makeImageViewer(path: data.thumbnailPaths[media.id])
+                coordinator.makeImageViewer(path: viewModel.output.activityDetailInfo.thumbnailPaths[media.id])
             }
         }
         .fullScreenCover(isPresented: $viewModel.output.payButtonTapped) {
@@ -135,7 +132,7 @@ struct DetailView: View {
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
-                ActivityKeepButtonView(isKeep: data.isKeep) {
+                ActivityKeepButtonView(isKeep: viewModel.output.activityDetailInfo.isKeep) {
                     viewModel.action(.keepButtonTapped)
                 }
             }
@@ -164,8 +161,8 @@ struct DetailView: View {
 private extension DetailView {
     
     struct ActivityTopMediaSection: View {
-        let thumbnails: [UIImage]
         let data: ActivityDetailEntity
+        let thumbnails: [String]
         let reviews: ReviewRatingListEntity?
         
         @Binding var selectedIndex: Int
@@ -176,15 +173,14 @@ private extension DetailView {
         var body: some View {
             ZStack(alignment: .bottom) {
                 TabView(selection: $selectedIndex) {
-                    ForEach(Array(thumbnails.enumerated()), id: \.0) { index, image in
+                    ForEach(Array(thumbnails.enumerated()), id: \.0) { index, path in
                         ZStack {
-                            Image(uiImage: image)
-                                .resizable()
+                            RemoteImageView(path: path)
                                 .scaledToFill()
                                 .frame(maxWidth: .infinity)
                                 .clipped()
                             
-                            if data.thumbnailPaths[index].hasSuffix(".mp4") {
+                            if thumbnails[index].hasSuffix(".mp4") {
                                 Image(.playButton)
                                     .resizable()
                                     .frame(width: 30, height: 30)
@@ -285,16 +281,15 @@ private extension DetailView {
     
 
     struct ThumbnailSelectorView: View {
-        let thumbnails: [UIImage]
+        let thumbnails: [String]
         @Binding var selectedIndex: Int
 
         var body: some View {
             VStack(spacing: 10) {
-                ForEach(Array(thumbnails.enumerated()), id: \.0) { index, image in
+                ForEach(Array(thumbnails.enumerated()), id: \.0) { index, path in
                     let isSelected = index == selectedIndex
-
-                    Image(uiImage: image)
-                        .resizable()
+                    
+                    RemoteImageView(path: path)
                         .scaledToFill()
                         .frame(width: 50, height: 50)
                         .clipShape(RoundedRectangle(cornerRadius: 10))

@@ -22,8 +22,8 @@ struct BannerView: View {
         TabView(selection: $currentIndex) {
             
             ForEach(Array(viewModel.output.bannerList.enumerated()), id: \.offset) { index, data in
-                Image(uiImage: data.bannerImage ?? UIImage(systemName: "star.fill")!)
-                    .resizable()
+                
+                RemoteImageView(path: data.imageURL)
                     .scaledToFit()
                     .clipped()
                     .contentShape(Rectangle())

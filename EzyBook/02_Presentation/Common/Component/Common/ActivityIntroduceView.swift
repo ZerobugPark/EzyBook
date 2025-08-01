@@ -60,7 +60,7 @@ extension ActivityIntroduceView {
         var body: some View {
             VStack {
                 ActivityImageView(
-                    thumnail: item.thumnail,
+                    imagePath: item.thumnail,
                     eventTag: item.eventTag,
                     isKeep: item.isKeep,
                     country: item.country,
@@ -98,7 +98,7 @@ extension ActivityIntroduceView {
     
     // MARK: - Activity Image View
     private struct ActivityImageView: View {
-        let thumnail: UIImage
+        let imagePath: String
         let eventTag: Tag?
         let isKeep: Bool
         let country: String
@@ -108,13 +108,24 @@ extension ActivityIntroduceView {
         var body: some View {
             GeometryReader { geo in
                 ZStack {
-                    Image(uiImage: thumnail)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: geo.size.width, height: geo.size.height)
-                        .clipped()
-                        .clipShape(RoundedRectangle(cornerRadius: 15))
                     
+                    if imagePath.isEmpty {
+                        Image(systemName: "star.fill")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: geo.size.width, height: geo.size.height)
+                            .clipped()
+                            .clipShape(RoundedRectangle(cornerRadius: 15))
+                        
+                    } else {
+                        RemoteImageView(path: imagePath)
+                            .scaledToFill()
+                            .frame(width: geo.size.width, height: geo.size.height)
+                            .clipped()
+                            .clipShape(RoundedRectangle(cornerRadius: 15))
+                    }
+                    
+
                     VStack {
                         VStack(alignment: .leading, spacing: 10) {
                             HStack(alignment: .center, spacing: 0) {

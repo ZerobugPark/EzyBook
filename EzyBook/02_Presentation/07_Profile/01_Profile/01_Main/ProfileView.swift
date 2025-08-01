@@ -24,7 +24,7 @@ struct ProfileView: View {
 
     @State private var modifyTapped = false
     
-    var data: ProfileLookUpModel {
+    var data: ProfileLookUpEntity {
         viewModel.output.profile
     }
     
@@ -41,10 +41,11 @@ struct ProfileView: View {
                 LoadingOverlayView(isLoading: viewModel.output.isLoading)
             }
             .background(.grayScale15)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    TitleTextView(title: "PROFILE")
-                }
+
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                TitleTextView(title: "PROFILE")
             }
         }
         .photosPicker(
@@ -111,7 +112,7 @@ extension ProfileView {
         // MARK: - 프로필 이미지
         VStack(spacing: 40) {
             ProfileImageView(
-                image: viewModel.output.profile.profileImage,
+                path: viewModel.output.profile.profileImage,
                 onEditTap: { isImagePickerPresented = true }
             )
             makeprofileCardView()
@@ -257,7 +258,7 @@ extension ProfileView {
     }
     
     private struct ProfileImageView: View {
-        let image: UIImage?
+        let path: String
         let onEditTap: () -> Void
 
         var body: some View {
@@ -277,9 +278,8 @@ extension ProfileView {
                     )
                     .frame(width: 120, height: 120)
                     .overlay {
-                        if let image {
-                            Image(uiImage: image)
-                                .resizable()
+                        if !path.isEmpty {
+                            RemoteImageView(path: path)
                                 .scaledToFill()
                                 .clipShape(Circle())
                                 .frame(width: 120, height: 120)

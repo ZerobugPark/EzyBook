@@ -122,11 +122,7 @@ extension HomeDIContainer {
 extension HomeDIContainer {
     
     func makeHomeViewModel() -> HomeViewModel {
-        HomeViewModel(
-            activityUseCases: makeActivityUseCase(),
-            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase(),
-            scale: UIScreen.main.scale
-        )
+        HomeViewModel(activityUseCases: makeActivityUseCase())
     }
     
     func makeDetailViewModel(id: String) -> DetailViewModel {
@@ -136,9 +132,7 @@ extension HomeDIContainer {
             orderUseCaes: makeCreateOrderUseCase(),
             chatService: commonDIContainer.makeDetailFeatureService().chatRoom,
             favoirteService: commonDIContainer.makeDetailFeatureService().favorite,
-            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase(),
-            activityID: id,
-            scale: UIScreen.main.scale
+            activityID: id
         )
     }
     
@@ -151,19 +145,13 @@ extension HomeDIContainer {
     func makeSearchViewModel() -> SearchViewModel {
         SearchViewModel(
             activityUseCases: makeActivityUseCase(),
-            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase(),
-            scale: UIScreen.main.scale
         )
     }
     
     // UIScreen.main.scale -> 삭제될 예정
     // DI로 주입은 해주나, 나중에 onAppear 사점에서 추가적으로 주입해야 할 수도 있음
     func makeBannerViewModel() -> BannerViewModel {
-        BannerViewModel(
-            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase(),
-            bannerUseCase: makeBannerInfoUseCase(),
-            scale: UIScreen.main.scale
-        )
+        BannerViewModel(bannerUseCase: makeBannerInfoUseCase())
         
     }
 

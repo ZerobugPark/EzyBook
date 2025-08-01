@@ -15,12 +15,9 @@ final class DetailViewModel: ViewModelType {
     private let orderUseCase: CreateOrderUseCase
     private let chatService: ChatRoomServiceProtocol
     private let favoirteService: FavoriteServiceProtocol
-    private let imageLoadUseCases: ImageLoadUseCases
+
     
     private(set) var activityID: String
-    private var scale: CGFloat = 0
-    
-    
     
     var input = Input()
     @Published var output = Output()
@@ -34,9 +31,7 @@ final class DetailViewModel: ViewModelType {
         orderUseCaes: CreateOrderUseCase,
         chatService: ChatRoomServiceProtocol,
         favoirteService: FavoriteServiceProtocol,
-        imageLoadUseCases: ImageLoadUseCases,
-        activityID: String,
-        scale: CGFloat
+        activityID: String
     ) {
 
         self.activityUseCases = activityUseCases
@@ -44,10 +39,7 @@ final class DetailViewModel: ViewModelType {
         self.orderUseCase = orderUseCaes
         self.chatService = chatService
         self.favoirteService = favoirteService
-        self.imageLoadUseCases = imageLoadUseCases
         self.activityID = activityID
-        self.scale = scale
-        
         
         loadInitialActivitiyDetail()
         transform()
@@ -72,7 +64,6 @@ extension DetailViewModel {
         
         // Init
         var activityDetailInfo: ActivityDetailEntity = .skeleton
-        var thumbnails: [UIImage] = []
         var reviews: ReviewRatingListEntity? = nil
 
         
@@ -135,10 +126,10 @@ private extension DetailViewModel {
             
             let detail = try await fetchActivityDetail(activityID)
             let sortedThumbnails = sortThumbnails(detail.thumbnailPaths)
-            let thumbnailImages = try await loadThumbnailImages(sortedThumbnails)
+            
             let reviews = try await requestReviews(activityID)
             
-            await applyDetailOutput(detail: detail, thumbnails: sortedThumbnails,  images: thumbnailImages, reviews:  reviews)
+            await applyDetailOutput(detail: detail, thumbnails: sortedThumbnails, reviews:  reviews)
         
 
         } catch {
@@ -164,36 +155,7 @@ private extension DetailViewModel {
     }
     
     
-    /// 썸네일 이미지 통신
-    private func loadThumbnailImages(_ paths: [String]) async throws -> [UIImage] {
-        var imageDict: [String: UIImage] = [:]
-        
-        try await withThrowingTaskGroup(of: (String, UIImage).self) { [weak self] group in
-            
-            guard let self else { return }
-            
-            for path in paths {
-                group.addTask {
-                    let image = try await self.requestThumbnailImage(path, self.scale)
-                    return (path, image)
-                }
-            }
-
-            for try await (path, image) in group {
-                imageDict[path] = image
-            }
-        }
-
-        let sortedImages = paths.compactMap { imageDict[$0] }
-        return sortedImages
-    }
-
-    
-    /// 이미지 서버 요청
-    private func requestThumbnailImage(_ path: String, _ scale: CGFloat) async throws -> UIImage {
-        return try await imageLoadUseCases.thumbnailImage.execute(path: path, scale: scale)
-    }
-    
+ 
     /// 리뷰 요청
     private func requestReviews(_ id: String) async throws -> ReviewRatingListEntity {
         return try await reviewLookupUseCase.execute(id: id)
@@ -201,9 +163,9 @@ private extension DetailViewModel {
     
     // MARK: Main Actor: UIView Update
     @MainActor
-    private func applyDetailOutput(detail: ActivityDetailEntity, thumbnails: [String], images: [UIImage], reviews: ReviewRatingListEntity) async {
+    private func applyDetailOutput(detail: ActivityDetailEntity, thumbnails: [String], reviews: ReviewRatingListEntity) async {
+            ///썸네일을 정렬 상태로  변경
             output.activityDetailInfo = detail.with(thumbnails: thumbnails)
-            output.thumbnails = images
             output.reviews = reviews
     }
 

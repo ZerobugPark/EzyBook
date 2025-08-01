@@ -18,13 +18,9 @@ struct GroupedReview: Identifiable {
 
 final class ReviewDetailViewModel: ViewModelType {
     
-    private let imageLoadUseCases: ImageLoadUseCases
     private let reviewDetailUseCase: ReviewDetailUseCase
     
     private let orderEntity: [OrderEntity] // 주입 시 rating이 nil인것은 제외
-    
-    private var scale: CGFloat = 0 // 나중에 수정 필요
-    
     private var reviewList: [UserReviewDetailList] = []
     
     var input = Input()
@@ -34,15 +30,11 @@ final class ReviewDetailViewModel: ViewModelType {
     
     
     init(
-        imageLoadUseCases: ImageLoadUseCases,
         reviewDetailUseCase: ReviewDetailUseCase,
-        orderList: [OrderEntity],
-        scale: CGFloat
+        orderList: [OrderEntity]
     ) {
-        self.imageLoadUseCases = imageLoadUseCases
         self.reviewDetailUseCase = reviewDetailUseCase
         self.orderEntity = orderList
-        self.scale = scale
         transform()
         
         handleLoadInitialReviewList()
@@ -104,13 +96,11 @@ extension ReviewDetailViewModel {
         do {
             
             let reviewDetail = await performReivewDetail(data)
-            let results = await performLoadImages(for: reviewDetail)
             
-            let newReViewList = makeReviewDetailList(from: results, data: reviewDetail)
+            
+            let newReViewList = makeReviewDetailList(data: reviewDetail)
             
             reviewList = newReViewList
-            
-            
             let grouped = makeGroupeReviewList(from: reviewList)
             
             await MainActor.run {
@@ -119,6 +109,7 @@ extension ReviewDetailViewModel {
         }
     }
     
+    /// 리뷰 상세 조회
     private func performReivewDetail(_ data: [OrderEntity]) async -> [UserReviewEntity] {
         await withTaskGroup(of: UserReviewEntity?.self) { group in
             for item in data {
@@ -148,45 +139,10 @@ extension ReviewDetailViewModel {
     }
     
     
-    /// Loads images in parallel for each review entity.
-    private func performLoadImages(for data: [UserReviewEntity]) async -> [(Int, UIImage?)] {
-        await withTaskGroup(of: (Int, UIImage?).self) { group in
-            for (index, item) in data.enumerated() {
-                group.addTask { [weak self] in
-                    guard let self else { return (index, nil) }
-                    
-                    guard item.reviewImageURLs.first != nil else {
-                        return (index, nil)  // 이미지 없음 처리
-                    }
-                    do {
-                        let image = try await self.requestThumbnailImage(item.reviewImageURLs[0])
-                            return (index, image)
-                        
-                    } catch {
-                        await self.handleError(error)
-                        return (index, nil)
-                    }
-                }
-            }
-
-            var results = Array<(Int, UIImage?)>(repeating: (0, nil), count: data.count)
-
-            for await result in group {
-                results[result.0] = result
-            }
-            return results.sorted { $0.0 < $1.0 }
-        }
-    }
 
     /// UserReviewEntity -> UserReviewDetailModel 변환
-    private func makeReviewDetailList(from results: [(Int, UIImage?)], data: [UserReviewEntity]) -> [UserReviewDetailList] {
-        results.map {
-            index,
-            image in
-            let item = data[index]
-            return UserReviewDetailList(dto: item, image: image)
-
-        }
+    private func makeReviewDetailList(data: [UserReviewEntity]) -> [UserReviewDetailList] {
+        data.map { UserReviewDetailList(dto: $0) }
     }
 
     /// 리뷰는 작성일 기준으로 표시
@@ -218,12 +174,6 @@ extension ReviewDetailViewModel {
 //        }
 //    }
     
-    /// 이미지 로드 함수
-    private func requestThumbnailImage(_ path: String) async throws -> UIImage {
-        
-        return try await imageLoadUseCases.thumbnailImage.execute(path: path, scale: scale)
-        
-    }
     
 }
 
@@ -231,13 +181,14 @@ extension ReviewDetailViewModel {
 extension ReviewDetailViewModel {
     
     enum Action {
+        /// 나중에 리뷰 수정 시 사용
         case updateRating(orderCode: String, rating: Int)
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
     func action(_ action: Action) {
         switch action {
-        case let .updateRating(orderCode, rating):
+        case .updateRating:
             break
            // handleUpdateReviewRating(orderCode, rating)
         }
