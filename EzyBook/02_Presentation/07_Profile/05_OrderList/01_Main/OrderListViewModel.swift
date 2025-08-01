@@ -18,7 +18,6 @@ struct GroupedOrder: Identifiable {
 
 final class OrderListViewModel: ViewModelType {
     
-    private let imageLoadUseCases: ImageLoadUseCases
     private let orderEntity: [OrderEntity]
     
     private var orderList: [OrderList] = []
@@ -30,10 +29,8 @@ final class OrderListViewModel: ViewModelType {
     
     
     init(
-        imageLoadUseCases: ImageLoadUseCases,
         orderList: [OrderEntity]
     ) {
-        self.imageLoadUseCases = imageLoadUseCases
         self.orderEntity = orderList
         
         transform()

@@ -93,6 +93,19 @@ struct ProfileLookUpEntity {
     
 }
 
+extension ProfileLookUpEntity {
+    static let skeleton = ProfileLookUpEntity(
+        dto: ProfileLookUpResponseDTO(
+            userID: "",
+            email: "",
+            nick: "",
+            profileImage: nil,
+            phoneNum: "",
+            introduction: ""
+        )
+    )
+}
+
 /// 유저검색
 struct UserInfoResponseEntity {
     let userID: String

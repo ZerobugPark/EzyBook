@@ -18,7 +18,6 @@ struct GroupedReview: Identifiable {
 
 final class ReviewDetailViewModel: ViewModelType {
     
-    private let imageLoadUseCases: ImageLoadUseCases
     private let reviewDetailUseCase: ReviewDetailUseCase
     
     private let orderEntity: [OrderEntity] // 주입 시 rating이 nil인것은 제외
@@ -31,11 +30,9 @@ final class ReviewDetailViewModel: ViewModelType {
     
     
     init(
-        imageLoadUseCases: ImageLoadUseCases,
         reviewDetailUseCase: ReviewDetailUseCase,
         orderList: [OrderEntity]
     ) {
-        self.imageLoadUseCases = imageLoadUseCases
         self.reviewDetailUseCase = reviewDetailUseCase
         self.orderEntity = orderList
         transform()

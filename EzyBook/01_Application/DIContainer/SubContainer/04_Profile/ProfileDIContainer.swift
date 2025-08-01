@@ -96,16 +96,13 @@ extension ProfileDIContainer {
 }
 
 
-
 // MARK: Make ViewModel
 extension ProfileDIContainer {
     
     func makeProfileViewModel() -> ProfileViewModel {
         
         ProfileViewModel(
-            profileUseCases: makeProfileUseCases(),
-            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase(),
-            scale: UIScreen.main.scale
+            profileUseCases: makeProfileUseCases()
         )
     }
     
@@ -113,7 +110,6 @@ extension ProfileDIContainer {
     func makeOrderListViewModel(orderList: [OrderEntity]) -> OrderListViewModel {
         
         OrderListViewModel(
-            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase(),
             orderList: orderList
         )
     }
@@ -137,10 +133,8 @@ extension ProfileDIContainer {
         let filterList = list.filter { $0.review != nil }
         
         return ReviewDetailViewModel(
-            imageLoadUseCases: commonDIContainer.makeImageLoadUseCase(),
             reviewDetailUseCase: makeReviewDetailUseCase(),
-            orderList: filterList,
-            scale: UIScreen.main.scale
+            orderList: filterList
         )
     }
     

@@ -8,18 +8,6 @@
 import SwiftUI
 import Combine
 
-struct ConfirmPayload {
-    let nick: String
-    let phone: String
-    let intro: String
-    
-    init(title: String = "", phone: String = "", intro: String = "") {
-        self.nick = title
-        self.phone = phone
-        self.intro = intro
-    }
-}
-
 
 
 final class ProfileModifyViewModel: ViewModelType {
@@ -60,8 +48,7 @@ extension ProfileModifyViewModel {
         var isShowingMessage: Bool {
             presentedMessage != nil
         }
-        var userPayload = ConfirmPayload()
-
+        var userPayload: ProfileLookUpEntity?
     }
     
     func transform() { }
@@ -151,11 +138,8 @@ extension ProfileModifyViewModel {
                 introduce: input.introduceTextField.isEmpty ? nil : input.introduceTextField,
             )
             
-            output.userPayload = ConfirmPayload(
-                title: data.nick,
-                phone: data.phoneNum,
-                intro: data.introduction
-            )
+            output.userPayload = data
+            
             await MainActor.run {
                 handleSuccess()
                 

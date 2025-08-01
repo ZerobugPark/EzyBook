@@ -11,27 +11,18 @@ import Combine
 final class ProfileViewModel: ViewModelType {
     
     private let profileUseCases: ProfileUseCases
-
-    private let imageLoadUseCases: ImageLoadUseCases
-
     
     var input = Input()
     @Published var output = Output()
         
     var cancellables = Set<AnyCancellable>()
-    
-    private var scale: CGFloat
-    
+
     init(
         profileUseCases: ProfileUseCases,
-        imageLoadUseCases: ImageLoadUseCases,
-        scale: CGFloat
  
     ) {
         self.profileUseCases = profileUseCases
-        self.imageLoadUseCases = imageLoadUseCases
-        self.scale = scale
-    
+
         transform()
         handleInitProfileData()
     }
@@ -50,7 +41,7 @@ extension ProfileViewModel {
             presentedMessage != nil
         }
         /// 하나의 모델로 처리하기엔, UIImage랑 이미지 리소스랑 타입이 달라서 분리하는게 나을 듯
-        var profile: ProfileLookUpModel = .skeleton
+        var profile: ProfileLookUpEntity = .skeleton
         
         var userCommerceInfo: (price: Int, reward: Int) = (0, 0)
     }
@@ -116,25 +107,10 @@ extension ProfileViewModel {
         
         do {
             let data = try await profileUseCases.profileLookUp.execute()
-        
-            let profileImage: UIImage
-        
-            if !data.profileImage.isEmpty {
-                profileImage = try await imageLoadUseCases.originalImage.execute(path: data.profileImage)
-            } else  {
-                profileImage = UIImage(resource: .tabBarProfileFill)
-            }
-            
-            
-            await MainActor.run {
-                output.profile = ProfileLookUpModel(from: data, profileImage: profileImage)
-            }
-        } catch let error as APIError {
-            await MainActor.run {
-                output.presentedMessage = DisplayMessage.error(code: error.code, msg: error.userMessage)
-            }
+           
+            await MainActor.run { output.profile = data }
         } catch {
-            print(error)
+            await handleError(error)
         }
     }
     
@@ -161,12 +137,9 @@ extension ProfileViewModel {
               
               let path = try await requestUploadProfileImage(image)
               let data = try await performModifyUserImagePath(path)
-       
-              // 패스 기반 프로필 수정 추가
-              let image = try await imageLoadUseCases.originalImage.execute(path: data.profileImage)
-              
+            
               await MainActor.run {
-                  output.profile.profileImage = image
+                  output.profile = data
               }
 
           } catch {
@@ -191,19 +164,18 @@ extension ProfileViewModel {
 extension ProfileViewModel {
     
     
-    private func handleModifyProfile(data: ConfirmPayload) {
+    private func handleModifyProfile(data: ProfileLookUpEntity?) {
         Task {
-            await perfromModifyProfile(data)
+            if let data {
+                await perfromModifyProfile(data)
+            }
+            
         }
     }
     
     @MainActor
-    private func perfromModifyProfile(_ data: ConfirmPayload) {
-        
-        output.profile.introduction = data.intro.or(output.profile.introduction)
-        output.profile.nick = data.nick.or(output.profile.nick)
-        output.profile.phoneNum = data.phone.or(output.profile.phoneNum)
-        
+    private func perfromModifyProfile(_ data: ProfileLookUpEntity) {
+        output.profile = data
     }
     
 }
@@ -211,13 +183,7 @@ extension ProfileViewModel {
 // MARK: Helper
 extension ProfileViewModel {
     
-    /// 이미지 로드 함수
-    private func requestThumbnailImage(_ path: String) async throws -> UIImage {
-
-        return try await imageLoadUseCases.thumbnailImage.execute(path: path, scale: scale)
-        
-    }
-    
+ 
     /// 이미지 업로드
     private func requestUploadProfileImage(_ image: UIImage) async throws ->  UserImageUploadEntity {
         
@@ -233,7 +199,7 @@ extension ProfileViewModel {
     enum Action {
         case didSelectedImageData(image: UIImage)
         case bindSupplement(ProfileSupplementaryViewModel)
-        case modifyProfileData(ConfirmPayload)
+        case modifyProfileData(ProfileLookUpEntity?)
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
@@ -243,8 +209,8 @@ extension ProfileViewModel {
             handleDidSelectedImageData(image)
         case .bindSupplement(let supplement):
             handleBindSupplement(supplement)
-        case .modifyProfileData(let payload):
-            handleModifyProfile(data: payload)
+        case .modifyProfileData(let entity):
+            handleModifyProfile(data: entity)
         }
     }
     
