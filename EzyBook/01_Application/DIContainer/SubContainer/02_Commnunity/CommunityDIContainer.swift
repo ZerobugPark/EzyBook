@@ -41,6 +41,13 @@ extension CommunityDIContainer {
         DefaultPostSearchUseCase(repo: makeCommunityRepository())
     }
     
+    // MARK: Make Order List
+    private func makeOrderListUseCase() -> OrderListLookUpUseCase {
+        DefaultOrderListLookupUseCase(
+            repo: commonDIContainer.makeOrderRepository()
+        )
+    }
+    
 }
 
 
@@ -62,6 +69,12 @@ extension CommunityDIContainer {
         CommunityViewModel(
             communityUseCases: makeCommunityUseCases(),
             loactionService: commonDIContainer.makeDetailFeatureService().location
+        )
+    }
+    
+    func makeMyActivityListViewModel() -> MyActivityListViewModel {
+        MyActivityListViewModel(
+            orderListUseCase: makeOrderListUseCase()
         )
     }
 }

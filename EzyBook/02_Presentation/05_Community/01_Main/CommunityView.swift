@@ -94,7 +94,7 @@ struct CommunityView: View {
             LoadingOverlayView(isLoading: viewModel.output.isLoading)
             
             FloatingButton(text: "글쓰기") {
-                selectedPost = true
+                coordinator.push(.postView)
             }
             
             
@@ -119,9 +119,6 @@ struct CommunityView: View {
             viewModel.action(.searchButtonTapped)
             isSearching = false
         })
-        .sheet(isPresented: $selectedPost) {
-            coordinator.makePostsView()
-        }
     }
     
     

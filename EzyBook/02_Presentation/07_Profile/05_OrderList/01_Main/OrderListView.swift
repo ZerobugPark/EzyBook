@@ -70,7 +70,7 @@ private extension OrderListView {
         
         var body: some View {
             VStack(alignment: .leading, spacing: 8) {
-                Text(group.date)
+                Text(group.date.toDisplayDate())
                     .appFont(PaperlogyFontStyle.caption, textColor: .grayScale100)
                     .padding([.top, .leading], 4)
                 

@@ -37,7 +37,21 @@ extension HomeRoute {
 
 enum CommunityRoute: Hashable {
     case communityView
+    case postView
 }
+extension CommunityRoute {
+    
+    var hidesTabbar: Bool {
+        switch self {
+        case .postView:
+            return true
+        default:
+            return false
+        }
+    }
+}
+
+
 
 enum ChatRoute: Hashable {
     case chatView
