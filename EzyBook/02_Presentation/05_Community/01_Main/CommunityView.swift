@@ -33,7 +33,7 @@ enum PostSort {
 
 struct CommunityView: View {
     
-    //@State private var selectedPost = false
+    @State private var selectedPost = false
     
     @EnvironmentObject var appState: AppState
     
@@ -94,7 +94,7 @@ struct CommunityView: View {
             LoadingOverlayView(isLoading: viewModel.output.isLoading)
             
             FloatingButton(text: "글쓰기") {
-                
+                selectedPost = true
             }
             
             
@@ -119,10 +119,9 @@ struct CommunityView: View {
             viewModel.action(.searchButtonTapped)
             isSearching = false
         })
-        
-        //        .sheet(isPresented: $selectedPost) {
-        //            coordinator.makePostsView()
-        //        }
+        .sheet(isPresented: $selectedPost) {
+            coordinator.makePostsView()
+        }
     }
     
     
@@ -174,7 +173,7 @@ private extension CommunityView {
                 HStack(alignment: .bottom) {
                     Text("Distance")
                         .appFont(PretendardFontStyle.body2, textColor: .grayScale60)
-                    Text(String(format: "%.1fKM", distance * 5))
+                    Text(String(format: "%.1fKM", distance * 50))
                         .appFont(PretendardFontStyle.body1, textColor: .blackSeafoam)
                     Spacer()
                     

@@ -27,11 +27,11 @@ final class CommunityViewModel: ViewModelType {
     
     private let limit = 10
     private var nextCursor: String?
-    private var location: (longitude: Double?, latitude: Double?) = (nil, nil)
+    private var location = UserSession.shared.userLocation
     private let distanceSubject = PassthroughSubject<CGFloat, Never>()
     
     private var serverDistance: Int {
-        Int(distance * 5000)
+        Int(distance * 50000)
     }
     
     init(
@@ -42,9 +42,9 @@ final class CommunityViewModel: ViewModelType {
         self.communityUseCases = communityUseCases
         self.loactionService = loactionService
         
-//        Task {
-//            await fetchLocationIfNeeded()
-//        }
+        Task {
+            await fetchLocationIfNeeded()
+        }
         
         loadInitialPost()
         transform()
@@ -145,8 +145,8 @@ extension CommunityViewModel {
         return ActivityPostLookUpQuery(
             country: flag.requestValue,
             category: filter.requestValue,
-            longitude: location.longitude.map { String(format: "%.6f", $0) },
-            latitude: location.latitude.map { String(format: "%.6f", $0) },
+            longitude: location.map { String(format: "%.6f", $0.longitude) },
+            latitude: location.map { String(format: "%.6f", $0.latitude) },
             maxDistance: String(serverDistance),
             limit: limit,
             next: nextCursor,
@@ -156,11 +156,20 @@ extension CommunityViewModel {
 
     @MainActor
     func fetchLocationIfNeeded() async {
-        guard location.longitude == nil || location.latitude == nil else { return }
+        
+        guard location == nil  else { return }
 
         do {
             let coordinate = try await loactionService.fetchCurrentLocation()
-            location = (longitude: coordinate.longitude, latitude: coordinate.latitude)
+            
+            let savedLocation = UserLocation(longitude: coordinate.longitude, latitude: coordinate.latitude)
+            UserSession.shared.updateLocation(savedLocation)
+            
+            print(savedLocation)
+            location = savedLocation
+            
+
+            
         } catch {
             print("📍 위치 가져오기 실패:", error.localizedDescription)
         }

@@ -12,7 +12,7 @@
 
 import SwiftUI
 import PhotosUI
-
+import UniformTypeIdentifiers
 
 
 /// 선택된 미디어(이미지/비디오)를 통합 관리하는 모델
@@ -80,32 +80,30 @@ private extension MediaPickerView {
     ///  추가 버튼 (이미지, 비디오, 혼합 선택 지원)
     @ViewBuilder
     func makeAddButton() -> some View {
-        if mediaType != .video {
-            PhotosPicker(
-                selection: $selectedItems,
-                maxSelectionCount: max(0, maxImageCount - selectedMedia.count),
-                matching: mediaType == .all
-                ? .any(of: [.images, .videos])
-                : (mediaType == .image ? .images : .videos)
-            ) {
-                VStack {
-                    Image(systemName: "plus")
-                        .foregroundColor(selectedMedia.count >= maxImageCount ? .gray.opacity(0.3) : .gray)
-                    Text("추가")
-                        .font(.caption)
-                        .foregroundColor(selectedMedia.count >= maxImageCount ? .gray.opacity(0.3) : .gray)
-                }
-                .frame(width: 80, height: 80)
-                .background(Color.gray.opacity(0.1))
-                .cornerRadius(10)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.gray.opacity(0.3),
-                                style: StrokeStyle(lineWidth: 1, dash: [5]))
-                )
+        PhotosPicker(
+            selection: $selectedItems,
+            maxSelectionCount: max(0, maxImageCount - selectedMedia.count),
+            matching: mediaType == .all
+            ? .any(of: [.images, .videos])
+            : (mediaType == .image ? .images : .videos)
+        ) {
+            VStack {
+                Image(systemName: "plus")
+                    .foregroundColor(selectedMedia.count >= maxImageCount ? .gray.opacity(0.3) : .gray)
+                Text("추가")
+                    .font(.caption)
+                    .foregroundColor(selectedMedia.count >= maxImageCount ? .gray.opacity(0.3) : .gray)
             }
-            .disabled(selectedMedia.count >= maxImageCount)
+            .frame(width: 80, height: 80)
+            .background(Color.gray.opacity(0.1))
+            .cornerRadius(10)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.gray.opacity(0.3),
+                            style: StrokeStyle(lineWidth: 1, dash: [5]))
+            )
         }
+        .disabled(selectedMedia.count >= maxImageCount)
     }
     
     /// 선택된 미디어 썸네일 표시 및 삭제 버튼 (overlay 사용)
@@ -162,19 +160,29 @@ private extension MediaPickerView {
     ///  PhotosPicker로부터 비동기적으로 이미지/비디오 로드
     func loadSelectedMedia(from items: [PhotosPickerItem]) {
         Task {
+            let movieTypes: [UTType] = [.movie, .quickTimeMovie]
             await withTaskGroup(of: Void.self) { group in
                 for item in items {
+                    let types = item.supportedContentTypes.map { $0.identifier }
+                    print("📸 Supported Content Types: \(types)")
+                    
                     group.addTask {
                         if mediaType != .video,
                            let data = try? await item.loadTransferable(type: Data.self),
                            let image = UIImage(data: data) {
                             await MainActor.run {
+                                
                                 MediaPickerLogic.appendImage(image, to: &selectedMedia)
                             }
                         } else if mediaType != .image,
-                                  let url = try? await item.loadTransferable(type: URL.self) {
+                                  item.supportedContentTypes.contains(where: { movieTypes.contains($0) }),
+                                  let data = try? await item.loadTransferable(type: Data.self) {
+                                    /// 비디오 타입 자체를 저장하면, 섬네일이 생기지 않아서, 데이터 형태로 변환 후 저장
+                            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".mov")
+                            try? data.write(to: tempURL)
+                            print("🎞 Video saved to: \(tempURL)")
                             await MainActor.run {
-                                MediaPickerLogic.appendVideo(url, to: &selectedMedia)
+                                MediaPickerLogic.appendVideo(tempURL, to: &selectedMedia)
                             }
                         }
                     }
@@ -215,7 +223,6 @@ private extension MediaPickerView {
 // MARK: 비디오 미리보기용
 import AVFoundation
 
-/// ✅ 비디오 썸네일 생성 (간단한 ProgressView 표시)
 struct VideoThumbnailView: View {
     let videoURL: URL
     
