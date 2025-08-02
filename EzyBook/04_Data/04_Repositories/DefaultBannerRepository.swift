@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct DefaultBannerRepository: BannerInfoRepository {
+final class DefaultBannerRepository: BannerInfoRepository {
  
     
 
