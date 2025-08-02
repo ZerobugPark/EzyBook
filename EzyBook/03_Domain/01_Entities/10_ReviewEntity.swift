@@ -36,7 +36,7 @@ struct ReviewResponseEntity {
     let reviewImageUrls: [String] // 리뷰 이미지 URL 배열
     let reservationItemName: String // 예약한 액티비티 예약 일자
     let reservationItemTime: String // 예약한 액티비티 예약 시간
-    let creator: UserInfoResponseEntity
+    let creator: UserInfoEntity
     let userTotalReviewCount: Int // 리뷰 작성자의 총 리뷰 수
     let userTotalRating: Float  // 리뷰 작성자의 평균 별점
     let createdAt: String
@@ -49,14 +49,14 @@ struct ReviewResponseEntity {
         self.reviewImageUrls = dto.reviewImageUrls
         self.reservationItemName = dto.reservationItemName
         self.reservationItemTime = dto.reservationItemTime
-        self.creator = UserInfoResponseEntity(dto: dto.creator)
+        self.creator = UserInfoEntity(dto: dto.creator)
         self.userTotalReviewCount = dto.userTotalReviewCount
         self.userTotalRating = dto.userTotalRating
         self.createdAt = dto.createdAt
         self.updatedAt = dto.updatedAt
     }
     
-    init(reviewId: String, content: String, rating: Int, reviewImageUrls: [String], reservationItemName: String, reservationItemTime: String, creator: UserInfoResponseEntity, userTotalReviewCount: Int, userTotalRating: Float, createdAt: String, updatedAt: String) {
+    init(reviewId: String, content: String, rating: Int, reviewImageUrls: [String], reservationItemName: String, reservationItemTime: String, creator: UserInfoEntity, userTotalReviewCount: Int, userTotalRating: Float, createdAt: String, updatedAt: String) {
         self.reviewId = reviewId
         self.content = content
         self.rating = rating
@@ -157,7 +157,7 @@ struct UserReviewEntity {
     let reviewImageURLs: [String]
     let reservationItemName: String
     let reservationItemTime: String
-    let creator: UserInfoResponseEntity
+    let creator: UserInfoEntity
     let createdAt: String
     let updatedAt: String
     
@@ -169,40 +169,10 @@ struct UserReviewEntity {
         self.reviewImageURLs = dto.reviewImageURLs
         self.reservationItemName = dto.reservationItemName
         self.reservationItemTime = dto.reservationItemTime
-        self.creator =  UserInfoResponseEntity(dto: dto.creator)
+        self.creator =  UserInfoEntity(dto: dto.creator)
         self.createdAt = dto.createdAt
         self.updatedAt = dto.updatedAt
     }
 }
 
 
-struct ActivitySummaryEntity_Post {
-    let id: String
-    let title: String?
-    let country: String?
-    let category: String?
-    let thumbnails: [String]
-    let geolocation: ActivityGeolocationEntity
-    let price: ActivityPriceEntity
-    let tags: [String]
-    let pointReward: Int
-    let isAdvertisement: Bool
-    let isKeep: Bool
-    let keepCount: Int
-    
-    init(dto: ActivitySummaryResponseDTO_Post) {
-        self.id = dto.id
-        self.title = dto.title
-        self.country = dto.country
-        self.category = dto.category
-        self.thumbnails = dto.thumbnails
-        self.geolocation =  ActivityGeolocationEntity(dto: dto.geolocation)
-        self.price = ActivityPriceEntity(dto: dto.price)
-        self.tags = dto.tags
-        self.pointReward = dto.pointReward
-        self.isAdvertisement = dto.isAdvertisement
-        self.isKeep = dto.isKeep
-        self.keepCount = dto.keepCount
-    }
-
-}

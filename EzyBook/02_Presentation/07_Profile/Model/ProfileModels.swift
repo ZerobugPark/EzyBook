@@ -26,7 +26,7 @@ struct ProfileLookUpModel {
 
     }
     
-    init(from profile: UserInfoResponseEntity, profileImage: UIImage?) {
+    init(from profile: UserInfoEntity, profileImage: UIImage?) {
         self.userID = profile.userID
         self.email = ""
         self.nick = profile.nick

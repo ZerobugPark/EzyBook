@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum PostFilter {
+enum PostSort {
     
     case createdAt
     case likes
@@ -20,46 +20,78 @@ enum PostFilter {
             "좋아요"
         }
     }
+    
+    var orderBy: String{
+        switch self {
+        case .createdAt:
+            "createdAt"
+        case .likes:
+            "likes"
+        }
+    }
 }
 
 struct CommunityView: View {
     
     //@State private var selectedPost = false
     
-    //@ObservedObject var coordinator: CommunityCoordinator
+    @EnvironmentObject var appState: AppState
     
-    @State var query: String = ""
+    @StateObject var viewModel: CommunityViewModel
+    @ObservedObject var coordinator: CommunityCoordinator
+    
+    
+
     @State var isSearching: Bool = false
-    @State var selectedFlag: Flag = .all
-    @State var selectedFilter: Filter = .all
-    @State var progress: CGFloat = 1.0
-    @State var filter: PostFilter = .createdAt
     
     var body: some View {
         ZStack {
             ScrollView(.vertical, showsIndicators: false) {
-                VStack {
-                    FlagSelectionView(
-                        selectedFlag: $selectedFlag) { flag in
-                            
-                        }
-                    
-                    FilterSelectionView(
-                        selectedFilter: $selectedFilter) { filter in
-                            
-                        }
-                    
-                    activityProgressSection(filter: $filter)
-                        .padding(20)
-                }
                 
-                PostListCardView()
-                    .padding(.horizontal, 20)
+       
+                    VStack {
+                        FlagSelectionView(
+                            selectedFlag: $viewModel.selectedFlag) { flag in
+                                viewModel.action(.selectionChanged(flag: flag, filter: viewModel.selectedFilter))
+                            }
+                        
+                        FilterSelectionView(
+                            selectedFilter: $viewModel.selectedFilter) { filter in
+                                viewModel.action(.selectionChanged(flag: viewModel.selectedFlag, filter: filter))
+                            }
+                        
+                        
+                        activityProgressSection(sort: viewModel.postSort, distance: $viewModel.distance) {
+                            viewModel.action(.sortButtonTapped)
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.top, 20)
+                        
+                        if viewModel.output.postList.isEmpty {
+                            Spacer()
+                            Text("검색 결과가 없습니다..")
+                                .appFont(PretendardFontStyle.body2, textColor: .grayScale60)
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity)
+                            Spacer()
+                        } else {
+                            LazyVStack(spacing: 16) {
+                                ForEach(Array(viewModel.output.postList.enumerated()), id:\.element.id) { index, data in
+                                    PostListCardView(data: data)
+                                        .onAppear { viewModel.action(.paginationPostList(index: index)) }
+                                }
+                               
+                            }
+                            .padding(.horizontal, 15)
+                        }
+                    }
+               
+  
+                
             }
+            .disabled(viewModel.output.isLoading)
             
-            
-            
-            
+            LoadingOverlayView(isLoading: viewModel.output.isLoading)
             
             FloatingButton(text: "글쓰기") {
                 
@@ -68,7 +100,26 @@ struct CommunityView: View {
             
             
         }
-        .searchModify($query, $isSearching, "타이틀을 입력해주세요.")
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                TitleTextView(title: "커뮤니티")
+            }
+        }
+        .withCommonUIHandling(viewModel) { code, _ in
+            if code == 418 {
+                appState.isLoggedIn = false
+            }
+        }
+        .searchModify($viewModel.input.query, $isSearching, "타이틀을 입력해주세요.")
+        .onTapGesture {
+            hideKeyboard()
+            isSearching = false
+        }
+        .onSubmit(of: .search, {
+            viewModel.action(.searchButtonTapped)
+            isSearching = false
+        })
+        
         //        .sheet(isPresented: $selectedPost) {
         //            coordinator.makePostsView()
         //        }
@@ -82,9 +133,9 @@ struct CommunityView: View {
 
 private extension CommunityView {
     @ViewBuilder
-    func activityProgressSection(filter: Binding<PostFilter>) -> some View {
+    func activityProgressSection(sort: PostSort, distance: Binding<CGFloat>,onTapped: @escaping () -> Void) -> some View {
         
-    
+        
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text("액티비티 포스트")
@@ -94,7 +145,7 @@ private extension CommunityView {
                 
                 /// Filter 버튼
                 Button {
-                    filter.wrappedValue = filter.wrappedValue == .createdAt ? .likes : .createdAt
+                    onTapped()
                 } label: {
                     HStack {
                         Image(.iconSort)
@@ -102,32 +153,32 @@ private extension CommunityView {
                             .resizable()
                             .frame(width: 24, height: 24)
                             .foregroundStyle(.blackSeafoam)
-                        Text(filter.wrappedValue.text)
+                        Text(sort.text)
                             .appFont(PretendardFontStyle.body2, textColor: .blackSeafoam)
                     }
-      
+                    
                 }
             }
-
-            ProgressBox(progress: $progress)
+            
+            ProgressBox(distance: distance)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-     
+        
     }
     
     struct ProgressBox: View {
-        @Binding var progress: CGFloat
-
+        @Binding var distance: CGFloat
+        
         var body: some View {
             VStack(alignment: .leading, spacing: 7) {
                 HStack(alignment: .bottom) {
                     Text("Distance")
                         .appFont(PretendardFontStyle.body2, textColor: .grayScale60)
-                    Text("\(Int(progress * 500))KM")
+                    Text(String(format: "%.1fKM", distance * 5))
                         .appFont(PretendardFontStyle.body1, textColor: .blackSeafoam)
                     Spacer()
-           
-
+                    
+                    
                 }
                 .frame(maxWidth: .infinity)
                 
@@ -138,19 +189,19 @@ private extension CommunityView {
                             .foregroundStyle(.grayScale45)
                         
                         RoundedRectangle(cornerRadius: 10)
-                            .frame(width: geometry.size.width * progress, height: 20)
+                            .frame(width: geometry.size.width * distance, height: 20)
                             .foregroundStyle(LinearGradient(gradient: Gradient(colors: [.deepSeafoam, .blackSeafoam]), startPoint: .leading, endPoint: .trailing))
                         
                         
                         Circle()
                             .fill(Color.blackSeafoam)
                             .frame(width: 24, height: 24)
-                            .offset(x: max(min(geometry.size.width * progress - 12, geometry.size.width - 12), -12))
+                            .offset(x: max(min(geometry.size.width * distance - 12, geometry.size.width - 12), -12))
                             .gesture(
                                 DragGesture(minimumDistance: 0)
                                     .onChanged { value in
                                         let newProgress = max(0, min(1, value.location.x / geometry.size.width))
-                                        self.progress = newProgress
+                                        self.distance = newProgress
                                     }
                             )
                     }
@@ -167,8 +218,8 @@ private extension CommunityView {
         }
         
     }
-
-
+    
+    
 }
 
 private extension CommunityView {
@@ -177,44 +228,51 @@ private extension CommunityView {
     
     struct PostListCardView: View {
         
+        let data: PostSummaryEntity
         var body: some View {
             VStack(alignment: .leading) {
-                PostListMainContentView()
+                PostListMainContentView(data: data)
             }
             .frame(maxWidth: .infinity)
             .background(.grayScale0)
             .cornerRadius(10)
             .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 2)
         }
-
+        
     }
     
     struct PostListMainContentView: View {
-        let images: [UIImage] = [UIImage(systemName: "star.fill")!, UIImage(systemName: "star.fill")!, UIImage(systemName: "star.fill")!, UIImage(systemName: "star.fill")!, UIImage(systemName: "star.fill")!]
+        
+        let data:PostSummaryEntity
+        
+        
         var body: some View {
             VStack(alignment: .leading, spacing: 12) {
                 
                 HStack(alignment: .center, spacing: 12) {
-                    ProfileImageView(image: nil, size: 32)
+                    ProfileImageView(path: data.creator.profileImage, size: 32)
                     VStack(alignment: .leading, spacing: 0) {
-                        Text("닉네임")
+                        Text(data.creator.nick)
                             .appFont(PretendardFontStyle.body2, textColor: .grayScale60)
-                        Text("작성 시간")
+                        Text(data.relativeTimeDescription)
                             .appFont(PretendardFontStyle.body3, textColor: .grayScale60)
-                            
+                        
                     }
                     Spacer()
                 }
                 .frame(maxWidth: .infinity)
-                PostImagesView(images: images)
+                if !data.files.isEmpty {
+                    PostImagesView(paths: data.files)
+                }
                 
-                Text("액비티티 포스트 제목")
+                
+                Text(data.title)
                     .appFont(PretendardFontStyle.body1, textColor: .grayScale90)
                 
-                Text("후기")
+                Text(data.content)
                     .appFont(PretendardFontStyle.body2, textColor: .grayScale60)
                 
-                PostTagView()
+                PostTagView(country: data.country, category: data.category)
             }
             .padding(20)
             .background(.grayScale0)
@@ -223,116 +281,106 @@ private extension CommunityView {
     }
     
     struct PostImagesView: View {
-        let images: [UIImage]
+        let paths: [String]
 
         var body: some View {
-            switch images.count {
-            case 1:
-                // 하나면 꽉 채우기
-                Image(uiImage: images[0])
-                    .resizable()
-                    .scaledToFill()
-                    .frame(height: 200)
-                    .clipped()
-                    .cornerRadius(12)
-
-            case 2:
-                // 왼쪽 큰 이미지, 오른쪽은 세로로
-                HStack(spacing: 8) {
-                    Image(uiImage: images[0])
-                        .resizable()
+            GeometryReader { geo in
+                switch paths.count {
+                case 1:
+                    RemoteImageView(path: paths[0])
                         .scaledToFill()
-                        .frame(width: 200, height: 200)
+                        .frame(width: geo.size.width, height: geo.size.width * 0.5)
                         .clipped()
                         .cornerRadius(12)
-
-                    Image(uiImage: images[1])
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 100, height: 200)
-                        .clipped()
-                        .cornerRadius(12)
-                }
-
-            case 3:
-                // 왼쪽 큰 이미지, 오른쪽은 두 개 위아래
-                HStack(spacing: 8) {
-                    Image(uiImage: images[0])
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 200, height: 200)
-                        .clipped()
-                        .cornerRadius(12)
-
-                    VStack(spacing: 8) {
-                        Image(uiImage: images[1])
-                            .resizable()
+                case 2:
+                    HStack(spacing: 8) {
+                        RemoteImageView(path: paths[0])
                             .scaledToFill()
-                            .frame(width: 100, height: 96)
+                            .frame(width: geo.size.width * 0.5 - 4, height: geo.size.width * 0.5)
                             .clipped()
                             .cornerRadius(12)
-
-                        Image(uiImage: images[2])
-                            .resizable()
+                        
+                        RemoteImageView(path: paths[1])
                             .scaledToFill()
-                            .frame(width: 100, height: 96)
+                            .frame(width: geo.size.width * 0.5 - 4, height: geo.size.width * 0.5)
                             .clipped()
                             .cornerRadius(12)
                     }
-                }
-            case 4...:
-                HStack(spacing: 8) {
-                    Image(uiImage: images[0])
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 200, height: 200)
-                        .clipped()
-                        .cornerRadius(12)
-
-                    VStack(spacing: 8) {
-                        ForEach(1..<3, id: \.self) { index in
-                            if index == 2 {
-                                ZStack {
-                                    Image(uiImage: images[index])
-                                        .resizable()
+                case 3:
+                    HStack(spacing: 8) {
+                        RemoteImageView(path: paths[0])
+                            .scaledToFill()
+                            .frame(width: geo.size.width * 0.6 - 4, height: geo.size.width * 0.5)
+                            .clipped()
+                            .cornerRadius(12)
+                        
+                        VStack(spacing: 8) {
+                            RemoteImageView(path: paths[1])
+                                .scaledToFill()
+                                .frame(width: geo.size.width * 0.4 - 4, height: geo.size.width * 0.25 - 4)
+                                .clipped()
+                                .cornerRadius(12)
+                            
+                            RemoteImageView(path: paths[2])
+                                .scaledToFill()
+                                .frame(width: geo.size.width * 0.4 - 4, height: geo.size.width * 0.25 - 4)
+                                .clipped()
+                                .cornerRadius(12)
+                        }
+                    }
+                case 4...:
+                    HStack(spacing: 8) {
+                        RemoteImageView(path: paths[0])
+                            .scaledToFill()
+                            .frame(width: geo.size.width * 0.6 - 4, height: geo.size.width * 0.5)
+                            .clipped()
+                            .cornerRadius(12)
+                        
+                        VStack(spacing: 8) {
+                            ForEach(1..<3, id: \.self) { index in
+                                if index == 2 {
+                                    ZStack {
+                                        RemoteImageView(path: paths[index])
+                                            .scaledToFill()
+                                            .frame(width: geo.size.width * 0.4 - 4, height: geo.size.width * 0.25 - 4)
+                                            .clipped()
+                                            .cornerRadius(12)
+                                        
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(Color.black.opacity(0.4))
+                                            .frame(width: geo.size.width * 0.4 - 4, height: geo.size.width * 0.25 - 4)
+                                        
+                                        Text("+\(paths.count - 3)")
+                                            .appFont(PretendardFontStyle.body2, textColor: .white)
+                                    }
+                                } else {
+                                    RemoteImageView(path: paths[index])
                                         .scaledToFill()
-                                        .frame(width: 100, height: 96)
+                                        .frame(width: geo.size.width * 0.4 - 4, height: geo.size.width * 0.25 - 4)
                                         .clipped()
                                         .cornerRadius(12)
-
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(Color.black.opacity(0.4))
-                                        .frame(width: 100, height: 96)
-
-                                    Text("+\(images.count - 3)")
-                                        .appFont(PretendardFontStyle.body2, textColor: .white)
                                 }
-                            } else {
-                                Image(uiImage: images[index])
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 100, height: 96)
-                                    .clipped()
-                                    .cornerRadius(12)
                             }
                         }
                     }
+                default:
+                    EmptyView()
                 }
-
-            default:
-                EmptyView()
             }
+            .frame(height: 180)
         }
     }
     
     
     struct PostTagView: View {
         
+        let country: String
+        let category: String
         
         var body: some View {
             HStack {
                 Label {
-                    Text("국가")
+                    Text(country)
                         .appFont(PretendardFontStyle.body3, textColor: .deepSeafoam)
                 } icon: {
                     Image(.iconLocation)
@@ -348,27 +396,22 @@ private extension CommunityView {
                         .stroke(Color.deepSeafoam, lineWidth: 1)
                 )
                 
-                Text("액티비티 종류")
+                Text(category)
                     .appFont(PretendardFontStyle.body3, textColor: .deepSeafoam)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
                     .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.deepSeafoam, lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.deepSeafoam, lineWidth: 1)
                     )
                 
                 
                 
-
+                
             }
         }
         
         
     }
-    
-}
-
-#Preview {
-    CommunityView()
     
 }

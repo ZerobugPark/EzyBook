@@ -7,23 +7,46 @@
 
 import SwiftUI
 import Combine
+import CoreLocation
 
 final class CommunityViewModel: ViewModelType {
     
-    private let activityID: String
-    private let reviewUseCase: ActivityReviewLookUpUseCase
-    private var nextCursor = ""
+    
+    private let communityUseCases: CommunityUseCases
+    private let loactionService: LocationServiceProtocol
+    
     var input = Input()
     @Published var output = Output()
+    
     var cancellables = Set<AnyCancellable>()
-        
+    
+    @Published var selectedFlag: Flag = .all
+    @Published var selectedFilter: Filter = .all
+    @Published var distance: CGFloat = 0.5
+    @Published var postSort: PostSort = .createdAt
+    
+    private let limit = 10
+    private var nextCursor: String?
+    private var location: (longitude: Double?, latitude: Double?) = (nil, nil)
+    private let distanceSubject = PassthroughSubject<CGFloat, Never>()
+    
+    private var serverDistance: Int {
+        Int(distance * 5000)
+    }
+    
     init(
-        reviewUseCase: ActivityReviewLookUpUseCase)
-    {
-        self.activityID = activityID
-        self.reviewUseCase = reviewUseCase
-            
-        loadInitialReviews(activityID)
+        communityUseCases: CommunityUseCases,
+        loactionService: LocationServiceProtocol
+    ){
+        
+        self.communityUseCases = communityUseCases
+        self.loactionService = loactionService
+        
+//        Task {
+//            await fetchLocationIfNeeded()
+//        }
+        
+        loadInitialPost()
         transform()
     }
     
@@ -32,7 +55,10 @@ final class CommunityViewModel: ViewModelType {
 // MARK: Input/Output
 extension CommunityViewModel {
     
-    struct Input { }
+    struct Input {
+        var query = ""
+        var searchButtonTapped = PassthroughSubject<String, Never>()
+    }
     
     struct Output {
         
@@ -43,11 +69,35 @@ extension CommunityViewModel {
             presentedMessage != nil
         }
         
-        var reviewList: [ReviewResponseEntity] = []
+        var postList: [PostSummaryEntity] = []
         
     }
     
-    func transform() { }
+    func transform() {
+        
+        $distance
+            .dropFirst()
+            .removeDuplicates()
+            .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                Task {
+                    await self.reloadPostList(flag: self.selectedFlag, filter: self.selectedFilter)
+                }
+            }
+            .store(in: &cancellables)
+        
+        
+        input.searchButtonTapped
+            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
+            .removeDuplicates()
+            .sink { [weak self] query in
+                self?.handleSearchRequest(query)
+            }
+            .store(in: &cancellables)
+        
+        
+    }
     
     
     @MainActor
@@ -59,29 +109,31 @@ extension CommunityViewModel {
         }
     }
     
-
+    
 }
 
-// MARK: 리뷰 관련
-extension ReviewViewModel {
+// MARK: 초기 호출
+extension CommunityViewModel {
     
-    private func loadInitialReviews(_ activityID: String) {
+    private func loadInitialPost() {
         Task {
             await MainActor.run { output.isLoading = true }
-            await performReviewList(activityID)
+            await performPostList(selectedFlag, selectedFilter)
             await MainActor.run { output.isLoading = false }
         }
     }
     
     
     
-    private func performReviewList(_ activityID: String) async {
+    
+    private func performPostList(_ flag: Flag, _ filter: Filter) async {
         do {
-            let reviews = try await reviewUseCase.execute(activityID: activityID)
-            nextCursor = reviews.nextCursor
+            let query = await makePostLookUpQuery(flag, filter)
+            let data = try await communityUseCases.postSummary.execute(query: query)
+            nextCursor = data.nextCursor
             
             await MainActor.run {
-                output.reviewList = reviews.data
+                output.postList.append(contentsOf: data.data)
             }
             
         } catch {
@@ -89,74 +141,157 @@ extension ReviewViewModel {
         }
     }
     
+    private func makePostLookUpQuery(_ flag: Flag, _ filter: Filter) async -> ActivityPostLookUpQuery {
+        return ActivityPostLookUpQuery(
+            country: flag.requestValue,
+            category: filter.requestValue,
+            longitude: location.longitude.map { String(format: "%.6f", $0) },
+            latitude: location.latitude.map { String(format: "%.6f", $0) },
+            maxDistance: String(serverDistance),
+            limit: limit,
+            next: nextCursor,
+            orderBy: postSort.orderBy
+        )
+    }
 
+    @MainActor
+    func fetchLocationIfNeeded() async {
+        guard location.longitude == nil || location.latitude == nil else { return }
+
+        do {
+            let coordinate = try await loactionService.fetchCurrentLocation()
+            location = (longitude: coordinate.longitude, latitude: coordinate.latitude)
+        } catch {
+            print("📍 위치 가져오기 실패:", error.localizedDescription)
+        }
+    }
+    
 }
 
+extension CommunityViewModel {
+    /// 필터 버튼 선택
+    private func handleSelectionChanged(_ flag: Flag, _ filter: Filter) {
+        Task {
+            await reloadPostList(flag: flag, filter: filter)
+        }
+    }
+    
+    private func reloadPostList(flag: Flag, filter: Filter) async {
+        nextCursor = nil
+        await MainActor.run {
+            output.postList = []
+            output.isLoading = true
+        }
 
+        await performPostList(flag, filter)
 
+        await MainActor.run {
+            output.isLoading = false
+        }
+    }
+    
+    // MARK: 페이지네이션
+    private func handleFilterPaginationRequest(index: Int) {
+        
+        if nextCursor == "0" || output.postList.count - index > 3  {
+            return
+        }
+        
+        Task {
+            let currentFlag = selectedFlag
+            let currentFilter = selectedFilter
+          
+            await performPostList(currentFlag, currentFilter)
+        }
+    }
+    
+    
+    // MARK: 정렬 버튼 선택
+    private func handleSortButtonTapped() {
+        postSort = postSort == .createdAt ? .likes : .createdAt
+        
+        Task {
+            let currentFlag = selectedFlag
+            let currentFilter = selectedFilter
+              
+            await performPostList(currentFlag, currentFilter)
+        }
+    }
 
-// MARK: 리뷰 데이터 (프리패치)
-// 추후 데이터가 많아지면 기능 추가
+ 
+}
+
+// MARK: 검색
+
 extension CommunityViewModel {
     
-
-//    // MARK: 프리패치
-//    private func handleSearchListPrefetch(_ index: Int) {
-//        Task {
-//            await fetchSearchListNeeded(for: index)
-//        }
-//    }
-//
-//    private func fetchSearchListNeeded(for index: Int) async {
-//        let fetchIndex = index + 1
-//
-//        guard await shouldFetchSearchDetail(at: fetchIndex) else { return }
-//
-//        do {
-//           // let detail = try await requestSearchDetail(at: fetchIndex)
-//            //await updateSearchDetailUI(detail, at: fetchIndex)
-//        } catch {
-//            searchActivityindicats.remove(fetchIndex)
-//            await handleError(error)
-//        }
-//    }
-//
-//    @MainActor
-//    private func shouldFetchSearchDetail(at index: Int) -> Bool {
-//        if index < 0 || index >= searchActivitySummaryList.count {
-//            print("🚨 Invalid index detected: \(index), listCount: \(searchActivitySummaryList.count)")
-//            return false
-//        }
-//        if searchActivityindicats.contains(index) {
-//            return false
-//        }
-//        searchActivityindicats.insert(index)
-//        return true
-//    }
-//
-////    private func requestSearchDetail(at index: Int) async throws -> FilterActivityModel {
-////       // return try await reqeuestActivityDetailList(searchActivitySummaryList[index], type: FilterActivityModel.self)
-////    }
-//
-//    @MainActor
-//    private func updateSearchDetailUI(_ detail: FilterActivityModel, at index: Int) {
-//        _searchActivityDetailList[index] = detail
-//    }
-
+    // MARK: 검색
+    private func handleSearchRequest(_ query: String) {
+        Task {
+            nextCursor = nil
+            await MainActor.run {
+                output.postList = []
+                output.isLoading = true
+            }
+            
+            await performSearchPost(query)
+           
+            
+            await MainActor.run {
+                output.isLoading = false
+            }
+        }
+    }
+    
+    private func performSearchPost(_ query: String) async {
+        do {
+            
+            let data = try await communityUseCases.postSearch.excute(title: query)
+            
+            await MainActor.run {
+                output.postList = data
+            }
+            
+            
+        } catch {
+            await handleError(error)
+        }
+    }
 }
-
 
 //// MARK: Action
 extension CommunityViewModel {
     
     enum Action {
-    
+        case selectionChanged(flag: Flag, filter: Filter)
+        case paginationPostList(index: Int)
+        case sortButtonTapped
+        case searchButtonTapped
         
         
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
     func action(_ action: Action) {
+        switch action {
+        case let .selectionChanged(flag, filter):
+            guard flag != selectedFlag || filter != selectedFilter else { return }
+            selectedFlag = flag
+            selectedFilter = filter
+            handleSelectionChanged(flag, filter)
+        case .paginationPostList(let index):
+            handleFilterPaginationRequest(index: index)
+        case .sortButtonTapped:
+            handleSortButtonTapped()
+        case .searchButtonTapped:
+            
+            if input.query.isEmpty {
+                output.presentedMessage = DisplayMessage.error(code: -1, msg: "공백 제외\n1글자 이상 입렵해주세요")
+                return
+            }
+            let _query = input.query.trimmingCharacters(in: .whitespaces)
+            input.searchButtonTapped.send(_query)
+        }
     }
     
     
@@ -177,5 +312,3 @@ extension CommunityViewModel: AnyObjectWithCommonUI {
     
     
 }
-
-

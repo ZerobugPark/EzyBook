@@ -10,7 +10,7 @@ import Foundation
 
 
 // MARK: 게시글 조회
-struct PostSummaryPaginationResponseDTO: Decodable {
+struct PostSummaryPaginationResponseDTO: Decodable, EntityConvertible {
     
     let data: [PostSummaryResponseDTO]
     let nextCursor: String
@@ -21,13 +21,13 @@ struct PostSummaryPaginationResponseDTO: Decodable {
     }
 }
     
-struct PostSummaryResponseDTO: Decodable {
+struct PostSummaryResponseDTO: Decodable, EntityConvertible {
     let postID: String
     let country: String
     let category: String
     let title: String
     let content: String
-    let activity: ActivitySummaryResponseDTO_Post
+    let activity: ActivitySummaryResponseDTO_Post?
     let geolocation: Geolocation
     let creator: UserInfoResponseDTO
     let files: [String]
@@ -57,13 +57,13 @@ struct PostSummaryResponseDTO: Decodable {
 
 // MARK: 게시글 타이틀 검색
 
-struct PostSummaryListResponseDTO: Decodable {
+struct PostSummaryListResponseDTO: Decodable, EntityConvertible {
     let data: [PostSummaryResponseDTO]
 }
 
 
 /// 게시글 킵/ 킵 취소 작업 후 상태
-struct PostKeepResponseDTO: Decodable {
+struct PostKeepResponseDTO: Decodable, EntityConvertible {
     let likeStatus: Bool  // 현재 게시글에 대한 사용자의 킵 상태 (즉 킵을 하면 true가 리턴)
     
     enum CodingKeys: String, CodingKey {
@@ -74,13 +74,13 @@ struct PostKeepResponseDTO: Decodable {
 
 
 // MARK: 게시글 작성 및 상세 조회
-struct PostResponseDTO: Decodable {
+struct PostResponseDTO: Decodable, EntityConvertible {
     let postID: String
     let country: String
     let category: String
     let title: String
     let content: String
-    let activity: ActivitySummaryResponseDTO_Post
+    let activity: ActivitySummaryResponseDTO_Post?
     let geolocation: Geolocation
     let creator: UserInfoResponseDTO
     let files: [String]
@@ -111,8 +111,8 @@ struct PostResponseDTO: Decodable {
 
 
 struct Geolocation: Decodable {
-    let longiture: Double
-    let latitude: Double
+    let longitude: Float
+    let latitude: Float
 }
 
 
@@ -135,7 +135,7 @@ struct CommentResponseDTO: Decodable {
 }
 
 
-struct ReplyResponseDTO: Decodable{
+struct ReplyResponseDTO: Decodable, EntityConvertible{
     let commentID: String
     let content: String
     let createdAt: String

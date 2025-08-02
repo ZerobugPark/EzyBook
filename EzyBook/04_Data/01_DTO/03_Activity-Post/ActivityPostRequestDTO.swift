@@ -14,7 +14,7 @@ struct ActivityPostRequestDTO: Encodable {
     let category: String
     let title: String
     let content: String
-    let activityID: String
+    let activityID: String?
     let latitude: String //위도
     let longitude: String //경도
     let files: String
@@ -66,4 +66,12 @@ struct MyActivityQuery {
     let limit: String //위도
     let next: String?
 
+}
+struct ActivityPostLikeRequestDTO: Encodable {
+    
+    let likeStatus: Bool
+    
+    enum CodingKeys: String, CodingKey {
+         case likeStatus = "like_status"
+     }
 }

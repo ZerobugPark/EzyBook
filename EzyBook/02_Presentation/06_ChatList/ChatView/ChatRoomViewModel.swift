@@ -350,7 +350,7 @@ extension ChatRoomViewModel {
     
     
     /// 상대방 프로필 조회
-    private func loadOpponentProfile() async throws -> UserInfoResponseEntity? {
+    private func loadOpponentProfile() async throws -> UserInfoEntity? {
         let opponentData = try await profileSearchUseCase.execute(nick: opponentNick)
 
         return opponentData.first
@@ -368,7 +368,7 @@ extension ChatRoomViewModel {
     }
     
     /// UI 업데이트
-    private func updateOpponentProfile(_ profile: UserInfoResponseEntity , image: UIImage) {
+    private func updateOpponentProfile(_ profile: UserInfoEntity , image: UIImage) {
         output.opponentProfile = ProfileLookUpModel(from: profile, profileImage: image)
     }
     

@@ -47,7 +47,7 @@ final class DefaultProfileRepository: ProfileLookupRepository, ProfileModifyRepo
     
     
 
-    func requestSearchProfile(_ nick: String) async throws -> [UserInfoResponseEntity] {
+    func requestSearchProfile(_ nick: String) async throws -> [UserInfoEntity] {
         
         let router = UserRequest.Get.searchUser(nick: nick)
         

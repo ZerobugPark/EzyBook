@@ -6,3 +6,12 @@
 //
 
 import Foundation
+
+protocol PostSummaryPaginationUseCase {
+    func execute(query: ActivityPostLookUpQuery) async throws -> PostSummaryPaginationEntity
+}
+
+
+protocol PostSearchUseCase {
+    func excute(title: String) async throws -> [PostSummaryEntity]
+}

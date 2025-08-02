@@ -96,7 +96,7 @@ private extension ReviewView {
         var body: some View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(alignment: .center, spacing: 12) {
-                    ProfileImageView(image: nil, size: 32)
+                    ProfileImageView(path: data.creator.profileImage, size: 32)
                     VStack(alignment: .leading, spacing: 0) {
                         StarRatingView(staticRating: data.rating)
                         Text(data.creator.nick + " | " + data.createdAt.toDisplayDate())

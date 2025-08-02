@@ -12,7 +12,7 @@ struct ChatRoomEntity: Identifiable {
     let roomID: String
     let createdAt: String
     let updatedAt: String?
-    let participants: [UserInfoResponseEntity]
+    let participants: [UserInfoEntity]
     let lastChat: ChatEntity?
     var opponentImage: UIImage? = nil
     var opponentIndex: Int? = nil
@@ -22,7 +22,7 @@ struct ChatRoomEntity: Identifiable {
         self.createdAt = dto.createdAt
         self.updatedAt = dto.updatedAt
         self.participants = dto.participants.map {
-            UserInfoResponseEntity(dto: $0)
+            UserInfoEntity(dto: $0)
         }
         self.lastChat = dto.lastChat.map { ChatEntity(dto: $0) }
     }
@@ -31,7 +31,7 @@ struct ChatRoomEntity: Identifiable {
         roomId: String,
         createdAt: String,
         updatedAt: String?,
-        participants: [UserInfoResponseEntity],
+        participants: [UserInfoEntity],
         lastChat: ChatEntity?,
         opponentImage: UIImage? = nil
     ) {
@@ -51,7 +51,7 @@ struct ChatEntity {
     let content: String
     let createdAt: String
     let updatedAt: String
-    let sender: UserInfoResponseEntity
+    let sender: UserInfoEntity
     let files: [String]
     
     init(dto: ChatResponseDTO) {
@@ -60,11 +60,11 @@ struct ChatEntity {
         self.content = dto.content
         self.createdAt = dto.createdAt
         self.updatedAt = dto.updatedAt
-        self.sender = UserInfoResponseEntity(dto: dto.sender)
+        self.sender = UserInfoEntity(dto: dto.sender)
         self.files = dto.files
     }
     
-    init(chatId: String, roomId: String, content: String, createdAt: String, updatedAt: String, sender: UserInfoResponseEntity, files: [String]) {
+    init(chatId: String, roomId: String, content: String, createdAt: String, updatedAt: String, sender: UserInfoEntity, files: [String]) {
         self.chatID = chatId
         self.roomID = roomId
         self.content = content

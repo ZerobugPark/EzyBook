@@ -14,7 +14,7 @@ protocol ProfileLookUpUseCase {
 
 /// 유저 검색
 protocol ProfileSearchUseCase {
-    func execute(nick: String) async throws -> [UserInfoResponseEntity]
+    func execute(nick: String) async throws -> [UserInfoEntity]
 }
 
 /// 프로필 이미지 업로드
