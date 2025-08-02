@@ -107,7 +107,7 @@ extension ProfileLookUpEntity {
 }
 
 /// 유저검색
-struct UserInfoResponseEntity {
+struct UserInfoEntity {
     let userID: String
     let nick: String
     let profileImage: String?

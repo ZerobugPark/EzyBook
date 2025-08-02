@@ -20,3 +20,48 @@ final class CommunityDIContainer {
     
     
 }
+
+
+// MARK: Maek Community UseCase
+extension CommunityDIContainer {
+    
+    
+    private func makeCommunityUseCases() -> CommunityUseCases {
+        CommunityUseCases(
+            postSummary: makePostSummaryPaginationUseCase(),
+            postSearch: makePostSearchUseCase()
+        )
+    }
+    
+    private func makePostSummaryPaginationUseCase() -> PostSummaryPaginationUseCase {
+        DefaultPostSummaryPaginationUseCase(repo: makeCommunityRepository())
+    }
+    
+    private func makePostSearchUseCase() -> PostSearchUseCase {
+        DefaultPostSearchUseCase(repo: makeCommunityRepository())
+    }
+    
+}
+
+
+// MARK: Data
+extension CommunityDIContainer {
+    
+    private func makeCommunityRepository() -> DefaultCommunityRepository {
+        DefaultCommunityRepository(networkService: networkService)
+    }
+
+    
+  
+}
+
+
+extension CommunityDIContainer {
+    
+    func makeCommunityViewModel() -> CommunityViewModel {
+        CommunityViewModel(
+            communityUseCases: makeCommunityUseCases(),
+            loactionService: commonDIContainer.makeDetailFeatureService().location
+        )
+    }
+}

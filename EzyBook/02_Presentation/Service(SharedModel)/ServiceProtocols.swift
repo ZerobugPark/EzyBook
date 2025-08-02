@@ -6,14 +6,15 @@
 //
 
 import Foundation
-
+import CoreLocation
 
 /// 공통으로 사용 가능한 뷰모델
 
 protocol DetailFeatureService {
     var chatRoom: ChatRoomServiceProtocol { get }
     var favorite: FavoriteServiceProtocol { get }
-    //var thumbnail: ThumbnailServiceProtocol { get }
+    var location: LocationServiceProtocol { get }
+    
 }
 
 
@@ -24,6 +25,10 @@ protocol ChatRoomServiceProtocol {
 
 protocol FavoriteServiceProtocol {
     func activtyKeep(id: String, status: Bool) async throws -> Bool
+}
+
+protocol LocationServiceProtocol {
+    func fetchCurrentLocation() async throws -> CLLocationCoordinate2D
 }
 
 

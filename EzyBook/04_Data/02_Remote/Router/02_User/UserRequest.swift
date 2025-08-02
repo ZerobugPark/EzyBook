@@ -127,8 +127,8 @@ extension UserRequest {
         
         var requestBody: Encodable? {
             switch self {
-            case .profileModify(let request):
-                return request
+            case .profileModify(let body):
+                return body
             }
         }
         
@@ -138,20 +138,20 @@ extension UserRequest {
             ]
         }
         
-        var parameters: Parameters? {
-            switch self {
-            case .profileModify(let param):
-                let result: [String: Any?] = [
-                    "nick": param.nick,
-                    "profileImage": param.profileImage,
-                    "phoneNum": param.phoneNum,
-                    "introduction": param.introduction
-                ]
-                let filtered = result.compactMapValues { $0 } // 옵셔널 제거
-                return filtered.isEmpty ? nil : filtered as Parameters // 업캐스팅
-                
-            }
-        }
+//        var parameters: Parameters? {
+//            switch self {
+//            case .profileModify(let param):
+//                let result: [String: Any?] = [
+//                    "nick": param.nick,
+//                    "profileImage": param.profileImage,
+//                    "phoneNum": param.phoneNum,
+//                    "introduction": param.introduction
+//                ]
+//                let filtered = result.compactMapValues { $0 } // 옵셔널 제거
+//                return filtered.isEmpty ? nil : filtered as Parameters // 업캐스팅
+//                
+//            }
+//        }
         
     }
     

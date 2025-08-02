@@ -30,7 +30,8 @@ extension CommonDIContainer {
     func makeDetailFeatureService() -> DetailFeatureService {
         DefaultDetailFeatureService(
             chatRoom: makeChatRoomService(),
-            favorite: makeFavoriteService()
+            favorite: makeFavoriteService(),
+            location: makeLocationSerview()
         )
     }
 
@@ -65,6 +66,10 @@ extension CommonDIContainer {
     
     private func makeFavoriteService() -> FavoriteServiceProtocol {
         FavoriteService(activityKeepUseCase: makeActivityKeepCommandUseCase())
+    }
+    
+    private func makeLocationSerview() -> LocationServiceProtocol {
+        LocationService()
     }
 }
 

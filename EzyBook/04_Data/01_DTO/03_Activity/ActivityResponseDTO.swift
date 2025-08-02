@@ -106,7 +106,7 @@ struct ActivityDetailResponseDTO: Decodable, EntityConvertible {
 
 /// // 액티비티 킵/ 킵 취소 작업 후 상태
 struct ActivityKeepResponseDTO: Decodable, EntityConvertible {
-    let keepStatus: Bool // 현재 액비비티에 대한 사용자의 킵 상태 (즉 킵을 하면 true가 리턴)
+    let keepStatus: Bool // 현재 액티비티 대한 사용자의 킵 상태 (즉 킵을 하면 true가 리턴)
     
     enum CodingKeys: String, CodingKey {
         case keepStatus = "keep_status"

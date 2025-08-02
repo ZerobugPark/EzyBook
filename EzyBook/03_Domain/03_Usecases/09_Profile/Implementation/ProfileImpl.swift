@@ -39,7 +39,7 @@ final class DefaultProfileSearchUseCase: ProfileSearchUseCase {
 
 extension DefaultProfileSearchUseCase {
     
-    func execute(nick: String) async throws -> [UserInfoResponseEntity] {
+    func execute(nick: String) async throws -> [UserInfoEntity] {
         try await repo.requestSearchProfile(nick)
     }
 

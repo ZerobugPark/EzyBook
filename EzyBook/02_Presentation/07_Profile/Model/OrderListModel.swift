@@ -79,7 +79,7 @@ struct UserReviewDetailList {
     let reviewImageURLs: [String]
     let reservationItemName: String
     let reservationItemTime: String
-    let creator: UserInfoResponseEntity
+    let creator: UserInfoEntity
     let createdAt: String
     let updatedAt: String
     

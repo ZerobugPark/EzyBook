@@ -21,5 +21,5 @@ protocol ProfileModifyRepository {
 }
 
 protocol ProfileSearchRepository {
-    func requestSearchProfile(_ nick: String) async throws -> [UserInfoResponseEntity]
+    func requestSearchProfile(_ nick: String) async throws -> [UserInfoEntity]
 }
