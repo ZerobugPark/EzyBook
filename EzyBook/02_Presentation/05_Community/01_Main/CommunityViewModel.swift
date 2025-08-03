@@ -255,7 +255,7 @@ extension CommunityViewModel {
     private func performSearchPost(_ query: String) async {
         do {
             
-            let data = try await communityUseCases.postSearch.excute(title: query)
+            let data = try await communityUseCases.postSearch.execute(title: query)
             
             await MainActor.run {
                 output.postList = data

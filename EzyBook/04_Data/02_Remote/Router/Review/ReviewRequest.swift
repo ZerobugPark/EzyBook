@@ -99,25 +99,35 @@ extension ReviewRequest {
             ]
         }
         
-        var multipartFormData: ((MultipartFormData) -> Void)? {
+        private var compressedImages: [Data] {
             switch self {
             case .reviewFiles(_, let images):
+                return images.compactMap { $0.compressedJPEGData(maxSizeInBytes: 1_000_000) }
+            }
+        }
+        
+        
+        var isEffectivelyEmpty: Bool {
+            switch self {
+            case .reviewFiles:
+                return compressedImages.isEmpty
+            }
+        }
+        
+        var multipartFormData: ((MultipartFormData) -> Void)? {
+            switch self {
+            case .reviewFiles:
                 return { form in
-                    for (index, image) in images.enumerated() {
-                        if let data = image.compressedJPEGData(maxSizeInBytes: 1_000_000) {
-                            let filename = "review\(index).jpg"
-                                            
+                    for (index, data) in compressedImages.enumerated() {
+                        
+                        let filename = "review\(index).jpg"
+                        
                         form.append(
-                                data,
-                                withName: "files",
-                                fileName: filename,
-                                mimeType: "image/jpeg"
-                            )
-                            
-                            print("✅ Appending file: review\(index).jpg (\(data.count / 1024) KB)")
-                        } else {
-                            print("❌ Compression failed for image[\(index)]")
-                        }
+                            data,
+                            withName: "files",
+                            fileName: filename,
+                            mimeType: "image/jpeg"
+                        )
                     }
                 }
             }

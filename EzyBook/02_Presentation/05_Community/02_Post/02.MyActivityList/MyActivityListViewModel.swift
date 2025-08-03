@@ -13,15 +13,20 @@ final class MyActivityListViewModel: ViewModelType {
     
     
     private let orderListUseCase: OrderListLookUpUseCase
-        
+    private let writtenActivityUseCase: WrittenActivityListUseCase
+    
     var input = Input()
     @Published var output = Output()
     
     var cancellables = Set<AnyCancellable>()
     
     
-    init(orderListUseCase: OrderListLookUpUseCase) {
+    init(
+        orderListUseCase: OrderListLookUpUseCase,
+        writtenActivityUseCase: WrittenActivityListUseCase
+    ) {
         self.orderListUseCase = orderListUseCase
+        self.writtenActivityUseCase = writtenActivityUseCase
         transform()
         handleLoadInitialOrderList()
     }
@@ -74,24 +79,26 @@ extension MyActivityListViewModel {
     private func handleLoadInitialOrderList() {
         Task {
             await MainActor.run { output.isLoading = true }
-            
             let result = await performLoadOrderEntity()
-            
-            switch result {
-            case .success(let entity):
-                if entity.isEmpty {
-                    await handleSuccess()
-                } else {
-                    await performFetchOrderList(entity)
-                }
-            case .failure(let error):
-                await handleError(error)
-            }
-            
+            await performResultHandling(result)
             await MainActor.run { output.isLoading = false }
         }
     }
 
+    private func performResultHandling(_ result: Result<[OrderEntity], Error>) async {
+        switch result {
+        case .success(let entity):
+            if entity.isEmpty {
+                await handleSuccess()
+            } else {
+                await performFetchOrderList(entity)
+            }
+        case .failure(let error):
+            await handleError(error)
+        }
+    }
+    
+    
     private func performLoadOrderEntity() async -> Result<[OrderEntity], Error>  {
         do {
             let data = try await orderListUseCase.execute()
@@ -102,28 +109,32 @@ extension MyActivityListViewModel {
         }
         
     }
-    
-    /// Performs fetching the order list, including image loading and grouping.
     private func performFetchOrderList(_ data: [OrderEntity]) async {
         do {
-
-            let newOrderList = makeOrderList(data: data)
-        
-            let grouped = makeGroupedOrderList(from: newOrderList)
-
+            let filteredData = await filterOutWrittenActivities(from: data)
+            let orderList = makeOrderList(data: filteredData)
+            let grouped = makeGroupedOrderList(from: orderList)
+            
             await MainActor.run {
                 output.groupedOrderList = grouped
             }
         }
     }
 
+    /// 렘에 저장된 activityID를 기준으로 필터링된 OrderEntity 배열 반환
+    private func filterOutWrittenActivities(from entities: [OrderEntity]) async -> [OrderEntity] {
+        let writtenIDs: [String] = await MainActor.run {
+            writtenActivityUseCase.execute()
+        }
+        return entities.filter { !writtenIDs.contains($0.activity.id) }
+    }
 
-    /// Pure function: creates an OrderList array from image results and order entities.
+
     private func makeOrderList(data: [OrderEntity]) -> [OrderList] {
         return data.map { OrderList(entitiy: $0) }
     }
 
-    /// Pure function: groups OrderList by paid date, returns sorted GroupedOrder array.
+
     private func makeGroupedOrderList(from orderList: [OrderList]) -> [GroupedOrder] {
         let grouped = Dictionary(grouping: orderList) { $0.paidDate.toDisplayDate() }
         return grouped.compactMap { key, orders in
@@ -145,6 +156,7 @@ extension MyActivityListViewModel: AnyObjectWithCommonUI {
     var presentedMessageTitle: String? { output.presentedMessage?.title }
     var presentedMessageBody: String? { output.presentedMessage?.message }
     var presentedMessageCode: Int? { output.presentedMessage?.code }
+    var isSuccessMessage: Bool { output.presentedMessage?.isSuccess ?? false }
     
     func resetMessageAction() {
         output.presentedMessage = nil

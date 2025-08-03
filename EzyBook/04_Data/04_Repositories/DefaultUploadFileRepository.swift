@@ -37,9 +37,13 @@ final class DefaultUploadFileRepository: ProfileImageUploadRepository, ReviewIma
         return data.toEntity()
     }
     
+    func requesPostUploadImages(_ images: [UIImage]) {
+        
+    }
     
-    
-
+    func requesPostUploadVideos(_ videos: [UIImage]) {
+        
+    }
     
 
 }

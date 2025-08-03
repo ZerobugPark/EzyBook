@@ -240,7 +240,6 @@ extension CreateAccountView {
             FieldTitle(title: SignUpMessage.Title.introduce, isRequired: false)
             TextEditor(text: $viewModel.input.introduceTextField)
                 .frame(height: 150) // Set the height for the text input area
-                .cornerRadius(15) // 모서리 둥글게 하기
                 .border(Color.grayScale60.opacity(0.5), width: 1) // 테두리 추가
         }
     }

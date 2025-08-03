@@ -161,7 +161,7 @@ extension UserRequest {
 extension UserRequest {
     
     enum Multipart: MultipartRouter {
-       
+   
         case profileImageUpload(image: UIImage)
          
         var requiresAuth: Bool {
@@ -181,12 +181,27 @@ extension UserRequest {
             ]
         }
         
-        var multipartFormData: ((MultipartFormData) -> Void)? {
+        private var compressedImages: Data? {
             switch self {
             case .profileImageUpload(let image):
+                return image.compressedJPEGData(maxSizeInBytes: 1_000_000)
+            }
+        }
+        
+        
+        var isEffectivelyEmpty: Bool {
+            switch self {
+            case .profileImageUpload:
+                return compressedImages == nil
+            }
+        }
+        
+        
+        var multipartFormData: ((MultipartFormData) -> Void)? {
+            switch self {
+            case .profileImageUpload:
                 return { form in
-                    if let data = image.compressedJPEGData(maxSizeInBytes: 1_000_000) {
-                        
+                    if let data = compressedImages {
                         form.append(data,
                                     withName: "profile",
                                     fileName: "profile.jpg",

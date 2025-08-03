@@ -49,7 +49,8 @@ final class CommunityCoordinator: ObservableObject {
             let vm = container.makeCommunityViewModel()
             CommunityView(viewModel: vm, coordinator: self)
         case .postView:
-            PostsView(coordinator: self)
+            let vm = container.makePostViewModel()
+            PostsView(coordinator: self, viewModel: vm)
         }
     }
 

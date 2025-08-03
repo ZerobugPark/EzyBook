@@ -104,7 +104,6 @@ extension ZoomableImageFullScreenViewModel: AnyObjectWithCommonUI {
     var presentedMessageTitle: String? { output.presentedMessage?.title }
     var presentedMessageBody: String? { output.presentedMessage?.message }
     var presentedMessageCode: Int? { output.presentedMessage?.code }
-    var isSuccessMessage: Bool { output.presentedMessage?.isSuccess ?? false }
     
 
 }

@@ -31,15 +31,21 @@ final class DefaultNetworkService: NetworkService {
         //모든 분기 경로에서 초기화가 보장될 경우 초기화와 선언을 동시에 하지 않아도 괜찮음
         let response: AFDataResponse<Data>
         
-        if let multipartForm = (router as? MultipartRouter)?.multipartFormData {
+        
+        if let multipartRouter = router as? MultipartRouter,
+           let multipartForm = multipartRouter.multipartFormData {
+            
             guard let endpoint = router.endpoint else {
                 throw APIError(localErrorType: .missingEndpoint)
             }
-
+            /// 압축해도 용량이줄어 들지 않으면 해당 로직 리턴
+            guard multipartRouter.isEffectivelyEmpty == false else  {
+                throw APIError(localErrorType: .uploadError)
+            }
 
             response = await session
                 .upload(multipartFormData: multipartForm,
-                        to: endpoint, //URL(string: "https://httpbin.org/post")!
+                        to: endpoint,
                         method: router.method,
                         headers: router.headers)
                 .cURLDescription { description in

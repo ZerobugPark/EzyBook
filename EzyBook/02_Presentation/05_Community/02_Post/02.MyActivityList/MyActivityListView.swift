@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MyActivityListView: View {
     
+    @EnvironmentObject var appState: AppState
     @StateObject var viewModel: MyActivityListViewModel
     @Environment(\.dismiss) private var dismiss
     let onConfirm: (OrderList) -> Void
@@ -33,6 +34,14 @@ struct MyActivityListView: View {
             .disabled(viewModel.output.isLoading)
             LoadingOverlayView(isLoading: viewModel.output.isLoading)
         }
+        .withCommonUIHandling(viewModel) { code, isSuccess in
+            if isSuccess {
+                dismiss() // 빈 배열일 때
+            } else if code == 418 {
+                appState.isLoggedIn = false
+            }
+        }
+        
     }
 }
 

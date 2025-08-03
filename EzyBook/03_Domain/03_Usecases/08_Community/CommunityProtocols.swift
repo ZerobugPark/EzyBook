@@ -13,5 +13,16 @@ protocol PostSummaryPaginationUseCase {
 
 
 protocol PostSearchUseCase {
-    func excute(title: String) async throws -> [PostSummaryEntity]
+    func execute(title: String) async throws -> [PostSummaryEntity]
 }
+
+// MARK: Realm
+protocol WrittenActivityListUseCase {
+    func execute() -> [String]
+}
+
+protocol WriteActivityUseCase {
+    func execute(activityID: String)
+}
+
+

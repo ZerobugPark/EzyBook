@@ -35,6 +35,7 @@ enum APIError: Error {
         case seifIsNil
         case invalidMediaType
         case thumbnailFailed
+        case uploadError
         // 기타 로컬 에러 타입
     }
     
@@ -77,6 +78,8 @@ enum APIError: Error {
             self = .localError(type: localErrorType, message: "지원하지 않는 미디어 타입")
         case .thumbnailFailed:
             self = .localError(type: localErrorType, message: "썸네일 생성 실패")
+        case .uploadError:
+            self = .localError(type: localErrorType, message: "최대 5MB의 용량만 업로드가 가능합니다.")
         }
     }
     

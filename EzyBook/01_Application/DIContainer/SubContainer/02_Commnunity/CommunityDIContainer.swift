@@ -48,6 +48,15 @@ extension CommunityDIContainer {
         )
     }
     
+    // MARK: Realm
+    private func makeWrittenActivityListUseCase() -> WrittenActivityListUseCase {
+        DefaultWrittenActivityListUseCase(repo: makeWrittenActivityRepository())
+    }
+    
+    private func makeWriteActivityUseCase() -> WriteActivityUseCase {
+        DefaultWriteActivityUseCase(repo: makeWrittenActivityRepository())
+    }
+
 }
 
 
@@ -58,6 +67,9 @@ extension CommunityDIContainer {
         DefaultCommunityRepository(networkService: networkService)
     }
 
+    private func makeWrittenActivityRepository() -> any WrittenActivityRepository {
+        DefaultWrittenActivityRepository()
+    }
     
   
 }
@@ -74,7 +86,14 @@ extension CommunityDIContainer {
     
     func makeMyActivityListViewModel() -> MyActivityListViewModel {
         MyActivityListViewModel(
-            orderListUseCase: makeOrderListUseCase()
+            orderListUseCase: makeOrderListUseCase(),
+            writtenActivityUseCase: makeWrittenActivityListUseCase()
+        )
+    }
+    
+    func makePostViewModel() -> PostViewModel {
+        PostViewModel(
+            writeActivityUseCase: makeWriteActivityUseCase()
         )
     }
 }

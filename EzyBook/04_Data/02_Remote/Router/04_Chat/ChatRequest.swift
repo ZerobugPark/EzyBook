@@ -15,7 +15,7 @@ enum ChatRequest {
     enum Get: GetRouter {
         case lookUpChatRoomList // 채팅방 목록 조회
         case lookUpChatList(id: String, dto: ChatListRequestDTO) //채팅내역 목록 조회
-
+        
         var requiresAuth: Bool {
             true
         }
@@ -49,7 +49,7 @@ enum ChatRequest {
                 
             }
         }
-    
+        
     }
 }
 
@@ -60,7 +60,7 @@ extension ChatRequest {
     enum Post: PostRouter {
         case makeChat(dto: ChatRoomLookUpRequestDTO) //채팅방 생성
         case sendChat(roomId: String, dto: ChatSendMessageRequestDTO) //채팅 보내기
-     
+        
         var requiresAuth: Bool {
             true
         }
@@ -102,9 +102,11 @@ extension ChatRequest {
 extension ChatRequest {
     
     enum Multipart: MultipartRouter {
-       
+        
+        
+        
         case uploadChatFiles(id: String, image: [UIImage])
-         
+        
         var requiresAuth: Bool {
             return false
         }
@@ -122,19 +124,32 @@ extension ChatRequest {
             ]
         }
         
+        private var compressedImages: [Data] {
+            switch self {
+            case .uploadChatFiles(_, let images):
+                return images.compactMap { $0.compressedJPEGData(maxSizeInBytes: 1_000_000) }
+            }
+        }
+        
+        var isEffectivelyEmpty: Bool {
+            switch self {
+            case .uploadChatFiles(let id, let image):
+                return compressedImages.isEmpty
+            }
+        }
+        
         var multipartFormData: ((MultipartFormData) -> Void)? {
             switch self {
             case .uploadChatFiles(_, let images):
                 return { form in
-                    for (index, image) in images.enumerated() {
-                        if let data = image.compressedJPEGData(maxSizeInBytes: 1_000_000) {
-                            form.append(
-                                data,
-                                withName: "files",
-                                fileName: "chat\(index).jpg",
-                                mimeType: "image/jpeg"
-                            )
-                        }
+                    for (index, data) in compressedImages.enumerated() {
+                        form.append(
+                            data,
+                            withName: "files",
+                            fileName: "chat\(index).jpg",
+                            mimeType: "image/jpeg"
+                        )
+                        
                     }
                 }
             }
