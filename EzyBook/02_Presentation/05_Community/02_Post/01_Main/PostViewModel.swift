@@ -260,5 +260,3 @@ extension PostViewModel: AnyObjectWithCommonUI {
     }
 
 }
-
-
