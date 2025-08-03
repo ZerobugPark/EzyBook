@@ -7,12 +7,12 @@
 
 import Foundation
 
-protocol WrittenActivityRepository: Repository where T == ActivityPostTable {
+protocol WrittenActivityRealmRepository: Repository where T == ActivityPostTable {
     func save(activityID: String, retryCount: Int)
     func fetchActivityWrittenList() -> [String]
 }
 
-extension WrittenActivityRepository {
+extension WrittenActivityRealmRepository {
     func save(activityID: String) {
         save(activityID: activityID, retryCount: 0)
     }

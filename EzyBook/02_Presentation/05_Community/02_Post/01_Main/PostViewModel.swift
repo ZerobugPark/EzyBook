@@ -12,7 +12,9 @@ import Combine
 final class PostViewModel: ViewModelType {
     
     
-    private let writeActivityUseCase: WriteActivityUseCase
+    private let writeActivityRealmUseCase: WriteActivityRealmUseCase
+    private let uploadUseCase: PostImageUploadUseCase
+    private let writePostUseCase: PostActivityUseCase
     
     var input = Input()
     @Published var output = Output()
@@ -33,13 +35,21 @@ final class PostViewModel: ViewModelType {
     }
     
     var cancellables = Set<AnyCancellable>()
-    private var selectedActivity: OrderList?
+    private var selectedActivity: OrderList? {
+        didSet {
+            checkConfirmStatus()
+        }
+    }
   
   
     init(
-        writeActivityUseCase: WriteActivityUseCase
+        writeActivityRealmUseCase: WriteActivityRealmUseCase,
+        uploadUseCase: PostImageUploadUseCase,
+        writePostUseCase :PostActivityUseCase
     ) {
-        self.writeActivityUseCase = writeActivityUseCase
+        self.writeActivityRealmUseCase = writeActivityRealmUseCase
+        self.uploadUseCase = uploadUseCase
+        self.writePostUseCase = writePostUseCase
         transform()
         
     }
@@ -81,7 +91,7 @@ extension PostViewModel {
     
     @MainActor
     private func handleSuccess() {
-        output.presentedMessage = .success(msg: "액티비티 결제 내역이 없습니다.")
+        output.presentedMessage = .success(msg: "게시글 작성이 완료되었습니다.")
     }
     
 }
@@ -90,20 +100,93 @@ extension PostViewModel {
 // MARK: Activity Post
 private extension PostViewModel {
     
-    private func handlePost(_ images: [UIImage], _ videos: [URL]) {
-        let imageTotalSize = images
-            .compactMap { $0.jpegData(compressionQuality: 0.8) }
-            .reduce(0) { $0 + $1.count }
+    private func handleWritePostRequest(_ images: [UIImage], _ videos: [URL]) {
+        Task {
+            
+            await MainActor.run { output.isLoading = true }
+            let videoPath = await performUploadVideoIfNeeded(videos)
+            let imagePath = await performUploadImageIfNeeded(images)
 
-        // 비디오 총 용량 계산
-        let videoTotalSize = videos
-            .compactMap { try? Data(contentsOf: $0) }
-            .reduce(0) { $0 + $1.count }
+            let allPaths: [String] = (videoPath?.files ?? []) + (imagePath?.files ?? [])
 
-        let totalSizeInMB = Double(imageTotalSize + videoTotalSize) / (1024 * 1024)
+            let success = await performWritePost(title: title, content: content, paths: allPaths)
 
-        print(imageTotalSize, videoTotalSize)
+            await MainActor.run { output.isLoading = false }
+            
+            if success {
+                await MainActor.run {
+                    // 렘에 작성된 영역 저장 (향후 삭제시 렘에서도 제거 필요)
+                    writeActivityRealmUseCase.execute(activityID: selectedActivity!.activityID)
+                    handleSuccess()
+                }
+            }
+        }
+    }
+    
+    
+    private func performWritePost(title: String, content: String, paths: [String]) async -> Bool {
+        do {
+            guard let selectedActivity else { return false }
+            guard let location = UserSession.shared.userLocation else { return false }
 
+            let data = try await writePostUseCase.execute(
+                country: selectedActivity.country,
+                category: selectedActivity.category,
+                title: title,
+                content: content,
+                activity_id: selectedActivity.activityID,
+                latitude: location.latitude,
+                longitude: location.longitude,
+                files: paths
+            )
+
+            dump(data)
+            return true
+
+        } catch {
+            await handleError(error)
+            return false
+        }
+    }
+    
+    
+    
+    
+    // MARK: 파일 업로드
+    private func performUploadVideoIfNeeded(_ videos: [URL]) async -> FileResponseEntity? {
+        guard !videos.isEmpty else { return nil } // 아예 비어있으면 생략
+        
+        let videoData = convertURLToData(videos)
+        guard !videoData.isEmpty else { return nil } // 변환 실패 등으로 비어있으면 생략
+        
+        do {
+            let data = try await uploadUseCase.execute(videos: videoData)
+            return data
+        } catch {
+            
+            await handleError(error)
+            return nil
+        }
+    }
+    
+    /// 비디오로 변환
+    private func convertURLToData(_ videos: [URL]) -> [Data] {
+        return videos.compactMap { try? Data(contentsOf: $0) }
+        
+    }
+    
+    
+    private func performUploadImageIfNeeded(_ images: [UIImage]) async -> FileResponseEntity? {
+        
+        guard !images.isEmpty else { return nil }
+    
+        do {
+            let data = try await uploadUseCase.execute(images: images)
+            return data
+        } catch {
+            await handleError(error)
+            return nil
+        }
         
     }
 }
@@ -159,7 +242,7 @@ extension PostViewModel {
         case .acitivitySelected(let activity):
             handleActivityUpadte(activity)
         case let .writePost(images, videos):
-            handlePost(images, videos)
+            handleWritePostRequest(images, videos)
             
         }
     }

@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-final class DefaultUploadFileRepository: ProfileImageUploadRepository, ReviewImageUploadRepository {
+final class DefaultUploadFileRepository: ProfileImageUploadRepository, ReviewImageUploadRepository, PostUploadRepository {
 
 
     private let networkService: NetworkService
@@ -37,12 +37,37 @@ final class DefaultUploadFileRepository: ProfileImageUploadRepository, ReviewIma
         return data.toEntity()
     }
     
-    func requesPostUploadImages(_ images: [UIImage]) {
+    func requesPostUploadImages(_ images: [UIImage]) async throws -> FileResponseEntity {
         
+        let router = ActivityPostRequest.Multipart.postImages(images: images)
+        
+        let data = try await networkService.fetchData(dto: FileResponseDTO.self, router)
+        
+        return data.toEntity()
+            
     }
     
-    func requesPostUploadVideos(_ videos: [UIImage]) {
+    func requesPostUploadVideos(_ videos: [Data]) async throws -> FileResponseEntity {
         
+        let compressedVideos = await withTaskGroup(of: Data?.self) { group in
+            for video in videos {
+                group.addTask {
+                    await video.downsized(toMaxSize: 5_000_000)
+                }
+            }
+
+            var results: [Data] = []
+            for await result in group {
+                if let data = result {
+                    results.append(data)
+                }
+            }
+            return results
+        }
+
+        let router = ActivityPostRequest.Multipart.postVideos(videos: compressedVideos)
+        let data = try await networkService.fetchData(dto: FileResponseDTO.self, router)
+        return data.toEntity()
     }
     
 

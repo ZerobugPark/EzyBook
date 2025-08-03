@@ -107,7 +107,7 @@ struct PostEntity {
     let files: [String]
     let isLike: Bool
     let likeCount: Int
-    let comments: CommentEntity
+    let comments: [CommentEntity]
     let createdAt: String
     let updatedAt: String
     
@@ -123,7 +123,7 @@ struct PostEntity {
         self.files = dto.files
         self.isLike = dto.isLike
         self.likeCount = dto.likeCount
-        self.comments = CommentEntity(dto: dto.comments)
+        self.comments =  dto.comments.map { CommentEntity(dto: $0) }
         self.createdAt = dto.createdAt
         self.updatedAt = dto.updatedAt
     }
@@ -181,7 +181,7 @@ struct CommentEntity {
         self.content = dto.content
         self.createdAt = dto.createdAt
         self.creator =  UserInfoEntity(dto: dto.creator)
-        self.replise = dto.replise.map { ReplyEntity(dto: $0) }
+        self.replise = dto.replies.map { ReplyEntity(dto: $0) }
     }
 }
 
@@ -198,5 +198,16 @@ struct ReplyEntity {
         self.content = dto.content
         self.createdAt = dto.createdAt
         self.creator = UserInfoEntity(dto: dto.creator)
+    }
+}
+
+
+struct FileResponseEntity {
+    
+    let files: [String]
+    
+    
+    init(dto : FileResponseDTO) {
+        self.files = dto.files
     }
 }

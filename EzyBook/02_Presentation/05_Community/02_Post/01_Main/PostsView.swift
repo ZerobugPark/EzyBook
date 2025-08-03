@@ -17,7 +17,7 @@ struct PostsView: View {
     
     
     @State var selectedActivity = false // 화면전환 트리거
-    
+    @EnvironmentObject var appState: AppState
     @FocusState private var isTextEditorFocused: Bool
     
     @StateObject var viewModel: PostViewModel
@@ -58,8 +58,6 @@ struct PostsView: View {
                     )
                     
                     
-                    //Spacer(minLength: 30)
-                    
                     PrimaryActionButton(
                         title: "작성하기",
                         isEnabled: viewModel.isConfirm
@@ -74,6 +72,9 @@ struct PostsView: View {
                     
                 }
             }
+            .disabled(viewModel.output.isLoading)
+            
+            LoadingOverlayView(isLoading: viewModel.output.isLoading)
             
  
         }
@@ -93,6 +94,13 @@ struct PostsView: View {
         .fullScreenCover(isPresented: $selectedActivity) {
             coordinator.makeMyActivityView { orderList in
                 viewModel.action(.acitivitySelected(activity: orderList))
+            }
+        }
+        .withCommonUIHandling(viewModel) { code, isSuccess in
+            if isSuccess {
+                coordinator.pop()
+            } else if code == 418 {
+                appState.isLoggedIn = false
             }
         }
     }
@@ -116,9 +124,10 @@ private extension PostsView {
                 Button {
                     onTap()
                 } label: {
-                    HStack(spacing: 12) {
+                    HStack(alignment: .center ,spacing: 12) {
                         Text(title)
                             .appFont(PretendardFontStyle.body1, textColor: .grayScale60)
+                            .lineLimit(1)
                         Spacer()
                         Image(.iconChevron)
                             .renderingMode(.template)
@@ -159,6 +168,7 @@ private extension PostsView {
                 Text("제목")
                     .appFont(PretendardFontStyle.body1)
                 TextEditor(text: $title)
+                    .frame(height: 40)
                     .focused(isTextEditorFocused)
                     .overlay(
                           RoundedRectangle(cornerRadius: 15)

@@ -41,6 +41,11 @@ extension CommunityDIContainer {
         DefaultPostSearchUseCase(repo: makeCommunityRepository())
     }
     
+    
+    private func makePostWirteUseCase() -> PostActivityUseCase {
+        DefaultPostActivityUseCase(repo: makeCommunityRepository())
+    }
+    
     // MARK: Make Order List
     private func makeOrderListUseCase() -> OrderListLookUpUseCase {
         DefaultOrderListLookupUseCase(
@@ -49,13 +54,19 @@ extension CommunityDIContainer {
     }
     
     // MARK: Realm
-    private func makeWrittenActivityListUseCase() -> WrittenActivityListUseCase {
-        DefaultWrittenActivityListUseCase(repo: makeWrittenActivityRepository())
+    private func makeWrittenActivityRealmListUseCase() -> WrittenActivityRealmListUseCase {
+        DefaultWrittenActivityRealmListUseCase(repo: makeWrittenActivityRepository())
     }
     
-    private func makeWriteActivityUseCase() -> WriteActivityUseCase {
-        DefaultWriteActivityUseCase(repo: makeWrittenActivityRepository())
+    private func makeWriteActivityRealmUseCase() -> WriteActivityRealmUseCase {
+        DefaultWriteActivityRealmUseCase(repo: makeWrittenActivityRepository())
     }
+    
+    // MARK: 이미지 업로드
+    private func makePostImageUploadUseCase() -> PostImageUploadUseCase {
+        DefaultPostImageUploadUseCase(repo: commonDIContainer.makeUploadRepository())
+    }
+
 
 }
 
@@ -67,8 +78,8 @@ extension CommunityDIContainer {
         DefaultCommunityRepository(networkService: networkService)
     }
 
-    private func makeWrittenActivityRepository() -> any WrittenActivityRepository {
-        DefaultWrittenActivityRepository()
+    private func makeWrittenActivityRepository() -> any WrittenActivityRealmRepository {
+        DefaultWrittenActivityRealmRepository()
     }
     
   
@@ -87,13 +98,16 @@ extension CommunityDIContainer {
     func makeMyActivityListViewModel() -> MyActivityListViewModel {
         MyActivityListViewModel(
             orderListUseCase: makeOrderListUseCase(),
-            writtenActivityUseCase: makeWrittenActivityListUseCase()
+            writtenActivityUseCase: makeWrittenActivityRealmListUseCase()
         )
     }
     
     func makePostViewModel() -> PostViewModel {
         PostViewModel(
-            writeActivityUseCase: makeWriteActivityUseCase()
+            writeActivityRealmUseCase: makeWriteActivityRealmUseCase(),
+            uploadUseCase: makePostImageUploadUseCase(),
+            writePostUseCase: makePostWirteUseCase()
+            
         )
     }
 }

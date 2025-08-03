@@ -86,7 +86,7 @@ struct PostResponseDTO: Decodable, EntityConvertible {
     let files: [String]
     let isLike: Bool
     let likeCount: Int
-    let comments: CommentResponseDTO
+    let comments: [CommentResponseDTO]
     let createdAt: String
     let updatedAt: String
     
@@ -121,21 +121,21 @@ struct CommentResponseDTO: Decodable {
     let content: String
     let createdAt: String
     let creator: UserInfoResponseDTO
-    let replise: [ReplyResponseDTO]
+    let replies: [ReplyResponseDTO]
     
     private enum CodingKeys: String, CodingKey {
         case commentID = "comment_id"
         case content
         case createdAt
         case creator
-        case replise
+        case replies
         
     }
     
 }
 
 
-struct ReplyResponseDTO: Decodable, EntityConvertible{
+struct ReplyResponseDTO: Decodable, EntityConvertible {
     let commentID: String
     let content: String
     let createdAt: String
@@ -151,6 +151,6 @@ struct ReplyResponseDTO: Decodable, EntityConvertible{
 }
 
 
-struct FileResponseDTO: Decodable {
+struct FileResponseDTO: Decodable, EntityConvertible {
     let files: [String]
 }

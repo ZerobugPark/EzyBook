@@ -8,7 +8,7 @@
 import Foundation
 import RealmSwift
 
-final class DefaultWrittenActivityRepository: RealmRepository<ActivityPostTable>, WrittenActivityRepository {
+final class DefaultWrittenActivityRealmRepository: RealmRepository<ActivityPostTable>, WrittenActivityRealmRepository {
     
     func save(activityID: String, retryCount: Int = 0) {
         getFileURL()

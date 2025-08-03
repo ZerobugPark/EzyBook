@@ -8,7 +8,7 @@
 import Foundation
 
 
-final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSearchRepository {
+final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSearchRepository, PostActivityRepository {
     
     private let networkService: NetworkService
     
@@ -38,4 +38,27 @@ final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSea
         return data.toEntity()
         
     }
+    
+    func requestWirtePost(_ country: String, _ category: String, _ title: String, _ content: String, activity_id: String, latitude: Double, longitude: Double, _ files: [String]) async throws -> PostEntity {
+        
+        let dto = ActivityPostRequestDTO(
+            country: country,
+            category: category,
+            title: title,
+            content: content,
+            activityID: activity_id,
+            latitude: latitude,
+            longitude: longitude,
+            files: files
+        )
+        
+        let router = ActivityPostRequest.Post.writePost(body: dto)
+        print(router)
+        let data = try await networkService.fetchData(dto: PostResponseDTO.self, router)
+        
+        return data.toEntity()
+        
+    }
 }
+
+

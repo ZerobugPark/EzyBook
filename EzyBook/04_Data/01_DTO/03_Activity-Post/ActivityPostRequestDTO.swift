@@ -14,14 +14,21 @@ struct ActivityPostRequestDTO: Encodable {
     let category: String
     let title: String
     let content: String
-    let activityID: String?
-    let latitude: String //위도
-    let longitude: String //경도
-    let files: String
+    let activityID: String
+    let latitude: Double //위도
+    let longitude: Double //경도
+    let files: [String]
     
     
     enum CodingKeys: String, CodingKey {
-         case activityID = "activity_id"
+        case country
+        case category
+        case title
+        case content
+        case activityID = "activity_id"
+        case latitude
+        case longitude
+        case files
      }
 }
 
@@ -39,7 +46,14 @@ struct ActivityPostModifyRequestDTO: Encodable {
     
     
     enum CodingKeys: String, CodingKey {
-         case activityID = "activity_id"
+        case country
+        case category
+        case title
+        case content
+        case activityID = "activity_id"
+        case latitude
+        case longitude
+        case files
      }
 }
 

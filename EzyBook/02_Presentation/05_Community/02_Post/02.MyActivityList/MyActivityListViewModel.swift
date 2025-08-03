@@ -13,7 +13,7 @@ final class MyActivityListViewModel: ViewModelType {
     
     
     private let orderListUseCase: OrderListLookUpUseCase
-    private let writtenActivityUseCase: WrittenActivityListUseCase
+    private let writtenActivityUseCase: WrittenActivityRealmListUseCase
     
     var input = Input()
     @Published var output = Output()
@@ -23,7 +23,7 @@ final class MyActivityListViewModel: ViewModelType {
     
     init(
         orderListUseCase: OrderListLookUpUseCase,
-        writtenActivityUseCase: WrittenActivityListUseCase
+        writtenActivityUseCase: WrittenActivityRealmListUseCase
     ) {
         self.orderListUseCase = orderListUseCase
         self.writtenActivityUseCase = writtenActivityUseCase

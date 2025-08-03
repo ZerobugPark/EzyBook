@@ -19,7 +19,7 @@ import AVKit
 /// 4. 출력 파일을 다시 Data로 읽음
 /// 5. 임시 파일들 삭제
 extension Data {
-    func downsized(toMaxSize maxSizeInBytes: Int) -> Data? {
+    func downsized(toMaxSize maxSizeInBytes: Int) async -> Data? {
         guard self.count > maxSizeInBytes else { return self }
 
         let presets: [String] = [
@@ -40,20 +40,20 @@ extension Data {
                 exporter.outputFileType = .mp4
                 exporter.shouldOptimizeForNetworkUse = true
 
-                // Attempt export
-                let semaphore = DispatchSemaphore(value: 0)
-                exporter.exportAsynchronously {
-                    semaphore.signal()
+                try await withCheckedThrowingContinuation { continuation in
+                    exporter.exportAsynchronously {
+                        continuation.resume()
+                    }
                 }
-                semaphore.wait()
 
-                if let compressedURL = exporter.outputURL,
-                   let compressedData = try? Data(contentsOf: compressedURL),
+                if let compressedData = try? Data(contentsOf: exportURL),
                    compressedData.count <= maxSizeInBytes {
+                    try? FileManager.default.removeItem(at: tempURL)
+                    try? FileManager.default.removeItem(at: exportURL)
                     return compressedData
                 }
 
-                // Clean up temp files
+                // Clean up if size too large or read fails
                 try? FileManager.default.removeItem(at: tempURL)
                 try? FileManager.default.removeItem(at: exportURL)
 

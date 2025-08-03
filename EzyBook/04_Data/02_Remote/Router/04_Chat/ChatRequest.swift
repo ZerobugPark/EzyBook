@@ -133,14 +133,14 @@ extension ChatRequest {
         
         var isEffectivelyEmpty: Bool {
             switch self {
-            case .uploadChatFiles(let id, let image):
+            case .uploadChatFiles:
                 return compressedImages.isEmpty
             }
         }
         
         var multipartFormData: ((MultipartFormData) -> Void)? {
             switch self {
-            case .uploadChatFiles(_, let images):
+            case .uploadChatFiles:
                 return { form in
                     for (index, data) in compressedImages.enumerated() {
                         form.append(

@@ -51,3 +51,9 @@ extension ReplyResponseDTO {
         ReplyEntity(dto: self)
     }
 }
+
+extension FileResponseDTO {
+    func toEntity() -> FileResponseEntity {
+        FileResponseEntity(dto: self)
+    }
+}
