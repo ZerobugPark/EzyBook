@@ -25,13 +25,9 @@ protocol PostActivityUseCase {
     func execute(country: String, category: String, title: String, content: String, activity_id: String, latitude: Double, longitude: Double, files: [String]) async throws -> PostEntity
 }
 
-// MARK: Realm
-protocol WrittenActivityRealmListUseCase {
-    func execute() -> [String]
-}
 
-protocol WriteActivityRealmUseCase {
-    func execute(activityID: String)
+protocol UserWrittenPostListUseCase {
+    func excute(userID: String) async throws -> [String]
 }
 
 

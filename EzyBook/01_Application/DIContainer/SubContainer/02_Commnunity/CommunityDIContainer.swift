@@ -46,20 +46,15 @@ extension CommunityDIContainer {
         DefaultPostActivityUseCase(repo: makeCommunityRepository())
     }
     
+    private func makeUserWrittenPostListUseCase() -> UserWrittenPostListUseCase {
+        DefaultUserWirttenPostListUseCase(repo: makeCommunityRepository())
+    }
+    
     // MARK: Make Order List
     private func makeOrderListUseCase() -> OrderListLookUpUseCase {
         DefaultOrderListLookupUseCase(
             repo: commonDIContainer.makeOrderRepository()
         )
-    }
-    
-    // MARK: Realm
-    private func makeWrittenActivityRealmListUseCase() -> WrittenActivityRealmListUseCase {
-        DefaultWrittenActivityRealmListUseCase(repo: makeWrittenActivityRepository())
-    }
-    
-    private func makeWriteActivityRealmUseCase() -> WriteActivityRealmUseCase {
-        DefaultWriteActivityRealmUseCase(repo: makeWrittenActivityRepository())
     }
     
     // MARK: 이미지 업로드
@@ -78,11 +73,6 @@ extension CommunityDIContainer {
         DefaultCommunityRepository(networkService: networkService)
     }
 
-    private func makeWrittenActivityRepository() -> any WrittenActivityRealmRepository {
-        DefaultWrittenActivityRealmRepository()
-    }
-    
-  
 }
 
 
@@ -98,13 +88,12 @@ extension CommunityDIContainer {
     func makeMyActivityListViewModel() -> MyActivityListViewModel {
         MyActivityListViewModel(
             orderListUseCase: makeOrderListUseCase(),
-            writtenActivityUseCase: makeWrittenActivityRealmListUseCase()
+            userWrittenPostListUseCase: makeUserWrittenPostListUseCase()
         )
     }
     
     func makePostViewModel() -> PostViewModel {
         PostViewModel(
-            writeActivityRealmUseCase: makeWriteActivityRealmUseCase(),
             uploadUseCase: makePostImageUploadUseCase(),
             writePostUseCase: makePostWirteUseCase()
             

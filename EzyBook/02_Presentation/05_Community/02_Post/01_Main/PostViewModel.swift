@@ -12,7 +12,6 @@ import Combine
 final class PostViewModel: ViewModelType {
     
     
-    private let writeActivityRealmUseCase: WriteActivityRealmUseCase
     private let uploadUseCase: PostImageUploadUseCase
     private let writePostUseCase: PostActivityUseCase
     
@@ -43,11 +42,9 @@ final class PostViewModel: ViewModelType {
   
   
     init(
-        writeActivityRealmUseCase: WriteActivityRealmUseCase,
         uploadUseCase: PostImageUploadUseCase,
         writePostUseCase :PostActivityUseCase
     ) {
-        self.writeActivityRealmUseCase = writeActivityRealmUseCase
         self.uploadUseCase = uploadUseCase
         self.writePostUseCase = writePostUseCase
         transform()
@@ -115,8 +112,6 @@ private extension PostViewModel {
             
             if success {
                 await MainActor.run {
-                    // 렘에 작성된 영역 저장 (향후 삭제시 렘에서도 제거 필요)
-                    writeActivityRealmUseCase.execute(activityID: selectedActivity!.activityID)
                     handleSuccess()
                 }
             }

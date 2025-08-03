@@ -19,7 +19,7 @@ enum ActivityPostRequest {
         case postLookup(query: ActivityPostLookUpQuery) // 위치 기반 게시글 조회
         case postSearch(query: String) // 게시글 검색 검색
         case detailPost(postID: String) // 상세조회
-        case writtenPost(userID: String) //내가 작성한 게시글
+        case writtenPost(userID: String, dto: MyActivityQuery) //내가 작성한 게시글
         case likedPosts // 내가 킵한 액티비티 리스트
         
 
@@ -41,7 +41,7 @@ enum ActivityPostRequest {
                 ActivityPostEndPoint.postSearch.requestURL
             case .detailPost(let postID):
                 ActivityPostEndPoint.detailPost(postID: postID).requestURL
-            case .writtenPost(let userID):
+            case .writtenPost(let userID, _):
                 ActivityPostEndPoint.writtenPost(userID: userID).requestURL
             case .likedPosts:
                 ActivityPostEndPoint.likedPosts.requestURL
@@ -76,12 +76,21 @@ enum ActivityPostRequest {
                 let filtered = result.compactMapValues { $0 } // 옵셔널 제거
                 return filtered.isEmpty ? nil : filtered as Parameters // 업캐스팅
                 
-            case .postSearch(let query):
-                return ["title": query]
+            case .postSearch(let param):
+                return ["title": param]
             case .detailPost(let id):
                 return ["post_id": id]
-            case .writtenPost(let id):
-                return ["user_id": id]
+            case .writtenPost(_, let param):
+                let result: [String: Any?] = [
+                     "country": param.country,
+                     "category": param.category,
+                     "limit": param.limit,
+                     "next": param.next,
+                 ]
+                
+                let filtered = result.compactMapValues { $0 } // 옵셔널 제거
+                return filtered.isEmpty ? nil : filtered as Parameters // 업캐스팅
+                
             default:
                 return nil
             }

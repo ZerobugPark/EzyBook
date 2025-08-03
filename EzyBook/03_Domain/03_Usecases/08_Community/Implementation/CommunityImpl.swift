@@ -61,38 +61,21 @@ extension DefaultPostActivityUseCase {
 }
 
 
-// MARK: 액티비티 게시글 작성 여부 렘 데이터 조회
-final class DefaultWrittenActivityRealmListUseCase: WrittenActivityRealmListUseCase {
+final class DefaultUserWirttenPostListUseCase: UserWrittenPostListUseCase {
+    let repo: WrittenPostListRepository
     
-    private let repo: any WrittenActivityRealmRepository
-    
-    init(repo: any WrittenActivityRealmRepository) {
+    init(repo: WrittenPostListRepository) {
         self.repo = repo
     }
     
 }
-extension DefaultWrittenActivityRealmListUseCase {
-    
-    func execute() -> [String] {
-        repo.fetchActivityWrittenList()
+
+extension DefaultUserWirttenPostListUseCase {
+    func excute(userID: String) async throws -> [String] {
+        try await repo.requestWrittenPostList(id: userID)
     }
 }
 
-final class DefaultWriteActivityRealmUseCase: WriteActivityRealmUseCase {
-    
-    private let repo: any WrittenActivityRealmRepository
-    
-    init(repo: any WrittenActivityRealmRepository) {
-        self.repo = repo
-    }
-    
-}
-extension DefaultWriteActivityRealmUseCase {
-    
-    func execute(activityID: String)  {
-        repo.save(activityID: activityID)
-    }
-}
 
 // MARK: 이미지 업로드
 final class DefaultPostImageUploadUseCase: PostImageUploadUseCase {

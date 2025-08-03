@@ -13,7 +13,7 @@ final class MyActivityListViewModel: ViewModelType {
     
     
     private let orderListUseCase: OrderListLookUpUseCase
-    private let writtenActivityUseCase: WrittenActivityRealmListUseCase
+    private let userWrittenPostListUseCase: UserWrittenPostListUseCase
     
     var input = Input()
     @Published var output = Output()
@@ -23,10 +23,10 @@ final class MyActivityListViewModel: ViewModelType {
     
     init(
         orderListUseCase: OrderListLookUpUseCase,
-        writtenActivityUseCase: WrittenActivityRealmListUseCase
+        userWrittenPostListUseCase: UserWrittenPostListUseCase
     ) {
         self.orderListUseCase = orderListUseCase
-        self.writtenActivityUseCase = writtenActivityUseCase
+        self.userWrittenPostListUseCase = userWrittenPostListUseCase
         transform()
         handleLoadInitialOrderList()
     }
@@ -84,7 +84,7 @@ extension MyActivityListViewModel {
             await MainActor.run { output.isLoading = false }
         }
     }
-
+    
     private func performResultHandling(_ result: Result<[OrderEntity], Error>) async {
         switch result {
         case .success(let entity):
@@ -120,21 +120,31 @@ extension MyActivityListViewModel {
             }
         }
     }
-
+    
     /// 렘에 저장된 activityID를 기준으로 필터링된 OrderEntity 배열 반환
     private func filterOutWrittenActivities(from entities: [OrderEntity]) async -> [OrderEntity] {
-        let writtenIDs: [String] = await MainActor.run {
-            writtenActivityUseCase.execute()
+        
+        let userID = await MainActor.run {
+            UserSession.shared.currentUser?.userID
         }
-        return entities.filter { !writtenIDs.contains($0.activity.id) }
+        
+        guard let userID else { return entities }
+        
+        do {
+            let writtenIDs = try await userWrittenPostListUseCase.excute(userID: userID)
+            return entities.filter { !writtenIDs.contains($0.activity.id) }
+        } catch {
+            return entities
+        }
     }
-
-
+    
+    
+    
     private func makeOrderList(data: [OrderEntity]) -> [OrderList] {
         return data.map { OrderList(entitiy: $0) }
     }
-
-
+    
+    
     private func makeGroupedOrderList(from orderList: [OrderList]) -> [GroupedOrder] {
         let grouped = Dictionary(grouping: orderList) { $0.paidDate.toDisplayDate() }
         return grouped.compactMap { key, orders in
@@ -142,7 +152,9 @@ extension MyActivityListViewModel {
             return GroupedOrder(date: key, rawDate: rawDate, orders: orders)
         }
         .sorted { $0.rawDate > $1.rawDate }
+        
     }
+    
 }
 
 
@@ -161,6 +173,6 @@ extension MyActivityListViewModel: AnyObjectWithCommonUI {
     func resetMessageAction() {
         output.presentedMessage = nil
     }
-
+    
 }
 

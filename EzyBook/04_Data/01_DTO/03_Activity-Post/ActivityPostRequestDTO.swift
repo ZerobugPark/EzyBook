@@ -75,9 +75,9 @@ struct ActivityPostLookUpQuery {
 ///게시글 작성 조회 또는 내가 좋아한 게시글
 struct MyActivityQuery {
     
-    let country: String
-    let category: String
-    let limit: String //위도
+    let country: String?
+    let category: String?
+    let limit: String? 
     let next: String?
 
 }

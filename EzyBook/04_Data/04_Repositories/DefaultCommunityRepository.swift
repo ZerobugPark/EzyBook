@@ -8,7 +8,7 @@
 import Foundation
 
 
-final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSearchRepository, PostActivityRepository {
+final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSearchRepository, PostActivityRepository, WrittenPostListRepository {
     
     private let networkService: NetworkService
     
@@ -53,11 +53,27 @@ final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSea
         )
         
         let router = ActivityPostRequest.Post.writePost(body: dto)
-        print(router)
+        
         let data = try await networkService.fetchData(dto: PostResponseDTO.self, router)
         
         return data.toEntity()
         
+    }
+    
+    func requestWrittenPostList(id: String) async throws -> [String] {
+        var allPostIDs: [String] = []
+        var nextCursor: String? = nil
+
+        repeat {
+            let dto = MyActivityQuery(country: nil, category: nil, limit: String(10), next: nextCursor)
+            let router = ActivityPostRequest.Get.writtenPost(userID: id, dto: dto)
+            let data = try await networkService.fetchData(dto: PostSummaryPaginationResponseDTO.self, router)
+
+            allPostIDs.append(contentsOf: data.data.map { $0.activity?.id ?? "" })
+            nextCursor = data.nextCursor
+        } while (nextCursor ?? "0") != "0"
+
+        return allPostIDs
     }
 }
 

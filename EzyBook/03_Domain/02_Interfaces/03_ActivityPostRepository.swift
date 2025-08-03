@@ -26,3 +26,6 @@ protocol PostActivityRepository {
     func requestWirtePost(_ country: String, _ category: String, _ title: String, _ content: String, activity_id: String, latitude: Double, longitude: Double, _ files: [String]) async throws -> PostEntity
 }
 
+protocol WrittenPostListRepository {
+    func requestWrittenPostList(id: String) async throws -> [String]
+}
