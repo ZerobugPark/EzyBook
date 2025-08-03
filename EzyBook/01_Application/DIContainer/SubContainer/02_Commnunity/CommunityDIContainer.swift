@@ -66,6 +66,17 @@ extension CommunityDIContainer {
         DefaultPostImageUploadUseCase(repo: commonDIContainer.makeUploadRepository())
     }
 
+    
+    // MARK: Comment
+    private func makeCommentUseCases() -> CommentUseCases {
+        CommentUseCases(
+            write: makeWriteCommentUseCase()
+        )
+    }
+
+    private func makeWriteCommentUseCase() -> WriteCommentUseCase {
+        DefaultWriteCommentUseCase(repo: makeCommentRepository())
+    }
 
 }
 
@@ -75,6 +86,10 @@ extension CommunityDIContainer {
     
     private func makeCommunityRepository() -> DefaultCommunityRepository {
         DefaultCommunityRepository(networkService: networkService)
+    }
+    
+    private func makeCommentRepository() -> DefaultCommentRepository {
+        DefaultCommentRepository(networkService: networkService)
     }
 
 }
@@ -107,6 +122,7 @@ extension CommunityDIContainer {
     func makePostDetailViewModel(postID: String) -> PostDetailViewModel {
         PostDetailViewModel(
             postDetailUseCase: makePostDetailUesCase(),
+            commentUseCases: makeCommentUseCases(),
             postID: postID
         )
     }

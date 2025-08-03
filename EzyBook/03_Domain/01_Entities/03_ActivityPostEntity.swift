@@ -252,14 +252,14 @@ struct CommentEntity {
     let content: String
     let createdAt: String
     let creator: UserInfoEntity
-    let replise: [ReplyEntity]
+    let replies: [ReplyEntity]
     
     init(dto: CommentResponseDTO) {
         self.commentID = dto.commentID
         self.content = dto.content
         self.createdAt = dto.createdAt
         self.creator =  UserInfoEntity(dto: dto.creator)
-        self.replise = dto.replies.map { ReplyEntity(dto: $0) }
+        self.replies = dto.replies.map { ReplyEntity(dto: $0) }
     }
 }
 

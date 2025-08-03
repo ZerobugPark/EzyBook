@@ -18,27 +18,76 @@ struct PostDetailView: View {
     /// 화면전환 트리거
     @State private var selectedMedia: SelectedMedia?
     
+    @FocusState private var isTextEditorFocused: Bool
     
     var body: some View {
-        ZStack {
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 16) {
-                    PostTopMediaSection(
-                        data: viewModel.output.postDetailInfo,
-                        thumbnails: viewModel.output.postDetailInfo.files,
-                        selectedIndex: $selectedIndex,
-                        selectedMedia: $selectedMedia
-                    )
-   
-                    PostMainContentView(data: viewModel.output.postDetailInfo)
+        VStack(spacing: 0) {
+            ZStack {
+                
+                if isTextEditorFocused {
+                    Rectangle()
+                        .foregroundColor(.clear) // 시각적으로는 보이지 않지만
+                        .contentShape(Rectangle()) // 터치 이벤트 영역 지정
+                        .onTapGesture {
+                            isTextEditorFocused = false // 포커스 해제 → 키보드 내려감
+                        }
+                        .ignoresSafeArea() // 화면 전체 덮게
+                        .zIndex(1) // ScrollView 위에 올라오도록 보장
                 }
                 
-              
+                
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 16) {
+                        
+                        if !viewModel.output.postDetailInfo.files.isEmpty {
+                            PostTopMediaSection(
+                                data: viewModel.output.postDetailInfo,
+                                thumbnails: viewModel.output.postDetailInfo.files,
+                                selectedIndex: $selectedIndex,
+                                selectedMedia: $selectedMedia
+                            )
+                        } else {
+                            Spacer().frame(height: 80) // Ensure space below toolbar when no media exists
+                        }
+                        
+                        PostMainContentView(data: viewModel.output.postDetailInfo)
+                        
+                        
+                        Divider()
+                            .frame(width: 1, height: 10)
+                            .background(.grayScale90)
+                        
+                        
+                        CommentListView(data: viewModel.output.postDetailInfo.comments)
+                    }
+                }
+                .disabled(viewModel.output.isLoading)
+                
+                LoadingOverlayView(isLoading: viewModel.output.isLoading)
             }
-            .disabled(viewModel.output.isLoading)
             
-            LoadingOverlayView(isLoading: viewModel.output.isLoading)
+            Divider()
             
+            HStack {
+                TextField("댓글을 입력해주세요", text: $viewModel.comment)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding(.vertical, 8)
+                    .focused($isTextEditorFocused)
+                
+                Button(action: {
+                    viewModel.action(.writeComment(parentID: nil))
+                    isTextEditorFocused = false
+                }) {
+                    Image(systemName: "paperplane.fill")
+                        .font(.title2)
+                        .foregroundStyle(viewModel.comment.isEmpty ? .grayScale45 : .deepSeafoam)
+                
+                }
+                .disabled(viewModel.comment.isEmpty)
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 10)
+            .background(Color.white)
         }
         .ignoresSafeArea(.container, edges: .top)
         .background(.grayScale15)
@@ -84,7 +133,7 @@ private extension PostDetailView {
         @Binding var selectedIndex: Int
         @Binding var selectedMedia: SelectedMedia?
         
-
+        
         
         var body: some View {
             ZStack(alignment: .bottom) {
@@ -145,14 +194,13 @@ private extension PostDetailView {
 
 
 // MARK: 타이틀 및 후기
-
 private extension PostDetailView {
     
     struct PostMainContentView: View {
         
         let data: PostEntity
-            
-            
+        
+        
         var body: some View {
             
             VStack(alignment: .leading, spacing: 12) {
@@ -182,12 +230,229 @@ private extension PostDetailView {
             .padding(.top, 16)
             .padding(.horizontal, 20)
             
-                
         }
-            
+        
+    }
+}
+
+// MARK: 댓글영역
+private extension PostDetailView {
+    struct CommentListView: View {
+        
+        // MARK: - 테스트용 댓글 및 대댓글 샘플
+        
+        let data: [CommentEntity]
+        
+        var body: some View {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("댓글")
+                    .appFont(PretendardFontStyle.body1, textColor: .grayScale90)
+                
+                if data.isEmpty {
+                    
+                    Text("아직 댓글이 없어요. \n 가장 먼저 댓글을 남겨보세요.")
+                        .appFont(PretendardFontStyle.body1, textColor: .grayScale60)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.top, 30)
+                    
+                } else {
+                    ForEach(data, id: \.commentID) { data in
+                        CommentItemView(data: data)
+                    }
+                }
+                
+                
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(20)
+        }
+        
         
         
     }
+
+    struct CommentItemView: View {
+        
+        let data: CommentEntity
+        let isOwner: Bool
+        
+        init(data: CommentEntity) {
+            self.data = data
+            self.isOwner = data.creator.userID == UserSession.shared.currentUser?.userID
+        }
     
-    
+        
+        
+        var body: some View {
+            CommentContentView(
+                data: data,
+                isOwner: isOwner
+            ) {
+               print("수정버튼 탭")
+            } onDelete: {
+                print("삭제버튼 탭")
+            }
+            
+            if !data.replies.isEmpty {
+                ForEach(data.replies, id: \.commentID) { data in
+                    ReplyContentView(
+                        data: data,
+                        isOwner: isOwner
+                    ) {
+                       print("수정버튼 탭")
+                    } onDelete: {
+                        print("삭제버튼 탭")
+                    }
+                    
+                }
+                
+            }
+        }
+        
+    }
+
+    struct CommentContentView: View {
+        
+        let data: CommentEntity
+        let isOwner: Bool
+        let onEdit: () -> Void
+        let onDelete: () -> Void
+        @State private var isActionSheetPresented = false
+        
+        var body: some View {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .center, spacing: 12) {
+                    ProfileImageView(path: data.creator.profileImage, size: 28)
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(data.creator.nick)
+                            .appFont(PretendardFontStyle.body3, textColor: .grayScale90)
+                        Text(data.createdAt.toRelativeTimeDescription())
+                            .appFont(PretendardFontStyle.caption2, textColor: .grayScale75)
+                        
+                    }
+                    Spacer()
+                    CommentActionButtonView(
+                        isOwner: isOwner,
+                        onEdit: {
+                            onEdit()
+                        },
+                        onDelete: {
+                            onDelete()
+                        }
+                    )
+                }
+                
+                Text(data.content)
+                    .appFont(PretendardFontStyle.body3, textColor: .grayScale90)
+                    .padding(.top, 5)
+                    .padding(.leading, 40)
+                
+                if data.replies.isEmpty {
+                    Button(action: {
+                        // 액션: 답글 입력창 열기
+                    }) {
+                        Label("답글쓰기", systemImage: "bubble.left")
+                            .appFont(PretendardFontStyle.caption1, textColor: .grayScale75)
+                            .foregroundColor(.gray)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.leading, 40)
+                }
+                
+                
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.bottom, 10)
+            
+        }
+        
+    }
+
+
+    struct ReplyContentView: View {
+        
+        
+        let data: ReplyEntity
+        let isOwner: Bool
+        let onEdit: () -> Void
+        let onDelete: () -> Void
+        @State private var isActionSheetPresented = false
+        
+        var body: some View {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .center, spacing: 12) {
+                    ProfileImageView(path: data.creator.profileImage, size: 24)
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(data.creator.nick)
+                            .appFont(PretendardFontStyle.body3, textColor: .grayScale90)
+                        Text(data.createdAt)
+                            .appFont(PretendardFontStyle.caption2, textColor: .grayScale75)
+                        
+                    }
+                    Spacer()
+                 
+                    CommentActionButtonView(
+                          isOwner: isOwner,
+                          onEdit: {
+                              onEdit()
+                          },
+                          onDelete: {
+                              onDelete()
+                          }
+                      )
+                    
+                }
+                
+                Text(data.content)
+                    .appFont(PretendardFontStyle.body3, textColor: .grayScale90)
+                    .padding(.top, 5)
+                    .padding(.leading, 40)
+                
+                
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.bottom, 10)
+            .padding(.leading, 40)
+            
+            
+        }
+
+    }
+
+
+    struct CommentActionButtonView: View {
+        let isOwner: Bool
+        let onEdit: () -> Void
+        let onDelete: () -> Void
+
+        @State private var isPresented: Bool = false
+
+        var body: some View {
+            Group {
+                if isOwner {
+                    Button(action: {
+                        isPresented = true
+                    }) {
+                        Image(systemName: "ellipsis")
+                            .rotationEffect(.degrees(90))
+                            .foregroundColor(.gray)
+                    }
+                    .actionSheet(isPresented: $isPresented) {
+                        ActionSheet(
+                            title: Text("댓글 관리"),
+                            buttons: [
+                                .default(Text("수정하기"), action: onEdit),
+                                .destructive(Text("삭제하기"), action: onDelete),
+                                .cancel(Text("닫기"))
+                            ]
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+
 }
+

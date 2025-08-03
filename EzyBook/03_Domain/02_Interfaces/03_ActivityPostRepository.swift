@@ -32,5 +32,8 @@ protocol WrittenPostListRepository {
 
 
 protocol PostDetailRepository {
-    func requestPostDetail(postID: String) async throws -> PostEntity 
+    func requestPostDetail(postID: String) async throws -> PostEntity
 }
+
+
+

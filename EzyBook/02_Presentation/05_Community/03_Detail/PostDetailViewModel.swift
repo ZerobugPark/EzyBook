@@ -11,6 +11,7 @@ import Combine
 final class PostDetailViewModel: ViewModelType {
 
     private let postDetailUseCase: PostDetailUseCase
+    private let commentUseCases: CommentUseCases
     
     private(set) var postID: String
     
@@ -19,17 +20,19 @@ final class PostDetailViewModel: ViewModelType {
     
     var cancellables = Set<AnyCancellable>()
     
+    @Published var comment: String = ""
     
     init(
         postDetailUseCase: PostDetailUseCase,
-  
+        commentUseCases: CommentUseCases,
         postID: String
     ) {
 
         self.postDetailUseCase = postDetailUseCase
+        self.commentUseCases = commentUseCases
         self.postID = postID
         
-        loadInitialActivitiyDetail()
+        loadInitialPostDetail()
         transform()
     }
     
@@ -76,12 +79,12 @@ extension PostDetailViewModel {
 private extension PostDetailViewModel {
     
     
-    func loadInitialActivitiyDetail() {
+    func loadInitialPostDetail() {
         Task {
             await MainActor.run {
                 output.isLoading = true
             }
-            await performLoadActivityDetail(postID)
+            await performLoadPostDetail(postID)
             
             await MainActor.run {
                 output.isLoading = false
@@ -89,7 +92,7 @@ private extension PostDetailViewModel {
         }
     }
     
-    func performLoadActivityDetail( _ postID:  String) async  {
+    func performLoadPostDetail( _ postID:  String) async  {
         do {
             
             let detail = try await fetchPostDetail(postID)
@@ -131,6 +134,35 @@ private extension PostDetailViewModel {
           
     }
 
+}
+
+private extension PostDetailViewModel {
+    
+    private func hanldeWirteComment(parentID: String?) {
+        Task {
+            //await MainActor.run { output.isLoading = true }
+            await performWriteComment(postID: postID, parentID: nil, content: comment)
+            
+            //await MainActor.run { output.isLoading = false }
+        }
+    }
+    
+    
+    private func performWriteComment(postID: String, parentID: String?, content: String) async {
+        do {
+            
+            let _ = try await commentUseCases.write.execute(postID: postID, parentID: parentID, content: content)
+        
+            /// 누가 댓글 달았을 수도 있기 때문에 한 번 더 호출
+            await performLoadPostDetail(postID)
+            await MainActor.run {
+                comment = ""
+            }
+            
+        } catch {
+            await handleError(error)
+        }
+    }
 }
 
 
@@ -178,6 +210,7 @@ extension PostDetailViewModel {
     
     enum Action {
         case keepButtonTapped
+        case writeComment(parentID: String?)
 
     }
     
@@ -187,8 +220,9 @@ extension PostDetailViewModel {
         case .keepButtonTapped:
             break
            // handleKeepButtonTapped()
-
  
+        case .writeComment(let parentID):
+            hanldeWirteComment(parentID: parentID)
         }
     }
         
