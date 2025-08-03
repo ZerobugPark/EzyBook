@@ -57,7 +57,7 @@ struct MainTabView: View {
             )
         )
         _communityCoordinator = StateObject(
-            wrappedValue: CommunityCoordinator(container: container.communityDIContainer)
+            wrappedValue: CommunityCoordinator(container: container)
         )
         _chatCoordinator = StateObject(
             wrappedValue: ChatCoordinator(container: container.chatDIContainer)

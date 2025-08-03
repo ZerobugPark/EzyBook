@@ -31,4 +31,6 @@ protocol UserWrittenPostListUseCase {
 }
 
 
-
+protocol PostDetailUseCase {
+    func execute(postID: String) async throws -> PostEntity
+}

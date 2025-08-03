@@ -104,7 +104,7 @@ struct PostEntity {
     let activity: ActivitySummaryEntity_Post?
     let geolocation: GeolocationEntity
     let creator: UserInfoEntity
-    let files: [String]
+    var files: [String]
     let isLike: Bool
     let likeCount: Int
     let comments: [CommentEntity]
@@ -127,6 +127,84 @@ struct PostEntity {
         self.createdAt = dto.createdAt
         self.updatedAt = dto.updatedAt
     }
+}
+
+extension PostEntity {
+    func with(files: [String]) -> PostEntity {
+        var copy = self
+        copy.files = files
+        return copy
+    }
+    
+    var relativeTimeDescription: String {
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+        guard let date = isoFormatter.date(from: createdAt) else {
+            return "알 수 없음"
+        }
+
+        let now = Date()
+        let calendar = Calendar.current
+
+        let components = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date, to: now)
+
+        if let year = components.year, year > 0 {
+            return "\(year)년 전"
+        } else if let month = components.month, month > 0 {
+            return "\(month)달 전"
+        } else if let day = components.day, day > 0 {
+            return "\(day)일 전"
+        } else if let hour = components.hour, hour > 0 {
+            return "\(hour)시간 전"
+        } else if let minute = components.minute, minute > 0 {
+            return "\(minute)분 전"
+        } else {
+            return "방금 전"
+        }
+    }
+}
+
+
+
+// MARK:  Mock Data
+extension PostEntity {
+    
+    static let skeleton = PostEntity(
+        dto: PostResponseDTO(
+            postID: "",
+            country: "",
+            category: "",
+            title: "",
+            content: "",
+            activity: nil,
+            geolocation: Geolocation(longitude: 0.0, latitude: 0.0),
+            creator: UserInfoResponseDTO(userID: "", nick: "", profileImage: nil, introduction: nil),
+            files: [],
+            isLike: false,
+            likeCount: 0,
+            comments: [CommentResponseDTO(
+                commentID: "",
+                content: "",
+                createdAt: "",
+                creator: UserInfoResponseDTO(userID: "", nick: "", profileImage: nil, introduction: nil),
+                replies: [ReplyResponseDTO(
+                    commentID: "",
+                    content: "",
+                    createdAt: "",
+                    creator: UserInfoResponseDTO(
+                        userID: "",
+                        nick: "",
+                        profileImage: nil,
+                        introduction: nil
+                    )
+                )]
+            )],
+            createdAt: "",
+            updatedAt: ""
+        )
+    )
+    
 }
 
 

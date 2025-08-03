@@ -50,6 +50,10 @@ extension CommunityDIContainer {
         DefaultUserWirttenPostListUseCase(repo: makeCommunityRepository())
     }
     
+    private func makePostDetailUesCase() -> PostDetailUseCase {
+        DefaultPostDetailUseCase(repo: makeCommunityRepository())
+    }
+    
     // MARK: Make Order List
     private func makeOrderListUseCase() -> OrderListLookUpUseCase {
         DefaultOrderListLookupUseCase(
@@ -97,6 +101,13 @@ extension CommunityDIContainer {
             uploadUseCase: makePostImageUploadUseCase(),
             writePostUseCase: makePostWirteUseCase()
             
+        )
+    }
+    
+    func makePostDetailViewModel(postID: String) -> PostDetailViewModel {
+        PostDetailViewModel(
+            postDetailUseCase: makePostDetailUesCase(),
+            postID: postID
         )
     }
 }

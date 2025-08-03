@@ -77,7 +77,9 @@ struct CommunityView: View {
                         } else {
                             LazyVStack(spacing: 16) {
                                 ForEach(Array(viewModel.output.postList.enumerated()), id:\.element.id) { index, data in
-                                    PostListCardView(data: data)
+                                    PostListCardView(data: data) {
+                                        coordinator.push(.detailView(postID: data.postID))
+                                    }
                                         .onAppear { viewModel.action(.paginationPostList(index: index)) }
                                 }
                                
@@ -225,6 +227,8 @@ private extension CommunityView {
     struct PostListCardView: View {
         
         let data: PostSummaryEntity
+        let onTap: () -> Void
+        
         var body: some View {
             VStack(alignment: .leading) {
                 PostListMainContentView(data: data)
@@ -233,6 +237,10 @@ private extension CommunityView {
             .background(.grayScale0)
             .cornerRadius(10)
             .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 2)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                onTap()
+            }
         }
         
     }
@@ -263,9 +271,11 @@ private extension CommunityView {
                 
                 
                 Text(data.title)
+                    .lineLimit(1)
                     .appFont(PretendardFontStyle.body1, textColor: .grayScale90)
                 
                 Text(data.content)
+                    .lineLimit(2)
                     .appFont(PretendardFontStyle.body2, textColor: .grayScale60)
                 
                 PostTagView(country: data.country, category: data.category)
