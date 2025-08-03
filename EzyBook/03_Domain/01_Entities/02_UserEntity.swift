@@ -68,6 +68,11 @@ struct UserEntity: Codable {
     
     
 }
+/// 유저 위치 정보
+struct UserLocation: Codable {
+    let longitude: Double
+    let latitude: Double
+}
 
 /// 로그인 (이메일, 카카오, 애플 공통)
 struct ProfileLookUpEntity {
@@ -107,7 +112,7 @@ extension ProfileLookUpEntity {
 }
 
 /// 유저검색
-struct UserInfoResponseEntity {
+struct UserInfoEntity {
     let userID: String
     let nick: String
     let profileImage: String?

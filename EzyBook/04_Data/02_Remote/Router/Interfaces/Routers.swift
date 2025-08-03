@@ -25,11 +25,13 @@ extension GetRouter {
 
 protocol MultipartRouter: NetworkRouter {
     var multipartFormData: ((MultipartFormData) -> Void)? { get }
+    /// 멀티파트 이미지가 안올라 갔을 때 확인하기 위한 파라미터
+    var isEffectivelyEmpty: Bool { get }
 }
 
 extension MultipartRouter {
     var method: HTTPMethod { .post } // 대부분 업로드는 POST
-
+    
     func asURLRequest() throws -> URLRequest {
         var request = try makeURLRequest()
         if !requiresAuth {

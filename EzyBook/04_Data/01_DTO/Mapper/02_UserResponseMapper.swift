@@ -42,8 +42,8 @@ extension ProfileLookUpResponseDTO {
 
 extension UserInfoListResponseDTO {
     
-    func toEntity() -> [UserInfoResponseEntity] {
-        data.map(UserInfoResponseEntity.init)
+    func toEntity() -> [UserInfoEntity] {
+        data.map(UserInfoEntity.init)
     }
 }
 

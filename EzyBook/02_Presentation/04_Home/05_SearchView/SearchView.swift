@@ -54,7 +54,7 @@ struct SearchView: View {
             hideKeyboard()
             isSearching = false
         }
-        .searchModify($viewModel.input.query, $isSearching)
+        .searchModify($viewModel.input.query, $isSearching, "국가 또는 투어를 입력해주세요.")
         .onSubmit(of: .search, {
             viewModel.action(.searchButtonTapped)
             isSearching = false

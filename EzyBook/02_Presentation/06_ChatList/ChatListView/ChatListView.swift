@@ -54,7 +54,7 @@ extension ChatListView {
     func makeChatListView(_ data: ChatRoomEntity) -> some View {
         
         HStack(alignment: .top, spacing: 10) {
-            ProfileImageView(image: data.opponentImage, size: 44)
+            //ProfileImageView(image: data.opponentImage, size: 44)
             
             VStack(alignment: .leading, spacing: 5) {
                 /// 채팅하는 사람

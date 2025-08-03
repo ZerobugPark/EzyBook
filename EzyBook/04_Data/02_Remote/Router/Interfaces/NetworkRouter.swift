@@ -24,6 +24,7 @@ extension NetworkRouter {
         nil
     }
     
+    
     var parameterEncoder: ParameterEncoding {
         URLEncoding.default
     }

@@ -17,6 +17,7 @@ struct OrderList: Identifiable {
     let activityID: String
     let title: String
     let country: String
+    let category: String
     let date: String
     let time: String
     var rating: Int?
@@ -33,6 +34,7 @@ struct OrderList: Identifiable {
         self.activityID = entitiy.activity.id
         self.title = entitiy.activity.title ?? ""
         self.country =  entitiy.activity.country ?? ""
+        self.category = entitiy.activity.category ?? ""
         self.date = entitiy.reservationItemName
         self.time = entitiy.reservationItemTime
         self.rating = entitiy.review?.rating
@@ -79,7 +81,7 @@ struct UserReviewDetailList {
     let reviewImageURLs: [String]
     let reservationItemName: String
     let reservationItemTime: String
-    let creator: UserInfoResponseEntity
+    let creator: UserInfoEntity
     let createdAt: String
     let updatedAt: String
     

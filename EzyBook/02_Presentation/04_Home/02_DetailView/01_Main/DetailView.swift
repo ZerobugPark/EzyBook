@@ -76,7 +76,7 @@ struct DetailView: View {
             LoadingOverlayView(isLoading: viewModel.output.isLoading)
             
             VStack {
-                ChatFloatingButton {
+                FloatingButton(text: "문의하기") {
                     viewModel.action(.makeChatRoom)
                 }
                 
@@ -763,42 +763,10 @@ private extension DetailView {
 }
 
 
+
+
 // MARK: Others
 extension DetailView {
-    
-    struct ChatFloatingButton: View {
-        var action: () -> Void
-
-        var body: some View {
-            VStack {
-                Spacer()
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        action()
-                    }) {
-                        Label {
-                            Text("문의하기")
-                                .appFont(PaperlogyFontStyle.caption, textColor: .grayScale0)
-                        } icon: {
-                            Image(.iconInfo)
-                                .renderingMode(.template)
-                                .resizable()
-                                .frame(width: 15, height: 15)
-                                .foregroundStyle(.grayScale0)
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-                        .background(RoundedRectangle(cornerRadius: 12).fill(Color.blackSeafoam))
-                    }
-                    .shadow(radius: 5)
-                    .padding(.trailing, 20)
-                    .padding(.bottom, 10)
-                }
-            }
-        }
-    }
-    
     
     struct ReservationPayBar: View {
         let finalPrice: Int

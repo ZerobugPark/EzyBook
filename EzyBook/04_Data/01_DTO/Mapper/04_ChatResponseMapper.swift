@@ -59,7 +59,7 @@ extension ChatRoomTabel {
             roomId: self.roomID,
             createdAt: self.createdAt,
             updatedAt: self.updatedAt,
-            participants: [UserInfoResponseEntity(
+            participants: [UserInfoEntity(
                 userID: self.opponentID,
                 nick: self.opponentNick
             )],
@@ -69,7 +69,7 @@ extension ChatRoomTabel {
                 content: self.lastMessageContent,
                 createdAt: self.createdAt,
                 updatedAt: self.createdAt,
-                sender: UserInfoResponseEntity(
+                sender: UserInfoEntity(
                     userID: self.opponentID,
                     nick: self.opponentNick
                 ),

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ProfileImageView: View {
     
-    let image: UIImage?
+    let path: String?
     
     let size: CGFloat
     
@@ -22,9 +22,8 @@ struct ProfileImageView: View {
     
     @ViewBuilder
     private var profileOverlayView: some View {
-        if let image {
-            Image(uiImage: image)
-                .resizable()
+        if let path {
+            RemoteImageView(path: path)
                 .scaledToFill()
                 .clipShape(Circle())
                 .frame(width: size, height: size)

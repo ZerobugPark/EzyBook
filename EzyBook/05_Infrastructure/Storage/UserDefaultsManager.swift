@@ -31,6 +31,7 @@ enum UserDefaultManager {
     enum Key: String {
         case etag
         case currentUser
+        case userLocation
         
     }
     
@@ -39,6 +40,10 @@ enum UserDefaultManager {
     
     @EzyBookUserDefaultManager(key: Key.currentUser.rawValue, empty: Data())
     static var currentUser: Data
+    
+    
+    @EzyBookUserDefaultManager(key: Key.userLocation.rawValue, empty: Data())
+    static var userLocation: Data
     
 }
 

@@ -13,7 +13,6 @@ struct WriteReViewView: View {
     @Environment(\.dismiss) private var dismiss
   
     @State private var rating = 0
-    @State private var selectedPhotos: [PhotosPickerItem] = []
     @State private var selectedMedia: [PickerSelectedMedia] = []
     
 
@@ -124,7 +123,6 @@ extension WriteReViewView {
                 .appFont(PretendardFontStyle.body1)
             TextEditor(text: $viewModel.input.reviewText)
                 .frame(height: 150) // Set the height for the text input area
-                .cornerRadius(15) // 모서리 둥글게 하기
                 .border(Color.grayScale60.opacity(0.5), width: 1) // 테두리 추가
                 .focused($isTextEditorFocused)
         }
@@ -138,7 +136,7 @@ extension WriteReViewView {
             
             StarRatingView(rating: $rating)
                 .frame(maxWidth: .infinity)
-                .multilineTextAlignment(.center) // 혹은
+                .multilineTextAlignment(.center)
             //.frame(maxWidth: .infinity, alignment: .center)
         }
         .padding(20)

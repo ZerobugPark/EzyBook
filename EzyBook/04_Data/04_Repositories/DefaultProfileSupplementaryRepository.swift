@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct DefaultProfileSupplementaryRepository {
+final class DefaultProfileSupplementaryRepository {
     
     private let networkService: NetworkService
     

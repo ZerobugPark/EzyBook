@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct DefaultAuthRepository: SignUpRepository, EmailLoginRepository, KakaoLoginRepository, AppleLoginRepository, VerifyEmailRepository {
+final class DefaultAuthRepository: SignUpRepository, EmailLoginRepository, KakaoLoginRepository, AppleLoginRepository, VerifyEmailRepository {
 
     
 

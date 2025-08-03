@@ -127,8 +127,8 @@ extension UserRequest {
         
         var requestBody: Encodable? {
             switch self {
-            case .profileModify(let request):
-                return request
+            case .profileModify(let body):
+                return body
             }
         }
         
@@ -138,20 +138,20 @@ extension UserRequest {
             ]
         }
         
-        var parameters: Parameters? {
-            switch self {
-            case .profileModify(let param):
-                let result: [String: Any?] = [
-                    "nick": param.nick,
-                    "profileImage": param.profileImage,
-                    "phoneNum": param.phoneNum,
-                    "introduction": param.introduction
-                ]
-                let filtered = result.compactMapValues { $0 } // 옵셔널 제거
-                return filtered.isEmpty ? nil : filtered as Parameters // 업캐스팅
-                
-            }
-        }
+//        var parameters: Parameters? {
+//            switch self {
+//            case .profileModify(let param):
+//                let result: [String: Any?] = [
+//                    "nick": param.nick,
+//                    "profileImage": param.profileImage,
+//                    "phoneNum": param.phoneNum,
+//                    "introduction": param.introduction
+//                ]
+//                let filtered = result.compactMapValues { $0 } // 옵셔널 제거
+//                return filtered.isEmpty ? nil : filtered as Parameters // 업캐스팅
+//                
+//            }
+//        }
         
     }
     
@@ -161,7 +161,7 @@ extension UserRequest {
 extension UserRequest {
     
     enum Multipart: MultipartRouter {
-       
+   
         case profileImageUpload(image: UIImage)
          
         var requiresAuth: Bool {
@@ -181,12 +181,27 @@ extension UserRequest {
             ]
         }
         
-        var multipartFormData: ((MultipartFormData) -> Void)? {
+        private var compressedImages: Data? {
             switch self {
             case .profileImageUpload(let image):
+                return image.compressedJPEGData(maxSizeInBytes: 1_000_000)
+            }
+        }
+        
+        
+        var isEffectivelyEmpty: Bool {
+            switch self {
+            case .profileImageUpload:
+                return compressedImages == nil
+            }
+        }
+        
+        
+        var multipartFormData: ((MultipartFormData) -> Void)? {
+            switch self {
+            case .profileImageUpload:
                 return { form in
-                    if let data = image.compressedJPEGData(maxSizeInBytes: 1_000_000) {
-                        
+                    if let data = compressedImages {
                         form.append(data,
                                     withName: "profile",
                                     fileName: "profile.jpg",

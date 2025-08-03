@@ -14,7 +14,7 @@ struct CommunityCoordinatorView: View {
     
     var body: some View {
         NavigationStack(path: $coordinator.path) {
-            CommunityView(coordinator: coordinator)
+            CommunityView(viewModel: container.communityDIContainer.makeCommunityViewModel(), coordinator: coordinator)
                 .navigationDestination(for: CommunityRoute.self) { route in
                     coordinator.destinationView(route: route)
                 }
