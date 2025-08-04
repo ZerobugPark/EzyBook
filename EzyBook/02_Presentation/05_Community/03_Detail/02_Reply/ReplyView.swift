@@ -12,13 +12,14 @@ import SwiftUI
 struct ReplyView: View {
     
     @ObservedObject var coordinator: CommunityCoordinator
-
+    
     @StateObject var viewModel: ReplyViewModel
     @Environment(\.dismiss) private var dismiss
     
     let onChagned: () -> Void
-
+    
     @FocusState private var isTextEditorFocused: Bool
+    @State private var modifyComment: ModifyComment? = nil
     
     var body: some View {
         VStack(spacing: 0) {
@@ -42,20 +43,26 @@ struct ReplyView: View {
                 ScrollView(.vertical, showsIndicators: false)  {
                     VStack(alignment: .leading, spacing: 12) {
                         
-                        CommentItemView(data: viewModel.output.commentInfo!, onDeleteTapped: { commentID in
-                            
-                            viewModel.action(.deleteComment(commentID: commentID))
-                            onChagned()
-                           
-                        }, onReplyTapped: nil)
-                      
+                        CommentItemView(
+                            data: viewModel.output.commentInfo!,
+                            actions: CommentActions(
+                                onDelete: { commentID in
+                                    viewModel.action(.deleteComment(commentID: commentID))
+                                },
+                                onReply: nil,
+                                onEdit: { id, content in
+                                    modifyComment = ModifyComment(id: id, text: content)
+                                }
+                            )
+                        )
+                        
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(20)
                 }
                 
             }
-           
+            
             Divider()
             
             HStack {
@@ -63,10 +70,13 @@ struct ReplyView: View {
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding(.vertical, 8)
                     .focused($isTextEditorFocused)
+                    .disabled(!(viewModel.output.commentInfo?.replies.isEmpty ?? true))
                 
                 Button(action: {
                     viewModel.action(.writeReply)
-                    onChagned()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        onChagned()
+                    }
                 }) {
                     Image(systemName: "paperplane.fill")
                         .font(.title2)
@@ -82,11 +92,16 @@ struct ReplyView: View {
         .onChange(of: viewModel.output.onClosed) { _ in
             dismiss()
         }
+        .fullScreenCover(item: $modifyComment) { data in
+            coordinator.makeModifyView(data: data) { text in
+                viewModel.action(.modifyContent(commentID: data.id, text: text))
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    onChagned()
+                }
+            }
+        }
         
     }
     
 }
-
-
-
 

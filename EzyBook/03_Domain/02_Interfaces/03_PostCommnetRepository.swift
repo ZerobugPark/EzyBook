@@ -9,11 +9,16 @@ import Foundation
 
 
 protocol WriteCommentRepository {
-    func requestWriteCommnet(_ postID: String, _ parentID: String?, _ content: String) async throws  ->  ReplyEntity
+    func requestWriteComment(_ postID: String, _ parentID: String?, _ content: String) async throws  ->  ReplyEntity
 
 }
 
 
 protocol DeleteCommentRepository {
-    func requestDeleteCommnet(_ postID: String, _ commentID: String) async throws
+    func requestDeleteComment(_ postID: String, _ commentID: String) async throws
 }
+
+protocol ModifyCommentRepository {
+    func requestModifyCommnet(_ postID: String, _ commnetID: String, _ text: String) async throws -> ReplyEntity
+}
+

@@ -104,6 +104,8 @@ private extension ReplyViewModel {
                 var temp = commentData
                 temp.replies = [data]
                 output.commentInfo = temp
+                commentData = temp
+                
             }
             
         } catch {
@@ -115,10 +117,7 @@ private extension ReplyViewModel {
     // MARK: Deleted
     private func hanldeDeleteComment(_ commentID: String) {
         Task {
-            //await MainActor.run { output.isLoading = true }
             await performDeleteComment(postID: postID, commentID: commentID)
-            
-            //await MainActor.run { output.isLoading = false }
         }
     }
     
@@ -146,6 +145,45 @@ private extension ReplyViewModel {
             await handleError(error)
         }
     }
+    
+    
+    // MARK: Modify
+    private func handleModifyComment(_ commentID: String, _ content: String) {
+        Task {
+            await perfomModifyComment(postID, commentID, content)
+        }
+    }
+    
+    private func perfomModifyComment(_ postID: String, _ commentID: String, _ content: String) async  {
+        do {
+            
+            let data  = try await postService.modify.modifyCommnet(postID: postID, commnetID: commentID, text: content)
+
+            await MainActor.run {
+                var temp = commentData
+
+                if commentID == temp.commentID {
+                    temp = CommentEntity(
+                        commentID: data.commentID,
+                        content: data.content,
+                        createdAt: data.createdAt,
+                        creator: data.creator,
+                        replies: temp.replies
+                    )
+                } else {
+                    temp.replies = temp.replies.map { $0.commentID == commentID ? data : $0 }
+                }
+                
+                output.commentInfo = temp
+                commentData = temp
+            }
+           
+        
+        } catch {
+            await handleError(error)
+        }
+    }
+    
 }
 
 
@@ -157,7 +195,7 @@ extension ReplyViewModel {
     enum Action {
         case deleteComment(commentID: String)
         case writeReply
-
+        case modifyContent(commentID: String, text: String)
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
@@ -167,6 +205,8 @@ extension ReplyViewModel {
             hanldeDeleteComment(commentID)
         case .writeReply:
             hanldeWirteReplyComment()
+        case let .modifyContent(commentID, text):
+            handleModifyComment(commentID, text)
         }
     }
         
@@ -187,5 +227,3 @@ extension ReplyViewModel: AnyObjectWithCommonUI {
     }
     
 }
-
-

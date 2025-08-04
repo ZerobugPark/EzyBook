@@ -14,3 +14,8 @@ protocol WriteCommentUseCase {
 protocol DeleteCommentUseCase {
     func execute(postID: String, commentID: String) async throws
 }
+
+
+protocol ModifyCommnetUseCase {
+    func execute(postID: String, commnetID: String, text: String) async throws -> ReplyEntity
+}

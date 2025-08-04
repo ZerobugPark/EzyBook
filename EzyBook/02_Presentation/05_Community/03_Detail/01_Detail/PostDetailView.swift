@@ -7,6 +7,18 @@
 
 import SwiftUI
 
+struct CommentActions {
+    let onDelete: (String) -> Void
+    let onReply: ((CommentEntity) -> Void)?
+    let onEdit: (String, String) -> Void
+}
+
+struct ModifyComment: Identifiable {
+    let id: String
+    let text: String
+}
+
+
 struct PostDetailView: View {
     
     @EnvironmentObject var appState: AppState
@@ -18,6 +30,7 @@ struct PostDetailView: View {
     /// 화면전환 트리거
     @State private var selectedMedia: SelectedMedia?
     @State private var replyingComment: CommentEntity? = nil
+    @State private var modifyComment: ModifyComment? = nil
     
     @FocusState private var isTextEditorFocused: Bool
     
@@ -54,19 +67,19 @@ struct PostDetailView: View {
                         PostMainContentView(data: viewModel.output.postDetailInfo)
                         
                         
-                        Divider()
-                            .frame(width: 1, height: 10)
-                            .background(.grayScale90)
-                        
-                        
                         CommentListView(
                             data: viewModel.output.postDetailInfo.comments,
-                            onDelete: { commentID in
-                                viewModel.action(.deleteComment(commentID: commentID))
-                            },
-                            onReply: { data in
-                                replyingComment = data
-                            }
+                            actions: CommentActions(
+                                onDelete: { commentID in
+                                    viewModel.action(.deleteComment(commentID: commentID))
+                                },
+                                onReply: { data in
+                                    replyingComment = data
+                                },
+                                onEdit: { id, content in
+                                    modifyComment = ModifyComment(id: id, text: content)
+                                }
+                            )
                         )
                     }
                 }
@@ -124,7 +137,13 @@ struct PostDetailView: View {
         }
         .fullScreenCover(item: $replyingComment) { data in
             coordinator.makeReplyView(data: data, postID: viewModel.postID) {
+                
                 viewModel.action(.reloadData)
+            }
+        }
+        .fullScreenCover(item: $modifyComment) { data in
+            coordinator.makeModifyView(data: data)  { text in
+                viewModel.action(.modifyContent(commentID: data.id, text: text))
             }
         }
         
@@ -255,10 +274,8 @@ struct CommentListView: View {
     
     // MARK: - 댓글 및 대댓글
     let data: [CommentEntity]
-    let onDelete: (String) -> (Void)
-    let onReply: ((CommentEntity) -> Void)
+    let actions: CommentActions
     
-
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("댓글")
@@ -274,12 +291,7 @@ struct CommentListView: View {
                 
             } else {
                 ForEach(data, id: \.commentID) { data in
-                    CommentItemView(data: data) { data in
-                        onDelete(data)
-                    } onReplyTapped: { data in
-                        onReply(data)
-                        
-                    }
+                    CommentItemView(data: data, actions: actions)
                 }
             }
             
@@ -297,19 +309,19 @@ struct CommentItemView: View {
     
     let data: CommentEntity
     let isOwner: Bool
-    let onDeleteTapped: (String) -> Void
-    /// 옵셔널 클로저는 자동으로 escaping
-    let onReplyTapped: ((CommentEntity) -> Void)?
-
+    let actions: CommentActions
+    //    let onDeleteTapped: (String) -> Void
+    //    /// 옵셔널 클로저는 자동으로 escaping
+    //    let onEditTapped: (String) -> Void
+    //    let onReplyTapped: ((CommentEntity) -> Void)?
+    
     init(
         data: CommentEntity,
-        onDeleteTapped: @escaping (String) -> Void,
-        onReplyTapped: ((CommentEntity) -> Void)? = nil
+        actions: CommentActions
     ) {
         self.data = data
         self.isOwner = data.creator.userID == UserSession.shared.currentUser?.userID
-        self.onDeleteTapped = onDeleteTapped
-        self.onReplyTapped = onReplyTapped
+        self.actions = actions
     }
     
     
@@ -318,12 +330,12 @@ struct CommentItemView: View {
             data: data,
             isOwner: isOwner,
             onEdit: { data in
-                print("수정버튼 탭")
+                actions.onEdit(data.commentID, data.content)
             },
             onDelete: { data in
-                onDeleteTapped(data.commentID)
+                actions.onDelete(data.commentID)
             },
-            onReply: onReplyTapped == nil ? nil : { data in onReplyTapped?(data) }
+            onReply: actions.onReply == nil ? nil : { data in actions.onReply?(data) }
         )
         
         if !data.replies.isEmpty {
@@ -332,9 +344,9 @@ struct CommentItemView: View {
                     data: data,
                     isOwner: isOwner
                 ) {
-                    print("수정버튼 탭")
+                    actions.onEdit(data.commentID, data.content)
                 } onDelete: {
-                    onDeleteTapped(data.commentID)
+                    actions.onDelete(data.commentID)
                 }
                 
             }
@@ -396,14 +408,14 @@ struct CommentContentView: View {
                 }
                 
             }
-       
+            
             
         }
         .frame(maxWidth: .infinity)
         .padding(.bottom, 10)
         
     }
-        
+    
     
 }
 

@@ -34,6 +34,7 @@ protocol LocationServiceProtocol {
 protocol PostFeatureService {
     var write: PostWriteServiceProtocol { get }
     var delete: PostDeleteServiceProtocol { get }
+    var modify: PostModifyServiceProtocol { get }
 }
 
 protocol PostWriteServiceProtocol {
@@ -43,6 +44,11 @@ protocol PostWriteServiceProtocol {
 protocol PostDeleteServiceProtocol {
     func deleteComment(postID: String, commentID: String) async throws
 }
+
+protocol PostModifyServiceProtocol {
+    func modifyCommnet(postID: String, commnetID: String, text: String) async throws -> ReplyEntity
+}
+
 
 
 

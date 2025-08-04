@@ -201,6 +201,27 @@ private extension PostDetailViewModel {
             await handleError(error)
         }
     }
+    
+    // MARK: Modify
+    private func handleModifyComment(_ commentID: String, _ content: String) {
+        Task {
+            await perfomModifyComment(postID, commentID, content)
+        }
+    }
+    
+    private func perfomModifyComment(_ postID: String, _ commentID: String, _ content: String) async  {
+        do {
+            
+            _ = try await postService.modify.modifyCommnet(postID: postID, commnetID: commentID, text: content)
+
+            /// 누가 댓글 달았을 수도 있기 때문에 한 번 더 호출
+            await performLoadPostDetail(postID)
+        
+        } catch {
+            await handleError(error)
+        }
+    }
+
 }
 
 
@@ -252,6 +273,7 @@ extension PostDetailViewModel {
         case deleteComment(commentID: String)
         case writeReply(comment: CommentEntity, text: String)
         case reloadData
+        case modifyContent(commentID: String, text: String)
 
     }
     
@@ -270,6 +292,8 @@ extension PostDetailViewModel {
             hanldeWirteReplyComment(comment, text)
         case .reloadData:
             loadInitialPostDetail()
+        case let .modifyContent(commentID, text):
+            handleModifyComment(commentID, text)
         }
     }
         

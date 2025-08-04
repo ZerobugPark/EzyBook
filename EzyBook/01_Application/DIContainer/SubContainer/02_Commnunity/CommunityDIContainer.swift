@@ -73,7 +73,8 @@ extension CommunityDIContainer {
     private func makePostFeatureService() -> PostFeatureService {
         DefaultPostFeatureService(
             write: makePostWriteServiceProtocol(),
-            delete: makePostDeleteServiceProtocol()
+            delete: makePostDeleteServiceProtocol(),
+            modify: makePostModifyServiceProtocol()
         )
     }
     
@@ -90,11 +91,18 @@ extension CommunityDIContainer {
     private func makePostDeleteServiceProtocol() -> PostDeleteServiceProtocol {
         PostDeleteService(delete: makeDeleteCommentUseCase())
     }
-
-
     
     private func makeDeleteCommentUseCase() -> DeleteCommentUseCase {
         DefaultDeleteCommentUseCase(repo: makeCommentRepository())
+    }
+    
+    /// Modify
+    private func makePostModifyServiceProtocol() -> PostModifyServiceProtocol {
+        PostModifyService(modify: makePostModifyUseCase())
+    }
+    
+    private func makePostModifyUseCase() -> ModifyCommnetUseCase {
+        DefaultModifyCommnetUseCase(repo: makeCommentRepository())
     }
 
 }

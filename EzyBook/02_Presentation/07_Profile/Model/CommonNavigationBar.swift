@@ -37,9 +37,9 @@ struct CommonNavigationBar: View {
             // Trailing (옵션 버튼)
             if let trailingAction = trailingAction {
                 Button(action: trailingAction) {
-                    Image(systemName: "gear")
-                        .font(.title2)
-                        .foregroundColor(.black)
+                   Text("저장")
+                        .appFont(PretendardFontStyle.body1, textColor: .grayScale100)
+                        
                 }
             } else {
                 Spacer().frame(width: 24)

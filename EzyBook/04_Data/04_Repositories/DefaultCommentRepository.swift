@@ -8,7 +8,7 @@
 import Foundation
 
 
-final class DefaultCommentRepository: WriteCommentRepository, DeleteCommentRepository  {
+final class DefaultCommentRepository: WriteCommentRepository, DeleteCommentRepository, ModifyCommentRepository  {
     
     
     
@@ -19,7 +19,7 @@ final class DefaultCommentRepository: WriteCommentRepository, DeleteCommentRepos
     }
     
     
-    func requestWriteCommnet(_ postID: String, _ parentID: String?, _ content: String) async throws  ->  ReplyEntity {
+    func requestWriteComment(_ postID: String, _ parentID: String?, _ content: String) async throws  ->  ReplyEntity {
         
         let router = ActivityCommentRequest.Post.writeComment(postID: postID, parentID: parentID, content: content)
         
@@ -28,11 +28,22 @@ final class DefaultCommentRepository: WriteCommentRepository, DeleteCommentRepos
         return data.toEntity()
     }
     
-    func requestDeleteCommnet(_ postID: String, _ commentID: String) async throws {
+    func requestDeleteComment(_ postID: String, _ commentID: String) async throws {
         
         let router = ActivityCommentRequest.Delete.deleteComment(postID: postID, commentID: commentID)
         
         let _ = try await networkService.fetchData(dto: EmptyDTO.self, router)
         
     }
-} 
+    
+    func requestModifyCommnet(_ postID: String, _ commnetID: String, _ text: String) async throws -> ReplyEntity {
+        
+        let router = ActivityCommentRequest.Put.modifyComment(postID: postID, commentID: commnetID, content: text)
+        
+        let data = try await networkService.fetchData(dto: ReplyResponseDTO.self, router)
+        
+        return data.toEntity()
+        
+        
+    }
+}

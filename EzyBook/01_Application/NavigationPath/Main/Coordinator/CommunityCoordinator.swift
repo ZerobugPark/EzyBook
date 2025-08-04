@@ -85,6 +85,11 @@ extension CommunityCoordinator {
         return ReplyView(coordinator: self, viewModel: vm,onChagned: onChange)
     }
 
+    func makeModifyView(data: ModifyComment, onSave: @escaping (String)-> Void) -> some View {
+        
+        return CommnetModifyView(initialText: data.text, onSave: onSave)
+        
+    }
 
     
     

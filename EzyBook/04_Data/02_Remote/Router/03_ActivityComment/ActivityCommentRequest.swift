@@ -71,7 +71,7 @@ extension ActivityCommentRequest {
             switch self {
             case let .modifyComment(_, _ , content):
                 return [
-                    "content": content,
+                    "content": content
                ]
             }
         }

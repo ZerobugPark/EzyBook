@@ -21,7 +21,7 @@ extension DefaultWriteCommentUseCase {
     
     func execute(postID: String, parentID: String?, content: String) async throws  ->  ReplyEntity {
         
-        try await repo.requestWriteCommnet(postID, parentID, content)
+        try await repo.requestWriteComment(postID, parentID, content)
     }
 }
 
@@ -40,6 +40,24 @@ extension DefaultDeleteCommentUseCase {
     
     func execute(postID: String, commentID: String) async throws {
         
-        try await repo.requestDeleteCommnet(postID, commentID)
+        try await repo.requestDeleteComment(postID, commentID)
+    }
+}
+
+final class DefaultModifyCommnetUseCase: ModifyCommnetUseCase {
+    
+    let repo: ModifyCommentRepository
+    
+    init(repo: ModifyCommentRepository) {
+        self.repo = repo
+    }
+    
+}
+
+extension DefaultModifyCommnetUseCase {
+    
+    func execute(postID: String, commnetID: String, text: String) async throws -> ReplyEntity {
+        
+        try await repo.requestModifyCommnet(postID, commnetID, text)
     }
 }
