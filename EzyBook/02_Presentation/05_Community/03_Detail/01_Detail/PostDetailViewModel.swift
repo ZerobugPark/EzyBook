@@ -12,6 +12,7 @@ final class PostDetailViewModel: ViewModelType {
 
     private let postDetailUseCase: PostDetailUseCase
     private let postService: PostFeatureService
+    private let postLikeUseCase: PostLikeUseCase
     
     private(set) var postID: String
     
@@ -25,11 +26,13 @@ final class PostDetailViewModel: ViewModelType {
     init(
         postDetailUseCase: PostDetailUseCase,
         postService: PostFeatureService,
+        postLikeUseCase: PostLikeUseCase,
         postID: String
     ) {
 
         self.postDetailUseCase = postDetailUseCase
         self.postService = postService
+        self.postLikeUseCase = postLikeUseCase
         self.postID = postID
         
         loadInitialPostDetail()
@@ -226,38 +229,37 @@ private extension PostDetailViewModel {
 
 
 // MARK:  Keep Status
-/// 좋아요 전용 뷰모델이나, useCase를 만들 수는 없을까?
 extension PostDetailViewModel {
     
     
-//    private func handleKeepButtonTapped() {
-//        Task {
-//            await performKeepActivity(activityID)
-//        }
-//    }
-//    
-//
-//    private func performKeepActivity(_ id: String) async   {
-//        
-//        await MainActor.run {
-//            output.activityDetailInfo.isKeep.toggle()
-//        }
-//  
-//        do {
-//            
-//            let currentStatus = output.activityDetailInfo.isKeep
-//            let status = try await favoirteService.activtyKeep(id: id, status: currentStatus)
-//            
-//            await MainActor.run {
-//                output.activityDetailInfo.isKeep = status
-//            }
-//        } catch {
-//            /// 실패시 원래대로 상태 변경
-//            await MainActor.run {
-//                output.activityDetailInfo.isKeep.toggle()
-//            }
-//        }
-//    }
+    private func handleKeepButtonTapped() {
+        Task {
+            await performKeepPost(postID)
+        }
+    }
+    
+
+    private func performKeepPost(_ id: String) async   {
+        
+        await MainActor.run {
+            output.postDetailInfo.isLike.toggle()
+        }
+  
+        do {
+            
+            let currentStatus =  output.postDetailInfo.isLike
+            let status = try await postLikeUseCase.execute(postID: id, status: currentStatus)
+            
+            await MainActor.run {
+                output.postDetailInfo.isLike = status.likeStatus
+            }
+        } catch {
+            /// 실패시 원래대로 상태 변경
+            await MainActor.run {
+                output.postDetailInfo.isLike.toggle()
+            }
+        }
+    }
     
 }
 
@@ -281,9 +283,7 @@ extension PostDetailViewModel {
     func action(_ action: Action) {
         switch action {
         case .keepButtonTapped:
-            break
-           // handleKeepButtonTapped()
- 
+           handleKeepButtonTapped()
         case .writeComment(let parentID):
             hanldeWirteComment(parentID: parentID)
         case .deleteComment(let commentID):

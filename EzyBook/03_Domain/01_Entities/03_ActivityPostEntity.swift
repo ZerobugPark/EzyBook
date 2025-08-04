@@ -105,7 +105,7 @@ struct PostEntity {
     let geolocation: GeolocationEntity
     let creator: UserInfoEntity
     var files: [String]
-    let isLike: Bool
+    var isLike: Bool
     let likeCount: Int
     let comments: [CommentEntity]
     let createdAt: String

@@ -15,7 +15,7 @@ struct ActivityKeepButtonView: View {
         Button(action: action) {
             Image(isKeep ? .iconLikeFill : .iconLikeEmpty)
                 .renderingMode(.template)
-                .foregroundStyle(isKeep ? .rosyPunch : .grayScale0)
+                .foregroundStyle(isKeep ? .rosyPunch : .blackSeafoam)
         }
         .buttonStyle(.plain) // 탭 영역은 유지하되 버튼 기본 스타일 제거
     }

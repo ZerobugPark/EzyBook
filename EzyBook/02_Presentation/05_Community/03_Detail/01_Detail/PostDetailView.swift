@@ -124,7 +124,7 @@ struct PostDetailView: View {
             }
             ToolbarItem(placement: .topBarTrailing) {
                 ActivityKeepButtonView(isKeep: viewModel.output.postDetailInfo.isLike) {
-                    //viewModel.action(.keepButtonTapped)
+                    viewModel.action(.keepButtonTapped)
                 }
             }
         }

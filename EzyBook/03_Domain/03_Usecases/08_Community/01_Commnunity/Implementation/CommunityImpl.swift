@@ -91,6 +91,22 @@ extension DefaultPostDetailUseCase {
     }
 }
 
+final class DefaultPostLikeUseCase: PostLikeUseCase {
+    
+    let repo: PostLikeRepository
+    
+    init(repo: PostLikeRepository) {
+        self.repo = repo
+    }
+}
+
+extension DefaultPostLikeUseCase {
+    
+    func execute(postID: String, status: Bool) async throws -> PostKeepEntity {
+        try await repo.requestPostLike(postID, status)
+    }
+}
+
 
 
 

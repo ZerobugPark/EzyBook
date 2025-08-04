@@ -157,3 +157,4 @@ struct FileResponseDTO: Decodable, EntityConvertible {
 
 /// 코메트 삭제
 struct EmptyDTO: Decodable, EntityConvertible { } 
+
