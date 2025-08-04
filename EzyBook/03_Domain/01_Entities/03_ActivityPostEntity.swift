@@ -247,12 +247,15 @@ struct PostKeepEntity {
     }
 }
 
-struct CommentEntity {
+struct CommentEntity: Hashable, Identifiable {
+    
+    var id: String { commentID }
+    
     let commentID: String
     let content: String
     let createdAt: String
     let creator: UserInfoEntity
-    let replies: [ReplyEntity]
+    var replies: [ReplyEntity]
     
     init(dto: CommentResponseDTO) {
         self.commentID = dto.commentID
@@ -261,11 +264,30 @@ struct CommentEntity {
         self.creator =  UserInfoEntity(dto: dto.creator)
         self.replies = dto.replies.map { ReplyEntity(dto: $0) }
     }
+    
+    init(commentID: String, content: String, createdAt: String, creator: UserInfoEntity, replies: [ReplyEntity]) {
+        self.commentID = commentID
+        self.content = content
+        self.createdAt = createdAt
+        self.creator = creator
+        self.replies = replies
+    }
+}
+
+extension CommentEntity {
+    static let skeleton = CommentEntity(
+        dto: CommentResponseDTO(
+            commentID: "",
+            content: "",
+            createdAt: "",
+            creator: UserInfoResponseDTO(userID: "", nick: "", profileImage: "", introduction: ""),
+            replies: []
+        )
+    )
 }
 
 
-
-struct ReplyEntity {
+struct ReplyEntity: Hashable {
     let commentID: String
     let content: String
     let createdAt: String

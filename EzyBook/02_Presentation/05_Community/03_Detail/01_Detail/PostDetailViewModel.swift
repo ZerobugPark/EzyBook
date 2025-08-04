@@ -11,7 +11,7 @@ import Combine
 final class PostDetailViewModel: ViewModelType {
 
     private let postDetailUseCase: PostDetailUseCase
-    private let commentUseCases: CommentUseCases
+    private let postService: PostFeatureService
     
     private(set) var postID: String
     
@@ -24,12 +24,12 @@ final class PostDetailViewModel: ViewModelType {
     
     init(
         postDetailUseCase: PostDetailUseCase,
-        commentUseCases: CommentUseCases,
+        postService: PostFeatureService,
         postID: String
     ) {
 
         self.postDetailUseCase = postDetailUseCase
-        self.commentUseCases = commentUseCases
+        self.postService = postService
         self.postID = postID
         
         loadInitialPostDetail()
@@ -153,7 +153,11 @@ private extension PostDetailViewModel {
     private func performWriteComment(postID: String, parentID: String?, content: String) async {
         do {
             
-            let _ = try await commentUseCases.write.execute(postID: postID, parentID: parentID, content: content)
+            let _ = try await  postService.write.writeComment(
+                postID: postID,
+                parentID: parentID,
+                content: content
+            )
         
             /// 누가 댓글 달았을 수도 있기 때문에 한 번 더 호출
             await performLoadPostDetail(postID)
@@ -166,26 +170,33 @@ private extension PostDetailViewModel {
         }
     }
     
+    // MARK: 답글
+    private func hanldeWirteReplyComment(_ comment: CommentEntity, _ text: String) {
+        Task {
+            await performWriteComment(postID: postID, parentID: comment.commentID, content: text)
+        }
+    }
+    
+    
     
     // MARK: Deleted
-    private func hanldeDeleteComment(comment: CommentEntity) {
+    private func hanldeDeleteComment(_ commentID: String) {
         Task {
-            //await MainActor.run { output.isLoading = true }
-            await performDeleteComment(postID: postID, commentID: comment.commentID)
-            
-            //await MainActor.run { output.isLoading = false }
+            await performDeleteComment(postID: postID, commentID: commentID)
         }
     }
     
     private func performDeleteComment(postID: String, commentID: String) async {
         do {
             
-            let _ = try await commentUseCases.delete.execute(postID: postID, commentID: commentID)
-        
+            try await postService.delete.deleteComment(
+                postID: postID,
+                commentID: commentID
+            )
+
             /// 누가 댓글 달았을 수도 있기 때문에 한 번 더 호출
             await performLoadPostDetail(postID)
-            
-            
+        
         } catch {
             await handleError(error)
         }
@@ -238,7 +249,9 @@ extension PostDetailViewModel {
     enum Action {
         case keepButtonTapped
         case writeComment(parentID: String?)
-        case deleteComment(comment: CommentEntity)
+        case deleteComment(commentID: String)
+        case writeReply(comment: CommentEntity, text: String)
+        case reloadData
 
     }
     
@@ -251,8 +264,12 @@ extension PostDetailViewModel {
  
         case .writeComment(let parentID):
             hanldeWirteComment(parentID: parentID)
-        case .deleteComment(let comment):
-            hanldeDeleteComment(comment: comment)
+        case .deleteComment(let commentID):
+            hanldeDeleteComment(commentID)
+        case let .writeReply(comment, text):
+            hanldeWirteReplyComment(comment, text)
+        case .reloadData:
+            loadInitialPostDetail()
         }
     }
         

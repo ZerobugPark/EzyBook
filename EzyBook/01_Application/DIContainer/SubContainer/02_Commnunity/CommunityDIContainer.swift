@@ -68,16 +68,30 @@ extension CommunityDIContainer {
 
     
     // MARK: Comment
-    private func makeCommentUseCases() -> CommentUseCases {
-        CommentUseCases(
-            write: makeWriteCommentUseCase(),
-            delete: makeDeleteCommentUseCase()
+    
+    
+    private func makePostFeatureService() -> PostFeatureService {
+        DefaultPostFeatureService(
+            write: makePostWriteServiceProtocol(),
+            delete: makePostDeleteServiceProtocol()
         )
     }
-
+    
+    /// Write
+    private func makePostWriteServiceProtocol() -> PostWriteServiceProtocol {
+        PostWriteService(write: makeWriteCommentUseCase())
+    }
+    
     private func makeWriteCommentUseCase() -> WriteCommentUseCase {
         DefaultWriteCommentUseCase(repo: makeCommentRepository())
     }
+    
+    /// Delete
+    private func makePostDeleteServiceProtocol() -> PostDeleteServiceProtocol {
+        PostDeleteService(delete: makeDeleteCommentUseCase())
+    }
+
+
     
     private func makeDeleteCommentUseCase() -> DeleteCommentUseCase {
         DefaultDeleteCommentUseCase(repo: makeCommentRepository())
@@ -127,7 +141,15 @@ extension CommunityDIContainer {
     func makePostDetailViewModel(postID: String) -> PostDetailViewModel {
         PostDetailViewModel(
             postDetailUseCase: makePostDetailUesCase(),
-            commentUseCases: makeCommentUseCases(),
+            postService: makePostFeatureService(),
+            postID: postID
+        )
+    }
+    
+    func makeReplyViewModle(data: CommentEntity, postID: String) -> ReplyViewModel {
+        ReplyViewModel(
+            commentData: data,
+            postService: makePostFeatureService(),
             postID: postID
         )
     }

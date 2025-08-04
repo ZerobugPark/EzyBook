@@ -17,6 +17,7 @@ struct PostDetailView: View {
     @State private var selectedIndex = 0
     /// 화면전환 트리거
     @State private var selectedMedia: SelectedMedia?
+    @State private var replyingComment: CommentEntity? = nil
     
     @FocusState private var isTextEditorFocused: Bool
     
@@ -58,9 +59,15 @@ struct PostDetailView: View {
                             .background(.grayScale90)
                         
                         
-                        CommentListView(data: viewModel.output.postDetailInfo.comments) { data in
-                            viewModel.action(.deleteComment(comment: data))
-                        }
+                        CommentListView(
+                            data: viewModel.output.postDetailInfo.comments,
+                            onDelete: { commentID in
+                                viewModel.action(.deleteComment(commentID: commentID))
+                            },
+                            onReply: { data in
+                                replyingComment = data
+                            }
+                        )
                     }
                 }
                 .disabled(viewModel.output.isLoading)
@@ -83,7 +90,7 @@ struct PostDetailView: View {
                     Image(systemName: "paperplane.fill")
                         .font(.title2)
                         .foregroundStyle(viewModel.comment.isEmpty ? .grayScale45 : .deepSeafoam)
-                
+                    
                 }
                 .disabled(viewModel.comment.isEmpty)
             }
@@ -115,6 +122,12 @@ struct PostDetailView: View {
                 coordinator.makeImageViewer(path: viewModel.output.postDetailInfo.files[media.id])
             }
         }
+        .fullScreenCover(item: $replyingComment) { data in
+            coordinator.makeReplyView(data: data, postID: viewModel.postID) {
+                viewModel.action(.reloadData)
+            }
+        }
+        
         .withCommonUIHandling(viewModel) { code, _ in
             if code == 418 {
                 appState.isLoggedIn = false
@@ -237,228 +250,245 @@ private extension PostDetailView {
 }
 
 // MARK: 댓글영역
-private extension PostDetailView {
-    struct CommentListView: View {
-        
-        // MARK: - 테스트용 댓글 및 대댓글 샘플
-        
-        let data: [CommentEntity]
-        let onDelete: (CommentEntity) -> (Void)
-        
-        var body: some View {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("댓글")
-                    .appFont(PretendardFontStyle.body1, textColor: .grayScale90)
-                
-                if data.isEmpty {
-                    
-                    Text("아직 댓글이 없어요. \n 가장 먼저 댓글을 남겨보세요.")
-                        .appFont(PretendardFontStyle.body1, textColor: .grayScale60)
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.top, 30)
-                    
-                } else {
-                    ForEach(data, id: \.commentID) { data in
-                        CommentItemView(data: data) { data in
-                            onDelete(data)
-                        }
-                    }
-                }
-                
-                
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(20)
-        }
-        
-        
-        
-    }
 
-    struct CommentItemView: View {
-        
-        let data: CommentEntity
-        let isOwner: Bool
-        let onDeleteTapped: (CommentEntity) -> (Void)
-        
-        init(data: CommentEntity,onDeleteTapped: @escaping (CommentEntity) -> (Void)) {
-            self.data = data
-            self.isOwner = data.creator.userID == UserSession.shared.currentUser?.userID
-            self.onDeleteTapped = onDeleteTapped
-        }
+struct CommentListView: View {
     
-        
-        
-        var body: some View {
-            CommentContentView(
-                data: data,
-                isOwner: isOwner
-            ) { data in
-               print("수정버튼 탭")
-            } onDelete: { data in
-                onDeleteTapped(data)
-            }
-            
-            if !data.replies.isEmpty {
-                ForEach(data.replies, id: \.commentID) { data in
-                    ReplyContentView(
-                        data: data,
-                        isOwner: isOwner
-                    ) {
-                       print("수정버튼 탭")
-                    } onDelete: {
-                        print("삭제버튼 탭")
-                    }
-                    
-                }
-                
-            }
-        }
-        
-    }
+    // MARK: - 댓글 및 대댓글
+    let data: [CommentEntity]
+    let onDelete: (String) -> (Void)
+    let onReply: ((CommentEntity) -> Void)
+    
 
-    struct CommentContentView: View {
-        
-        let data: CommentEntity
-        let isOwner: Bool
-        let onEdit: (CommentEntity) -> Void
-        let onDelete: (CommentEntity) -> Void
-        @State private var isActionSheetPresented = false
-        
-        var body: some View {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(alignment: .center, spacing: 12) {
-                    ProfileImageView(path: data.creator.profileImage, size: 28)
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text(data.creator.nick)
-                            .appFont(PretendardFontStyle.body3, textColor: .grayScale90)
-                        Text(data.createdAt.toRelativeTimeDescription())
-                            .appFont(PretendardFontStyle.caption2, textColor: .grayScale75)
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("댓글")
+                .appFont(PretendardFontStyle.body1, textColor: .grayScale90)
+            
+            if data.isEmpty {
+                
+                Text("아직 댓글이 없어요. \n 가장 먼저 댓글을 남겨보세요.")
+                    .appFont(PretendardFontStyle.body1, textColor: .grayScale60)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.top, 30)
+                
+            } else {
+                ForEach(data, id: \.commentID) { data in
+                    CommentItemView(data: data) { data in
+                        onDelete(data)
+                    } onReplyTapped: { data in
+                        onReply(data)
                         
                     }
-                    Spacer()
-                    CommentActionButtonView(
-                        isOwner: isOwner,
-                        onEdit: {
-                            onEdit(data)
-                        },
-                        onDelete: {
-                            onDelete(data)
-                        }
-                    )
+                }
+            }
+            
+            
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(20)
+    }
+    
+    
+    
+}
+
+struct CommentItemView: View {
+    
+    let data: CommentEntity
+    let isOwner: Bool
+    let onDeleteTapped: (String) -> Void
+    /// 옵셔널 클로저는 자동으로 escaping
+    let onReplyTapped: ((CommentEntity) -> Void)?
+
+    init(
+        data: CommentEntity,
+        onDeleteTapped: @escaping (String) -> Void,
+        onReplyTapped: ((CommentEntity) -> Void)? = nil
+    ) {
+        self.data = data
+        self.isOwner = data.creator.userID == UserSession.shared.currentUser?.userID
+        self.onDeleteTapped = onDeleteTapped
+        self.onReplyTapped = onReplyTapped
+    }
+    
+    
+    var body: some View {
+        CommentContentView(
+            data: data,
+            isOwner: isOwner,
+            onEdit: { data in
+                print("수정버튼 탭")
+            },
+            onDelete: { data in
+                onDeleteTapped(data.commentID)
+            },
+            onReply: onReplyTapped == nil ? nil : { data in onReplyTapped?(data) }
+        )
+        
+        if !data.replies.isEmpty {
+            ForEach(data.replies, id: \.commentID) { data in
+                ReplyContentView(
+                    data: data,
+                    isOwner: isOwner
+                ) {
+                    print("수정버튼 탭")
+                } onDelete: {
+                    onDeleteTapped(data.commentID)
                 }
                 
-                Text(data.content)
-                    .appFont(PretendardFontStyle.body3, textColor: .grayScale90)
-                    .padding(.top, 5)
-                    .padding(.leading, 40)
+            }
+            
+        }
+    }
+    
+}
+
+struct CommentContentView: View {
+    
+    let data: CommentEntity
+    let isOwner: Bool
+    let onEdit: (CommentEntity) -> Void
+    let onDelete: (CommentEntity) -> Void
+    let onReply: ((CommentEntity) -> Void)?
+    @State private var isActionSheetPresented = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .center, spacing: 12) {
+                ProfileImageView(path: data.creator.profileImage, size: 28)
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(data.creator.nick)
+                        .appFont(PretendardFontStyle.body3, textColor: .grayScale90)
+                    Text(data.createdAt.toRelativeTimeDescription())
+                        .appFont(PretendardFontStyle.caption2, textColor: .grayScale75)
+                    
+                }
+                Spacer()
+                CommentActionButtonView(
+                    isOwner: isOwner,
+                    onEdit: {
+                        onEdit(data)
+                    },
+                    onDelete: {
+                        onDelete(data)
+                    }
+                )
+            }
+            
+            Text(data.content)
+                .appFont(PretendardFontStyle.body3, textColor: .grayScale90)
+                .padding(.top, 5)
+                .padding(.leading, 40)
+            
+            if let onReply {
                 
                 if data.replies.isEmpty {
                     Button(action: {
-                        // 액션: 답글 입력창 열기
+                        onReply(data)
                     }) {
                         Label("답글쓰기", systemImage: "bubble.left")
                             .appFont(PretendardFontStyle.caption1, textColor: .grayScale75)
                             .foregroundColor(.gray)
                     }
                     .buttonStyle(.plain)
-                    .padding(.leading, 40)
+                    .padding(.leading,  40)
                 }
                 
-                
             }
-            .frame(maxWidth: .infinity)
-            .padding(.bottom, 10)
+       
             
         }
+        .frame(maxWidth: .infinity)
+        .padding(.bottom, 10)
         
     }
+        
+    
+}
 
 
-    struct ReplyContentView: View {
-        
-        
-        let data: ReplyEntity
-        let isOwner: Bool
-        let onEdit: () -> Void
-        let onDelete: () -> Void
-        @State private var isActionSheetPresented = false
-        
-        var body: some View {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(alignment: .center, spacing: 12) {
-                    ProfileImageView(path: data.creator.profileImage, size: 24)
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text(data.creator.nick)
-                            .appFont(PretendardFontStyle.body3, textColor: .grayScale90)
-                        Text(data.createdAt)
-                            .appFont(PretendardFontStyle.caption2, textColor: .grayScale75)
-                        
-                    }
-                    Spacer()
-                 
-                    CommentActionButtonView(
-                          isOwner: isOwner,
-                          onEdit: {
-                              onEdit()
-                          },
-                          onDelete: {
-                              onDelete()
-                          }
-                      )
+struct ReplyContentView: View {
+    
+    
+    let data: ReplyEntity
+    let isOwner: Bool
+    let onEdit: () -> Void
+    let onDelete: () -> Void
+    @State private var isActionSheetPresented = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .center, spacing: 12) {
+                ProfileImageView(path: data.creator.profileImage, size: 24)
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(data.creator.nick)
+                        .appFont(PretendardFontStyle.body3, textColor: .grayScale90)
+                    Text(data.createdAt.toRelativeTimeDescription())
+                        .appFont(PretendardFontStyle.caption2, textColor: .grayScale75)
                     
                 }
+                Spacer()
                 
-                Text(data.content)
-                    .appFont(PretendardFontStyle.body3, textColor: .grayScale90)
-                    .padding(.top, 5)
-                    .padding(.leading, 40)
-                
+                CommentActionButtonView(
+                    isOwner: isOwner,
+                    onEdit: {
+                        onEdit()
+                    },
+                    onDelete: {
+                        onDelete()
+                    }
+                )
                 
             }
-            .frame(maxWidth: .infinity)
-            .padding(.bottom, 10)
-            .padding(.leading, 40)
+            
+            Text(data.content)
+                .appFont(PretendardFontStyle.body3, textColor: .grayScale90)
+                .padding(.top, 5)
+                .padding(.leading, 40)
             
             
         }
-
+        .frame(maxWidth: .infinity)
+        .padding(.bottom, 10)
+        .padding(.leading, 40)
+        
+        
     }
+    
+}
 
 
-    struct CommentActionButtonView: View {
-        let isOwner: Bool
-        let onEdit: () -> Void
-        let onDelete: () -> Void
-
-        @State private var isPresented: Bool = false
-
-        var body: some View {
-            Group {
-                if isOwner {
-                    Button(action: {
-                        isPresented = true
-                    }) {
-                        Image(systemName: "ellipsis")
-                            .rotationEffect(.degrees(90))
-                            .foregroundColor(.gray)
-                    }
-                    .actionSheet(isPresented: $isPresented) {
-                        ActionSheet(
-                            title: Text("댓글 관리"),
-                            buttons: [
-                                .default(Text("수정하기"), action: onEdit),
-                                .destructive(Text("삭제하기"), action: onDelete),
-                                .cancel(Text("닫기"))
-                            ]
-                        )
-                    }
+struct CommentActionButtonView: View {
+    let isOwner: Bool
+    let onEdit: () -> Void
+    let onDelete: () -> Void
+    
+    @State private var isPresented: Bool = false
+    
+    var body: some View {
+        Group {
+            if isOwner {
+                Button(action: {
+                    isPresented = true
+                }) {
+                    Image(systemName: "ellipsis")
+                        .rotationEffect(.degrees(90))
+                        .foregroundColor(.gray)
+                }
+                .actionSheet(isPresented: $isPresented) {
+                    ActionSheet(
+                        title: Text("댓글 관리"),
+                        buttons: [
+                            .default(Text("수정하기"), action: onEdit),
+                            .destructive(Text("삭제하기"), action: onDelete),
+                            .cancel(Text("닫기"))
+                        ]
+                    )
                 }
             }
         }
     }
-
-
 }
+
 

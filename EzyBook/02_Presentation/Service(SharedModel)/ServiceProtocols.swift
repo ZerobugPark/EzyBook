@@ -9,7 +9,6 @@ import Foundation
 import CoreLocation
 
 /// 공통으로 사용 가능한 뷰모델
-
 protocol DetailFeatureService {
     var chatRoom: ChatRoomServiceProtocol { get }
     var favorite: FavoriteServiceProtocol { get }
@@ -30,5 +29,20 @@ protocol FavoriteServiceProtocol {
 protocol LocationServiceProtocol {
     func fetchCurrentLocation() async throws -> CLLocationCoordinate2D
 }
+
+// MARK: 게시글 관련 댓글 서비스 뷰모델
+protocol PostFeatureService {
+    var write: PostWriteServiceProtocol { get }
+    var delete: PostDeleteServiceProtocol { get }
+}
+
+protocol PostWriteServiceProtocol {
+    func writeComment(postID: String, parentID: String?, content: String) async throws -> ReplyEntity
+}
+
+protocol PostDeleteServiceProtocol {
+    func deleteComment(postID: String, commentID: String) async throws
+}
+
 
 

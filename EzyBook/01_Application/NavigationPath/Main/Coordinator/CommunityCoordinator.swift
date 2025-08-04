@@ -55,7 +55,6 @@ final class CommunityCoordinator: ObservableObject {
         case .detailView(let id):
             let vm =  container.communityDIContainer.makePostDetailViewModel(postID: id)
             PostDetailView(viewModel: vm, coordinator: self)
-            
         }
     }
 
@@ -79,5 +78,14 @@ extension CommunityCoordinator {
         return ZoomableImageFullScreenView(viewModel: viewModel, path: path)
         
     }
+    
+    func makeReplyView(data: CommentEntity, postID: String, onChange: @escaping ()-> Void) -> some View {
+        let vm = container.communityDIContainer.makeReplyViewModle(data: data, postID: postID)
+        
+        return ReplyView(coordinator: self, viewModel: vm,onChagned: onChange)
+    }
+
+
+    
     
 }
