@@ -76,6 +76,39 @@ extension DefaultUserWirttenPostListUseCase {
     }
 }
 
+final class DefaultPostDetailUseCase: PostDetailUseCase {
+
+    let repo: PostDetailRepository
+    
+    init(repo: PostDetailRepository) {
+        self.repo = repo
+    }
+}
+extension DefaultPostDetailUseCase {
+    
+    func execute(postID: String) async throws -> PostEntity {
+        try await repo.requestPostDetail(postID: postID)
+    }
+}
+
+final class DefaultPostLikeUseCase: PostLikeUseCase {
+    
+    let repo: PostLikeRepository
+    
+    init(repo: PostLikeRepository) {
+        self.repo = repo
+    }
+}
+
+extension DefaultPostLikeUseCase {
+    
+    func execute(postID: String, status: Bool) async throws -> PostKeepEntity {
+        try await repo.requestPostLike(postID, status)
+    }
+}
+
+
+
 
 // MARK: 이미지 업로드
 final class DefaultPostImageUploadUseCase: PostImageUploadUseCase {
@@ -100,3 +133,5 @@ extension DefaultPostImageUploadUseCase {
         try await repo.requesPostUploadVideos(videos)
     }
 }
+
+

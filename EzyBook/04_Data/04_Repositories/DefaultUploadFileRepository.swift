@@ -64,6 +64,10 @@ final class DefaultUploadFileRepository: ProfileImageUploadRepository, ReviewIma
             }
             return results
         }
+        
+        if compressedVideos.isEmpty {
+            throw APIError(localErrorType: .uploadError)
+        }
 
         let router = ActivityPostRequest.Multipart.postVideos(videos: compressedVideos)
         let data = try await networkService.fetchData(dto: FileResponseDTO.self, router)

@@ -99,22 +99,21 @@ private extension PostViewModel {
     
     private func handleWritePostRequest(_ images: [UIImage], _ videos: [URL]) {
         Task {
-            
             await MainActor.run { output.isLoading = true }
             let videoPath = await performUploadVideoIfNeeded(videos)
             let imagePath = await performUploadImageIfNeeded(images)
 
-            let allPaths: [String] = (videoPath?.files ?? []) + (imagePath?.files ?? [])
+            if (videos.isEmpty || videoPath != nil) && (images.isEmpty || imagePath != nil) {
+                let allPaths: [String] = (videoPath?.files ?? []) + (imagePath?.files ?? [])
+                let success = await performWritePost(title: title, content: content, paths: allPaths)
 
-            let success = await performWritePost(title: title, content: content, paths: allPaths)
-
-            await MainActor.run { output.isLoading = false }
-            
-            if success {
-                await MainActor.run {
-                    handleSuccess()
+                if success {
+                    await MainActor.run {
+                        handleSuccess()
+                    }
                 }
             }
+            await MainActor.run { output.isLoading = false }
         }
     }
     
@@ -124,7 +123,7 @@ private extension PostViewModel {
             guard let selectedActivity else { return false }
             guard let location = UserSession.shared.userLocation else { return false }
 
-            let data = try await writePostUseCase.execute(
+            let _ = try await writePostUseCase.execute(
                 country: selectedActivity.country,
                 category: selectedActivity.category,
                 title: title,
@@ -135,7 +134,7 @@ private extension PostViewModel {
                 files: paths
             )
 
-            dump(data)
+
             return true
 
         } catch {
@@ -261,5 +260,3 @@ extension PostViewModel: AnyObjectWithCommonUI {
     }
 
 }
-
-

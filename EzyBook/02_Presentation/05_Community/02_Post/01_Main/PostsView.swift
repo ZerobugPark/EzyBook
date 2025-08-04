@@ -22,6 +22,8 @@ struct PostsView: View {
     
     @StateObject var viewModel: PostViewModel
     
+    @State private var isProcessingThumbnails: Bool = false
+    
     var body: some View {
         ZStack {
             
@@ -54,7 +56,8 @@ struct PostsView: View {
                     MediaPickerView(
                         mediaType: .all,
                         maxImageCount: 5,
-                        selectedMedia: $selectedMedia
+                        selectedMedia: $selectedMedia,
+                        isProcessingThumbnails: $isProcessingThumbnails
                     )
                     
                     
@@ -74,7 +77,7 @@ struct PostsView: View {
             }
             .disabled(viewModel.output.isLoading)
             
-            LoadingOverlayView(isLoading: viewModel.output.isLoading)
+            LoadingOverlayView(isLoading: viewModel.output.isLoading || isProcessingThumbnails)
             
  
         }

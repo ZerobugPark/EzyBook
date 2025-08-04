@@ -27,7 +27,7 @@ final class CommunityViewModel: ViewModelType {
     
     private let limit = 10
     private var nextCursor: String?
-    private var location = UserSession.shared.userLocation
+    private var location: UserLocation?
     private let distanceSubject = PassthroughSubject<CGFloat, Never>()
     
     private var serverDistance: Int {

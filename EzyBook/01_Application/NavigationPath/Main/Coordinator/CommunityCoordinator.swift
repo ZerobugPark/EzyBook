@@ -15,9 +15,10 @@ final class CommunityCoordinator: ObservableObject {
     
     private var tabbarHiddenStack: [Bool] = []
     
-    private let container: CommunityDIContainer
+    private let container: AppDIContainer
     
-    init(container: CommunityDIContainer) {
+    
+    init(container: AppDIContainer) {
         self.container = container
 
     }
@@ -46,11 +47,14 @@ final class CommunityCoordinator: ObservableObject {
     func destinationView(route: CommunityRoute) -> some View {
         switch route {
         case .communityView:
-            let vm = container.makeCommunityViewModel()
+            let vm = container.communityDIContainer.makeCommunityViewModel()
             CommunityView(viewModel: vm, coordinator: self)
         case .postView:
-            let vm = container.makePostViewModel()
+            let vm =  container.communityDIContainer.makePostViewModel()
             PostsView(coordinator: self, viewModel: vm)
+        case .detailView(let id):
+            let vm =  container.communityDIContainer.makePostDetailViewModel(postID: id)
+            PostDetailView(viewModel: vm, coordinator: self)
         }
     }
 
@@ -60,7 +64,33 @@ final class CommunityCoordinator: ObservableObject {
 extension CommunityCoordinator {
  
     func makeMyActivityView(onConfirm: @escaping (OrderList) -> Void) -> some View {
-        let vm = container.makeMyActivityListViewModel()
+        let vm =  container.communityDIContainer.makeMyActivityListViewModel()
         return MyActivityListView(viewModel: vm, onConfirm: onConfirm)
     }
+    
+    func makeVideoPlayerView(path: String) -> some View {
+        let viewModel = container.homeDIContainer.makeVideoPlayerViewModel()
+        return VideoPlayerView(viewModel: viewModel, path: path)
+    }
+    
+    func makeImageViewer(path: String) -> some View {
+        let viewModel = container.homeDIContainer.makeZoomableImageFullScreenViewModel()
+        return ZoomableImageFullScreenView(viewModel: viewModel, path: path)
+        
+    }
+    
+    func makeReplyView(data: CommentEntity, postID: String, onChange: @escaping ()-> Void) -> some View {
+        let vm = container.communityDIContainer.makeReplyViewModle(data: data, postID: postID)
+        
+        return ReplyView(coordinator: self, viewModel: vm,onChagned: onChange)
+    }
+
+    func makeModifyView(data: ModifyComment, onSave: @escaping (String)-> Void) -> some View {
+        
+        return CommnetModifyView(initialText: data.text, onSave: onSave)
+        
+    }
+
+    
+    
 }

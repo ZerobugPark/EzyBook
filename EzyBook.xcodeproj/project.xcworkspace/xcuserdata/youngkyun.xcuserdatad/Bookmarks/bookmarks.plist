@@ -51,53 +51,6 @@
 			<key>type</key>
 			<string>bookmark</string>
 		</dict>
-		<dict>
-			<key>destination</key>
-			<dict>
-				<key>location-parameters</key>
-				<dict>
-					<key>EndingColumnNumber</key>
-					<string>0</string>
-					<key>EndingLineNumber</key>
-					<string>73</string>
-					<key>StartingColumnNumber</key>
-					<string>0</string>
-					<key>StartingLineNumber</key>
-					<string>72</string>
-					<key>Timestamp</key>
-					<string>772521788.521197</string>
-				</dict>
-				<key>rebasable-url</key>
-				<dict>
-					<key>base</key>
-					<string>workspace</string>
-					<key>payload</key>
-					<dict>
-						<key>relative-path</key>
-						<string>EzyBook/Presentation/04_Home/02_DetailView/DetailView.swift</string>
-					</dict>
-				</dict>
-			</dict>
-			<key>text-context</key>
-			<dict>
-				<key>focused</key>
-				<string>        .fullScreenCover(isPresented: $viewModel.output.payButtonTapped) {
-</string>
-				<key>leading</key>
-				<string>            }
-        }
-</string>
-				<key>trailing</key>
-				<string>            if let payItem = viewModel.output.payItem {
-                coordinator.makePaymentView(item: payItem) { msg in
-                    viewModel.action(.showPaymentResult(message: msg))
-</string>
-			</dict>
-			<key>title</key>
-			<string>결제 성공시, 예약 내역 업데이트하는 로직 추가 필요</string>
-			<key>type</key>
-			<string>bookmark</string>
-		</dict>
 	</array>
 </dict>
 </plist>

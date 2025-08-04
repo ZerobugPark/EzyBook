@@ -41,7 +41,9 @@ struct MediaPickerView: View {
     @Binding var selectedMedia: [PickerSelectedMedia]
     
     @State private var selectedItems: [PhotosPickerItem] = []
+    @Binding var isProcessingThumbnails: Bool
     @State private var isDeleteLocked = false
+    
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -160,6 +162,9 @@ private extension MediaPickerView {
     ///  PhotosPicker로부터 비동기적으로 이미지/비디오 로드
     func loadSelectedMedia(from items: [PhotosPickerItem]) {
         Task {
+            await MainActor.run {
+                isProcessingThumbnails = true
+            }
             let movieTypes: [UTType] = [.movie, .quickTimeMovie]
             await withTaskGroup(of: Void.self) { group in
                 for item in items {
@@ -171,7 +176,6 @@ private extension MediaPickerView {
                            let data = try? await item.loadTransferable(type: Data.self),
                            let image = UIImage(data: data) {
                             await MainActor.run {
-                                
                                 MediaPickerLogic.appendImage(image, to: &selectedMedia)
                             }
                         } else if mediaType != .image,
@@ -189,6 +193,7 @@ private extension MediaPickerView {
                 }
             }
             await MainActor.run {
+                isProcessingThumbnails = false
                 selectedItems.removeAll()
             }
         }

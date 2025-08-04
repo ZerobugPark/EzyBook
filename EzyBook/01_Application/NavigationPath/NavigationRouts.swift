@@ -38,12 +38,13 @@ extension HomeRoute {
 enum CommunityRoute: Hashable {
     case communityView
     case postView
+    case detailView(postID: String)
 }
 extension CommunityRoute {
     
     var hidesTabbar: Bool {
         switch self {
-        case .postView:
+        case .postView, .detailView:
             return true
         default:
             return false

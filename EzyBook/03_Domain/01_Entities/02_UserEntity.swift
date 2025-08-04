@@ -112,7 +112,7 @@ extension ProfileLookUpEntity {
 }
 
 /// 유저검색
-struct UserInfoEntity {
+struct UserInfoEntity: Hashable {
     let userID: String
     let nick: String
     let profileImage: String?

@@ -50,6 +50,15 @@ extension CommunityDIContainer {
         DefaultUserWirttenPostListUseCase(repo: makeCommunityRepository())
     }
     
+    private func makePostDetailUesCase() -> PostDetailUseCase {
+        DefaultPostDetailUseCase(repo: makeCommunityRepository())
+    }
+    
+    private func makePostLikeUesCase() -> PostLikeUseCase {
+        DefaultPostLikeUseCase(repo: makeCommunityRepository())
+    }
+    
+    
     // MARK: Make Order List
     private func makeOrderListUseCase() -> OrderListLookUpUseCase {
         DefaultOrderListLookupUseCase(
@@ -62,6 +71,44 @@ extension CommunityDIContainer {
         DefaultPostImageUploadUseCase(repo: commonDIContainer.makeUploadRepository())
     }
 
+    
+    // MARK: Comment
+    
+    
+    private func makePostFeatureService() -> PostFeatureService {
+        DefaultPostFeatureService(
+            write: makePostWriteServiceProtocol(),
+            delete: makePostDeleteServiceProtocol(),
+            modify: makePostModifyServiceProtocol()
+        )
+    }
+    
+    /// Write
+    private func makePostWriteServiceProtocol() -> PostWriteServiceProtocol {
+        PostWriteService(write: makeWriteCommentUseCase())
+    }
+    
+    private func makeWriteCommentUseCase() -> WriteCommentUseCase {
+        DefaultWriteCommentUseCase(repo: makeCommentRepository())
+    }
+    
+    /// Delete
+    private func makePostDeleteServiceProtocol() -> PostDeleteServiceProtocol {
+        PostDeleteService(delete: makeDeleteCommentUseCase())
+    }
+    
+    private func makeDeleteCommentUseCase() -> DeleteCommentUseCase {
+        DefaultDeleteCommentUseCase(repo: makeCommentRepository())
+    }
+    
+    /// Modify
+    private func makePostModifyServiceProtocol() -> PostModifyServiceProtocol {
+        PostModifyService(modify: makePostModifyUseCase())
+    }
+    
+    private func makePostModifyUseCase() -> ModifyCommnetUseCase {
+        DefaultModifyCommnetUseCase(repo: makeCommentRepository())
+    }
 
 }
 
@@ -71,6 +118,10 @@ extension CommunityDIContainer {
     
     private func makeCommunityRepository() -> DefaultCommunityRepository {
         DefaultCommunityRepository(networkService: networkService)
+    }
+    
+    private func makeCommentRepository() -> DefaultCommentRepository {
+        DefaultCommentRepository(networkService: networkService)
     }
 
 }
@@ -97,6 +148,23 @@ extension CommunityDIContainer {
             uploadUseCase: makePostImageUploadUseCase(),
             writePostUseCase: makePostWirteUseCase()
             
+        )
+    }
+    
+    func makePostDetailViewModel(postID: String) -> PostDetailViewModel {
+        PostDetailViewModel(
+            postDetailUseCase: makePostDetailUesCase(),
+            postService: makePostFeatureService(),
+            postLikeUseCase: makePostLikeUesCase(),
+            postID: postID
+        )
+    }
+    
+    func makeReplyViewModle(data: CommentEntity, postID: String) -> ReplyViewModel {
+        ReplyViewModel(
+            commentData: data,
+            postService: makePostFeatureService(),
+            postID: postID
         )
     }
 }

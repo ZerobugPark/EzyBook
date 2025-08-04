@@ -8,7 +8,7 @@
 import Foundation
 
 
-final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSearchRepository, PostActivityRepository, WrittenPostListRepository {
+final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSearchRepository, PostActivityRepository, WrittenPostListRepository, PostDetailRepository, PostLikeRepository {
     
     private let networkService: NetworkService
     
@@ -74,6 +74,26 @@ final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSea
         } while (nextCursor ?? "0") != "0"
 
         return allPostIDs
+    }
+    
+    func requestPostDetail(postID: String) async throws -> PostEntity {
+        
+        let router = ActivityPostRequest.Get.detailPost(postID: postID)
+        let data = try await networkService.fetchData(dto: PostResponseDTO.self, router)
+        
+        return data.toEntity()
+        
+    }
+    
+    func requestPostLike(_ postID: String, _ status: Bool) async throws -> PostKeepEntity {
+        
+        let dto = ActivityPostLikeRequestDTO(likeStatus: status)
+        
+        let router = ActivityPostRequest.Post.postKeep(postID: postID, body: dto)
+        let data = try await networkService.fetchData(dto: PostKeepResponseDTO.self, router)
+        
+        return data.toEntity()
+        
     }
 }
 

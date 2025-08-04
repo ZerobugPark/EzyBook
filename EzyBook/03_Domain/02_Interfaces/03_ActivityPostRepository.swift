@@ -29,3 +29,14 @@ protocol PostActivityRepository {
 protocol WrittenPostListRepository {
     func requestWrittenPostList(id: String) async throws -> [String]
 }
+
+
+protocol PostDetailRepository {
+    func requestPostDetail(postID: String) async throws -> PostEntity
+}
+
+protocol PostLikeRepository {
+    func requestPostLike(_ postID: String, _ status: Bool) async throws -> PostKeepEntity 
+}
+
+

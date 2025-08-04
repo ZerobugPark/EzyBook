@@ -21,6 +21,7 @@ struct WriteReViewView: View {
     @FocusState private var isTextEditorFocused: Bool
     @EnvironmentObject var appState: AppState
     @StateObject var viewModel: WriteReviewViewModel
+    @State private var isProcessingThumbnails: Bool = false
     
     var body: some View {
         ZStack {
@@ -44,7 +45,8 @@ struct WriteReViewView: View {
                 MediaPickerView(
                     mediaType: .image,
                     maxImageCount: 5,
-                    selectedMedia: $selectedMedia
+                    selectedMedia: $selectedMedia,
+                    isProcessingThumbnails: $isProcessingThumbnails
                 )
                 
                 makeReviewTextField()
@@ -64,6 +66,8 @@ struct WriteReViewView: View {
                 }
                 
             }
+            
+            LoadingOverlayView(isLoading: isProcessingThumbnails)
         }
         .withCommonUIHandling(viewModel) { code, isSuccess in
             if isSuccess {

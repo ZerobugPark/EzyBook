@@ -46,13 +46,20 @@ extension Data {
                     }
                 }
 
-                if let compressedData = try? Data(contentsOf: exportURL),
-                   compressedData.count <= maxSizeInBytes {
-                    try? FileManager.default.removeItem(at: tempURL)
-                    try? FileManager.default.removeItem(at: exportURL)
-                    return compressedData
-                }
+                
+                
+                if let compressedData = try? Data(contentsOf: exportURL) {
+                    
+                    printDataSize(compressedData)
+                    
+                    if compressedData.count <= maxSizeInBytes {
+                     try? FileManager.default.removeItem(at: tempURL)
+                     try? FileManager.default.removeItem(at: exportURL)
+                     return compressedData
+                 }
 
+                }
+                  
                 // Clean up if size too large or read fails
                 try? FileManager.default.removeItem(at: tempURL)
                 try? FileManager.default.removeItem(at: exportURL)
@@ -63,5 +70,13 @@ extension Data {
         }
 
         return nil
+    }
+    
+    /// 데이터 체크
+    private func printDataSize(_ data: Data) {
+        let bytes = data.count
+        let kb = Double(bytes) / 1024
+        let mb = kb / 1024
+        print(String(format: "📦 Data size: %.2f MB (%.0f KB / %d bytes)", mb, kb, bytes))
     }
 }
