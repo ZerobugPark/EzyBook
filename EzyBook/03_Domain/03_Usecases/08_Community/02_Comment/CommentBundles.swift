@@ -9,4 +9,5 @@ import Foundation
 
 struct CommentUseCases {
     let write: WriteCommentUseCase
+    let delete: DeleteCommentUseCase
 }

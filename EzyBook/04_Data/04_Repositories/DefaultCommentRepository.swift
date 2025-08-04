@@ -8,7 +8,9 @@
 import Foundation
 
 
-final class DefaultCommentRepository: WriteCommentRepository  {
+final class DefaultCommentRepository: WriteCommentRepository, DeleteCommentRepository  {
+    
+    
     
     private let networkService: NetworkService
     
@@ -26,4 +28,11 @@ final class DefaultCommentRepository: WriteCommentRepository  {
         return data.toEntity()
     }
     
-}
+    func requestDeleteCommnet(_ postID: String, _ commentID: String) async throws {
+        
+        let router = ActivityCommentRequest.Delete.deleteComment(postID: postID, commentID: commentID)
+        
+        let _ = try await networkService.fetchData(dto: EmptyDTO.self, router)
+        
+    }
+} 

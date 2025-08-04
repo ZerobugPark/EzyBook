@@ -24,3 +24,22 @@ extension DefaultWriteCommentUseCase {
         try await repo.requestWriteCommnet(postID, parentID, content)
     }
 }
+
+
+final class DefaultDeleteCommentUseCase: DeleteCommentUseCase {
+    
+    let repo: DeleteCommentRepository
+    
+    init(repo: DeleteCommentRepository) {
+        self.repo = repo
+    }
+    
+}
+
+extension DefaultDeleteCommentUseCase {
+    
+    func execute(postID: String, commentID: String) async throws {
+        
+        try await repo.requestDeleteCommnet(postID, commentID)
+    }
+}

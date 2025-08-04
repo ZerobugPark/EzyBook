@@ -88,4 +88,36 @@ extension ActivityCommentRequest {
 
 
 // MARK: Delete
+extension ActivityCommentRequest {
+    
+    enum Delete: DeleteRouter {
+        
+        case deleteComment(postID: String, commentID: String) // 게시글 삭제
+        
+        var requiresAuth: Bool {
+            return true
+        }
+        
+        var endpoint: URL? {
+            switch self {
+            case let .deleteComment(postID,commentID):
+                ActivityCommentEndPoint.deleteComment(postID: postID, commentID: commentID).requestURL
+            }
+        }
+        
+        var requestBody: Encodable? {
+            switch self {
+            case .deleteComment:
+                return nil
+            }
+        }
+        
+        var headers: HTTPHeaders {
+            [
+                "SeSACKey": APIConstants.apiKey
+            ]
+        }
 
+    }
+    
+}

@@ -136,8 +136,10 @@ private extension PostDetailViewModel {
 
 }
 
+// MARK: CRUD
 private extension PostDetailViewModel {
     
+    // MARK: Create
     private func hanldeWirteComment(parentID: String?) {
         Task {
             //await MainActor.run { output.isLoading = true }
@@ -158,6 +160,31 @@ private extension PostDetailViewModel {
             await MainActor.run {
                 comment = ""
             }
+            
+        } catch {
+            await handleError(error)
+        }
+    }
+    
+    
+    // MARK: Deleted
+    private func hanldeDeleteComment(comment: CommentEntity) {
+        Task {
+            //await MainActor.run { output.isLoading = true }
+            await performDeleteComment(postID: postID, commentID: comment.commentID)
+            
+            //await MainActor.run { output.isLoading = false }
+        }
+    }
+    
+    private func performDeleteComment(postID: String, commentID: String) async {
+        do {
+            
+            let _ = try await commentUseCases.delete.execute(postID: postID, commentID: commentID)
+        
+            /// 누가 댓글 달았을 수도 있기 때문에 한 번 더 호출
+            await performLoadPostDetail(postID)
+            
             
         } catch {
             await handleError(error)
@@ -211,6 +238,7 @@ extension PostDetailViewModel {
     enum Action {
         case keepButtonTapped
         case writeComment(parentID: String?)
+        case deleteComment(comment: CommentEntity)
 
     }
     
@@ -223,6 +251,8 @@ extension PostDetailViewModel {
  
         case .writeComment(let parentID):
             hanldeWirteComment(parentID: parentID)
+        case .deleteComment(let comment):
+            hanldeDeleteComment(comment: comment)
         }
     }
         

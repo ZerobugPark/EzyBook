@@ -58,7 +58,9 @@ struct PostDetailView: View {
                             .background(.grayScale90)
                         
                         
-                        CommentListView(data: viewModel.output.postDetailInfo.comments)
+                        CommentListView(data: viewModel.output.postDetailInfo.comments) { data in
+                            viewModel.action(.deleteComment(comment: data))
+                        }
                     }
                 }
                 .disabled(viewModel.output.isLoading)
@@ -200,7 +202,6 @@ private extension PostDetailView {
         
         let data: PostEntity
         
-        
         var body: some View {
             
             VStack(alignment: .leading, spacing: 12) {
@@ -242,6 +243,7 @@ private extension PostDetailView {
         // MARK: - 테스트용 댓글 및 대댓글 샘플
         
         let data: [CommentEntity]
+        let onDelete: (CommentEntity) -> (Void)
         
         var body: some View {
             VStack(alignment: .leading, spacing: 12) {
@@ -258,7 +260,9 @@ private extension PostDetailView {
                     
                 } else {
                     ForEach(data, id: \.commentID) { data in
-                        CommentItemView(data: data)
+                        CommentItemView(data: data) { data in
+                            onDelete(data)
+                        }
                     }
                 }
                 
@@ -276,10 +280,12 @@ private extension PostDetailView {
         
         let data: CommentEntity
         let isOwner: Bool
+        let onDeleteTapped: (CommentEntity) -> (Void)
         
-        init(data: CommentEntity) {
+        init(data: CommentEntity,onDeleteTapped: @escaping (CommentEntity) -> (Void)) {
             self.data = data
             self.isOwner = data.creator.userID == UserSession.shared.currentUser?.userID
+            self.onDeleteTapped = onDeleteTapped
         }
     
         
@@ -288,10 +294,10 @@ private extension PostDetailView {
             CommentContentView(
                 data: data,
                 isOwner: isOwner
-            ) {
+            ) { data in
                print("수정버튼 탭")
-            } onDelete: {
-                print("삭제버튼 탭")
+            } onDelete: { data in
+                onDeleteTapped(data)
             }
             
             if !data.replies.isEmpty {
@@ -316,8 +322,8 @@ private extension PostDetailView {
         
         let data: CommentEntity
         let isOwner: Bool
-        let onEdit: () -> Void
-        let onDelete: () -> Void
+        let onEdit: (CommentEntity) -> Void
+        let onDelete: (CommentEntity) -> Void
         @State private var isActionSheetPresented = false
         
         var body: some View {
@@ -335,10 +341,10 @@ private extension PostDetailView {
                     CommentActionButtonView(
                         isOwner: isOwner,
                         onEdit: {
-                            onEdit()
+                            onEdit(data)
                         },
                         onDelete: {
-                            onDelete()
+                            onDelete(data)
                         }
                     )
                 }

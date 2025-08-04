@@ -8,6 +8,12 @@
 import Foundation
 import Alamofire
 
+
+protocol GetRouter: BaseRouter { }
+extension GetRouter {
+    var method: HTTPMethod { .get }
+}
+
 protocol PostRouter: BodyRequestRouter { }
 extension PostRouter {
     var method: HTTPMethod { .post }
@@ -18,9 +24,9 @@ extension PutRouter {
     var method: HTTPMethod { .put }
 }
 
-protocol GetRouter: BaseRouter { }
-extension GetRouter {
-    var method: HTTPMethod { .get }
+protocol DeleteRouter: BaseRouter { }
+extension DeleteRouter {
+    var method: HTTPMethod { .delete }
 }
 
 protocol MultipartRouter: NetworkRouter {

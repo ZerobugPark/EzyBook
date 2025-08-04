@@ -154,3 +154,6 @@ struct ReplyResponseDTO: Decodable, EntityConvertible {
 struct FileResponseDTO: Decodable, EntityConvertible {
     let files: [String]
 }
+
+/// 코메트 삭제
+struct EmptyDTO: Decodable, EntityConvertible { } 

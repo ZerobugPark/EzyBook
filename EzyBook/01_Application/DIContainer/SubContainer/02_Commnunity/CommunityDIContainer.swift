@@ -70,12 +70,17 @@ extension CommunityDIContainer {
     // MARK: Comment
     private func makeCommentUseCases() -> CommentUseCases {
         CommentUseCases(
-            write: makeWriteCommentUseCase()
+            write: makeWriteCommentUseCase(),
+            delete: makeDeleteCommentUseCase()
         )
     }
 
     private func makeWriteCommentUseCase() -> WriteCommentUseCase {
         DefaultWriteCommentUseCase(repo: makeCommentRepository())
+    }
+    
+    private func makeDeleteCommentUseCase() -> DeleteCommentUseCase {
+        DefaultDeleteCommentUseCase(repo: makeCommentRepository())
     }
 
 }

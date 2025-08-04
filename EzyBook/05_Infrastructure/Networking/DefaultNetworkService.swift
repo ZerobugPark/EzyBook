@@ -103,6 +103,14 @@ final class DefaultNetworkService: NetworkService {
             
             let responseData = response.data
             if let code = statusCode {
+                guard response.data != nil else {
+                    if code == 200 {
+                        return EmptyDTO() as! T
+                    } else {
+                        throw APIError(statusCode: code, data: nil)
+                    }
+                }
+                
                 throw APIError(statusCode: code, data: responseData)
             } else {
                 let errorCode = (afError as NSError).code

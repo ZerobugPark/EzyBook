@@ -289,3 +289,5 @@ struct FileResponseEntity {
         self.files = dto.files
     }
 }
+
+struct EmptyEntity {}

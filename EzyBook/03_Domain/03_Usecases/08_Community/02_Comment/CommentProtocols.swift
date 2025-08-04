@@ -10,3 +10,7 @@ import Foundation
 protocol WriteCommentUseCase {
     func execute(postID: String, parentID: String?, content: String) async throws  ->  ReplyEntity
 }
+
+protocol DeleteCommentUseCase {
+    func execute(postID: String, commentID: String) async throws
+}

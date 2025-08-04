@@ -57,3 +57,9 @@ extension FileResponseDTO {
         FileResponseEntity(dto: self)
     }
 }
+
+extension  EmptyDTO {
+    func toEntity() -> EmptyEntity {
+        EmptyEntity()
+    }
+}
