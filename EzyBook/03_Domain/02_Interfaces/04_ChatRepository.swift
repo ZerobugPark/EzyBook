@@ -21,7 +21,7 @@ protocol ChatListRepository {
 
 /// 채팅방 목록 조회
 protocol ChatRoomListRepository {
-    func requestsChatRoomList(_ router: ChatRequest.Get) async throws -> [ChatRoomEntity]
+    func requestsChatRoomList() async throws -> [ChatRoomEntity]
 }
 
 /// 메시지 전송

@@ -8,46 +8,92 @@
 import Foundation
 import RealmSwift
 
-final class ChatMessageTable: Object {
-    @Persisted(primaryKey: true) var chatID: String
-    @Persisted var roomID: String
-    @Persisted var content: String
-    @Persisted var createdAt: String
-    @Persisted var _files: List<String>
-    @Persisted var senderID: String
-    @Persisted var senderNick: String
+final class ChatRoomTable: Object {
+    @Persisted(primaryKey: true) var roomID: String
+    @Persisted var opponentUserID: String
+    @Persisted var lastMessage: String
+    @Persisted var lastMessageTime: Date
+    @Persisted var lastMessageSenderID: String
+    @Persisted var unreadCount: Int
     
-    var files: [String] {
-           get { return Array(_files) }
-           set {
-               _files.removeAll()
-               _files.append(objectsIn: newValue)
-           }
+    @Persisted var _messages: List<ChatMessageTable>
+    
+    var messages: [ChatMessageTable] {
+        return Array(_messages)
     }
     
-    convenience init(chatID: String, roomID: String, content: String, createdAt: String, files: [String], senderID: String, senderNick: String) {
+    
+    convenience init(
+        roomID: String,
+        opponentUserID: String,
+        lastMessage: String,
+        lastMessageTime: Date,
+        lastMessageSenderID: String,
+        unreadCount: Int,
+        messages: [ChatMessageTable]
+    ) {
         self.init()
-        self.chatID = chatID
         self.roomID = roomID
-        self.content = content
-        self.createdAt = createdAt
-        self.files = files
-        self.senderID = senderID
-        self.senderNick = senderNick
+        self.opponentUserID = opponentUserID
+        self.lastMessage = lastMessage
+        self.lastMessageTime = lastMessageTime
+        self.lastMessageSenderID = lastMessageSenderID
+        self.unreadCount = unreadCount
+        self._messages.append(objectsIn: messages)
     }
 }
 
 
+final class UserInfoTable: Object {
+    @Persisted(primaryKey: true) var userID: String
+    @Persisted var nick: String
+    @Persisted var profileImageURL: String?
+    
+    
+    convenience init(userID: String, nick: String, profileImageURL: String? = nil) {
+        self.init()
+        self.userID = userID
+        self.nick = nick
+        self.profileImageURL = profileImageURL
+
+    }
+}
+
+
+final class ChatMessageTable: Object {
+    @Persisted(primaryKey: true) var chatID: String
+    @Persisted var content: String
+    @Persisted var createdAt: Date
+    @Persisted var _files: List<String>
+    @Persisted var senderID: String
+
+    var files: [String] {
+        get { return Array(_files) }
+        set {
+            _files.removeAll()
+            _files.append(objectsIn: newValue)
+        }
+    }
+
+    convenience init(chatID: String, content: String, createdAt: Date, files: [String], senderID: String) {
+        self.init()
+        self.chatID = chatID
+        self.content = content
+        self.createdAt = createdAt
+        self.files = files
+        self.senderID = senderID
+    }
+}
+
 extension ChatMessageTable {
-    static func from(entity: ChatMessageEntity) -> ChatMessageTable {
+    static func from(entity: ChatEntity) -> ChatMessageTable {
         ChatMessageTable(
             chatID: entity.chatID,
-            roomID: entity.roomID,
             content: entity.content,
-            createdAt: entity.createdAt,
+            createdAt: entity.createdAt.toDate(),
             files: entity.files,
-            senderID: entity.sender.userID,
-            senderNick: entity.sender.nick
+            senderID: entity.sender.userID
         )
     }
+
 }

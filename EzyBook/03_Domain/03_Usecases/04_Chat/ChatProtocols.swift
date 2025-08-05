@@ -41,20 +41,20 @@ protocol FetchRemoteChatMessagesUseCase {
 
 // MARK: 채팅 목록 관련 프로토콜
 
-/// 채팅방 내역 조회 (Client <-> Server)
+// MARK: 서버
 protocol ChatRemoteRoomListUseCase {
     func execute() async throws -> [ChatRoomEntity]
 }
 
-/// 마지막 채팅 내역 저장 (렘)
-protocol SaveRealmLatestChatRoomUseCase {
-    func execute(lastChat: [ChatRoomEntity])
-}
+
+
+// MARK: Realm
 
 /// 채팅방 별 가장 최근 채팅 내역 호출
 protocol FetchRealmChatRoomListUseCase {
-    func execute() -> [ChatRoomEntity]
+    func execute() -> [LastMessageSummary]
 }
+
 
 
 

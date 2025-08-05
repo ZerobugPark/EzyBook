@@ -44,14 +44,6 @@ final class DefaultChatRepository: ChatRoomRepository, ChatListRepository, ChatR
         
     }
  
-    /// 채팅방 조회
-    func requestsChatRoomList(_ router: ChatRequest.Get) async throws -> [ChatRoomEntity] {
-        
-        let data = try await networkService.fetchData(dto: ChatRoomListResponseDTO.self, router)
-
-        return data.toEntity()
-        
-    }
     
     /// 메시지 전송
     /// roomId: String, content: String, files: [String]? = nil
@@ -68,5 +60,20 @@ final class DefaultChatRepository: ChatRoomRepository, ChatListRepository, ChatR
     }
 
     
+}
+
+// MARK: 채팅방 목록
+
+extension DefaultChatRepository {
+    /// 채팅방 목록  조회
+    func requestsChatRoomList() async throws -> [ChatRoomEntity] {
+        
+        let router = ChatRequest.Get.lookUpChatRoomList
+        
+        let data = try await networkService.fetchData(dto: ChatRoomListResponseDTO.self, router)
+
+        return data.toEntity()
+        
+    }
 }
 

@@ -17,8 +17,3 @@ struct ChatListUseCases {
 }
 
 
-struct ChatRoomListUseCases {
-    let fetchRemoteChatRoomList: ChatRemoteRoomListUseCase
-    let saveRealmLastMessage: SaveRealmLatestChatRoomUseCase
-    let fetchRealmChatRoomList: FetchRealmChatRoomListUseCase
-}

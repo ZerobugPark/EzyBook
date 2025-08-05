@@ -33,51 +33,23 @@ extension ChatResponseDTO {
 }
 
 extension ChatMessageTable {
-    func toEntity(userID: String? = nil) -> ChatMessageEntity {
+//    func toEntity(userID: String? = nil) -> ChatMessageEntity {
+//
+//        ChatMessageEntity(
+//            chatID: self.chatID,
+//            content: self.content,
+//            createdAt: self.createdAt,
+//            files: self.files,
+//            roomID: self.roomID,
+//            sender: ChatMessageEntity
+//                .Sender(
+//                    userID: self.senderID,
+//                    nick: self.senderNick
+//                ),
+//            isMine: userID == self.senderID
+//        )
+//    }
 
-        ChatMessageEntity(
-            chatID: self.chatID,
-            content: self.content,
-            createdAt: self.createdAt,
-            files: self.files,
-            roomID: self.roomID,
-            sender: ChatMessageEntity
-                .Sender(
-                    userID: self.senderID,
-                    nick: self.senderNick
-                ),
-            isMine: userID == self.senderID
-        )
-    }
-
-}
-
-extension ChatRoomTabel {
-    
-    func toEntity() -> ChatRoomEntity {
-        return ChatRoomEntity(
-            roomId: self.roomID,
-            createdAt: self.createdAt,
-            updatedAt: self.updatedAt,
-            participants: [UserInfoEntity(
-                userID: self.opponentID,
-                nick: self.opponentNick
-            )],
-            lastChat: ChatEntity(
-                chatId: self.lastMessageSenderID,
-                roomId: self.roomID,
-                content: self.lastMessageContent,
-                createdAt: self.createdAt,
-                updatedAt: self.createdAt,
-                sender: UserInfoEntity(
-                    userID: self.opponentID,
-                    nick: self.opponentNick
-                ),
-                files: Array(self.lastMessageFiles)
-            )
-        )
-    }
-    
 }
 
 
@@ -87,20 +59,20 @@ extension ChatEntity {
         return ChatMessageEntity(entity: self)
     }
     
-    func toEnity(userID: String) -> ChatMessageEntity {
-        ChatMessageEntity(
-            chatID: self.chatID,
-            content: self.content,
-            createdAt: self.createdAt,
-            files: self.files,
-            roomID: self.roomID,
-            sender: ChatMessageEntity
-                .Sender(
-                    userID: self.sender.userID,
-                    nick: self.sender.nick
-                ),
-            isMine: userID == self.sender.userID
-        )
-
-    }
+//    func toEnity(userID: String) -> ChatMessageEntity {
+//        ChatMessageEntity(
+//            chatID: self.chatID,
+//            content: self.content,
+//            createdAt: self.createdAt.toDate(),
+//            files: self.files,
+//            roomID: self.roomID,
+//            sender: ChatMessageEntity
+//                .Sender(
+//                    userID: self.sender.userID,
+//                    nick: self.sender.nick
+//                ),
+//            isMine: userID == self.sender.userID
+//        )
+//
+//    }
 }
