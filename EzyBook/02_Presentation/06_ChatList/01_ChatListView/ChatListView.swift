@@ -21,7 +21,7 @@ struct ChatListView: View {
                     ChatListCardView(list: item)
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            //coordinator.push(.chatRoomView(roomID: item.roomID, opponentNick: item.participants[item.opponentIndex ?? 0].nick))
+                            coordinator.push(.chatRoomView(roomID: item.roomID, opponentNick: item.opponentInfo.nick))
                         }
                         
                         
@@ -56,7 +56,7 @@ extension ChatListView {
             
             
             HStack(alignment: .top, spacing: 10) {
-                ProfileImageView(path: list.opponentInfo.profileImageURL, size: 44)
+                ProfileImageView(path: list.opponentInfo.profileImageURL, size: 36)
                 
                 VStack(alignment: .leading, spacing: 5) {
                     /// 채팅하는 사람
@@ -65,10 +65,18 @@ extension ChatListView {
                         .lineLimit(1)
                         .truncationMode(.tail)
                     /// 마지막 채팅 내역
-                    Text(list.content)
-                        .appFont(PretendardFontStyle.body2, textColor: .grayScale60)
-                        .lineLimit(1)
-                        .truncationMode(.tail)
+                    if list.files.isEmpty {
+                        Text(list.content)
+                            .appFont(PretendardFontStyle.body2, textColor: .grayScale60)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                    } else {
+                        Text("사진을 보냈습니다.")
+                            .appFont(PretendardFontStyle.body2, textColor: .grayScale60)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                    }
+                    
                 }
                 Spacer()
                 Text(list.formattedDate)

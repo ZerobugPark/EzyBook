@@ -16,7 +16,7 @@ final class DefaultSocketService: SocketService {
     private var manager: SocketManager?
     private var socket: SocketIOClient?
     
-    var onMessageReceived: ((ChatMessageEntity) -> Void)?
+    var onMessageReceived: ((ChatEntity) -> Void)?
     var onConnect: (() -> Void)?
     
     init(roomID: String, keyChain: TokenStorage) {
@@ -86,13 +86,13 @@ final class DefaultSocketService: SocketService {
                 return
             }
 
-//            guard let message = ChatMessageEntity.from(dict: dict) else {
-//                print("⚠️ [chat] ChatMessageEntity 파싱 실패: \(dict)")
-//                return
-//            }
+            guard let message = ChatEntity.from(dict: dict) else {
+                print("⚠️ [chat] ChatMessageEntity 파싱 실패: \(dict)")
+                return
+            }
             
             print(dict)
-     //       self.onMessageReceived?(message)
+            self.onMessageReceived?(message)
         }
         
 

@@ -25,8 +25,12 @@ final class ChatCoordinator: ObservableObject {
     func push(_ route: ChatRoute) {
         let shouldHide = route.hidesTabbar
         tabbarHiddenStack.append(shouldHide)
-        isTabbarHidden = shouldHide
-        path.append(route)
+        
+        self.isTabbarHidden = shouldHide
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            self.path.append(route)
+        }
     }
     
     func pop() {
@@ -48,10 +52,9 @@ final class ChatCoordinator: ObservableObject {
         case .chatView:
             ChatListView(viewModel: self.container.makeChatListViewModel(), coordinator: self)
         case .chatRoomView(let roomID, let opponentNick):
-            EmptyView()
-//            ChatRoomView(viewModel: self.container.makeChatRoomViewModel(roomID: roomID, opponentNick: opponentNick)) { [weak self] in
-//                self?.pop()
-            //}
+            ChatRoomView(viewModel: self.container.makeChatRoomViewModel(roomID: roomID, opponentNick: opponentNick)) { [weak self] in
+                self?.pop()
+            }
         }
         
     }

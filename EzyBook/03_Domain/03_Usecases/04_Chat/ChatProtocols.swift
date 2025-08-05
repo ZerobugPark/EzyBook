@@ -20,24 +20,6 @@ protocol SendMessageUseCase {
     func execute(roomId: String, content: String, files: [String]?) async throws -> ChatEntity
 }
 
-/// 메시지 저장
-protocol SaveChatMessageUseCase {
-    func execute(chatList: [ChatMessageEntity])
-}
-
-/// 최신 메시지 조회
-protocol FetchLatestChatMessageUseCase {
-    func execute(roodID: String, userID: String) -> ChatMessageEntity?
-}
-
-/// 메시지 내역 조회
-protocol FetchChatMessageListUseCase {
-    func excute(roomID: String, before: String?, limit: Int, userID: String) -> [ChatMessageEntity]
-}
-
-protocol FetchRemoteChatMessagesUseCase {
-    func execute(id: String, next: String?) async throws -> [ChatEntity]
-}
 
 // MARK: 채팅 목록 관련 프로토콜
 
@@ -55,6 +37,22 @@ protocol FetchRealmChatRoomListUseCase {
     func execute() -> [LastMessageSummary]
 }
 
+/// 메시지 저장
+protocol SaveChatMessageUseCase {
+    func execute(chatList: [ChatEntity], myID: String)
+    func execute(message: ChatEntity,  myID: String)
+}
 
+/// 최신 메시지 조회
+protocol FetchLatestChatMessageUseCase {
+    func execute(roodID: String, myID: String) -> ChatMessageEntity?
+}
 
+/// 메시지 내역 조회
+protocol FetchChatMessageListUseCase {
+    func excute(roomID: String, before: String?, limit: Int, myID: String) -> [ChatMessageEntity] 
+}
 
+protocol FetchRemoteChatMessagesUseCase {
+    func execute(id: String, next: String?) async throws -> [ChatEntity]
+}

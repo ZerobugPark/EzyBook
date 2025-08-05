@@ -103,7 +103,6 @@ extension ChatListViewModel {
         do {
             let remoteData = try await chatListUseCase.execute()
             
-            dump(remoteData)
             await MainActor.run {
                 output.chatRoomList = remoteData.filter{ $0.lastChat != nil }.map { $0.toLastMessageSummary(myID: userID) }
             }

@@ -10,7 +10,7 @@ import RealmSwift
 
 
 final class DefaultChatRoomRealmRepository: RealmRepository<ChatRoomTable> ,ChatMessageRealmRepository {
-   
+    
     
     func save(message: ChatEntity, myID: String) {
         save(chatList: [message], myID: myID)
@@ -19,9 +19,9 @@ final class DefaultChatRoomRealmRepository: RealmRepository<ChatRoomTable> ,Chat
     
     func save(chatList: [ChatEntity], myID: String, retryCount: Int = 0) {
         getFileURL()
-
+        
         let grouped = Dictionary(grouping: chatList, by: { $0.roomID })
-
+        
         do {
             try realm.write {
                 for (roomID, messages) in grouped {
@@ -36,42 +36,49 @@ final class DefaultChatRoomRealmRepository: RealmRepository<ChatRoomTable> ,Chat
                         ?? ChatRoomTable(
                             roomID: roomID,
                             opponentUserID: "",
+                            lastChatID: "",
                             lastMessage: latest?.content ?? "",
                             lastMessageTime: latest?.createdAt ?? Date(),
                             lastMessageSenderID: latest?.senderID ?? "",
                             unreadCount: 0,
+                            files: [],
                             messages: []
                         )
 
-                    // 메시지 추가
-                    room._messages.append(objectsIn: newMessages)
+                    // 메시지 추가 (중복 방지)
+                    for message in newMessages {
+                        realm.add(message, update: .modified)
+                        if !room._messages.contains(where: { $0.chatID == message.chatID }) {
+                            room._messages.append(message)
+                        }
+                    }
 
                     // 마지막 메시지 갱신
                     if let latest = latest {
+                        room.lastChatID = latest.chatID
                         room.lastMessage = latest.content
                         room.lastMessageTime = latest.createdAt
                         room.lastMessageSenderID = latest.senderID
-                        
+                        room.files = latest.files
+
                         // 상대방 ID 지정
-                          if let opponent = messages.first(where: { $0.sender.userID != myID })?.sender.userID {
-                              room.opponentUserID = opponent
-                          }
-                        
+                        if let opponent = messages.first(where: { $0.sender.userID != myID })?.sender.userID {
+                            room.opponentUserID = opponent
+                        }
+
                         /// 유저 정보 저장
                         let sender = messages.first(where: { $0.sender.userID == latest.senderID })?.sender
                         if let sender = sender {
                             saveUser(user: sender)
                         }
-                        
                     }
-                    
-                    
+
                     realm.add(room, update: .modified)
                 }
             }
         } catch {
             print(" Realm 저장 실패 - 재시도 \(retryCount)")
-
+            
             if retryCount < 3 {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     self.save(chatList: chatList, myID: myID, retryCount: retryCount + 1)
@@ -83,72 +90,97 @@ final class DefaultChatRoomRealmRepository: RealmRepository<ChatRoomTable> ,Chat
     }
     
     private func saveUser(user: UserInfoEntity) {
-        do {
-            try realm.write {
-                if let existing = realm.object(ofType: UserInfoTable.self, forPrimaryKey: user.userID) {
-                    // 변경 사항이 있을 때만 업데이트
-                    if existing.nick != user.nick || existing.profileImageURL != user.profileImage {
-                        existing.nick = user.nick
-                        existing.profileImageURL = user.profileImage
-                    }
-                } else {
-                    let newUser = UserInfoTable(
-                        userID: user.userID,
-                        nick: user.nick,
-                        profileImageURL: user.profileImage
-                    )
-                    realm.add(newUser, update: .modified)
-                }
+        if let existing = realm.object(ofType: UserInfoTable.self, forPrimaryKey: user.userID) {
+            if existing.nick != user.nick || existing.profileImageURL != user.profileImage {
+                existing.nick = user.nick
+                existing.profileImageURL = user.profileImage
             }
-        } catch {
-            print("❌ UserInfo 업데이트 실패: \(error)")
+        } else {
+            let newUser = UserInfoTable(
+                userID: user.userID,
+                nick: user.nick,
+                profileImageURL: user.profileImage
+            )
+            realm.add(newUser, update: .modified)
         }
     }
     
-    /// 가장 최근 채팅 내역
-//    func fetchLatestMessages(roomID: String, userID: String) -> ChatMessageEntity? {
-//        let last = realm.objects(ChatMessageTable.self)
-//            .filter("roomID == %@", roomID)
-//            .sorted(byKeyPath: "createdAt", ascending: false)
-//            .first
-//        
-//        return last?.toEntity(userID: userID)
-//        
-//    }
-//    
+    // 가장 최근 채팅 내역
+    func fetchLatestMessages(roomID: String, myID: String) -> ChatMessageEntity? {
+        
+        
+        guard let room = realm.object(ofType: ChatRoomTable.self, forPrimaryKey: roomID) else {
+            return nil
+        }
+        
+        // 상대방 정보
+        let opponent = realm.object(ofType: UserInfoTable.self, forPrimaryKey: room.opponentUserID)
+        let opponentInfo = OpponentSummary(
+            userID: room.opponentUserID,
+            nick: opponent?.nick ?? "알 수 없음",
+            profileImageURL: opponent?.profileImageURL
+        )
+        
+        return ChatMessageEntity(
+            chatID: room.lastChatID,
+            content: room.lastMessage,
+            createdAt: room.lastMessageTime,
+            files: room.files,
+            opponentInfo: opponentInfo,
+            isMine: room.lastMessageSenderID == myID
+        )
+    }
     
-
+    
+    
     
     /// 채팅 내역 불러오기
-//    func fetchMessageList(roomID: String, before: String?, limit: Int, userID: String) -> [ChatMessageEntity] {
-//        
-//        
-//        var query = realm.objects(ChatMessageTable.self)
-//            .filter ("roomID == %@", roomID)
-//        
-//        if let before {
-//            query = query.filter("createdAt < $@", before)
-//        }
-//        
-//        return Array(query
-//            .sorted(byKeyPath: "createdAt", ascending: false)
-//            .prefix(limit)
-//            .reversed()
-//            .map {
-//                $0.toEntity(userID: userID)
-//            }
-//        )
-//    }
-
+    func fetchMessageList(roomID: String, before: String?, limit: Int, myID: String) -> [ChatMessageEntity] {
+        
+        
+        guard let room = realm.object(ofType: ChatRoomTable.self, forPrimaryKey: roomID) else {
+            return []
+        }
+        
+        let opponent = realm.object(ofType: UserInfoTable.self, forPrimaryKey: room.opponentUserID)
+        let opponentInfo = OpponentSummary(
+            userID: room.opponentUserID,
+            nick: opponent?.nick ?? "알 수 없음",
+            profileImageURL: opponent?.profileImageURL
+        )
+        
+        
+        var messages = room.messages
+        
+        if let beforeDate = before?.toDate() {
+            messages = messages.filter { $0.createdAt < beforeDate }
+        }
+        
+        return messages
+            .sorted(by: { $0.createdAt > $1.createdAt }) // 최신순 정렬
+            .prefix(limit)
+            .reversed() // UI는 오래된 순서대로
+            .map {
+                ChatMessageEntity(
+                    chatID: $0.chatID,
+                    content: $0.content,
+                    createdAt: $0.createdAt,
+                    files: $0.files,
+                    opponentInfo: opponentInfo,
+                    isMine: $0.senderID == myID
+                )
+            }
+    }
+    
     /// 나중에 비어있는방 제거
-//    func cleanEmptyChatRooms() {
-//        let emptyRooms = realm.objects(ChatRoomTable.self)
-//            .filter("_messages.@count == 0")
-//
-//        try? realm.write {
-//            realm.delete(emptyRooms)
-//        }
-//    }
+    //    func cleanEmptyChatRooms() {
+    //        let emptyRooms = realm.objects(ChatRoomTable.self)
+    //            .filter("_messages.@count == 0")
+    //
+    //        try? realm.write {
+    //            realm.delete(emptyRooms)
+    //        }
+    //    }
     
 }
 
@@ -160,7 +192,7 @@ extension DefaultChatRoomRealmRepository {
             .sorted(byKeyPath: "lastMessageTime", ascending: false)
         
         var result: [LastMessageSummary] = []
-
+        
         for room in rooms {
             // sender 정보 조회
             let opponent = realm.object(ofType: UserInfoTable.self, forPrimaryKey: room.opponentUserID)
@@ -170,17 +202,21 @@ extension DefaultChatRoomRealmRepository {
                 nick: opponent?.nick ?? "알 수 없음",
                 profileImageURL: opponent?.profileImageURL
             )
-
-            result.append(LastMessageSummary(
-                content: room.lastMessage,
-                updateAt: room.lastMessageTime,
-                unreadCount: room.unreadCount,
-                opponentInfo: opponentInfo
-            ))
+            
+            result.append(
+                LastMessageSummary(
+                    roomID: room.roomID,
+                    content: room.lastMessage,
+                    updateAt: room.lastMessageTime,
+                    unreadCount: room.unreadCount,
+                    opponentInfo: opponentInfo,
+                    files: room.files
+                )
+            )
         }
-
+        
         return result
     }
-
+    
 }
 

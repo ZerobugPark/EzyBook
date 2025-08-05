@@ -27,7 +27,10 @@ final class CommunityCoordinator: ObservableObject {
         let shouldHide = route.hidesTabbar
         tabbarHiddenStack.append(shouldHide)
         isTabbarHidden = shouldHide
-        path.append(route)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            self.path.append(route)
+        }
     }
 
     func pop() {
