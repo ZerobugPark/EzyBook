@@ -57,8 +57,8 @@ extension String {
         let f = ISO8601DateFormatter()
         f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         return f
-    }()) -> Date? {
-        return formatter.date(from: self)
+    }()) -> Date {
+        return formatter.date(from: self) ?? Date()
     }
     
     func toDisplayDate(format: String = "yyyy-MM-dd") -> String {
@@ -128,3 +128,4 @@ extension String {
         }
     }
 }
+

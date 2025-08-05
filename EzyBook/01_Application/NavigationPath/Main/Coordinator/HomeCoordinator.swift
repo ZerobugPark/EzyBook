@@ -78,9 +78,10 @@ final class HomeCoordinator: ObservableObject {
             let vm = self.container.homeDIContainer.makeReviewViewModel(id: id)
             ReviewView(viewModel: vm, coordinator: self)
         case .chatRoomView(let roomID, let opponentNick):
-            ChatRoomView(viewModel: self.container.chatDIContainer.makeChatRoomViewModel(roomID: roomID, opponentNick: opponentNick)) { [weak self] in
-                self?.pop()
-            }
+            EmptyView()
+//            ChatRoomView(viewModel: self.container.chatDIContainer.makeChatRoomViewModel(roomID: roomID, opponentNick: opponentNick)) { [weak self] in
+//                self?.pop()
+//            }
         case .advertiseView(let callbackID):
             WebViewScreen(
                 tokenManager: container.storage,

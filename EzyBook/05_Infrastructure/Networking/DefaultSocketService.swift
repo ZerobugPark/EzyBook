@@ -86,12 +86,13 @@ final class DefaultSocketService: SocketService {
                 return
             }
 
-            guard let message = ChatMessageEntity.from(dict: dict) else {
-                print("⚠️ [chat] ChatMessageEntity 파싱 실패: \(dict)")
-                return
-            }
-
-            self.onMessageReceived?(message)
+//            guard let message = ChatMessageEntity.from(dict: dict) else {
+//                print("⚠️ [chat] ChatMessageEntity 파싱 실패: \(dict)")
+//                return
+//            }
+            
+            print(dict)
+     //       self.onMessageReceived?(message)
         }
         
 
