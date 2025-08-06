@@ -320,6 +320,7 @@ extension ChatRoomViewModel {
     private func handleSendMessageSuccess(_ message: ChatEntity) async {
         await MainActor.run {
             // Realm 저장
+
             chatUseCases.saveRealmMessages.execute(message: message, myID: userID)
             
             let model = message.toEntity(myID: userID)

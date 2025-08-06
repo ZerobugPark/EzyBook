@@ -27,13 +27,14 @@ struct ChatRoomView: View {
     
     @State private var height: CGFloat = 40
     @State private var selectedImages: [UIImage] = []
-    
+    @State private var selectedFileURL: URL?
     
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var container: AppDIContainer
     
     /// 화면전환 트리거
-    @State var isPickerTapped: Bool = false
+    @State var isImagePickerTapped: Bool = false
+    @State var isFilePickerTapped: Bool = false
     @State var imageTapped: ImagePreviewItem?
     
     
@@ -84,7 +85,7 @@ struct ChatRoomView: View {
                             }
                         }
                     }
-                }
+                }.disabled(viewModel.selectedImages.isEmpty)
                 
                 // 메시지 입력 바
                 MessageInputView(content: $viewModel.content, actions:
@@ -93,10 +94,10 @@ struct ChatRoomView: View {
                                             viewModel.action(.sendButtonTapped)
                                         },
                                         onPhotoPicked: {
-                                            isPickerTapped = true
+                                            isImagePickerTapped = true
                                         },
                                         onFilePicked: {
-                                            
+                                            isFilePickerTapped = true
                                         }
                                     )
                 )
@@ -116,12 +117,14 @@ struct ChatRoomView: View {
                     .appFont(PaperlogyFontStyle.caption)
             }
         }
-        .sheet(isPresented: $isPickerTapped) {
+        .sheet(isPresented: $isImagePickerTapped) {
             ImagePickerSheetView(selectedImages: $viewModel.selectedImages)
         }
         .fullScreenCover(item: $imageTapped) { info in
             imageFullScreenCover(info: info)
         }
+        .filePicker(isPresented: $isFilePickerTapped, selectedURL: $selectedFileURL)
+     
     }
     
     // MARK: - 하단으로 스크롤
@@ -379,183 +382,3 @@ struct SelectedImageView: View {
     
     
 }
-
-
-//struct ImprovedMessageRow: View {
-//    let message: ChatMessageEntity
-//
-//    var body: some View {
-//        GeometryReader { geometry in
-//            HStack(alignment: .bottom, spacing: 0) {
-//                if message.isMine {
-//                    Spacer()
-//                    HStack(alignment: .bottom, spacing: 6) {
-//                        messageTimeView()
-//                        myMessageBubble(maxWidth: geometry.size.width * 0.6)
-//                    }
-//                } else {
-//                    VStack(alignment: .leading, spacing: 4) {
-//                        // 이미지 영역
-//                        if !message.files.isEmpty {
-//                            HStack(spacing: 4) {
-//                                Spacer().frame(width: 40)
-//                                ForEach(message.files, id: \.self) { path in
-//                                    RemoteImageView(path: path)
-//                                        .frame(width: 100, height: 100)
-//                                        .clipShape(RoundedRectangle(cornerRadius: 12))
-//                                }
-//                                Spacer()
-//                            }
-//                        }
-//
-//                        // 메시지 영역
-//                        HStack(alignment: .bottom, spacing: 6) {
-//                            ProfileImageView(path: message.opponentInfo.profileImageURL, size: 32)
-//                            otherMessageBubble(maxWidth: geometry.size.width * 0.55)
-//                            messageTimeView()
-//                            Spacer()
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        .frame(height: calculateRowHeight())
-//        .padding(.horizontal, 30)
-//    }
-//
-//    @ViewBuilder
-//    func myMessageBubble(maxWidth: CGFloat) -> some View {
-//        HStack {
-//            Text(message.content)
-//                .multilineTextAlignment(.trailing)
-//                .lineLimit(nil)
-//        }
-//        .padding(.horizontal, 12)
-//        .padding(.vertical, 8)
-//        .background(Color.yellow.opacity(0.8))
-//        .clipShape(MessageBubbleShape(isFromMe: true))
-//        .frame(minWidth: 44)
-//        .frame(maxWidth: maxWidth, alignment: .trailing)
-//    }
-//
-//    @ViewBuilder
-//    func otherMessageBubble(maxWidth: CGFloat) -> some View {
-//        HStack {
-//            Text(message.content)
-//                .multilineTextAlignment(.leading)
-//                .lineLimit(nil)
-//        }
-//        .padding(.horizontal, 12)
-//        .padding(.vertical, 8)
-//        .background(Color(UIColor.secondarySystemBackground))
-//        .clipShape(MessageBubbleShape(isFromMe: false))
-//        .frame(minWidth: 44)
-//        .frame(maxWidth: maxWidth, alignment: .leading)
-//    }
-//
-//    @ViewBuilder
-//    func messageTimeView() -> some View {
-//        Text(message.formatTime)
-//            .font(.caption2)
-//            .foregroundColor(.secondary)
-//            .frame(minWidth: 30, alignment: message.isMine ? .trailing : .leading)
-//    }
-//
-//    private func calculateRowHeight() -> CGFloat {
-//        // 이미지가 있는 경우의 높이 계산
-//        let imageHeight: CGFloat = message.files.isEmpty ? 0 : 104
-//
-//        // 텍스트 높이 계산 (대략적)
-//        let textHeight: CGFloat = max(40, estimateTextHeight())
-//
-//        return max(textHeight, imageHeight) + 8 // 여백 추가
-//    }
-//
-//
-//    func estimateTextHeight() -> CGFloat {
-//        let font = UIFont.systemFont(ofSize: 16)
-//        let maxWidth = UIScreen.main.bounds.width * 0.6 - 24 // 패딩 제외
-//
-//        let boundingRect = message.content.boundingRect(
-//            with: CGSize(width: maxWidth, height: .greatestFiniteMagnitude),
-//            options: [.usesLineFragmentOrigin, .usesFontLeading],
-//            attributes: [.font: font],
-//            context: nil
-//        )
-//
-//        return boundingRect.height + 16 // 상하 패딩
-//    }
-//
-//    // MARK: - 더 자연스러운 버블 크기를 위한 최적화 버전
-//    struct NaturalSizedMessageRow: View {
-//        let message: ChatMessageEntity
-//
-//        var body: some View {
-//            HStack(alignment: .bottom, spacing: 8) {
-//                if message.isMine {
-//                    Spacer()
-//                    HStack(alignment: .bottom, spacing: 4) {
-//                        messageInfo()
-//                        myMessageBubble()
-//                    }
-//                } else {
-//                    VStack(alignment: .leading, spacing: 4) {
-//                        // 이미지 영역
-//                        if !message.files.isEmpty {
-//                            HStack(spacing: 4) {
-//                                Spacer().frame(width: 40)
-//                                ForEach(message.files, id: \.self) { path in
-//                                    RemoteImageView(path: path)
-//                                        .frame(width: 100, height: 100)
-//                                        .clipShape(RoundedRectangle(cornerRadius: 12))
-//                                }
-//                                Spacer()
-//                            }
-//                        }
-//                        // 메시지 영역
-//                        HStack(alignment: .bottom, spacing: 4) {
-//                            ProfileImageView(path: message.opponentInfo.profileImageURL, size: 32)
-//                            otherMessageBubble()
-//                            messageInfo()
-//                            Spacer()
-//                        }
-//                    }
-//                }
-//            }
-//            .padding(.horizontal, 30)
-//        }
-//
-//        @ViewBuilder
-//        func myMessageBubble() -> some View {
-//            Text(message.content)
-//                .padding(.horizontal, 12)
-//                .padding(.vertical, 8)
-//                .background(
-//                    Color.yellow.opacity(0.8)
-//                        .clipShape(MessageBubbleShape(isFromMe: true))
-//                )
-//                .layoutPriority(1) // 텍스트 크기를 우선시
-//        }
-//
-//        @ViewBuilder
-//        func otherMessageBubble() -> some View {
-//            Text(message.content)
-//                .padding(.horizontal, 12)
-//                .padding(.vertical, 8)
-//                .background(
-//                    Color(UIColor.secondarySystemBackground)
-//                        .clipShape(MessageBubbleShape(isFromMe: false))
-//                )
-//                .layoutPriority(1) // 텍스트 크기를 우선시
-//        }
-//
-//        @ViewBuilder
-//        func messageInfo() -> some View {
-//            Text(message.formatTime)
-//                .font(.caption2)
-//                .foregroundColor(.secondary)
-//                .fixedSize() // 시간 텍스트는 고정 크기
-//        }
-//
-//    }
-//}

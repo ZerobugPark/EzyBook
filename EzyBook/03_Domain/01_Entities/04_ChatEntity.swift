@@ -36,7 +36,7 @@ struct ChatEntity {
     let createdAt: String
     let updatedAt: String
     let sender: UserInfoEntity
-    let files: [String]
+    var files: [String]
     
     init(dto: ChatResponseDTO) {
         self.chatID = dto.chatId
