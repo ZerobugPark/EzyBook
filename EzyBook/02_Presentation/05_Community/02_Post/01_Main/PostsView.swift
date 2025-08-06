@@ -15,7 +15,7 @@ struct PostsView: View {
     @State private var selectedMedia: [PickerSelectedMedia] = []
     @ObservedObject var coordinator: CommunityCoordinator
     
-    
+    /// 이것도 코디네이터가 가지고 있어야하나?
     @State var selectedActivity = false // 화면전환 트리거
     @EnvironmentObject var appState: AppState
     @FocusState private var isTextEditorFocused: Bool

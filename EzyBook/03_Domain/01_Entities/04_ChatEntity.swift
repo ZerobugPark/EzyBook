@@ -110,7 +110,13 @@ struct ChatMessageEntity {
     
     var isMine: Bool
 
-
+    var formatTime: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR") // 한국어 오전/오후
+        formatter.dateFormat = "a hh:mm" // "오전 10:23" / "오후 03:45"
+        return formatter.string(from: self.createdAt)
+        
+    }
 }
 
 

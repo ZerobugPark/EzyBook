@@ -488,15 +488,10 @@ struct CommentActionButtonView: View {
                         .rotationEffect(.degrees(90))
                         .foregroundColor(.gray)
                 }
-                .actionSheet(isPresented: $isPresented) {
-                    ActionSheet(
-                        title: Text("댓글 관리"),
-                        buttons: [
-                            .default(Text("수정하기"), action: onEdit),
-                            .destructive(Text("삭제하기"), action: onDelete),
-                            .cancel(Text("닫기"))
-                        ]
-                    )
+                .confirmationDialog("댓글 관리", isPresented: $isPresented, titleVisibility: .visible) {
+                    Button("수정하기", action: onEdit)
+                    Button("삭제하기", role: .destructive, action: onDelete)
+                    Button("닫기", role: .cancel) { }
                 }
             }
         }

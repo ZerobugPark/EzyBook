@@ -131,6 +131,7 @@ extension AppDelegate: MessagingDelegate {
     
     
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+        // 서버로 보냘 때, fcm 토큰을 보내야함
         print("Firebase registration token: \(String(describing: fcmToken))") // 디바이스 토큰과 다르다.
         print("✅ FCM token received: \(String(describing: fcmToken))")
         let dataDict: [String: String] = ["token": fcmToken ?? ""]
