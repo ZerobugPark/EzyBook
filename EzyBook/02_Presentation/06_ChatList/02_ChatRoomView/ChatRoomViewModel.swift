@@ -15,6 +15,7 @@ final class ChatRoomViewModel: ViewModelType {
     private let chatUseCases: ChatListUseCases
     
     private(set) var opponentNick: String
+    private var chatMessageEntity: [ChatMessageEntity] = []
     
     var input = Input()
     
@@ -65,7 +66,8 @@ extension ChatRoomViewModel {
             presentedMessage != nil
         }
         
-        var chatList: [ChatMessageEntity] = []
+        
+        var groupedChatList: [(date: Date, messages: [ChatMessageEntity])] = []
     }
     
     
@@ -138,8 +140,16 @@ extension ChatRoomViewModel {
                 limit: 30,
                 myID: userID
             )
-            output.chatList = messages
-            dump(output.chatList)
+            chatMessageEntity = messages
+            // Initialize groupedChatList from scratch
+            let calendar = Calendar.current
+            let grouped = Dictionary(grouping: messages) {
+                calendar.startOfDay(for: $0.createdAt)
+            }
+            output.groupedChatList = grouped
+                .sorted { $0.key < $1.key }
+                .map { ($0.key, $0.value) }
+            
         }
     }
     
@@ -189,9 +199,11 @@ extension ChatRoomViewModel {
             chatUseCases.saveRealmMessages.execute(message: message, myID: userID)
             
             // UI append (중복 방지)
-            if !output.chatList.contains(where: { $0.chatID == message.chatID }) {
+            if !chatMessageEntity.contains(where: { $0.chatID == message.chatID }) {
                 let model = message.toEntity(myID: userID)
-                output.chatList.append(model)
+                chatMessageEntity.append(model)
+                // Update groupedChatList
+                appendToGroupedChatList(model)
             }
         }
     }
@@ -222,7 +234,7 @@ extension ChatRoomViewModel {
                         limit: 30,
                         myID: userID
                     )
-                    output.chatList = messages
+                    chatMessageEntity = messages
                 }
             } else {
                 // 추가 로드 (append)
@@ -247,10 +259,23 @@ extension ChatRoomViewModel {
             chatUseCases.saveRealmMessages.execute(chatList: chatList, myID: userID)
             
             let newMessages = chatList.filter { newMsg in
-                !output.chatList.contains { $0.chatID == newMsg.chatID }
+                !chatMessageEntity.contains { $0.chatID == newMsg.chatID }
             }.map { $0.toEntity(myID: userID) }
             
-            output.chatList.append(contentsOf: newMessages)
+            chatMessageEntity.append(contentsOf: newMessages)
+            // Update groupedChatList for each new message
+            newMessages.forEach { appendToGroupedChatList($0) }
+        }
+    }
+
+    // MARK: - Grouped Chat List Helper
+    private func appendToGroupedChatList(_ message: ChatMessageEntity) {
+        let date = Calendar.current.startOfDay(for: message.createdAt)
+        if let index = output.groupedChatList.firstIndex(where: { $0.date == date }) {
+            output.groupedChatList[index].messages.append(message)
+        } else {
+            output.groupedChatList.append((date: date, messages: [message]))
+            output.groupedChatList.sort { $0.date < $1.date }
         }
     }
     
@@ -293,8 +318,8 @@ extension ChatRoomViewModel {
             chatUseCases.saveRealmMessages.execute(message: message, myID: userID)
             
             let model = message.toEntity(myID: userID)
-            output.chatList.append(model)
-            
+            chatMessageEntity.append(model)
+            appendToGroupedChatList(model)
         }
     }
     

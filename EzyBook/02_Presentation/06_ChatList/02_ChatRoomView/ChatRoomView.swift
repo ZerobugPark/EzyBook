@@ -17,14 +17,24 @@ struct MessageInputAction {
 // MARK: - 메인 채팅 뷰
 struct ChatRoomView: View {
     
+    struct ImagePreviewItem: Identifiable {
+        let id = UUID()
+        let path: String
+        
+    }
+    
     @StateObject var viewModel: ChatRoomViewModel
     
     @State private var height: CGFloat = 40
     @State private var selectedImage: [UIImage] = []
+    
+    
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var container: AppDIContainer
     
     /// 화면전환 트리거
     @State var isPickerTapped: Bool = false
+    @State var imageTapped: ImagePreviewItem?
     
     let onBack: () -> Void
     
@@ -36,15 +46,19 @@ struct ChatRoomView: View {
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(spacing: 8) {
-                            ForEach(viewModel.output.chatList, id: \.chatID) { message in
+                            ForEach(viewModel.output.groupedChatList, id: \.date) { group in
+                                dateDivider(for: group.date)
                                 
-                                MessageView(message: message)
-                                  
+                                ForEach(group.messages, id: \.chatID) { message in
+                                    MessageView(message: message) { path in
+                                        handleImageTap(path: path)
+                                    }
+                                }
                             }
                         }
                         .padding(.vertical, 12)
                     }
-                    .onChange(of: viewModel.output.chatList.count) { _ in
+                    .onChange(of: viewModel.output.groupedChatList.count) { _ in
                         scrollToBottom(proxy: proxy)
                     }
                 }
@@ -84,25 +98,49 @@ struct ChatRoomView: View {
                 print(selectedImage.count)
             }
         }
+        .fullScreenCover(item: $imageTapped) { info in
+            imageFullScreenCover(info: info)
+        }
     }
     
     // MARK: - 하단으로 스크롤
     private func scrollToBottom(proxy: ScrollViewProxy) {
-        if let lastMessage = viewModel.output.chatList.last {
+        if let lastGroup = viewModel.output.groupedChatList.last,
+           let lastMessage = lastGroup.messages.last {
             withAnimation(.easeInOut(duration: 0.3)) {
-                proxy.scrollTo(lastMessage.chatID, anchor: UnitPoint.bottom)
+                proxy.scrollTo(lastMessage.chatID, anchor: .bottom)
             }
         }
+    }
+    
+    
+    private func dateDivider(for date: Date) -> some View {
+        Text(date.toDisplayString())
+            .appFont(PretendardFontStyle.caption1, textColor: .grayScale60)
+            .padding(.vertical, 8)
+    }
+    
+    private func handleImageTap(path: String) {
+        imageTapped = ImagePreviewItem(path: path)
+    }
+    
+    
+    func imageFullScreenCover(info: ImagePreviewItem) -> some View {
+        ZoomableImageFullScreenView(
+            viewModel: container.homeDIContainer.makeZoomableImageFullScreenViewModel(),
+            path: info.path
+        )
     }
     
 }
 
 struct MessageView: View {
     let message: ChatMessageEntity
-
+    let onImageTap: (String) -> Void
+    
     var body: some View {
         VStack(alignment: message.isMine != true ? .leading : .trailing) {
-            PhotoGridView(paths: message.files)
+            PhotoGridView(paths: message.files, onImageTappped: onImageTap)
             HStack(alignment: .bottom, spacing: 4) {
                 if message.isMine {
                     Spacer()
@@ -116,15 +154,15 @@ struct MessageView: View {
                 }
             }
         }
-        .padding(.horizontal, 12)
-  
+        .padding(.horizontal, 24)
+        
     }
     
     
     func messageTimeView() -> some View {
         Text(message.formatTime)
             .appFont(PretendardFontStyle.caption2, textColor: .grayScale60)
-            
+        
     }
 }
 
@@ -146,31 +184,31 @@ struct MessageBubleView: View {
                     .offset(x: message.isMine != true ? -8 : 8, y: 8)
                     .foregroundStyle(message.isMine != true ? .grayScale45 : .deepSeafoam)
             }
-            
+        
         
     }
 }
 
 struct PhotoGridView: View {
     let paths: [String]
-    
+    let onImageTappped: (String) -> (Void)
     var body: some View {
         VStack(spacing: 4) {
             switch paths.count {
             case 1:
-                imageView(paths[0], size: 180)
+                imageView(paths[0], size: 180, onImageTappped)
                 
             case 2:
                 HStack(spacing: 4) {
                     ForEach(paths.prefix(2), id: \.self) { image in
-                        imageView(image, size: 90)
+                        imageView(image, size: 90, onImageTappped)
                     }
                 }
                 
             case 3:
                 HStack(spacing: 4) {
                     ForEach(paths.prefix(3), id: \.self) { image in
-                        imageView(image, size: 60)
+                        imageView(image, size: 6, onImageTappped)
                     }
                 }
                 
@@ -180,7 +218,7 @@ struct PhotoGridView: View {
                         HStack(spacing: 4) {
                             ForEach(0..<2, id: \.self) { col in
                                 let index = row * 2 + col
-                                imageView(paths[index], size: 90)
+                                imageView(paths[index], size: 90, onImageTappped)
                             }
                         }
                     }
@@ -190,12 +228,12 @@ struct PhotoGridView: View {
                 VStack(spacing: 4) {
                     HStack(spacing: 4) {
                         ForEach(0..<3, id: \.self) { index in
-                            imageView(paths[index], size: 60)
+                            imageView(paths[index], size: 60, onImageTappped)
                         }
                     }
                     HStack(spacing: 4) {
                         ForEach(3..<5, id: \.self) { index in
-                            imageView(paths[index], size: 90)
+                            imageView(paths[index], size: 90, onImageTappped)
                         }
                     }
                 }
@@ -206,14 +244,14 @@ struct PhotoGridView: View {
         }
     }
     
-    func imageView(_ path: String, size: CGFloat) -> some View {
+    func imageView(_ path: String, size: CGFloat, _ onTap: @escaping (String) -> Void ) -> some View {
         RemoteImageView(path: path)
             .frame(width: size, height: size)
             .clipped()
             .cornerRadius(8)
             .contentShape(Rectangle())
             .onTapGesture {
-                print("Tapped")
+                onTap(path)
             }
     }
 }
