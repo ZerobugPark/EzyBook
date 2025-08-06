@@ -5,7 +5,7 @@
 //  Created by youngkyun park on 7/17/25.
 //
 
-import Foundation
+import UIKit
 
 // MARK: Remote
 
@@ -69,6 +69,29 @@ extension DefaultChatRemoteRoomListUseCase {
         try await repo.requestsChatRoomList()
     }
 }
+
+
+/// 이미지 업로드
+final class DefaultChatImageUploadUseCase: ChatImageUploadUseCase {
+    
+    let repo: ChatUploadImageRepository
+    
+    init(repo: ChatUploadImageRepository) {
+        self.repo = repo
+    }
+    
+    
+}
+
+extension DefaultChatImageUploadUseCase {
+    
+    func execute(roodID: String, files: [UIImage]) async throws -> FileResponseEntity {
+        try await repo.requestUploadImage(roodID, files)
+    }
+}
+
+
+
 
 
 

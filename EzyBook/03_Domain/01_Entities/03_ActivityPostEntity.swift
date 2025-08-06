@@ -310,6 +310,10 @@ struct FileResponseEntity {
     init(dto : FileResponseDTO) {
         self.files = dto.files
     }
+    
+    init(dto: ChatFileResponseDTO) {
+        self.files = dto.files
+    }
 }
 
 struct EmptyEntity {}

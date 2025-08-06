@@ -10,11 +10,10 @@ import PhotosUI
 
 struct ImagePickerSheetView: UIViewControllerRepresentable {
     @Binding var selectedImages: [UIImage]
-    var onComplete: () -> Void
     @Environment(\.presentationMode) var presentationMode
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(self, onComplete: onComplete)
+        Coordinator(self)
     }
 
     func makeUIViewController(context: Context) -> PHPickerViewController {
@@ -31,17 +30,14 @@ struct ImagePickerSheetView: UIViewControllerRepresentable {
 
     class Coordinator: NSObject, PHPickerViewControllerDelegate {
         let parent: ImagePickerSheetView
-        let onComplete: () -> Void
-
-        init(_ parent: ImagePickerSheetView, onComplete: @escaping () -> Void) {
+       
+        init(_ parent: ImagePickerSheetView) {
             self.parent = parent
-            self.onComplete = onComplete
         }
 
         func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
             picker.dismiss(animated: true)
             parent.presentationMode.wrappedValue.dismiss()
-            onComplete()
 
             for result in results {
                 if result.itemProvider.canLoadObject(ofClass: UIImage.self) {

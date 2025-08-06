@@ -26,7 +26,7 @@ struct ChatRoomView: View {
     @StateObject var viewModel: ChatRoomViewModel
     
     @State private var height: CGFloat = 40
-    @State private var selectedImage: [UIImage] = []
+    @State private var selectedImages: [UIImage] = []
     
     
     @EnvironmentObject var appState: AppState
@@ -35,6 +35,7 @@ struct ChatRoomView: View {
     /// 화면전환 트리거
     @State var isPickerTapped: Bool = false
     @State var imageTapped: ImagePreviewItem?
+    
     
     let onBack: () -> Void
     
@@ -55,11 +56,33 @@ struct ChatRoomView: View {
                                     }
                                 }
                             }
+                            Color.clear
+                                .frame(height: 10) // 여유 공간
+                                .id("ScrollBottomPadding") // 고유 ID
                         }
                         .padding(.vertical, 12)
                     }
                     .onChange(of: viewModel.output.groupedChatList.count) { _ in
                         scrollToBottom(proxy: proxy)
+         
+                    }
+                    .onChange(of: selectedImages.count) { _ in
+                          //  이미지가 선택되면 채팅 목록을 위로 살짝 올리기
+                          withAnimation(.easeInOut(duration: 0.3)) {
+                              proxy.scrollTo("ScrollBottomPadding", anchor: .top)
+                          }
+                      }
+                }
+                
+                
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack {
+                        ForEach(Array(viewModel.selectedImages.enumerated()), id: \.offset) { index, image in
+                            SelectedImageView(image: image) {
+                                viewModel.selectedImages.remove(at: index)
+                            }
+                        }
                     }
                 }
                 
@@ -94,9 +117,7 @@ struct ChatRoomView: View {
             }
         }
         .sheet(isPresented: $isPickerTapped) {
-            ImagePickerSheetView(selectedImages: $selectedImage) {
-                print(selectedImage.count)
-            }
+            ImagePickerSheetView(selectedImages: $viewModel.selectedImages)
         }
         .fullScreenCover(item: $imageTapped) { info in
             imageFullScreenCover(info: info)
@@ -324,7 +345,40 @@ private extension ChatRoomView {
 }
 
 
-
+struct SelectedImageView: View {
+    
+    let image: UIImage
+    let onDelete: () -> Void
+    
+    var body: some View {
+        ZStack(alignment: .topTrailing) {
+            
+            Image(uiImage: image)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 80, height: 80)
+                .clipped()
+                .cornerRadius(10)
+            
+        }
+        .overlay(
+            Image(systemName: "xmark.circle.fill")
+                .resizable()
+                .frame(width: 20, height: 20)
+                .foregroundColor(.red)
+                .background(Color.white)
+                .clipShape(Circle())
+                .padding(5),
+            alignment: .topTrailing
+        )
+        .onTapGesture {
+            onDelete()
+        }
+    }
+    
+    
+    
+}
 
 
 //struct ImprovedMessageRow: View {

@@ -71,3 +71,9 @@ extension ChatRoomEntity {
         )
     }
 }
+
+extension  ChatFileResponseDTO {
+    func toEntity() -> FileResponseEntity {
+        FileResponseEntity(dto: self)
+    }
+}

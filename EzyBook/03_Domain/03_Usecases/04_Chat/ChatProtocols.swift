@@ -5,7 +5,7 @@
 //  Created by youngkyun park on 7/17/25.
 //
 
-import Foundation
+import UIKit
 
 
 // MARK: 채팅방 관련 프로토콜
@@ -18,6 +18,10 @@ protocol CreateChatRoomUseCase {
 /// 메시지 송신
 protocol SendMessageUseCase {
     func execute(roomId: String, content: String, files: [String]?) async throws -> ChatEntity
+}
+
+protocol ChatImageUploadUseCase {
+    func execute(roodID: String, files: [UIImage]) async throws -> FileResponseEntity
 }
 
 

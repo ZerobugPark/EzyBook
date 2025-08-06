@@ -14,6 +14,7 @@ struct ChatListUseCases {
     let fetchRealmLatestMessage: FetchLatestChatMessageUseCase
     let fetchRealmMessageList: FetchChatMessageListUseCase
     let fetchRemoteMessage:   FetchRemoteChatMessagesUseCase
+    let uploadImage: ChatImageUploadUseCase
 }
 
 

@@ -21,6 +21,7 @@ final class ChatRoomViewModel: ViewModelType {
     
     @Published var output = Output()
     @Published var content = ""
+    @Published var selectedImages: [UIImage] = []
     
     var cancellables = Set<AnyCancellable>()
     
@@ -77,7 +78,7 @@ extension ChatRoomViewModel {
             
             guard let self else { return }
             
-            self.sendMessage(content: content)
+            performSendMessage(content: content, files: selectedImages)
             self.content = ""
             
         }
@@ -297,19 +298,23 @@ extension ChatRoomViewModel {
         input.sendButtonTapped.send(trimmed)
     }
     
-    private func sendMessage(content: String) {
+    private func performSendMessage(content: String, files: [UIImage]) {
         Task {
             do {
-                let data = try await chatUseCases.sendMessages.execute(roomId: roomID, content: content, files: nil)
-                
+                let fileUrls: [String]
+                if files.isEmpty {
+                    fileUrls = []
+                } else {
+                    fileUrls = await performUploadImage(roomID: roomID, files: files)
+                }
+
+                let data = try await chatUseCases.sendMessages.execute(roomId: roomID, content: content, files: fileUrls)
+
                 await handleSendMessageSuccess(data)
-                
             } catch {
                 await handleError(error)
             }
-            
         }
-        
     }
     
     private func handleSendMessageSuccess(_ message: ChatEntity) async {
@@ -318,13 +323,27 @@ extension ChatRoomViewModel {
             chatUseCases.saveRealmMessages.execute(message: message, myID: userID)
             
             let model = message.toEntity(myID: userID)
+            selectedImages = []
             chatMessageEntity.append(model)
             appendToGroupedChatList(model)
         }
     }
     
     
+    private func performUploadImage(roomID: String, files: [UIImage]) async -> [String] {
+        
+            do {
+                let data = try await chatUseCases.uploadImage.execute(roodID: roomID, files: files)
+                return data.files
+                
+            } catch {
+                await handleError(error)
+                return []
+        }
+    }
     
+   
+ 
 }
 
 

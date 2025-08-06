@@ -5,9 +5,9 @@
 //  Created by youngkyun park on 6/30/25.
 //
 
-import Foundation
+import UIKit
 
-final class DefaultChatRepository: ChatRoomRepository, ChatListRepository, ChatRoomListRepository, ChatSendMessageRepository {
+final class DefaultChatRepository: ChatRoomRepository, ChatListRepository, ChatRoomListRepository, ChatSendMessageRepository, ChatUploadImageRepository {
  
 
     private let networkService: NetworkService
@@ -55,6 +55,15 @@ final class DefaultChatRepository: ChatRoomRepository, ChatListRepository, ChatR
         
         ///_ router: ChatRequest.Post
         let data = try await networkService.fetchData(dto: ChatResponseDTO.self, router)
+        
+        return data.toEntity()
+    }
+    
+    
+    func requestUploadImage(_ id: String, _ files: [UIImage]) async throws -> FileResponseEntity {
+        
+        let router = ChatRequest.Multipart.uploadChatFiles(id: id, image: files)
+        let data = try await networkService.fetchData(dto: ChatFileResponseDTO.self, router)
         
         return data.toEntity()
     }

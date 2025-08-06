@@ -5,7 +5,7 @@
 //  Created by youngkyun park on 6/30/25.
 //
 
-import Foundation
+import UIKit
 
 
 /// 채팅방 생성
@@ -29,3 +29,8 @@ protocol ChatSendMessageRepository {
     func requestSendMessage(_ roomId: String, _ content: String, _ files: [String]?) async throws -> ChatEntity
 }
 
+
+/// 이미지 업로드
+protocol ChatUploadImageRepository {
+    func requestUploadImage(_ id: String, _ files: [UIImage]) async throws -> FileResponseEntity
+}
