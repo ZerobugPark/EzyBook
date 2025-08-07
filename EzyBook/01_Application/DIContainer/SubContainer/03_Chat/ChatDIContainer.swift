@@ -35,7 +35,8 @@ extension ChatDIContainer {
             fetchRealmLatestMessage: makeFetchLatestChatMessageUseCase(),
             fetchRealmMessageList: makeFetchChatMessageListUseCase(),
             fetchRemoteMessage: makeFetchRemoteChatMessagesUseCase(),
-            uploadImage: makeChatImageUploadUseCase()
+            uploadImage: makeChatImageUploadUseCase(),
+            uploadFile: makeChatFileUploadUseCase()
         )
     }
     
@@ -58,8 +59,14 @@ extension ChatDIContainer {
         DefaultRealmFetchChatMessageListUseCase(repo: makeChatMessageRealmRepository())
     }
     
+    /// 이미지 업로드
     private func makeChatImageUploadUseCase() -> ChatImageUploadUseCase {
         DefaultChatImageUploadUseCase(repo: makeChatRepository())
+    }
+    
+    /// 파일 업로드
+    private func makeChatFileUploadUseCase() -> ChatFileUploadUseCase {
+        DefaultChatFileUploadUseCase(repo: makeChatRepository())
     }
     
     

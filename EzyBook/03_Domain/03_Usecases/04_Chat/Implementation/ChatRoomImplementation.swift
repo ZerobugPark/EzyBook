@@ -90,6 +90,24 @@ extension DefaultChatImageUploadUseCase {
     }
 }
 
+final class DefaultChatFileUploadUseCase: ChatFileUploadUseCase {
+    
+    let repo: ChatUploadFileRepository
+    
+    init(repo: ChatUploadFileRepository) {
+        self.repo = repo
+    }
+    
+    
+}
+
+extension DefaultChatFileUploadUseCase {
+    
+    func execute(roodID: String, file: URL) async throws -> FileResponseEntity {
+        try await repo.requestUploadFile(roodID, file)
+    }
+}
+
 
 
 

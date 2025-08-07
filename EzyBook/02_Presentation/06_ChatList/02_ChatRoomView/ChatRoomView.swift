@@ -26,9 +26,8 @@ struct ChatRoomView: View {
     @StateObject var viewModel: ChatRoomViewModel
     
     @State private var height: CGFloat = 40
-    @State private var selectedImages: [UIImage] = []
-    @State private var selectedFileURL: URL?
     
+
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var container: AppDIContainer
     
@@ -47,7 +46,7 @@ struct ChatRoomView: View {
                 // 채팅 메시지 리스트
                 ScrollViewReader { proxy in
                     ScrollView {
-                        LazyVStack(spacing: 8) {
+                        LazyVStack(spacing: 12) {
                             ForEach(viewModel.output.groupedChatList, id: \.date) { group in
                                 dateDivider(for: group.date)
                                 
@@ -67,7 +66,7 @@ struct ChatRoomView: View {
                         scrollToBottom(proxy: proxy)
          
                     }
-                    .onChange(of: selectedImages.count) { _ in
+                    .onChange(of: viewModel.selectedImages.count) { _ in
                           //  이미지가 선택되면 채팅 목록을 위로 살짝 올리기
                           withAnimation(.easeInOut(duration: 0.3)) {
                               proxy.scrollTo("ScrollBottomPadding", anchor: .top)
@@ -123,7 +122,14 @@ struct ChatRoomView: View {
         .fullScreenCover(item: $imageTapped) { info in
             imageFullScreenCover(info: info)
         }
-        .filePicker(isPresented: $isFilePickerTapped, selectedURL: $selectedFileURL)
+        .filePicker(isPresented: $isFilePickerTapped, selectedURL: $viewModel.selectedFileURL) {
+            viewModel.action(.sendFile)
+        }
+        .withCommonUIHandling(viewModel) { code, _ in
+            if code == 418 {
+                appState.isLoggedIn = false
+            }
+        }
      
     }
     
@@ -164,17 +170,25 @@ struct MessageView: View {
     
     var body: some View {
         VStack(alignment: message.isMine != true ? .leading : .trailing) {
-            PhotoGridView(paths: message.files, onImageTappped: onImageTap)
-            HStack(alignment: .bottom, spacing: 4) {
-                if message.isMine {
-                    Spacer()
-                    messageTimeView()
-                    MessageBubleView(message: message)
-                    
-                } else {
-                    MessageBubleView(message: message)
-                    messageTimeView()
-                    Spacer()
+            
+            if let firstFile = message.files.first, firstFile.hasSuffix(".pdf") {
+                PdfView(files: firstFile)
+            } else {
+                PhotoGridView(paths: message.files, onImageTappped: onImageTap)
+            }
+            
+            if !message.content.isEmpty {
+                HStack(alignment: .bottom, spacing: 4) {
+                    if message.isMine {
+                        Spacer()
+                        messageTimeView()
+                        MessageBubleView(message: message)
+                        
+                    } else {
+                        MessageBubleView(message: message)
+                        messageTimeView()
+                        Spacer()
+                    }
                 }
             }
         }
@@ -213,6 +227,35 @@ struct MessageBubleView: View {
     }
 }
 
+struct PdfView: View {
+    
+    let files: String
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "doc.text")
+                .font(.system(size: 24))
+                .foregroundColor(.deepSeafoam)
+            
+            Text(URL(fileURLWithPath: files).lastPathComponent)
+                .lineLimit(2)
+                .appFont(PretendardFontStyle.body2, textColor: .grayScale90)
+                .frame(width: 150)
+            
+        }
+        .padding(12)
+        .background(
+          RoundedRectangle(cornerRadius: 10, style: .continuous)
+            .foregroundColor(.grayScale30)
+        )
+        
+        
+    }
+    
+    
+}
+
+// MARK: 이미지 표시
 struct PhotoGridView: View {
     let paths: [String]
     let onImageTappped: (String) -> (Void)

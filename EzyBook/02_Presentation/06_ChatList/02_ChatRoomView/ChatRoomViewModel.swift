@@ -8,6 +8,10 @@
 import SwiftUI
 import Combine
 
+import PDFKit
+import CoreGraphics
+
+
 final class ChatRoomViewModel: ViewModelType {
     
     private var socketService: SocketService
@@ -22,6 +26,7 @@ final class ChatRoomViewModel: ViewModelType {
     @Published var output = Output()
     @Published var content = ""
     @Published var selectedImages: [UIImage] = []
+    @Published var selectedFileURL: URL?
     
     var cancellables = Set<AnyCancellable>()
     
@@ -78,7 +83,7 @@ extension ChatRoomViewModel {
             
             guard let self else { return }
             
-            performSendMessage(content: content, files: selectedImages)
+            performSendMessage(content: content, imgase: selectedImages)
             self.content = ""
             
         }
@@ -268,7 +273,7 @@ extension ChatRoomViewModel {
             newMessages.forEach { appendToGroupedChatList($0) }
         }
     }
-
+    
     // MARK: - Grouped Chat List Helper
     private func appendToGroupedChatList(_ message: ChatMessageEntity) {
         let date = Calendar.current.startOfDay(for: message.createdAt)
@@ -298,18 +303,32 @@ extension ChatRoomViewModel {
         input.sendButtonTapped.send(trimmed)
     }
     
-    private func performSendMessage(content: String, files: [UIImage]) {
+    private func performSendMessage(content: String, imgase: [UIImage], file: URL? = nil) {
         Task {
             do {
                 let fileUrls: [String]
-                if files.isEmpty {
+                if imgase.isEmpty && file == nil {
                     fileUrls = []
                 } else {
-                    fileUrls = await performUploadImage(roomID: roomID, files: files)
+                    if let url = file {
+                        fileUrls = await performUploadFile(roomID: roomID, url: url)
+                    } else {
+                        fileUrls = await performUploadImage(roomID: roomID, files: imgase)
+                    }
+                    
+                    /// 업로드 실패 시
+                    if fileUrls.isEmpty {
+                        await MainActor.run {
+                            output.presentedMessage = DisplayMessage.error(code: -1, msg: "파일/이미지 업로드 실패")
+                        }
+                        return
+                    }
+                    
                 }
-
+                
+                
                 let data = try await chatUseCases.sendMessages.execute(roomId: roomID, content: content, files: fileUrls)
-
+                
                 await handleSendMessageSuccess(data)
             } catch {
                 await handleError(error)
@@ -320,7 +339,7 @@ extension ChatRoomViewModel {
     private func handleSendMessageSuccess(_ message: ChatEntity) async {
         await MainActor.run {
             // Realm 저장
-
+            
             chatUseCases.saveRealmMessages.execute(message: message, myID: userID)
             
             let model = message.toEntity(myID: userID)
@@ -333,18 +352,63 @@ extension ChatRoomViewModel {
     
     private func performUploadImage(roomID: String, files: [UIImage]) async -> [String] {
         
-            do {
-                let data = try await chatUseCases.uploadImage.execute(roodID: roomID, files: files)
-                return data.files
-                
-            } catch {
-                await handleError(error)
-                return []
+        do {
+            let data = try await chatUseCases.uploadImage.execute(roodID: roomID, files: files)
+            return data.files
+            
+        } catch {
+            await handleError(error)
+            return []
         }
     }
     
-   
- 
+    // MARK: 파일 업로드
+    
+    private func handleFileUpload() {
+        performSendMessage(content: "파일", imgase: [], file: selectedFileURL)
+        
+        
+        
+        /// PDF 압축 테스트용
+        //        let tmpDir = FileManager.default.temporaryDirectory
+        //        let outputURL = tmpDir.appendingPathComponent("compressed.pdf")
+        //
+        //        #if DEBUG
+        //        let originalData = (try? Data(contentsOf: url))
+        //        print("Original PDF size: \(originalData?.count ?? 0) bytes")
+        //        #endif
+        //
+        //        if #available(iOS 16.4, *) {
+        //            let success = compressPDFWithJPEG(inputURL: url, outputURL: outputURL) //compressPDF(inputURL: url, outputURL: outputURL)
+        //            #if DEBUG
+        //            if success {
+        //                let compressedData = (try? Data(contentsOf: outputURL))
+        //
+        //                print("Compressed PDF size: \(compressedData?.count ?? 0) bytes")
+        //            } else {
+        //                print("PDF compression failed")
+        //            }
+        //            #endif
+        //        } else {
+        //            // Fallback on earlier versions
+        //        }
+        
+    }
+    
+    
+    
+    private func performUploadFile(roomID: String, url: URL) async -> [String] {
+        do {
+            let data = try await chatUseCases.uploadFile.execute(roodID: roomID, file: url)
+            return data.files
+            
+        } catch {
+            await handleError(error)
+            return []
+        }
+    }
+    
+    
 }
 
 
@@ -354,6 +418,7 @@ extension ChatRoomViewModel {
     
     enum Action {
         case sendButtonTapped
+        case sendFile
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
@@ -361,6 +426,8 @@ extension ChatRoomViewModel {
         switch action {
         case .sendButtonTapped:
             handleSendButtonTapped()
+        case .sendFile:
+            handleFileUpload()
         }
     }
     
@@ -376,5 +443,98 @@ extension ChatRoomViewModel: AnyObjectWithCommonUI {
     
     func resetMessageAction() {
         output.presentedMessage = nil
+    }
+}
+
+
+// MARK: 나중에 PDF 압축 테스트 해보기
+@available(iOS 16.4, *)
+/// 이미 압축된 것은 오히려 재인코딩하기 때문에 효율이 줄어 들 수 있다.
+extension ChatRoomViewModel {
+    func compressPDF(inputURL: URL, outputURL: URL) -> Bool {
+        // 1) 원본 PDF 열기
+        guard let document = PDFDocument(url: inputURL) else { return false }
+        
+        
+        // 2) PDFKit 내장 이미지 최적화 옵션 적용
+        /// saveAllImagesAsJPEG
+        /// PDF 내부에 들어있는 모든 이미지를 JPEG 포맷으로 변환해서 저장
+        /// 먼저 모든 이미지를 JPEG로 변환(.saveAllImagesAsJPEG) → 손실 압축을 통해 용량 절감
+        
+        /// optimizeImagesForScreenOption
+        /// iOS 내부적으로는 PDF 페이지의 디스플레이 박스(mediaBox)에 맞춰, 디바이스의 스케일(1×, 2×, 3×)을 고려해 이미지 크기를 계산
+        ///  화면용 크기로 다운샘플(.optimizeImagesForScreen) → 불필요한 픽셀 제거로 추가 용량 절감
+        let writeOptions: [PDFDocumentWriteOption: Any] = [
+            .saveImagesAsJPEGOption: true,
+            .optimizeImagesForScreenOption: true, // HiDPI Screen Resoltuon??
+        ]
+        
+        ///
+        // 3) 옵션을 사용해 새 PDF 생성
+        return document.write(to: outputURL, withOptions: writeOptions)
+        
+    }
+    
+    /// JPEG 손실 압축 기반 PDF 압축 함수
+    /// - inputURL: 원본 PDF URL
+    /// - outputURL: 압축 PDF 저장 URL
+    /// - scale: 페이지 해상도 비율 (1.0 = 원본, 0.5 = 절반)
+    /// - jpegQuality: JPEG 압축 품질 (0.0~1.0)
+    func compressPDFWithJPEG(
+        inputURL: URL,
+        outputURL: URL,
+        scale: CGFloat = 0.6,
+        jpegQuality: CGFloat = 0.5
+    ) -> Bool {
+        // 1) 원본 PDF 열기
+        guard let pdf = CGPDFDocument(inputURL as CFURL),
+              pdf.numberOfPages > 0
+        else { return false }
+        
+        // 2) 출력용 CGContext 생성 (기본 Flate 압축)
+        guard let context = CGContext(outputURL as CFURL, mediaBox: nil, nil) else {
+            return false
+        }
+        
+        // 3) 페이지별 처리
+        for pageIndex in 1...pdf.numberOfPages {
+            guard let page = pdf.page(at: pageIndex) else { continue }
+            let mediaBox = page.getBoxRect(.mediaBox)
+            let targetSize = CGSize(
+                width: mediaBox.width * scale,
+                height: mediaBox.height * scale
+            )
+            
+            // 3-1) UIImage 렌더링
+            let renderer = UIGraphicsImageRenderer(size: targetSize)
+            let pageImage = renderer.image { ctx in
+                // 흰 배경 채우기
+                UIColor.white.setFill()
+                ctx.fill(CGRect(origin: .zero, size: targetSize))
+                let cgctx = ctx.cgContext
+                cgctx.saveGState()
+                // CoreGraphics PDF 좌표 변환
+                cgctx.translateBy(x: 0, y: targetSize.height)
+                cgctx.scaleBy(x: 1, y: -1)
+                cgctx.scaleBy(x: scale, y: scale)
+                cgctx.drawPDFPage(page)
+                cgctx.restoreGState()
+            }
+            
+            // 3-2) JPEG 데이터 생성
+            guard let jpegData = pageImage.jpegData(compressionQuality: jpegQuality),
+                  let jpegImage = UIImage(data: jpegData)?.cgImage
+            else { continue }
+            
+            // 3-3) PDF 페이지로 다시 그리기
+            let pageRect = CGRect(origin: .zero, size: targetSize)
+            context.beginPDFPage([kCGPDFContextMediaBox as String: pageRect] as CFDictionary)
+            context.draw(jpegImage, in: pageRect)
+            context.endPDFPage()
+        }
+        
+        // 4) 컨텍스트 닫기
+        context.closePDF()
+        return true
     }
 }

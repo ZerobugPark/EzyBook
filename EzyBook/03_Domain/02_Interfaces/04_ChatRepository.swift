@@ -34,3 +34,8 @@ protocol ChatSendMessageRepository {
 protocol ChatUploadImageRepository {
     func requestUploadImage(_ id: String, _ files: [UIImage]) async throws -> FileResponseEntity
 }
+
+// 파일 업로드
+protocol ChatUploadFileRepository {
+    func requestUploadFile(_ id: String, _ url: URL) async throws -> FileResponseEntity
+}

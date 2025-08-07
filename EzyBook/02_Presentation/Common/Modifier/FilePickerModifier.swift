@@ -6,11 +6,12 @@
 //
 
 import SwiftUI
-import UniformTypeIdentifiers
+//import UniformTypeIdentifiers
 
 struct FilePickerModifier: ViewModifier {
     @Binding var isPresented: Bool
     @Binding var selectedURL: URL?
+    let onSelected: () -> Void
     
     func body(content: Content) -> some View {
         content.fileImporter(
@@ -21,16 +22,18 @@ struct FilePickerModifier: ViewModifier {
             switch result {
             case .success(let urls):
                 selectedURL = urls.first
+                onSelected()
             case .failure:
                 selectedURL = nil
             }
         }
     }
 }
-
+ 
 extension View {
-    func filePicker(isPresented: Binding<Bool>, selectedURL: Binding<URL?>) -> some View {
-        self.modifier(FilePickerModifier(isPresented: isPresented, selectedURL: selectedURL))
+    func filePicker(isPresented: Binding<Bool>, selectedURL: Binding<URL?>, onSelect: @escaping () -> Void) -> some View {
+        self.modifier(FilePickerModifier(isPresented: isPresented, selectedURL: selectedURL, onSelected: onSelect))
     }
 }
-
+ 
+  

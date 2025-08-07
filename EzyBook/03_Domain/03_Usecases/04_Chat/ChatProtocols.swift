@@ -25,6 +25,12 @@ protocol ChatImageUploadUseCase {
 }
 
 
+protocol ChatFileUploadUseCase {
+    func execute(roodID: String, file: URL) async throws -> FileResponseEntity
+}
+
+
+
 // MARK: 채팅 목록 관련 프로토콜
 
 // MARK: 서버

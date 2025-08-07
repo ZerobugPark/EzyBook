@@ -7,8 +7,8 @@
 
 import UIKit
 
-final class DefaultChatRepository: ChatRoomRepository, ChatListRepository, ChatRoomListRepository, ChatSendMessageRepository, ChatUploadImageRepository {
- 
+final class DefaultChatRepository: ChatRoomRepository, ChatListRepository, ChatRoomListRepository, ChatSendMessageRepository, ChatUploadImageRepository, ChatUploadFileRepository {
+
 
     private let networkService: NetworkService
     
@@ -62,12 +62,22 @@ final class DefaultChatRepository: ChatRoomRepository, ChatListRepository, ChatR
     
     func requestUploadImage(_ id: String, _ files: [UIImage]) async throws -> FileResponseEntity {
         
-        let router = ChatRequest.Multipart.uploadChatFiles(id: id, image: files)
+        let router = ChatRequest.Multipart.uploadChatImages(id: id, image: files)
         let data = try await networkService.fetchData(dto: ChatFileResponseDTO.self, router)
         
         return data.toEntity()
     }
 
+    
+    func requestUploadFile(_ id: String, _ url: URL) async throws -> FileResponseEntity {
+        
+        let router = ChatRequest.Multipart.uploadChatFile(id: id, file: url)
+        let data = try await networkService.fetchData(dto: ChatFileResponseDTO.self, router)
+        
+        return data.toEntity()
+        
+    }
+    
     
 }
 

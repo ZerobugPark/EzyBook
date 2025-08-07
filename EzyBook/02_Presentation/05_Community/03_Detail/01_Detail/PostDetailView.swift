@@ -308,13 +308,10 @@ struct CommentListView: View {
 struct CommentItemView: View {
     
     let data: CommentEntity
+    // TODO: isOnwer를 댓글 및 대댓글 다 각자 분기 처리 필요
     let isOwner: Bool
     let actions: CommentActions
-    //    let onDeleteTapped: (String) -> Void
-    //    /// 옵셔널 클로저는 자동으로 escaping
-    //    let onEditTapped: (String) -> Void
-    //    let onReplyTapped: ((CommentEntity) -> Void)?
-    
+
     init(
         data: CommentEntity,
         actions: CommentActions
