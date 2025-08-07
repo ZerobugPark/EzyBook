@@ -50,7 +50,7 @@ extension DefaultAuthRepository {
     
     func requestEmailLogin(_ email: String, _ password: String, _ deviceToken: String?) async throws -> LoginEntity {
         
-        let requestDto = EmailLoginRequestDTO(email: email, password: password, deviceToken: nil)
+        let requestDto = EmailLoginRequestDTO(email: email, password: password, deviceToken: UserDefaultManager.fcmToken)
         
         let router = UserRequest.Post.emailLogin(body: requestDto)
         
@@ -62,7 +62,7 @@ extension DefaultAuthRepository {
     /// 카카오 로그인
     func requestKakaoLogin(_ token: String) async throws -> LoginEntity {
         
-        let requestDto = KakaoLoginRequestDTO(oauthToken: token, deviceToken: nil)
+        let requestDto = KakaoLoginRequestDTO(oauthToken: token, deviceToken: UserDefaultManager.fcmToken)
         let router = UserRequest.Post.kakaoLogin(body: requestDto)
         
         let data = try await networkService.fetchData(dto: LoginResponseDTO.self, router)

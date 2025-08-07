@@ -79,7 +79,7 @@ extension EmailLoginViewModel {
         
         do {
             
-            let data = try await emailLoginUseCase.execute(email: input.emailTextField, password: input.passwordTextField, deviceToken: nil)
+            let data = try await emailLoginUseCase.execute(email: input.emailTextField, password: input.passwordTextField, deviceToken: UserDefaultManager.fcmToken)
             
             UserSession.shared.update(data)
             

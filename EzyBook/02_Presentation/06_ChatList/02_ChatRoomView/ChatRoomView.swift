@@ -107,6 +107,7 @@ struct ChatRoomView: View {
                 )
             }
             .background(Color(UIColor.systemBackground))
+            
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)
@@ -138,6 +139,13 @@ struct ChatRoomView: View {
                 appState.isLoggedIn = false
             }
         }
+        .onAppear {
+            NotificationCenter.default.post(name: .didEnterChatRoom, object: viewModel.roomID)
+        }
+        .onDisappear {
+            NotificationCenter.default.post(name: .didLeaveChatRoom, object: viewModel.roomID)
+        }
+     
      
     }
     

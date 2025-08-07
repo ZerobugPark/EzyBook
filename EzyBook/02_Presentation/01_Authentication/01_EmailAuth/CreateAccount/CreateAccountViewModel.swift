@@ -213,7 +213,7 @@ extension CreateAccountViewModel {
                 nick: input.nicknameTextField,
                 phoneNum: input.phoneNumberTextField.isEmpty ? nil : input.phoneNumberTextField,
                 introduction: input.introduceTextField.isEmpty ? nil : input.introduceTextField,
-                deviceToken: nil
+                deviceToken: UserDefaultManager.fcmToken
             )
                 
             await MainActor.run {
