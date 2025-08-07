@@ -15,6 +15,7 @@ enum ChatRequest {
     enum Get: GetRouter {
         case lookUpChatRoomList // 채팅방 목록 조회
         case lookUpChatList(id: String, dto: ChatListRequestDTO) //채팅내역 목록 조회
+        case lookUpPDF(path: String)
         
         var requiresAuth: Bool {
             true
@@ -26,6 +27,8 @@ enum ChatRequest {
                 ChatEndPoint.lookUpChatRoomList.requestURL
             case .lookUpChatList(let id, _):
                 ChatEndPoint.lookUpChatList(id: id).requestURL
+            case .lookUpPDF(let path):
+                ChatEndPoint.lookUpPDF(path: path).requestURL
             }
         }
         
@@ -47,6 +50,8 @@ enum ChatRequest {
                     return nil
                 }
                 
+            case .lookUpPDF:
+                return nil
             }
         }
         

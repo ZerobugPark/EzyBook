@@ -69,8 +69,10 @@ extension ChatDIContainer {
         DefaultChatFileUploadUseCase(repo: makeChatRepository())
     }
     
-    
-
+    /// 파일 로드
+    func makeFileLoadUseCase() -> DefaultFileLoadUseCase {
+        DefaultFileLoadUseCase(repo: makeChatRepository())
+    }
     
     // MARK: 채팅 목록
     private func makeFetchRealmChatRoomListUseCase() -> FetchRealmChatRoomListUseCase {

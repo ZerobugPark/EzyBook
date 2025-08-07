@@ -39,3 +39,7 @@ protocol ChatUploadImageRepository {
 protocol ChatUploadFileRepository {
     func requestUploadFile(_ id: String, _ url: URL) async throws -> FileResponseEntity
 }
+
+protocol ChatLoadPDFRepository {
+    func requestLoadPDF(_ path: String) async throws -> Data
+}

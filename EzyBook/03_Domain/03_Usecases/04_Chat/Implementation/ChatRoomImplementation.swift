@@ -109,9 +109,22 @@ extension DefaultChatFileUploadUseCase {
 }
 
 
-
-
-
+/// 파일 데이터
+final class DefaultFileLoadUseCase {
+    
+    
+    private let repo: ChatLoadPDFRepository
+    
+    init(repo: ChatLoadPDFRepository) {
+        self.repo = repo
+    }
+    
+    func execute(path: String) async throws -> Data {
+        try await repo.requestLoadPDF(path)
+    }
+    
+    
+}
 
 
 // MARK: Local

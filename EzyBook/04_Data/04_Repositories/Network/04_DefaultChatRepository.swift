@@ -7,9 +7,8 @@
 
 import UIKit
 
-final class DefaultChatRepository: ChatRoomRepository, ChatListRepository, ChatRoomListRepository, ChatSendMessageRepository, ChatUploadImageRepository, ChatUploadFileRepository {
-
-
+final class DefaultChatRepository: ChatRoomRepository, ChatListRepository, ChatRoomListRepository, ChatSendMessageRepository, ChatUploadImageRepository, ChatUploadFileRepository, ChatLoadPDFRepository {
+   
     private let networkService: NetworkService
     
     init(networkService: NetworkService) {
@@ -59,7 +58,7 @@ final class DefaultChatRepository: ChatRoomRepository, ChatListRepository, ChatR
         return data.toEntity()
     }
     
-    
+    /// 이미지 업로드
     func requestUploadImage(_ id: String, _ files: [UIImage]) async throws -> FileResponseEntity {
         
         let router = ChatRequest.Multipart.uploadChatImages(id: id, image: files)
@@ -68,7 +67,7 @@ final class DefaultChatRepository: ChatRoomRepository, ChatListRepository, ChatR
         return data.toEntity()
     }
 
-    
+    /// 파일 업로드
     func requestUploadFile(_ id: String, _ url: URL) async throws -> FileResponseEntity {
         
         let router = ChatRequest.Multipart.uploadChatFile(id: id, file: url)
@@ -78,6 +77,13 @@ final class DefaultChatRepository: ChatRoomRepository, ChatListRepository, ChatR
         
     }
     
+    /// 파일 로드
+    func requestLoadPDF(_ path: String) async throws -> Data {
+        let router = ChatRequest.Get.lookUpPDF(path: path)
+        let data = try await networkService.fetchPDFData(router)
+    
+        return data
+    }
     
 }
 

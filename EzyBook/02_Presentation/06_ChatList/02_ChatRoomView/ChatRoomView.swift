@@ -17,7 +17,7 @@ struct MessageInputAction {
 // MARK: - 메인 채팅 뷰
 struct ChatRoomView: View {
     
-    struct ImagePreviewItem: Identifiable {
+    struct PreviewItem: Identifiable {
         let id = UUID()
         let path: String
         
@@ -34,7 +34,8 @@ struct ChatRoomView: View {
     /// 화면전환 트리거
     @State var isImagePickerTapped: Bool = false
     @State var isFilePickerTapped: Bool = false
-    @State var imageTapped: ImagePreviewItem?
+    @State var imageTapped: PreviewItem?
+    @State var fileTapped: PreviewItem?
     
     
     let onBack: () -> Void
@@ -53,7 +54,11 @@ struct ChatRoomView: View {
                                 ForEach(group.messages, id: \.chatID) { message in
                                     MessageView(message: message) { path in
                                         handleImageTap(path: path)
+                                    } onFileTap: { path in
+                                        handleFileTap(path: path)
                                     }
+
+
                                 }
                             }
                             Color.clear
@@ -122,6 +127,9 @@ struct ChatRoomView: View {
         .fullScreenCover(item: $imageTapped) { info in
             imageFullScreenCover(info: info)
         }
+        .fullScreenCover(item: $fileTapped) { info in
+            fileFullScreenCover(info: info)
+        }
         .filePicker(isPresented: $isFilePickerTapped, selectedURL: $viewModel.selectedFileURL) {
             viewModel.action(.sendFile)
         }
@@ -151,15 +159,25 @@ struct ChatRoomView: View {
     }
     
     private func handleImageTap(path: String) {
-        imageTapped = ImagePreviewItem(path: path)
+        imageTapped = PreviewItem(path: path)
     }
     
+    private func handleFileTap(path: String) {
+        fileTapped = PreviewItem(path: path)
+    }
     
-    func imageFullScreenCover(info: ImagePreviewItem) -> some View {
+
+    
+    
+    func imageFullScreenCover(info: PreviewItem) -> some View {
         ZoomableImageFullScreenView(
             viewModel: container.homeDIContainer.makeZoomableImageFullScreenViewModel(),
             path: info.path
         )
+    }
+    
+    func fileFullScreenCover(info: PreviewItem) -> some View {
+        return PDFFullScreenView(path: info.path)
     }
     
 }
@@ -167,12 +185,13 @@ struct ChatRoomView: View {
 struct MessageView: View {
     let message: ChatMessageEntity
     let onImageTap: (String) -> Void
+    let onFileTap: (String) -> Void
     
     var body: some View {
         VStack(alignment: message.isMine != true ? .leading : .trailing) {
             
             if let firstFile = message.files.first, firstFile.hasSuffix(".pdf") {
-                PdfView(files: firstFile)
+                PdfView(file: firstFile, onFileTapped: onFileTap)
             } else {
                 PhotoGridView(paths: message.files, onImageTappped: onImageTap)
             }
@@ -229,7 +248,8 @@ struct MessageBubleView: View {
 
 struct PdfView: View {
     
-    let files: String
+    let file: String
+    let onFileTapped: (String) -> Void
     
     var body: some View {
         HStack(spacing: 12) {
@@ -237,7 +257,7 @@ struct PdfView: View {
                 .font(.system(size: 24))
                 .foregroundColor(.deepSeafoam)
             
-            Text(URL(fileURLWithPath: files).lastPathComponent)
+            Text(URL(fileURLWithPath: file).lastPathComponent)
                 .lineLimit(2)
                 .appFont(PretendardFontStyle.body2, textColor: .grayScale90)
                 .frame(width: 150)
@@ -248,6 +268,10 @@ struct PdfView: View {
           RoundedRectangle(cornerRadius: 10, style: .continuous)
             .foregroundColor(.grayScale30)
         )
+        .contentShape(RoundedRectangle(cornerRadius: 10))
+        .onTapGesture {
+            onFileTapped(file)
+        }
         
         
     }
