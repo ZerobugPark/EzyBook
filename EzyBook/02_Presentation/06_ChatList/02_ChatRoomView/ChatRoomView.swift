@@ -228,23 +228,25 @@ struct MessageBubleView: View {
     let message: ChatMessageEntity
     
     var body: some View {
-        
+                
         Text(message.content)
             .appFont(PretendardFontStyle.body2, textColor: .grayScale90)
             .padding(10)
             .background(message.isMine != true ? .grayScale45 : .deepSeafoam)
             .clipShape(RoundedRectangle(cornerRadius: 16.0, style: .continuous))
-            .overlay(alignment: message.isMine != true ? .bottomLeading : .bottomTrailing) {
-                Image(systemName: "arrowtriangle.down.fill")
-                    .font(.title3)
-                    .rotationEffect(.degrees(message.isMine != true ? 45: -45))
-                    .offset(x: message.isMine != true ? -8 : 8, y: 8)
-                    .foregroundStyle(message.isMine != true ? .grayScale45 : .deepSeafoam)
-            }
-        
-        
+//            .overlay(alignment: message.isMine != true ? .bottomLeading : .bottomTrailing) {
+//                Image(systemName: "arrowtriangle.down.fill")
+//                    .font(.title3)
+//                    .rotationEffect(.degrees(message.isMine != true ? 45: -45))
+//                    .offset(x: message.isMine != true ? -10 : 10, y: 10)
+//                    .foregroundStyle(message.isMine != true ? .grayScale45 : .deepSeafoam)
+//            }
+////        
+//        
     }
 }
+
+
 
 struct PdfView: View {
     

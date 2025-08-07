@@ -115,7 +115,6 @@ struct PostDetailView: View {
         .background(.grayScale15)
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 BackButtonView {
@@ -338,8 +337,7 @@ struct CommentItemView: View {
         if !data.replies.isEmpty {
             ForEach(data.replies, id: \.commentID) { data in
                 ReplyContentView(
-                    data: data,
-                    isOwner: isOwner
+                    data: data
                 ) {
                     actions.onEdit(data.commentID, data.content)
                 } onDelete: {
@@ -425,6 +423,17 @@ struct ReplyContentView: View {
     let onEdit: () -> Void
     let onDelete: () -> Void
     @State private var isActionSheetPresented = false
+    
+ 
+
+    init(data: ReplyEntity, onEdit: @escaping () -> Void, onDelete: @escaping () -> Void) {
+        self.data = data
+        self.onEdit = onEdit
+        self.onDelete = onDelete
+        self.isOwner = data.creator.userID == UserSession.shared.currentUser?.userID
+        
+    }
+    
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
