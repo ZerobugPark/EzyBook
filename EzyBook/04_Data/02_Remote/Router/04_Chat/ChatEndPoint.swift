@@ -14,6 +14,7 @@ enum ChatEndPoint: APIEndPoint {
     case sendChat(id: String) //채팅 보내기
     case lookUpChatList(id: String) //채팅내역 목록 조회
     case uploadChatFiles(id: String) // 채팅방 파일 업로드
+    case lookUpPDF(path: String)
 
     
     var path: String {
@@ -24,6 +25,8 @@ enum ChatEndPoint: APIEndPoint {
             return "/v1/chats/\(id)"
         case .uploadChatFiles(let id):
             return "/v1/chats/\(id)/files"
+        case .lookUpPDF(let path):
+            return "/v1/" + path
         }
     }
 

@@ -115,7 +115,6 @@ struct PostDetailView: View {
         .background(.grayScale15)
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 BackButtonView {
@@ -308,13 +307,10 @@ struct CommentListView: View {
 struct CommentItemView: View {
     
     let data: CommentEntity
+    // TODO: isOnwer를 댓글 및 대댓글 다 각자 분기 처리 필요
     let isOwner: Bool
     let actions: CommentActions
-    //    let onDeleteTapped: (String) -> Void
-    //    /// 옵셔널 클로저는 자동으로 escaping
-    //    let onEditTapped: (String) -> Void
-    //    let onReplyTapped: ((CommentEntity) -> Void)?
-    
+
     init(
         data: CommentEntity,
         actions: CommentActions
@@ -341,8 +337,7 @@ struct CommentItemView: View {
         if !data.replies.isEmpty {
             ForEach(data.replies, id: \.commentID) { data in
                 ReplyContentView(
-                    data: data,
-                    isOwner: isOwner
+                    data: data
                 ) {
                     actions.onEdit(data.commentID, data.content)
                 } onDelete: {
@@ -429,6 +424,17 @@ struct ReplyContentView: View {
     let onDelete: () -> Void
     @State private var isActionSheetPresented = false
     
+ 
+
+    init(data: ReplyEntity, onEdit: @escaping () -> Void, onDelete: @escaping () -> Void) {
+        self.data = data
+        self.onEdit = onEdit
+        self.onDelete = onDelete
+        self.isOwner = data.creator.userID == UserSession.shared.currentUser?.userID
+        
+    }
+    
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .center, spacing: 12) {
@@ -488,15 +494,10 @@ struct CommentActionButtonView: View {
                         .rotationEffect(.degrees(90))
                         .foregroundColor(.gray)
                 }
-                .actionSheet(isPresented: $isPresented) {
-                    ActionSheet(
-                        title: Text("댓글 관리"),
-                        buttons: [
-                            .default(Text("수정하기"), action: onEdit),
-                            .destructive(Text("삭제하기"), action: onDelete),
-                            .cancel(Text("닫기"))
-                        ]
-                    )
+                .confirmationDialog("댓글 관리", isPresented: $isPresented, titleVisibility: .visible) {
+                    Button("수정하기", action: onEdit)
+                    Button("삭제하기", role: .destructive, action: onDelete)
+                    Button("닫기", role: .cancel) { }
                 }
             }
         }

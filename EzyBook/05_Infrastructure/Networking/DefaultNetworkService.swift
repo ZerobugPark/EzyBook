@@ -120,6 +120,44 @@ final class DefaultNetworkService: NetworkService {
     }
     
     
+    
+}
+
+extension DefaultNetworkService {
+    
+    func fetchPDFData<R: NetworkRouter>(_ router: R) async throws -> Data {
+        
+        let urlRequest: URLRequest
+        do {
+            urlRequest = try router.asURLRequest()
+        } catch {
+            throw APIError(localErrorType: .missingEndpoint)
+        }
+        //모든 분기 경로에서 초기화가 보장될 경우 초기화와 선언을 동시에 하지 않아도 괜찮음
+        let response: AFDataResponse<Data>
+        
+        response = await session
+                  .request(urlRequest)
+                  .validate(statusCode: 200...299)
+                  .serializingData()
+                  .response
+        
+        
+        let statusCode = response.response?.statusCode ?? -1
+        
+        
+        switch response.result {
+           case .success(let data):
+               return data
+           case .failure:
+               throw APIError(statusCode: statusCode, data: response.data)
+           }
+        
+        
+    }
+    
+    
+    
 }
 
 

@@ -36,7 +36,7 @@ struct ChatEntity {
     let createdAt: String
     let updatedAt: String
     let sender: UserInfoEntity
-    let files: [String]
+    var files: [String]
     
     init(dto: ChatResponseDTO) {
         self.chatID = dto.chatId
@@ -57,6 +57,47 @@ struct ChatEntity {
         self.sender = sender
         self.files = files
     }
+    
+
+    
+    
+}
+
+extension ChatEntity {
+    
+    static func from(dict: [String : Any]) -> ChatEntity? {
+         guard
+             let chatID = dict["chat_id"] as? String,
+             let content = dict["content"] as? String,
+             let roomID = dict["room_id"] as? String,
+             let createdAt = dict["createdAt"] as? String,
+             let senderDict = dict["sender"] as? [String: Any],
+             let userID = senderDict["user_id"] as? String,
+             let nick = senderDict["nick"] as? String,
+             let profileImage = senderDict["profileImage"] as? String
+         else {
+             return nil
+         }
+
+         let files = dict["files"] as? [String] ?? []
+
+        return ChatEntity(
+            chatId: chatID,
+            roomId: roomID,
+            content: content,
+            createdAt: createdAt,
+            updatedAt: userID,
+            sender: UserInfoEntity(
+                dto: UserInfoResponseDTO(
+                    userID: userID,
+                    nick: nick,
+                    profileImage: profileImage,
+                    introduction: ""
+                )
+            ),
+            files: files
+        )
+     }
 }
 
 
@@ -65,71 +106,28 @@ struct ChatMessageEntity {
     let content: String
     let createdAt: Date
     let files: [String]
-    let roomID: String
+    let opponentInfo: OpponentSummary
     
     var isMine: Bool
-    
-    struct Sender {
-        let userID: String
-        let nick: String
-        let profilePath: String?
+
+    var formatTime: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR") // 한국어 오전/오후
+        formatter.dateFormat = "a hh:mm" // "오전 10:23" / "오후 03:45"
+        return formatter.string(from: self.createdAt)
+        
     }
-    
-    
-    init(chatID: String, content: String, createdAt: Date, files: [String], roomID: String, sender: Sender, isMine: Bool) {
-        self.chatID = chatID
-        self.content = content
-        self.createdAt = createdAt
-        self.files = files
-        self.roomID = roomID
-        self.isMine = isMine
-    }
-    
-    
-    init(entity: ChatEntity) {
-        self.chatID = entity.chatID
-        self.content = entity.content
-        self.createdAt = entity.createdAt.toDate()
-        self.files = entity.files
-        self.roomID = entity.roomID
-        self.isMine = false
-    }
-    
-//    static func from(dict: [String : Any]) -> ChatMessageEntity? {
-//         guard
-//             let chatID = dict["chat_id"] as? String,
-//             let content = dict["content"] as? String,
-//             let roomID = dict["room_id"] as? String,
-//             let createdAt = dict["createdAt"] as? String,
-//             let senderDict = dict["sender"] as? [String: Any],
-//             let userID = senderDict["user_id"] as? String,
-//             let nick = senderDict["nick"] as? String
-//         else {
-//             return nil
-//         }
-//
-//         let files = dict["files"] as? [String] ?? []
-//
-//         return ChatMessageEntity(
-//             chatID: chatID,
-//             content: content,
-//             createdAt: createdAt.toDate(),
-//             files: files,
-//             roomID: roomID,
-//             sender: Sender(userID: userID, nick: nick, profilePath: nil),
-//             isMine: false
-//         )
-//     }
 }
 
 
 struct LastMessageSummary: Identifiable {
-    let id = UUID()
+    var id: String { roomID }
+    let roomID: String
     let content: String
     let updateAt: Date
     let unreadCount: Int
     let opponentInfo: OpponentSummary
-    
+    let files: [String]
     
     var formattedDate: String {
         let calendar = Calendar.current
@@ -162,20 +160,3 @@ struct OpponentSummary {
     let profileImageURL: String?
 }
 
-extension ChatRoomEntity {
-    func toLastMessageSummary(myID: String) -> LastMessageSummary {
-        let opponent = participants.first { $0.userID != myID }
-        let opponentSummary = OpponentSummary(
-            userID: opponent?.userID ?? "",
-            nick: opponent?.nick ?? "알 수 없음",
-            profileImageURL: opponent?.profileImage
-        )
-
-        return LastMessageSummary(
-            content: lastChat?.content ?? "",
-            updateAt: lastChat?.updatedAt.toDate() ?? Date(),
-            unreadCount: 0,
-            opponentInfo: opponentSummary
-        )
-    }
-}

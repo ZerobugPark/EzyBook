@@ -53,6 +53,7 @@ extension String {
 
 // MARK: - String Extension for Date Parsing and Formatting
 extension String {
+    
     func toDate(using formatter: ISO8601DateFormatter = {
         let f = ISO8601DateFormatter()
         f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
@@ -60,6 +61,7 @@ extension String {
     }()) -> Date {
         return formatter.date(from: self) ?? Date()
     }
+    
     
     func toDisplayDate(format: String = "yyyy-MM-dd") -> String {
         let isoFormatter = ISO8601DateFormatter()

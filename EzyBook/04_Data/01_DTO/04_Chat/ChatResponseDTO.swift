@@ -54,6 +54,6 @@ struct ChatResponseDTO: Decodable, EntityConvertible {
     }
 }
 
-struct ChatFileResponseDTO: Decodable {
+struct ChatFileResponseDTO: Decodable, EntityConvertible {
     let files: [String]
 }

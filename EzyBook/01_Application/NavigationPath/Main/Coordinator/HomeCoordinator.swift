@@ -29,7 +29,10 @@ final class HomeCoordinator: ObservableObject {
         let shouldHide = route.hidesTabbar
         tabbarHiddenStack.append(shouldHide)
         isTabbarHidden = shouldHide
-        path.append(route)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            self.path.append(route)
+        }
     }
     
     func pop() {
@@ -78,10 +81,9 @@ final class HomeCoordinator: ObservableObject {
             let vm = self.container.homeDIContainer.makeReviewViewModel(id: id)
             ReviewView(viewModel: vm, coordinator: self)
         case .chatRoomView(let roomID, let opponentNick):
-            EmptyView()
-//            ChatRoomView(viewModel: self.container.chatDIContainer.makeChatRoomViewModel(roomID: roomID, opponentNick: opponentNick)) { [weak self] in
-//                self?.pop()
-//            }
+            ChatRoomView(viewModel: self.container.chatDIContainer.makeChatRoomViewModel(roomID: roomID, opponentNick: opponentNick)) { [weak self] in
+                self?.pop()
+            }
         case .advertiseView(let callbackID):
             WebViewScreen(
                 tokenManager: container.storage,

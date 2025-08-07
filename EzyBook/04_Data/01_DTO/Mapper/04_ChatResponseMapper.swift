@@ -32,47 +32,48 @@ extension ChatResponseDTO {
     }
 }
 
-extension ChatMessageTable {
-//    func toEntity(userID: String? = nil) -> ChatMessageEntity {
-//
-//        ChatMessageEntity(
-//            chatID: self.chatID,
-//            content: self.content,
-//            createdAt: self.createdAt,
-//            files: self.files,
-//            roomID: self.roomID,
-//            sender: ChatMessageEntity
-//                .Sender(
-//                    userID: self.senderID,
-//                    nick: self.senderNick
-//                ),
-//            isMine: userID == self.senderID
-//        )
-//    }
-
+extension ChatEntity {
+    
+    func toEntity(myID: String) -> ChatMessageEntity {
+        
+        ChatMessageEntity(
+            chatID: self.chatID,
+            content: self.content,
+            createdAt: self.createdAt.toDate(),
+            files: self.files,
+            opponentInfo: OpponentSummary(
+                userID: self.sender.userID,
+                nick: self.sender.nick,
+                profileImageURL: self.sender.profileImage
+            ),
+            isMine: self.sender.userID == myID
+        )
+    }
 }
 
 
+extension ChatRoomEntity {
+    func toLastMessageSummary(myID: String) -> LastMessageSummary {
+        let opponent = participants.first { $0.userID != myID }
+        let opponentSummary = OpponentSummary(
+            userID: opponent?.userID ?? "",
+            nick: opponent?.nick ?? "알 수 없음",
+            profileImageURL: opponent?.profileImage
+        )
 
-extension ChatEntity {
-    func toEnity() -> ChatMessageEntity {
-        return ChatMessageEntity(entity: self)
+        return LastMessageSummary(
+            roomID: lastChat?.roomID ?? "",
+            content: lastChat?.content ?? "",
+            updateAt: lastChat?.updatedAt.toDate() ?? Date(),
+            unreadCount: 0,
+            opponentInfo: opponentSummary,
+            files: lastChat?.files ?? []
+        )
     }
-    
-//    func toEnity(userID: String) -> ChatMessageEntity {
-//        ChatMessageEntity(
-//            chatID: self.chatID,
-//            content: self.content,
-//            createdAt: self.createdAt.toDate(),
-//            files: self.files,
-//            roomID: self.roomID,
-//            sender: ChatMessageEntity
-//                .Sender(
-//                    userID: self.sender.userID,
-//                    nick: self.sender.nick
-//                ),
-//            isMine: userID == self.sender.userID
-//        )
-//
-//    }
+}
+
+extension  ChatFileResponseDTO {
+    func toEntity() -> FileResponseEntity {
+        FileResponseEntity(dto: self)
+    }
 }

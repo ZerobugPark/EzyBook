@@ -15,6 +15,7 @@ enum ChatRequest {
     enum Get: GetRouter {
         case lookUpChatRoomList // 채팅방 목록 조회
         case lookUpChatList(id: String, dto: ChatListRequestDTO) //채팅내역 목록 조회
+        case lookUpPDF(path: String)
         
         var requiresAuth: Bool {
             true
@@ -26,6 +27,8 @@ enum ChatRequest {
                 ChatEndPoint.lookUpChatRoomList.requestURL
             case .lookUpChatList(let id, _):
                 ChatEndPoint.lookUpChatList(id: id).requestURL
+            case .lookUpPDF(let path):
+                ChatEndPoint.lookUpPDF(path: path).requestURL
             }
         }
         
@@ -47,6 +50,8 @@ enum ChatRequest {
                     return nil
                 }
                 
+            case .lookUpPDF:
+                return nil
             }
         }
         
@@ -101,11 +106,10 @@ extension ChatRequest {
 // MARK: MultiPart
 extension ChatRequest {
     
-    enum Multipart: MultipartRouter {
+    enum Multipart: MultipartRouter {        
         
-        
-        
-        case uploadChatFiles(id: String, image: [UIImage])
+        case uploadChatImages(id: String, image: [UIImage])
+        case uploadChatFile(id: String, file: URL)
         
         var requiresAuth: Bool {
             return false
@@ -113,7 +117,7 @@ extension ChatRequest {
         
         var endpoint: URL? {
             switch self {
-            case .uploadChatFiles(let id, _):
+            case .uploadChatImages(let id, _), .uploadChatFile(let id, _):
                 return ChatEndPoint.uploadChatFiles(id: id).requestURL
             }
         }
@@ -126,21 +130,54 @@ extension ChatRequest {
         
         private var compressedImages: [Data] {
             switch self {
-            case .uploadChatFiles(_, let images):
+            case .uploadChatImages(_, let images):
                 return images.compactMap { $0.compressedJPEGData(maxSizeInBytes: 1_000_000) }
+            default:
+                return []
             }
         }
         
+        private var compressedFile: Data? {
+            switch self {
+            case .uploadChatFile(_, let file):
+                // Debug: check file existence
+                let exists = FileManager.default.fileExists(atPath: file.path)
+                print("Uploading file at path: \(file.path), exists: \(exists)")
+                do {
+                    let data = try Data(contentsOf: file)
+                    print("Read file data, size: \(data.count) bytes")
+                    return data
+                } catch {
+                    print("Error reading file data: \(error)")
+                    return nil
+                }
+            default:
+                return nil
+            }
+        }
+        
+        /// nil이거나 사이즈가 크거나
         var isEffectivelyEmpty: Bool {
             switch self {
-            case .uploadChatFiles:
+            case .uploadChatImages:
                 return compressedImages.isEmpty
+            case .uploadChatFile:
+                if let compressedFile {
+                    if compressedFile.count > 5 * 1_024 * 1_024 {
+                        return true
+                    } else {
+                        return false
+                    }
+                } else {
+                    return true
+                }
+                
             }
         }
         
         var multipartFormData: ((MultipartFormData) -> Void)? {
             switch self {
-            case .uploadChatFiles:
+            case .uploadChatImages:
                 return { form in
                     for (index, data) in compressedImages.enumerated() {
                         form.append(
@@ -152,8 +189,17 @@ extension ChatRequest {
                         
                     }
                 }
+            case .uploadChatFile:
+                return { form in
+                    form.append(
+                        compressedFile ?? Data(),
+                        withName: "files",
+                        fileName: "document.pdf",
+                        mimeType: "application/pdf"
+                    )
+                }
             }
+            
         }
-        
     }
 }
