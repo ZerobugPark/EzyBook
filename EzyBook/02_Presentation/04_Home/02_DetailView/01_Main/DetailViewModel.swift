@@ -256,13 +256,17 @@ extension DetailViewModel {
     private func handleShowPaymentReulst(_ msg: DisplayMessage?) {
             
         let message = msg ?? .success(msg: "결제가 완료되었습니다.")
-
+ 
+        
+        
         Task {
             if msg == nil {
-                // 다른 사람이 다른 시간대에 예약했을 수도 있기 때문에, 데이터의 정합성 위해 한 번더 API 호출
-                loadInitialActivitiyDetail()
+                await handleSuccess(message)
+                
+                /// 프로필 쪽 동기화를 위해 추가
+                NotificationCenter.default.post(name: .updatedProfileSupply, object: nil)
             }
-            await handleSuccess(message)
+           
         }
     }
     
@@ -306,6 +310,7 @@ extension DetailViewModel {
         case makeOrder(id: String, name: String, time: String, count: Int, price: Int)
         case showPaymentResult(message: DisplayMessage?)
         case makeChatRoom
+        case reloadDetailView
 
     }
     
@@ -320,7 +325,8 @@ extension DetailViewModel {
             handleMakeChatRoomTapped()
         case let .makeOrder(id, name, time, count, price):
             handleCreateOrder(id, name, time, count, price)
- 
+        case .reloadDetailView:
+            loadInitialActivitiyDetail()
         }
     }
         
@@ -335,6 +341,7 @@ extension DetailViewModel: AnyObjectWithCommonUI {
     var presentedMessageTitle: String? { output.presentedMessage?.title }
     var presentedMessageBody: String? { output.presentedMessage?.message }
     var presentedMessageCode: Int? { output.presentedMessage?.code }
+    var isSuccessMessage: Bool { output.presentedMessage?.isSuccess ?? false }
     
     func resetMessageAction() {
         output.presentedMessage = nil
