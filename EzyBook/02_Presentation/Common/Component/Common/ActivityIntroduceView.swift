@@ -13,7 +13,6 @@ struct ActivityIntroduceView: View {
     var data: [FilterActivityModel]
     
     /// 뷰모델에서 contain보다는, 인덱스 기반으로 찾는게 시간복잡도가 O(1)이기 때문에, 인덱스를 보냄
-    var onTapKeep: (Int) -> Void
     var currentIndex: (Int) -> Void
     var onItemTapped: (String) -> Void
     
@@ -31,7 +30,6 @@ struct ActivityIntroduceView: View {
                     ActivityCardView(
                         item: item,
                         index: index,
-                        onTapKeep: { onTapKeep(index) },
                         onAppear: { currentIndex(index) },
                         onTap: { onItemTapped(item.activityID) }
                     )
@@ -53,7 +51,6 @@ extension ActivityIntroduceView {
     private struct ActivityCardView: View {
         let item: FilterActivityModel
         let index: Int
-        let onTapKeep: () -> Void
         let onAppear: () -> Void
         let onTap: () -> Void
         
@@ -62,10 +59,8 @@ extension ActivityIntroduceView {
                 ActivityImageView(
                     imagePath: item.thumnail,
                     eventTag: item.eventTag,
-                    isKeep: item.isKeep,
                     country: item.country,
-                    isAdvertisement: item.isAdvertisement,
-                    onTapKeep: onTapKeep
+                    isAdvertisement: item.isAdvertisement
                 )
                 ActivityDescriptionView(
                     title: item.title,
@@ -100,10 +95,8 @@ extension ActivityIntroduceView {
     private struct ActivityImageView: View {
         let imagePath: String
         let eventTag: Tag?
-        let isKeep: Bool
         let country: String
         let isAdvertisement: Bool
-        let onTapKeep: () -> Void
         
         var body: some View {
             GeometryReader { geo in
@@ -129,9 +122,6 @@ extension ActivityIntroduceView {
                     VStack {
                         VStack(alignment: .leading, spacing: 10) {
                             HStack(alignment: .center, spacing: 0) {
-                                ActivityKeepButtonView(isKeep: isKeep) {
-                                    onTapKeep()
-                                }
                                 Spacer()
                                 LocationTagView(country: country)
                             }

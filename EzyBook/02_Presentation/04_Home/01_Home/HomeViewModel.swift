@@ -481,62 +481,6 @@ extension HomeViewModel {
 }
 
 
-
-// MARK:  Keep Status
-extension HomeViewModel {
-    private func handleKeepActivity(_ index: Int) {
-        Task {
-            await performKeepActivity(for: index)
-        }
-    }
-    
-    
-    private func performKeepActivity(for index: Int) async {
-        guard let data = _filterActivityDetailList[index] else {
-            print("존재하지 않는 아이디 입니다.")
-            return
-        }
-        
-        /// 일단 네트워크 통신과 상관없이 상태 변경 (이후 실패시 기존 상태로 변경)
-        /// 유저입장에서 통신전에 상태를 변경하는것을 먼저 인지하게 하고, 만약 실패시, UI를 다시 업데이트 하는 형태로 변경
-        await toggleKeepUI(index) // UI 업데이트
-        do {
-            try await updateKeepStatus(for: data, at: index)
-        } catch {
-            await rollbackKeepUI(index, error: error)
-        }
-        
-    }
-    
-    @MainActor
-     private func toggleKeepUI(_ index: Int) {
-         _filterActivityDetailList[index]?.isKeep.toggle()
-     }
-    
-    
-    private func updateKeepStatus(for data: FilterActivityModel, at index: Int) async throws {
-        var statusChanged = data.isKeep
-        statusChanged.toggle()
-        
-        let detail = try await activityUseCases.activityKeepCommand.execute(
-            id: data.activityID,
-            stauts: statusChanged
-        )
-        
-        await MainActor.run {
-            _filterActivityDetailList[index]?.isKeep = detail.keepStatus
-        }
-    }
-    
-    @MainActor
-    private func rollbackKeepUI(_ index: Int, error: Error) {
-        _filterActivityDetailList[index]?.isKeep.toggle()
-        handleError(error)
-    }
-
-}
-
-
 // MARK: Action
 extension HomeViewModel {
     
@@ -545,7 +489,6 @@ extension HomeViewModel {
         case prefetchNewContent(index: Int)
         case prefetchfilterActivityContent(index: Int)
         case paginationAcitiviyList(index: Int)
-        case keepButtonTapped(index: Int)
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
@@ -562,8 +505,6 @@ extension HomeViewModel {
             handleFilterDetailPrefetch(index)
         case let .paginationAcitiviyList(index):
             handleFilterPaginationRequest(index: index)
-        case .keepButtonTapped(let index):
-            handleKeepActivity(index)
         }
     }
     
