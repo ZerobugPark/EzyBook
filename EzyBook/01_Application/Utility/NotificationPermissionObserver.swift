@@ -48,6 +48,9 @@ extension Notification.Name {
     static let didLeaveChatRoom = Notification.Name("didLeaveChatRoom")
     
     static let didReceiveDeepLink = Notification.Name("didReceiveDeepLink")
+    
+    /// 좋아요, 리뷰 등 동기화
+    static let updatedProfileSupply = Notification.Name("updatedProfileSupply")
 }
 
 

@@ -120,38 +120,7 @@ extension OrderListViewModel {
 }
 
 
-// MARK: Helper
 
-extension OrderListViewModel {
-    
-    private func handleUpdateReviewRating(_ orderCode: String, _ rating: Int) {
-        if let index = orderList.firstIndex(where: { $0.orderCode == orderCode }) {
-            orderList[index].rating = rating
-            output.groupedOrderList = makeGroupedOrderList(from: orderList)
-        }
-    }
-    
-
-    
-}
-
-// MARK: Action
-extension OrderListViewModel {
-    
-    enum Action {
-        case updateRating(orderCode: String, rating: Int)
-    }
-    
-    /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
-    func action(_ action: Action) {
-        switch action {
-        case let .updateRating(orderCode, rating):
-            handleUpdateReviewRating(orderCode, rating)
-        }
-    }
-    
-    
-}
 
 // MARK: Alert 처리
 extension OrderListViewModel: AnyObjectWithCommonUI {

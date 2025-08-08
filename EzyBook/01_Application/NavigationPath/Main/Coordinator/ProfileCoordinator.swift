@@ -59,11 +59,8 @@ final class ProfileCoordinator: ObservableObject {
             )
         case .orderListView(let list):
             let vm = self.container.makeOrderListViewModel(orderList: list)
-            OrderListView(
-                viewModel: vm,
-                coordinator: self) { orderCode, rating in
-                    vm.action(.updateRating(orderCode: orderCode, rating: rating))
-                }
+            OrderListView(viewModel: vm, coordinator: self)
+        
         case .reviewListView(let list):
             let vm = self.container.makeReviewViewModel(list: list)
             ReviewDetailView(viewModel: vm, coordinator: self)
@@ -77,9 +74,11 @@ extension ProfileCoordinator {
             ConfirmImageView(image: image, onConfirm: onConfirm, onCancel: onCancel)
     }
     
-    func makeWriteReviewView(_ activityID: String, _ orderCode: String, onConfirm: @escaping (String, Int) -> Void) -> some View {
+    func makeWriteReviewView(_ activityID: String, _ orderCode: String) -> some View {
         let vm = self.container.makeWriteReviewViewModel(id: activityID, code: orderCode)
-        return WriteReViewView(onConfirm: onConfirm, viewModel: vm)
+        return WriteReViewView(viewModel: vm) {
+            self.popToRoot()
+        }
     }
     
     func makeProfileModifyView(onConfirm: @escaping (ProfileLookUpEntity?) -> Void) -> some View {

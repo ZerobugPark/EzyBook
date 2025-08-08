@@ -15,6 +15,12 @@ final class WriteReviewViewModel: ViewModelType {
     private let activityId: String
     let orderCode: String
     
+    
+    @Published var reviewRating = 0
+    @Published var selectedMedia: [PickerSelectedMedia] = []
+    @Published var reviewText: String = ""
+    
+    
     var input = Input()
     @Published var output = Output()
     
@@ -35,9 +41,7 @@ final class WriteReviewViewModel: ViewModelType {
 
 extension WriteReviewViewModel {
     
-    struct Input {
-        var reviewText: String = ""
-    }
+    struct Input { }
     
     struct Output {
         
@@ -70,10 +74,13 @@ extension WriteReviewViewModel {
 
 extension WriteReviewViewModel {
     
-    private func handleWriteReView(_ images: [UIImage],  _ rating: Int,) {
+    private func handleWriteReView() {
         
         Task {
-            await performWriteReviewFlow(images, rating)
+            
+            let images = selectedMedia.filter{ $0.type == .image }.compactMap { $0.image }
+            
+            await performWriteReviewFlow(images, reviewRating)
             
         }
         
@@ -103,7 +110,7 @@ extension WriteReviewViewModel {
     private func performReview(id: String, rating: Int, serverPaths: [String]?, code: String) async throws {
         _ = try await reviewUseCases.reviewWrite.execute(
             id: id,
-            content: input.reviewText,
+            content: reviewText,
             rating: rating,
             reviewImageUrls: serverPaths,
             orderCode: code
@@ -123,13 +130,14 @@ extension WriteReviewViewModel {
 extension WriteReviewViewModel {
     
     enum Action {
-        case writeReView(images: [UIImage], rating: Int)
+        case writeReView
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
     func action(_ action: Action) {
-        switch action {        case let .writeReView(images, rating):
-            handleWriteReView(images, rating)
+        switch action {
+        case .writeReView:
+            handleWriteReView()
         }
     }
     
