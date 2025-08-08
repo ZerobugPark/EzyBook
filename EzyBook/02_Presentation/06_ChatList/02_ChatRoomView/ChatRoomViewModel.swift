@@ -15,7 +15,7 @@ import CoreGraphics
 final class ChatRoomViewModel: ViewModelType {
     
     private var socketService: SocketService
-    private let roomID: String
+    private(set) var roomID: String
     private let chatUseCases: ChatListUseCases
     
     private(set) var opponentNick: String

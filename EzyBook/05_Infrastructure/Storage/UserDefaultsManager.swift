@@ -32,6 +32,7 @@ enum UserDefaultManager {
         case etag
         case currentUser
         case userLocation
+        case fcmToken
         
     }
     
@@ -44,6 +45,9 @@ enum UserDefaultManager {
     
     @EzyBookUserDefaultManager(key: Key.userLocation.rawValue, empty: Data())
     static var userLocation: Data
+    
+    @EzyBookUserDefaultManager(key: Key.fcmToken.rawValue, empty: "")
+    static var fcmToken: String
     
 }
 

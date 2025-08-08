@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import Combine
 
 enum Tab: String, CaseIterable {
     case home = "Home"
@@ -33,22 +33,28 @@ enum Tab: String, CaseIterable {
     }
 }
 
+
 struct MainTabView: View {
     
     @State private var activeTab: Tab = .home
+    
+    /// DeepLink: 앱 외부에서 온 신호
+    /// 중복 방지용
+    /// 사용자가 알림을 연속 탭하거나 서버가 같은 알림을 중복 보낼 경우
+    ///
+    @State private var isDeepLinkRouting = false
     
     /// For Smooth Shape Sliding Effect, We're going to use Matched Geometry
     @Namespace private var animation
     @State private var tabShapePosition: CGPoint = .zero
     
-    
+    @EnvironmentObject var container: AppDIContainer
     @EnvironmentObject var appState: AppState
     
     @StateObject var homeCoordinator: HomeCoordinator
     @StateObject var communityCoordinator: CommunityCoordinator
     @StateObject var chatCoordinator: ChatCoordinator
     @StateObject var profileCoordinator: ProfileCoordinator
-    
     
     init(container: AppDIContainer) {
         _homeCoordinator = StateObject(
@@ -70,8 +76,8 @@ struct MainTabView: View {
         
         /// TabBar Hidden이 안될 때,
         //UITabBar.appearance().isHidden = true
-      }
-
+    }
+    
     private var isCurrentTabbarHidden: Bool {
         switch activeTab {
         case .home:
@@ -92,23 +98,32 @@ struct MainTabView: View {
                 HomeCoordinatorView(coordinator: homeCoordinator)
                     .tag(Tab.home)
                     .toolbar(.hidden, for: .tabBar) ///Hiding Native Tab Bar
-    
+                
                 CommunityCoordinatorView(coordinator: communityCoordinator)
                     .tag(Tab.community)
-                    ///Hiding Native Tab Bar
+                ///Hiding Native Tab Bar
                     .toolbar(.hidden, for: .tabBar)
                 
                 ChatCoordinatorView(coordinator: chatCoordinator)
                     .tag(Tab.chat)
-                    ///Hiding Native Tab Bar
+                ///Hiding Native Tab Bar
                     .toolbar(.hidden, for: .tabBar)
                 
                 ProfileViewCoordinatorView(coordinator: profileCoordinator)
                     .tag(Tab.profile)
-                    ///Hiding Native Tab Bar
+                ///Hiding Native Tab Bar
                     .toolbar(.hidden, for: .tabBar)
             }
-            .background(.red)
+            .onReceive(
+                appState.$isLoggedIn
+                    .combineLatest(appState.$pendingRoomID)
+                    .map { isLoggedIn, roomID in isLoggedIn && roomID != nil }
+                    .removeDuplicates()
+                    .receive(on: RunLoop.main)
+            ) { ready in
+                if ready { tryConsumePendingChat() }
+            }
+            
         }
         
         if !isCurrentTabbarHidden {
@@ -116,7 +131,7 @@ struct MainTabView: View {
                 .allowsHitTesting(!appState.isLoding)
                 .animation(.easeInOut(duration: 0.25), value: isCurrentTabbarHidden)
         }
-
+        
     }
     
     
@@ -153,3 +168,25 @@ struct MainTabView: View {
     }
 }
 
+
+extension MainTabView {
+    private func tryConsumePendingChat() {
+        guard appState.isLoggedIn, let roomID = appState.pendingRoomID else { return }
+        guard !isDeepLinkRouting else { return }
+
+        isDeepLinkRouting = true
+        defer { isDeepLinkRouting = false }
+
+        // 1) 채팅 탭으로 전환
+        activeTab = .chat
+        
+        // 2) 뒤로가기 시 항상 채팅 목록이 보이게
+        chatCoordinator.popToRoot()
+        
+        // 3) 채팅방 push
+        chatCoordinator.push(.chatRoomView(roomID: roomID, opponentNick: ""))
+
+        // 4) 버퍼 비우기 (중복 처리 방지)
+        appState.pendingRoomID = nil // 소비 후 비움 → 재호출 무력화
+    }
+}
