@@ -46,5 +46,8 @@ extension Notification.Name {
     static let didEnterChatRoom = Notification.Name("didEnterChatRoom")
     /// 사용자 채팅방 퇴장 알림
     static let didLeaveChatRoom = Notification.Name("didLeaveChatRoom")
+    
+    static let didReceiveDeepLink = Notification.Name("didReceiveDeepLink")
 }
+
 

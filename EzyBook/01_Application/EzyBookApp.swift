@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 import FirebaseCore
 import FirebaseMessaging
 import KakaoSDKCommon
@@ -142,7 +143,18 @@ struct EzyBookApp: App {
                     }
                 }
                 .onSubmit {
+                    /// 푸시 상태 변경시 디바이스 토근 업데이트 필요
                     print("Current permission:", notifier.status)
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .didReceiveDeepLink)) { note in
+                    guard
+                        let info = note.userInfo as? [String: Any],
+                        let type = info["type"] as? String, type == "chat",
+                        let roomID = info["roomID"] as? String
+                    else { return }
+                
+                    // Buffer for consumption when UI is ready (covers suspended/cold start)
+                    appState.pendingRoomID = roomID
                 }
         }
     }
@@ -185,8 +197,7 @@ extension AppDelegate: MessagingDelegate {
             object: nil,
             userInfo: dataDict
         )
-        // TODO: If necessary send token to application server.
-        // Note: This callback is fired at each app startup and whenever a new token is generated.
+
     }
     
     /// 스위즐링 No시 APNs 등록,  토큰값 가져옴
@@ -210,17 +221,23 @@ extension AppDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
         let userInfo = notification.request.content.userInfo
-        
-        print(userInfo)
+        print("userInfo", userInfo)
         
         // 동일 채팅방에 있으면 푸시 억제
         if let roomID = userInfo["room_id"] as? String,
            roomID == activeChatRoomID {
             return []
         }
-        // 기본 노출 옵션
+        
+        //print(userInfo)
+        /// 앱을 사용중이면, 탭시 이전화면으로 이동, 사용중이 않다면 홈으로 이동
+        
+        /// 기본 노출 옵션
+        /// sound 알람
+        /// banner: 배너
+        /// list: 알림센터
         if #available(iOS 14.0, *) {
-            return [.sound, .banner, .list]
+            return [.banner]
         } else {
             return []
         }
@@ -229,6 +246,21 @@ extension AppDelegate {
     
     /// 푸시 클릭시
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
-        print("🟢", #function)
+        
+        
+        let userInfo = response.notification.request.content.userInfo
+        guard let roomID = userInfo["room_id"] as? String else { return }
+
+
+        /// 앱 상태를 확인해야 하니 살짝 지연
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            NotificationCenter.default.post(
+                name: .didReceiveDeepLink,
+                object: nil,
+                userInfo: ["type":"chat", "roomID": roomID]
+            )
+            print("📤 didReceiveDeepLink posted → roomID:\(roomID)")
+        }
+            
     }
 }

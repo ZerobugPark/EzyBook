@@ -140,6 +140,7 @@ struct ChatRoomView: View {
             }
         }
         .onAppear {
+            /// 채팅방 진입시 푸시 알림 안오도록
             NotificationCenter.default.post(name: .didEnterChatRoom, object: viewModel.roomID)
         }
         .onDisappear {
