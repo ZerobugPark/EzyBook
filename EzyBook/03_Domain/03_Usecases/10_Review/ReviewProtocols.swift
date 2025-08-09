@@ -18,7 +18,7 @@ protocol ReviewWriteUseCase {
 
 protocol ReviewModifyUseCase {
     func execute(
-        id: String, content: String?, rating: Int?, reviewImageUrls: [String]?, orderCode: String) async throws -> UserReviewEntity
+        id: String, content: String?, rating: Int?, reviewImageUrls: [String]?, reviewID: String) async throws -> UserReviewEntity
 }
 
 protocol ReviewDeleteUseCase {

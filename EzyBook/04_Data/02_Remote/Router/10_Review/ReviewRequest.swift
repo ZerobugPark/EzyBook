@@ -78,7 +78,7 @@ extension ReviewRequest {
 extension ReviewRequest {
     
     enum Put: PutRouter {
-        case modifyReview(id: String, dto: ReviewWriteRequestDTO)
+        case modifyReview(id: String, reviewID: String, dto: ReviewModifyRequestDTO)
         
         var requiresAuth: Bool {
             true
@@ -86,14 +86,14 @@ extension ReviewRequest {
         
         var endpoint: URL? {
             switch self {
-            case .modifyReview(let id, _):
-                ReviewEndPoint.writeReview(id: id).requestURL
+            case let .modifyReview(id, reviewID, _):
+                ReviewEndPoint.reviewModify(id: id, reviewID: reviewID).requestURL
             }
         }
         
         var requestBody: Encodable? {
             switch self {
-            case .modifyReview(_, let request):
+            case .modifyReview(_, _, let request):
                 return request
             }
         }

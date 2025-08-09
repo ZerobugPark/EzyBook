@@ -63,7 +63,12 @@ final class ProfileCoordinator: ObservableObject {
         
         case .reviewListView(let list):
             let vm = self.container.makeReviewViewModel(list: list)
-            ReviewDetailView(viewModel: vm, coordinator: self)
+            ReviewDetailView(
+                viewModel: vm,
+                coordinator: self) { data in
+                    vm.action(.modifyReview(data: data))
+                }
+            
         }
     }
 
@@ -76,7 +81,7 @@ extension ProfileCoordinator {
     
     func makeWriteReviewView(_ activityID: String, _ orderCode: String) -> some View {
         let vm = self.container.makeWriteReviewViewModel(id: activityID, code: orderCode)
-        return WriteReViewView(viewModel: vm) {
+        return ReviewWriteView(viewModel: vm) {
             self.popToRoot()
         }
     }
@@ -85,6 +90,12 @@ extension ProfileCoordinator {
         let vm = self.container.makeProfileModifyViewModel()
         return ProfileModifyView(viewModel: vm, onConfirm: onConfirm)
     }
+    
+    func makeModifyReviewView(_ data: UserReviewDetailList, onConfirm: @escaping (UserReviewDetailList?) -> Void) -> some View {
+        let vm = self.container.makeModifyReviewViewModel(data)
+        return ReviewModifyView(viewModel: vm, onConfirm: onConfirm)
+    }
+    
     
 }
  

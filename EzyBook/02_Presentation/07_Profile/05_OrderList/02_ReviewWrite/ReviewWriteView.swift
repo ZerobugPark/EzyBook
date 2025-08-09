@@ -1,21 +1,20 @@
 //
-//  WriteReViewView.swift
+//  ReviewWriteView.swift
 //  EzyBook
 //
-//  Created by youngkyun park on 6/20/25.
+//  Created by youngkyun park on 8/9/25.
 //
 
 import SwiftUI
 import PhotosUI
 
-struct WriteReViewView: View {
+struct ReviewWriteView: View {
     
     @Environment(\.dismiss) private var dismiss
   
-    
     @FocusState private var isTextEditorFocused: Bool
     @EnvironmentObject var appState: AppState
-    @StateObject var viewModel: WriteReviewViewModel
+    @StateObject var viewModel: ReviewWriteViewModel
     
     
       let onConfirm: () -> Void
@@ -130,6 +129,3 @@ struct ReviewRating: View {
     
 }
     
-
-
-

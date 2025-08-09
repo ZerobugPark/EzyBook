@@ -48,17 +48,16 @@ final class DefaultReviewRepository: ReviewRatingListRepository, ReviewWriteRepo
     }
     
     /// 리뷰 수정
-    func requestModifyReview(_ id: String, _ content: String?, _ rating: Int?, _ reviewImageUrls: [String]?, _ orderCode: String) async throws -> UserReviewEntity {
+    func requestModifyReview(_ id: String, _ content: String?, _ rating: Int?, _ reviewImageUrls: [String]?, _ reviewID: String) async throws -> UserReviewEntity {
         
         
-        let dto = ReviewWriteRequestDTO(
+        let dto = ReviewModifyRequestDTO(
             content: content,
             rating: rating,
-            reviewImageUrls: reviewImageUrls,
-            orderCode: orderCode
+            reviewImageUrls: reviewImageUrls
         )
         
-        let router = ReviewRequest.Put.modifyReview(id: id, dto: dto)
+        let router = ReviewRequest.Put.modifyReview(id: id, reviewID: reviewID, dto: dto)
         
         let data = try await networkService.fetchData(dto: UserReviewResponseDTO.self, router)
         return data.toEntity()

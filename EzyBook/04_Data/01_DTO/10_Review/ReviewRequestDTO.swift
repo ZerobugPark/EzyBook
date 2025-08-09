@@ -25,9 +25,9 @@ struct ReviewWriteRequestDTO: Encodable {
 
 /// 리뷰 수정
 struct ReviewModifyRequestDTO: Encodable {
-    let content: String
-    let rating: Int
-    let reviewImageUrls: String
+    let content: String?
+    let rating: Int?
+    let reviewImageUrls: [String]?
     
     enum CodingKeys: String, CodingKey {
         case content

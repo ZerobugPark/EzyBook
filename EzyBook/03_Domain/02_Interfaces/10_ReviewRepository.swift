@@ -23,8 +23,7 @@ protocol ReviewWriteRepository {
 }
 
 protocol ReviewModifyRepository {
-    
-    func requestModifyReview(_ id: String, _ content: String?, _ rating: Int?, _ reviewImageUrls: [String]?, _ orderCode: String) async throws -> UserReviewEntity
+    func requestModifyReview(_ id: String, _ content: String?, _ rating: Int?, _ reviewImageUrls: [String]?, _ reviewID: String) async throws -> UserReviewEntity
     
 }
 

@@ -134,13 +134,21 @@ extension ProfileDIContainer {
         )
     }
     
-    func makeWriteReviewViewModel(id: String, code: String) -> WriteReviewViewModel {
-        WriteReviewViewModel(
+    func makeWriteReviewViewModel(id: String, code: String) -> ReviewWriteViewModel {
+        ReviewWriteViewModel(
             reviewUseCases: makeReviewUseCases(),
             activityId: id,
             orderCode: code
         )
     }
+    
+    func makeModifyReviewViewModel(_ data: UserReviewDetailList) -> ReviewModifyViewModel {
+        ReviewModifyViewModel(
+            reviewUseCases: makeReviewUseCases(),
+            reviewData: data
+        )
+    }
+    
     
     func makeReviewViewModel(list: [OrderEntity]) -> ReviewDetailViewModel {
         

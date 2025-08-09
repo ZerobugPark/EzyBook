@@ -14,6 +14,9 @@ struct ReviewDetailView: View {
     
     @EnvironmentObject var appState: AppState
     
+    
+    let onFinished: (UserReviewDetailList?) -> (Void)
+    
     @State private var selectedReview: UserReviewDetailList?
     
     var body: some View {
@@ -22,8 +25,8 @@ struct ReviewDetailView: View {
                 LazyVStack(spacing: 16) {
                     ForEach(viewModel.output.groupedReviewList) { group in
                         ReviewListGroupeView(group: group, actions: ReviewAction(
-                            onEdit: {_ in 
-                                
+                            onEdit: { data in
+                                selectedReview = data
                             },
                             onDelete: { data in
                                 viewModel.action(.deleteReview(data: data))
@@ -52,10 +55,12 @@ struct ReviewDetailView: View {
                     .appFont(PaperlogyFontStyle.body, textColor: .blackSeafoam)
             }
         }
-        /// 추후 리뷰 수정 추가
-        //        .fullScreenCover(item: $selectedReview) { review in
-        //
-        //        }
+        
+        .fullScreenCover(item: $selectedReview) { review in
+            coordinator.makeModifyReviewView(review) { result in
+                onFinished(result)
+            }
+        }
         
         .withCommonUIHandling(viewModel) { code, _ in
             if code == 418 {
@@ -205,7 +210,7 @@ struct ActionButtonView: View {
                 .rotationEffect(.degrees(90))
                 .foregroundColor(.gray)
         }
-        .confirmationDialog("댓글 관리", isPresented: $isPresented, titleVisibility: .visible) {
+        .confirmationDialog("", isPresented: $isPresented, titleVisibility: .hidden) {
             Button("수정하기", action: onEdit)
             Button("삭제하기", role: .destructive, action: onDelete)
             Button("닫기", role: .cancel) { }

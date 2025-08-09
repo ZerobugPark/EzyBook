@@ -164,7 +164,6 @@ extension ReviewDetailViewModel {
 
 
 // MARK: 리뷰 삭제
-
 extension ReviewDetailViewModel {
     
     private func handleReviewDelete(_ data: UserReviewDetailList) {
@@ -201,11 +200,41 @@ extension ReviewDetailViewModel {
     
 }
 
+// MARK: 리뷰 수정
+extension ReviewDetailViewModel {
+    
+    private func handleReviewModify(_ data: UserReviewDetailList?) {
+        
+        Task { @MainActor in
+            performModifyReview(data)
+        }
+    }
+    
+    
+    private func performModifyReview(_ data: UserReviewDetailList?)  {
+        
+        guard let data else { return }
+        
+        if let index =  reviewList.firstIndex(where: { $0.reviewID == data.reviewID }) {
+            reviewList[index] = data
+        }
+
+        let grouped = makeGroupeReviewList(from: reviewList)
+        output.groupedReviewList = grouped
+        
+        
+    }
+    
+    
+}
+
+
 // MARK: Action
 extension ReviewDetailViewModel {
     
     enum Action {
         case deleteReview(data: UserReviewDetailList)
+        case modifyReview(data: UserReviewDetailList?)
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
@@ -213,7 +242,8 @@ extension ReviewDetailViewModel {
         switch action {
         case .deleteReview(let data):
             handleReviewDelete(data)
-           // handleUpdateReviewRating(orderCode, rating)
+        case .modifyReview(let data):
+            handleReviewModify(data)
         }
     }
 }

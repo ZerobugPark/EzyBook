@@ -63,9 +63,9 @@ final class DefaultReviewModifyUseCase: ReviewModifyUseCase {
 extension DefaultReviewModifyUseCase {
     
     func execute(
-        id: String, content: String?, rating: Int?, reviewImageUrls: [String]?, orderCode: String) async throws -> UserReviewEntity {
+        id: String, content: String?, rating: Int?, reviewImageUrls: [String]?, reviewID: String) async throws -> UserReviewEntity {
         
-        try await repo.requestModifyReview(id, content, rating, reviewImageUrls, orderCode)
+        try await repo.requestModifyReview(id, content, rating, reviewImageUrls, reviewID)
       
     }
     

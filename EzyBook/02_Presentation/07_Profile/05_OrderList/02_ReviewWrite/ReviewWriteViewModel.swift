@@ -1,5 +1,5 @@
 //
-//  WriteReviewViewModel.swift
+//  ReviewWriteViewModel.swift
 //  EzyBook
 //
 //  Created by youngkyun park on 6/20/25.
@@ -9,7 +9,7 @@ import SwiftUI
 import PhotosUI
 import Combine
 
-final class WriteReviewViewModel: ViewModelType {
+final class ReviewWriteViewModel: ViewModelType {
     
     private let reviewUseCases: ReviewUseCases
     private let activityId: String
@@ -39,7 +39,7 @@ final class WriteReviewViewModel: ViewModelType {
     
 }
 
-extension WriteReviewViewModel {
+extension ReviewWriteViewModel {
     
     struct Input { }
     
@@ -72,7 +72,7 @@ extension WriteReviewViewModel {
     
 }
 
-extension WriteReviewViewModel {
+extension ReviewWriteViewModel {
     
     private func handleWriteReView() {
         
@@ -127,7 +127,7 @@ extension WriteReviewViewModel {
 }
 
 // MARK: Action
-extension WriteReviewViewModel {
+extension ReviewWriteViewModel {
     
     enum Action {
         case writeReView
@@ -145,7 +145,7 @@ extension WriteReviewViewModel {
 }
 
 // MARK: Alert 처리
-extension WriteReviewViewModel: AnyObjectWithCommonUI {
+extension ReviewWriteViewModel: AnyObjectWithCommonUI {
     var isShowingMessage: Bool { output.isShowingMessage }
     var presentedMessageTitle: String? { output.presentedMessage?.title }
     var presentedMessageBody: String? { output.presentedMessage?.message }
