@@ -20,7 +20,7 @@ enum ActivityPostRequest {
         case postSearch(query: String) // 게시글 검색 검색
         case detailPost(postID: String) // 상세조회
         case writtenPost(userID: String, dto: MyActivityQuery) //내가 작성한 게시글
-        case likedPosts // 내가 킵한 액티비티 리스트
+        case likedPosts(dto: MyActivityQuery) // 내가 킵한 액티비티 리스트
         
 
         //case deletePost(postID: String) // 게시글 삭제 나중에 만들자
@@ -80,7 +80,7 @@ enum ActivityPostRequest {
                 return ["title": param]
             case .detailPost(let id):
                 return ["post_id": id]
-            case .writtenPost(_, let param):
+            case .writtenPost(_, let param), .likedPosts(let param):
                 let result: [String: Any?] = [
                      "country": param.country,
                      "category": param.category,
@@ -90,9 +90,6 @@ enum ActivityPostRequest {
                 
                 let filtered = result.compactMapValues { $0 } // 옵셔널 제거
                 return filtered.isEmpty ? nil : filtered as Parameters // 업캐스팅
-                
-            default:
-                return nil
             }
         }
     }

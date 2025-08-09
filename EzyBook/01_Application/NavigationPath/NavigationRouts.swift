@@ -75,16 +75,17 @@ enum ProfileRoute: Hashable {
     case orderListView(list: [OrderEntity])
     case reviewListView(list: [OrderEntity])
     case activityLikeList
+    case postLikeList
     
 }
 
 extension ProfileRoute {
     var hidesTabbar: Bool {
         switch self {
-        case .orderListView, .reviewListView, .activityLikeList:
-            return true
-        default:
+        case .profileView:
             return false
+        default:
+            return true
         }
     }
 }

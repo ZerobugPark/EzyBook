@@ -1,15 +1,15 @@
 //
-//  LikeActivityView.swift
+//  ActivityLikeView.swift
 //  EzyBook
 //
-//  Created by youngkyun park on 8/9/25.
+//  Created by youngkyun park on 8/10/25.
 //
 
 import SwiftUI
 
-struct LikeActivityView: View {
+struct ActivityLikeView: View {
     
-    @StateObject var viewModel: LikeActiviyViewModel
+    @StateObject var viewModel: ActiviyLikeViewModel
     @ObservedObject var coordinator: ProfileCoordinator
     @EnvironmentObject var appState: AppState
     
@@ -20,7 +20,7 @@ struct LikeActivityView: View {
             List {
                 ForEach(Array(viewModel.output.likeList.enumerated()), id: \.element.activityID) { index, activity in
                     
-                    LikeReviewCardView(data: activity)
+                    ActivityLikeCardView(data: activity)
                         .listRowSeparator(.hidden)
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button {
@@ -61,23 +61,21 @@ struct LikeActivityView: View {
                 appState.isLoggedIn = false
             }
         }
-        .onDisappear {
-            NotificationCenter.default.post(name: .updatedProfileSupply, object: nil)
-        }
         .loadingOverlayModify(viewModel.output.isLoading)
         
     }
 }
 
 
-extension LikeActivityView {
+private extension ActivityLikeView {
+    
     // MARK: - Card Component
-    struct LikeReviewCardView: View {
+    struct ActivityLikeCardView: View {
         let data: ActivitySummaryEntity
         
         var body: some View {
             VStack(spacing: 0) {
-                LikeRevieListMainContentView(data: data)
+                LikeListMainContentView(data: data)
             }
             .background(.grayScale0)
             .cornerRadius(12)
@@ -88,7 +86,7 @@ extension LikeActivityView {
     }
     
     // MARK: - Main Content
-    struct LikeRevieListMainContentView: View {
+    struct LikeListMainContentView: View {
         let data: ActivitySummaryEntity
         
         var body: some View {
@@ -124,3 +122,4 @@ extension LikeActivityView {
     }
     
 }
+

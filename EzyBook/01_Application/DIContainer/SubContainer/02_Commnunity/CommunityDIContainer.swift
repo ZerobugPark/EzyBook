@@ -54,10 +54,6 @@ extension CommunityDIContainer {
         DefaultPostDetailUseCase(repo: makeCommunityRepository())
     }
     
-    private func makePostLikeUesCase() -> PostLikeUseCase {
-        DefaultPostLikeUseCase(repo: makeCommunityRepository())
-    }
-    
     
     // MARK: Make Order List
     private func makeOrderListUseCase() -> OrderListLookUpUseCase {
@@ -155,7 +151,7 @@ extension CommunityDIContainer {
         PostDetailViewModel(
             postDetailUseCase: makePostDetailUesCase(),
             postService: makePostFeatureService(),
-            postLikeUseCase: makePostLikeUesCase(),
+            postLikeUseCase: commonDIContainer.makePostLikeUseCase(),
             postID: postID
         )
     }

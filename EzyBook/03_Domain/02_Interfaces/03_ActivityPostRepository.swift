@@ -35,8 +35,5 @@ protocol PostDetailRepository {
     func requestPostDetail(postID: String) async throws -> PostEntity
 }
 
-protocol PostLikeRepository {
-    func requestPostLike(_ postID: String, _ status: Bool) async throws -> PostKeepEntity 
-}
 
 

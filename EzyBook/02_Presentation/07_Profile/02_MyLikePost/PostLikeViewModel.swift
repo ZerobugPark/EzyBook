@@ -1,15 +1,14 @@
 //
-//  LikeActiviyViewModel.swift
+//  PostLikeViewModel.swift
 //  EzyBook
 //
-//  Created by youngkyun park on 8/9/25.
+//  Created by youngkyun park on 8/10/25.
 //
 
 import SwiftUI
 import Combine
-import UniformTypeIdentifiers
 
-final class LikeActiviyViewModel: ViewModelType {
+final class PostLikeViewModel: ViewModelType {
     
     private let favoriteList: FavoriteServiceProtocol
     
@@ -27,13 +26,13 @@ final class LikeActiviyViewModel: ViewModelType {
         self.favoriteList = favoriteList
         
         transform()
-        loadInitialLikeActivityList()
+        loadInitialLikePostList()
     }
     
 }
 
 // MARK: Input/Output
-extension LikeActiviyViewModel {
+extension PostLikeViewModel {
     
     struct Input { }
     
@@ -46,15 +45,13 @@ extension LikeActiviyViewModel {
             presentedMessage != nil
         }
         
-        var likeList: [ActivitySummaryEntity] = []
+        var likeList: [PostSummaryEntity] = []
         
     }
     
     func transform() { }
     
-    
 
-    
     @MainActor
     private func handleError(_ error: Error) {
         if let apiError = error as? APIError {
@@ -67,16 +64,12 @@ extension LikeActiviyViewModel {
     
 }
 
-extension LikeActiviyViewModel {
+extension PostLikeViewModel {
     
     /// Init 시점에서 호출
-    private func loadInitialLikeActivityList() {
+    private func loadInitialLikePostList() {
         Task {
-            await MainActor.run {
-                output.isLoading = true
-                
-                
-            }
+            await MainActor.run { output.isLoading = true }
             
             await performfavoriteList()
             
@@ -91,7 +84,7 @@ extension LikeActiviyViewModel {
     private func performfavoriteList() async {
         do {
             
-            let data = try await favoriteList.activtyKeepList(next: nextCursor, limit: String(limit))
+            let data = try await favoriteList.postLikeList(next: nextCursor, limit: String(limit))
             
             nextCursor = data.nextCursor
             
@@ -124,10 +117,10 @@ extension LikeActiviyViewModel {
     private func perfomPagination() async {
         do {
             
-            let data = try await favoriteList.activtyKeepList(next: nextCursor, limit: String(limit))
+            let data = try await favoriteList.postLikeList(next: nextCursor, limit: String(limit))
             
             nextCursor = data.nextCursor
-            dump(data)
+            
             await MainActor.run {
                 output.likeList.append(contentsOf: data.data)
             }
@@ -139,23 +132,23 @@ extension LikeActiviyViewModel {
     
 }
 
-private extension LikeActiviyViewModel {
+private extension PostLikeViewModel {
     
     
-    func handleRemoveLike(_ activiyID: String) {
+    func handleRemoveLike(_ postID: String) {
         Task {
-            await performRemoveActivity(activiyID)
+            await performRemoveActivity(postID)
         }
     }
     
-    func performRemoveActivity(_ activiyID: String) async {
+    func performRemoveActivity(_ postID: String) async {
         do {
             
-            _ = try await favoriteList.activtyKeep(id: activiyID, status: false)
+            _ = try await favoriteList.postLike(postID: postID, status: false)
             
             
             await MainActor.run {
-                if let index = output.likeList.firstIndex(where: { $0.activityID == activiyID }) {
+                if let index = output.likeList.firstIndex(where: { $0.postID == postID }) {
                     output.likeList.remove(at: index)
                 }
             }
@@ -169,11 +162,11 @@ private extension LikeActiviyViewModel {
 
 
 // MARK: Action
-extension LikeActiviyViewModel {
+extension PostLikeViewModel {
     
     enum Action {
         case paginationLikeList
-        case removeActivity(activityID: String)
+        case removePost(postID: String)
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
@@ -181,7 +174,7 @@ extension LikeActiviyViewModel {
         switch action {
         case .paginationLikeList:
             handleLikePaginationRequest()
-        case .removeActivity(let id):
+        case .removePost(let id):
             handleRemoveLike(id)
         }
     }
@@ -191,7 +184,7 @@ extension LikeActiviyViewModel {
 
 
 // MARK: Alert 처리
-extension LikeActiviyViewModel: AnyObjectWithCommonUI {
+extension PostLikeViewModel: AnyObjectWithCommonUI {
     
     var isShowingMessage: Bool { output.isShowingMessage }
     var presentedMessageTitle: String? { output.presentedMessage?.title }
@@ -203,4 +196,5 @@ extension LikeActiviyViewModel: AnyObjectWithCommonUI {
     }
     
 }
+
 

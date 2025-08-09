@@ -35,6 +35,4 @@ protocol PostDetailUseCase {
     func execute(postID: String) async throws -> PostEntity
 }
 
-protocol PostLikeUseCase {
-    func execute(postID: String, status: Bool) async throws -> PostKeepEntity 
-}
+

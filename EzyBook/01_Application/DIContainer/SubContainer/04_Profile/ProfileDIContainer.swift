@@ -166,8 +166,12 @@ extension ProfileDIContainer {
         )
     }
     
-    func makeLikeActiviyViewModel() -> LikeActiviyViewModel {
-        LikeActiviyViewModel(favoriteList: commonDIContainer.makeDetailFeatureService().favorite)
+    func makeActiviyLikeViewModel() -> ActiviyLikeViewModel {
+        ActiviyLikeViewModel(favoriteList: commonDIContainer.makeDetailFeatureService().favorite)
+    }
+    
+    func makePostLikeViewModel() -> PostLikeViewModel {
+        PostLikeViewModel(favoriteList: commonDIContainer.makeDetailFeatureService().favorite)
     }
     
 }

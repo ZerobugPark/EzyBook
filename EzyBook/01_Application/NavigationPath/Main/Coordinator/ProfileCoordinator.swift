@@ -70,11 +70,14 @@ final class ProfileCoordinator: ObservableObject {
                 }
             
         case .activityLikeList:
-            let vm = self.container.makeLikeActiviyViewModel()
-            LikeActivityView(
+            let vm = self.container.makeActiviyLikeViewModel()
+            ActivityLikeView(
                 viewModel: vm,
                 coordinator: self
             )
+        case .postLikeList:
+            let vm = self.container.makePostLikeViewModel()
+            PostLikeView(viewModel: vm, coordinator: self)
         }
     }
 

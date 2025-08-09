@@ -402,7 +402,7 @@ extension ProfileView {
                         print("내 포스팅")
                     },
                     MenuItem(icon: "heart.text.clipboard", title: "내가 좋아요한 게시글") {
-                        print("내가 좋아요한 게시글")
+                        coordinator.push(.postLikeList)
                     },
                     MenuItem(icon: "heart", title: "내가 좋아요한 액티비티") {
                         coordinator.push(.activityLikeList)
@@ -417,9 +417,6 @@ extension ProfileView {
                 items: [
                     MenuItem(icon: "square.3.layers.3d", title: "주문 내역 조회") {
                         coordinator.push(.orderListView(list: supplementviewModel.output.orderList))
-                    },
-                    MenuItem(icon: "creditcard", title: "결제 영수증 조회") {
-                        print("결제 영수증 조회")
                     }
                 ]
             )

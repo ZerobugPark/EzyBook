@@ -59,9 +59,11 @@ extension CommonDIContainer {
         DefaultActivityKeepCommandUseCase(repo: makeKeepStatusRepository())
     }
     
-    func makeActivityKeepListUseCase() -> ActivityKeepListUseCase {
-        DefaultActivityKeepListUseCase(repo: makeKeepStatusRepository())
+    /// 포스트 좋아요
+    func makePostLikeUseCase() -> PostLikeUseCase {
+        DefaultPostLikeUseCase(repo: makeKeepStatusRepository())
     }
+  
     
     // MARK: 서비스 구현체 생성
     private func makeChatRoomService() -> ChatRoomServiceProtocol {
@@ -71,7 +73,9 @@ extension CommonDIContainer {
     private func makeFavoriteService() -> FavoriteServiceProtocol {
         FavoriteService(
             activityKeepUseCase: makeActivityKeepCommandUseCase(),
-            activityKeppListUseCase: makeActivityKeepListUseCase()
+            activityKeppListUseCase: makeActivityKeepListUseCase(),
+            postKeepUseCase: makePostLikeUseCase(),
+            postLikeListUseCase: makePostLikeListUseCase()
         )
     }
     
@@ -101,6 +105,17 @@ extension CommonDIContainer {
     private func makeCreateChatRoomUseCase() -> CreateChatRoomUseCase {
         DefaultCreateChatRoomUseCase(repo: makeChatRoomRepository())
     }
+    
+    
+    private func makeActivityKeepListUseCase() -> ActivityKeepListUseCase {
+        DefaultActivityKeepListUseCase(repo: makeKeepStatusRepository())
+    }
+    
+    private func makePostLikeListUseCase() -> PostLikeListUseCase {
+        DefaultPostLikeListUseCase(repo: makeKeepStatusRepository())
+    }
+    
+ 
     
 }
 // MARK: Data (내부용)

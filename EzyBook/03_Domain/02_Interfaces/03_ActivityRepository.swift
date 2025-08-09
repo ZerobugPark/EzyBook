@@ -28,13 +28,3 @@ protocol ActivityDetailRepository {
     func requestActivityDetail(_ id: String) async throws -> ActivityDetailEntity
 }
 
-/// 액태비비 좋아요
-protocol ActivityKeepCommandRepository {
-    func requestToggleKeep(_ id: String, _ stauts: Bool) async throws -> ActivityKeepEntity
-}
-
-
-
-protocol ActivityKeepListRepository {
-    func request(next: String?, limit: String) async throws -> ActivitySummaryListEntity
-}
