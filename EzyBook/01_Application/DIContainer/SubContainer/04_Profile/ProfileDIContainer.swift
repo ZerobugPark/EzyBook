@@ -57,16 +57,37 @@ extension ProfileDIContainer {
     private func makeReviewUseCases() -> ReviewUseCases {
         ReviewUseCases(
             imageUpload: makeReviewImageUploadUseCase(),
-            reviewWrite: makeReviewWirteUseCase()
+            reviewWrite: makeReviewWirteUseCase(),
+            reviewModify: makeReviewModifyUseCase(),
+            reviewDelete: makeReviewDeleteUseCase(),
+            reviewDetail: makeReviewDetailUseCase()
         )
     }
     
     private func makeReviewImageUploadUseCase() -> ReviewImageUpload {
         DefaultReviewImageUpload(repo: commonDIContainer.makeUploadRepository())
     }
-    private func makeReviewWirteUseCase() -> ReViewWriteUseCase {
-        DefaultReViewWriteUseCase(repo: commonDIContainer.makeReviewRepository())
+    
+    // MARK: Reivew CRUD
+    private func makeReviewWirteUseCase() -> ReviewWriteUseCase {
+        DefaultReviewWriteUseCase(repo: commonDIContainer.makeReviewRepository())
     }
+    
+    private func makeReviewModifyUseCase() -> ReviewModifyUseCase {
+        DefaultReviewModifyUseCase(repo: commonDIContainer.makeReviewRepository())
+    }
+    
+    private func makeReviewDeleteUseCase() -> ReviewDeleteUseCase {
+        DefaultReviewDeleteUseCase(repo: commonDIContainer.makeReviewRepository())
+    }
+
+    
+    // MARK:  Review Detail 조회
+    private func makeReviewDetailUseCase() -> ReviewDetailUseCase {
+        DefaultReviewDetailUseCase(repo: commonDIContainer.makeReviewRepository())
+    }
+
+
 
     
     
@@ -77,13 +98,6 @@ extension ProfileDIContainer {
         )
         
     }
-    
-    // MARK:  Review Detail 조회
-    private func makeReviewDetailUseCase() -> ReviewDetailUseCase {
-        DefaultReviewDetailUseCase(repo: commonDIContainer.makeReviewRepository())
-    }
-
-
 
     
 }
@@ -133,7 +147,7 @@ extension ProfileDIContainer {
         let filterList = list.filter { $0.review != nil }
         
         return ReviewDetailViewModel(
-            reviewDetailUseCase: makeReviewDetailUseCase(),
+            reviewUseCases: makeReviewUseCases(),
             orderList: filterList
         )
     }

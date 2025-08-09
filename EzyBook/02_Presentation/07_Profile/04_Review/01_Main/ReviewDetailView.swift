@@ -21,10 +21,17 @@ struct ReviewDetailView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVStack(spacing: 16) {
                     ForEach(viewModel.output.groupedReviewList) { group in
-                        ReviewListGroupeView(group: group) { review in
-                            selectedReview = review
-                        }
+                        ReviewListGroupeView(group: group, actions: ReviewAction(
+                            onEdit: {_ in 
+                                
+                            },
+                            onDelete: { data in
+                                viewModel.action(.deleteReview(data: data))
+                            })
+                        )
+                        
                     }
+                    
                 }
                 .padding(.horizontal, 20)
                 
@@ -46,28 +53,36 @@ struct ReviewDetailView: View {
             }
         }
         /// 추후 리뷰 수정 추가
-//        .fullScreenCover(item: $selectedReview) { review in
-//
-//        }
-              
+        //        .fullScreenCover(item: $selectedReview) { review in
+        //
+        //        }
+        
         .withCommonUIHandling(viewModel) { code, _ in
             if code == 418 {
                 appState.isLoggedIn = false
             }
         }
         .loadingOverlayModify(viewModel.output.isLoading)
+        .onDisappear {
+            NotificationCenter.default.post(name: .updatedProfileSupply, object: nil)
+        }
         
     }
 }
 
 private extension ReviewDetailView {
     
-    // MARK: 나중에 주문 내역이랑 합치는 것도 고려 대상
-     
+    struct ReviewAction {
+        
+        let onEdit: (UserReviewDetailList) -> Void
+        let onDelete: (UserReviewDetailList) -> Void
+    }
+    
     struct ReviewListGroupeView: View {
         
         let group: GroupedReview
-        let onSelectedReView: (UserReviewDetailList) -> Void
+        let actions: ReviewAction
+        
         
         var body: some View {
             VStack(alignment: .leading, spacing: 8) {
@@ -76,9 +91,7 @@ private extension ReviewDetailView {
                     .padding([.top, .leading], 4)
                 
                 ForEach(group.reviews, id: \.reviewID) { review in
-                    ReviewDetailListCardView(data: review) {
-                        onSelectedReView(review)
-                    }
+                    ReviewDetailListCardView(data: review, actions: actions)
                 }
             }
         }
@@ -89,11 +102,11 @@ private extension ReviewDetailView {
     // MARK: - Card Component
     struct ReviewDetailListCardView: View {
         let data: UserReviewDetailList
-        let onSelect: () -> Void
+        let actions: ReviewAction
         
         var body: some View {
             VStack(spacing: 0) {
-                ReviewListMainContentView(data: data)
+                ReviewListMainContentView(data: data, actions: actions)
                 ReViewListRatingView(data: data)
             }
             .background(.grayScale0)
@@ -105,6 +118,7 @@ private extension ReviewDetailView {
     // MARK: - Main Content
     struct ReviewListMainContentView: View {
         let data: UserReviewDetailList
+        let actions: ReviewAction
         
         var body: some View {
             VStack(alignment: .leading, spacing: 12) {
@@ -122,7 +136,7 @@ private extension ReviewDetailView {
                                 .appFont(PretendardFontStyle.body3, textColor: .grayScale75)
                             Text(data.content)
                                 .appFont(PretendardFontStyle.body3, textColor: .grayScale60)
-                                
+                            
                             
                         }
                     }
@@ -130,13 +144,14 @@ private extension ReviewDetailView {
                     Spacer()
                     
                     
-                    if !data.reviewImageURLs.isEmpty {
-                        RemoteImageView(path: data.reviewImageURLs[0])
-                            .frame(width: 80, height: 80)
-                            .foregroundColor(.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    ActionButtonView {
+                        actions.onEdit(data)
+                    } onDelete: {
+                        actions.onDelete(data)
                     }
-              
+                    .padding(.top, 5)
+                    
+                    
                 }
             }
             .padding(16)
@@ -149,7 +164,7 @@ private extension ReviewDetailView {
     // MARK: - Rating View
     struct ReViewListRatingView: View {
         let data: UserReviewDetailList
-    
+        
         var body: some View {
             HStack(alignment: .center, spacing: 6) {
                 Spacer()
@@ -171,4 +186,31 @@ private extension ReviewDetailView {
     }
     
     
+}
+
+struct ActionButtonView: View {
+    
+    let onEdit: () -> Void
+    let onDelete: () -> Void
+    
+    @State private var isPresented: Bool = false
+    
+    var body: some View {
+        
+        
+        Button(action: {
+            isPresented = true
+        }) {
+            Image(systemName: "ellipsis")
+                .rotationEffect(.degrees(90))
+                .foregroundColor(.gray)
+        }
+        .confirmationDialog("댓글 관리", isPresented: $isPresented, titleVisibility: .visible) {
+            Button("수정하기", action: onEdit)
+            Button("삭제하기", role: .destructive, action: onDelete)
+            Button("닫기", role: .cancel) { }
+        }
+        
+        
+    }
 }

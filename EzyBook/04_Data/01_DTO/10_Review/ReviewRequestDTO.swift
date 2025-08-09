@@ -9,8 +9,8 @@ import Foundation
 
 /// 리뷰 작성
 struct ReviewWriteRequestDTO: Encodable {
-    let content: String
-    let rating: Int
+    let content: String?
+    let rating: Int?
     let reviewImageUrls: [String]?
     let orderCode: String
     

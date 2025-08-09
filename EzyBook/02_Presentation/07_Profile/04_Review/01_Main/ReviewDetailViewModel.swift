@@ -18,7 +18,7 @@ struct GroupedReview: Identifiable {
 
 final class ReviewDetailViewModel: ViewModelType {
     
-    private let reviewDetailUseCase: ReviewDetailUseCase
+    private let reviewUseCases: ReviewUseCases
     
     private let orderEntity: [OrderEntity] // 주입 시 rating이 nil인것은 제외
     private var reviewList: [UserReviewDetailList] = []
@@ -30,10 +30,10 @@ final class ReviewDetailViewModel: ViewModelType {
     
     
     init(
-        reviewDetailUseCase: ReviewDetailUseCase,
+        reviewUseCases: ReviewUseCases,
         orderList: [OrderEntity]
     ) {
-        self.reviewDetailUseCase = reviewDetailUseCase
+        self.reviewUseCases = reviewUseCases
         self.orderEntity = orderList
         transform()
         
@@ -116,7 +116,7 @@ extension ReviewDetailViewModel {
                 group.addTask { [weak self] in
                     guard let self else { return nil }
                     do {
-                        return try await reviewDetailUseCase.execute(
+                        return try await reviewUseCases.reviewDetail.execute(
                             activityID: item.activity.id,
                             reviewID: item.review?.id ?? ""
                         )
@@ -163,16 +163,40 @@ extension ReviewDetailViewModel {
 }
 
 
-// MARK: Helper
+// MARK: 리뷰 삭제
 
 extension ReviewDetailViewModel {
     
-//    private func handleUpdateReviewRating(_ orderCode: String, _ rating: Int) {
-//        if let index = orderList.firstIndex(where: { $0.orderCode == orderCode }) {
-//            orderList[index].rating = rating
-//            output.groupedOrderList = makeGroupedOrderList(from: orderList)
-//        }
-//    }
+    private func handleReviewDelete(_ data: UserReviewDetailList) {
+        
+        Task {
+            await performDeleteReview(data)
+        }
+    }
+    
+    
+    private func performDeleteReview(_ data: UserReviewDetailList) async {
+        
+        do {
+            
+            try await reviewUseCases.reviewDelete.execute(id: data.activityID, reviewID: data.reviewID)
+            
+            if let index =  reviewList.firstIndex(where: { $0.reviewID == data.reviewID }) {
+                
+                reviewList.remove(at: index)
+            }
+            
+            let grouped = makeGroupeReviewList(from: reviewList)
+            
+            await MainActor.run {
+                output.groupedReviewList = grouped
+            }
+            
+        } catch {
+            await handleError(error)
+        }
+        
+    }
     
     
 }
@@ -181,20 +205,17 @@ extension ReviewDetailViewModel {
 extension ReviewDetailViewModel {
     
     enum Action {
-        /// 나중에 리뷰 수정 시 사용
-        case updateRating(orderCode: String, rating: Int)
+        case deleteReview(data: UserReviewDetailList)
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
     func action(_ action: Action) {
         switch action {
-        case .updateRating:
-            break
+        case .deleteReview(let data):
+            handleReviewDelete(data)
            // handleUpdateReviewRating(orderCode, rating)
         }
     }
-    
-    
 }
 
 // MARK: Alert 처리

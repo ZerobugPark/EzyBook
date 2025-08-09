@@ -74,6 +74,72 @@ extension ReviewRequest {
     }
 }
 
+// MARK: Put
+extension ReviewRequest {
+    
+    enum Put: PutRouter {
+        case modifyReview(id: String, dto: ReviewWriteRequestDTO)
+        
+        var requiresAuth: Bool {
+            true
+        }
+        
+        var endpoint: URL? {
+            switch self {
+            case .modifyReview(let id, _):
+                ReviewEndPoint.writeReview(id: id).requestURL
+            }
+        }
+        
+        var requestBody: Encodable? {
+            switch self {
+            case .modifyReview(_, let request):
+                return request
+            }
+        }
+        
+        var headers: HTTPHeaders {
+            [
+                "SeSACKey": APIConstants.apiKey
+            ]
+            
+        }
+    }
+}
+
+// MARK: Delete
+extension ReviewRequest {
+    
+    enum Delete: DeleteRouter {
+        case reviewDelete(id: String, reviewID: String)
+        
+        var requiresAuth: Bool {
+            true
+        }
+        
+        var endpoint: URL? {
+            switch self {
+            case let .reviewDelete(id, reviewID):
+                ReviewEndPoint.reviewDelete(id: id, reviewID: reviewID).requestURL
+            }
+        }
+        
+        var requestBody: Encodable? {
+            switch self {
+            case .reviewDelete:
+                return nil
+            }
+        }
+        
+        var headers: HTTPHeaders {
+            [
+                "SeSACKey": APIConstants.apiKey
+            ]
+            
+        }
+    }
+}
+
 
 // MARK: MultiPart
 extension ReviewRequest {

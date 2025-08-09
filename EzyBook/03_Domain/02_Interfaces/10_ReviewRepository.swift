@@ -18,9 +18,24 @@ protocol ReviewImageUploadRepository {
 
 protocol ReviewWriteRepository {
     
-    func requestWriteReivew(_ id: String, _ content: String, _ rating: Int, _ reviewImageUrls: [String]?, _ orderCode: String) async throws -> UserReviewEntity
+    func requestWriteReview(_ id: String, _ content: String, _ rating: Int, _ reviewImageUrls: [String]?, _ orderCode: String) async throws -> UserReviewEntity
     
 }
+
+protocol ReviewModifyRepository {
+    
+    func requestModifyReview(_ id: String, _ content: String?, _ rating: Int?, _ reviewImageUrls: [String]?, _ orderCode: String) async throws -> UserReviewEntity
+    
+}
+
+
+protocol ReviewDeleteRepository {
+    
+    func requestDeleteReview(_ id: String, _ reviewID: String) async throws
+    
+}
+
+
 
 
 protocol ReviewDetailRepository {
