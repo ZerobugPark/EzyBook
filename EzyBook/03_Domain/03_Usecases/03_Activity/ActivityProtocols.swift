@@ -29,3 +29,7 @@ protocol ActivityKeepCommandUseCase {
     func execute(id: String, stauts: Bool) async throws -> ActivityKeepEntity
 }
 
+
+protocol ActivityKeepListUseCase {
+    func execute(next: String?, limit: String) async throws ->  ActivitySummaryListEntity
+}

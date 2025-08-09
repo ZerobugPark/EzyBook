@@ -405,7 +405,7 @@ extension ProfileView {
                         print("내가 좋아요한 게시글")
                     },
                     MenuItem(icon: "heart", title: "내가 좋아요한 액티비티") {
-                        print("내가 좋아요한 액티비티")
+                        coordinator.push(.activityLikeList)
                     },
                     MenuItem(icon: "pencil", title: "리뷰 조회") {
                         coordinator.push(.reviewListView(list: supplementviewModel.output.orderList))

@@ -59,13 +59,20 @@ extension CommonDIContainer {
         DefaultActivityKeepCommandUseCase(repo: makeKeepStatusRepository())
     }
     
+    func makeActivityKeepListUseCase() -> ActivityKeepListUseCase {
+        DefaultActivityKeepListUseCase(repo: makeKeepStatusRepository())
+    }
+    
     // MARK: 서비스 구현체 생성
     private func makeChatRoomService() -> ChatRoomServiceProtocol {
         ChatRoomService(createChatRoomUseCase: makeCreateChatRoomUseCase())
     }
     
     private func makeFavoriteService() -> FavoriteServiceProtocol {
-        FavoriteService(activityKeepUseCase: makeActivityKeepCommandUseCase())
+        FavoriteService(
+            activityKeepUseCase: makeActivityKeepCommandUseCase(),
+            activityKeppListUseCase: makeActivityKeepListUseCase()
+        )
     }
     
     private func makeLocationSerview() -> LocationServiceProtocol {

@@ -24,3 +24,21 @@ extension DefaultActivityKeepCommandUseCase {
     }
 }
 
+
+final class DefaultActivityKeepListUseCase: ActivityKeepListUseCase {
+    
+    private let repo: ActivityKeepListRepository
+    
+    init(repo: ActivityKeepListRepository) {
+        self.repo = repo
+    }
+    
+
+}
+
+extension DefaultActivityKeepListUseCase {
+    func execute(next: String?, limit: String) async throws ->  ActivitySummaryListEntity {
+        try await repo.request(next: next, limit: limit)
+    }
+}
+

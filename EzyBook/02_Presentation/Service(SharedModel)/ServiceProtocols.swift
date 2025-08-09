@@ -24,6 +24,7 @@ protocol ChatRoomServiceProtocol {
 
 protocol FavoriteServiceProtocol {
     func activtyKeep(id: String, status: Bool) async throws -> Bool
+    func activtyKeepList(next: String?, limit: String) async throws -> ActivitySummaryListEntity
 }
 
 protocol LocationServiceProtocol {

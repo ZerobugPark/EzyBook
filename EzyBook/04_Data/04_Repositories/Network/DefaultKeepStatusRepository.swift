@@ -8,7 +8,7 @@
 import Foundation
 
 
-final class DefaultKeepStatusRepository: ActivityKeepCommandRepository,  ActivityKeepQueryRepository {
+final class DefaultKeepStatusRepository: ActivityKeepCommandRepository,  ActivityKeepListRepository {
     
     private let networkService: NetworkService
     
@@ -29,6 +29,16 @@ final class DefaultKeepStatusRepository: ActivityKeepCommandRepository,  Activit
     
     
     //TODO: Keep list 조회
+    func request(next: String?, limit: String) async throws -> ActivitySummaryListEntity {
+        
+        let dto = ActivitySummaryListRequestDTO(country: nil, category: nil, limit: limit, next: next)
+        let router = ActivityRequest.Get.keptActivities(param: dto)
+        
+        
+        let data = try await networkService.fetchData(dto: ActivitySummaryListResponseDTO.self, router)
+        
+        return data.toEntity()
+    }
     
     
 }

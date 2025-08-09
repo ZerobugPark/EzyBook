@@ -69,6 +69,12 @@ final class ProfileCoordinator: ObservableObject {
                     vm.action(.modifyReview(data: data))
                 }
             
+        case .activityLikeList:
+            let vm = self.container.makeLikeActiviyViewModel()
+            LikeActivityView(
+                viewModel: vm,
+                coordinator: self
+            )
         }
     }
 

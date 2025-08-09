@@ -44,9 +44,11 @@ final class ChatRoomService: ChatRoomServiceProtocol {
 final class FavoriteService: FavoriteServiceProtocol {
     
     private let activityKeepUseCase: ActivityKeepCommandUseCase
+    private let activityKeppListUseCase: ActivityKeepListUseCase
     
-    init(activityKeepUseCase: ActivityKeepCommandUseCase) {
+    init(activityKeepUseCase: ActivityKeepCommandUseCase, activityKeppListUseCase: ActivityKeepListUseCase) {
         self.activityKeepUseCase = activityKeepUseCase
+        self.activityKeppListUseCase = activityKeppListUseCase
     }
     
     
@@ -55,6 +57,11 @@ final class FavoriteService: FavoriteServiceProtocol {
         let result = try await activityKeepUseCase.execute(id: id, stauts: status)
         
         return result.keepStatus
+    }
+    
+    func activtyKeepList(next: String?, limit: String) async throws -> ActivitySummaryListEntity {
+        
+        try await activityKeppListUseCase.execute(next: next, limit: limit)
     }
 }
 
