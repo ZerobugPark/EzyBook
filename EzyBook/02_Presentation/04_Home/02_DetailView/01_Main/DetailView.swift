@@ -137,8 +137,11 @@ struct DetailView: View {
                 }
             }
         }
-        .withCommonUIHandling(viewModel) { code, _ in
-            if code == 418 {
+        .withCommonUIHandling(viewModel) { code, isSuccess in
+            if isSuccess {
+                // 다른 사람이 다른 시간대에 예약했을 수도 있기 때문에, 데이터의 정합성 위해 한 번더 API 호출
+                viewModel.action(.reloadDetailView)
+            } else if code == 418 {
                 appState.isLoggedIn = false
             }
         }

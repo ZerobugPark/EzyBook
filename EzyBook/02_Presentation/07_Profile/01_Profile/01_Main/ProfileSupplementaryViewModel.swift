@@ -24,6 +24,8 @@ final class ProfileSupplementaryViewModel: ViewModelType {
         
         self.orderListUseCase = orderListUseCase
         transform()
+        
+        
         handleInitialLoad()
     }
     
@@ -46,7 +48,14 @@ extension ProfileSupplementaryViewModel {
         
     }
     
-    func transform() {}
+    func transform() {
+        NotificationCenter.default.publisher(for: .updatedProfileSupply)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.handleInitialLoad()
+            }
+            .store(in: &cancellables)
+    }
     
     @MainActor
     private func handleError(_ error: Error) {

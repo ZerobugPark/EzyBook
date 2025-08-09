@@ -1,19 +1,24 @@
 //
-//  WriteReviewViewModel.swift
+//  ReviewModifyViewModel.swift
 //  EzyBook
 //
-//  Created by youngkyun park on 6/20/25.
+//  Created by youngkyun park on 8/9/25.
 //
 
 import SwiftUI
 import PhotosUI
 import Combine
 
-final class WriteReviewViewModel: ViewModelType {
+final class ReviewModifyViewModel: ViewModelType {
     
     private let reviewUseCases: ReviewUseCases
-    private let activityId: String
-    let orderCode: String
+    
+    private let reviewData: UserReviewDetailList
+    
+    @Published var reviewRating = 0
+    @Published var selectedMedia: [PickerSelectedMedia] = []
+    @Published var reviewText: String = ""
+    
     
     var input = Input()
     @Published var output = Output()
@@ -22,22 +27,23 @@ final class WriteReviewViewModel: ViewModelType {
     
     
     init(reviewUseCases: ReviewUseCases,
-         activityId: String,
-         orderCode: String
+         reviewData: UserReviewDetailList
     ) {
         self.reviewUseCases = reviewUseCases
-        self.activityId = activityId
-        self.orderCode = orderCode
+        self.reviewData = reviewData
+        
+        reviewText = reviewData.content
+        reviewRating = reviewData.rating
+        
+        
         transform()
     }
     
 }
 
-extension WriteReviewViewModel {
+extension ReviewModifyViewModel {
     
-    struct Input {
-        var reviewText: String = ""
-    }
+    struct Input { }
     
     struct Output {
         
@@ -45,6 +51,8 @@ extension WriteReviewViewModel {
         var isShowingMessage: Bool {
             presentedMessage != nil
         }
+        
+        var resultModifyReviewData: UserReviewDetailList?
     }
     
     func transform() { }
@@ -62,28 +70,44 @@ extension WriteReviewViewModel {
     
     @MainActor
     private func handleSuccess() {
-        output.presentedMessage = .success(msg: "리뷰가 성공적으로 작성되었습니다")
+        output.presentedMessage = .success(msg: "리뷰가 성공적으로 수정되었습니다")
     }
     
     
 }
 
-extension WriteReviewViewModel {
+extension ReviewModifyViewModel {
     
-    private func handleWriteReView(_ images: [UIImage],  _ rating: Int,) {
+    private func handleModifyReView() {
         
         Task {
-            await performWriteReviewFlow(images, rating)
+            
+            let images = selectedMedia.filter{ $0.type == .image }.compactMap { $0.image }
+            
+            await performModifyReviewFlow(images, reviewRating)
             
         }
         
         
     }
     
-    private func performWriteReviewFlow(_ images: [UIImage], _ rating: Int) async {
+    private func performModifyReviewFlow(_ images: [UIImage], _ rating: Int) async {
         do {
-            let paths = try await performUploadImages(id: activityId, images)
-            try await performReview(id: activityId, rating: rating, serverPaths: paths, code: orderCode)
+            
+            let paths: [String]?
+            if selectedMedia.isEmpty {
+                paths = reviewData.reviewImageURLs
+            } else {
+                paths = try await performUploadImages(id: reviewData.activityID, images)
+            }
+            
+            
+            
+            let data = try await performReview(id: reviewData.activityID, rating: rating, serverPaths: paths, reviewID: reviewData.reviewID)
+            
+            await MainActor.run {
+                output.resultModifyReviewData = data
+            }
             
             await handleSuccess()
             
@@ -100,14 +124,17 @@ extension WriteReviewViewModel {
         return path.reviewImageUrls
     }
     
-    private func performReview(id: String, rating: Int, serverPaths: [String]?, code: String) async throws {
-        _ = try await reviewUseCases.reviewWrite.execute(
+    private func performReview(id: String, rating: Int?, serverPaths: [String]?, reviewID: String) async throws -> UserReviewDetailList {
+        let data = try await reviewUseCases.reviewModify.execute(
             id: id,
-            content: input.reviewText,
+            content: reviewText,
             rating: rating,
             reviewImageUrls: serverPaths,
-            orderCode: code
+            reviewID: reviewID
         )
+        
+         return UserReviewDetailList(dto: data)
+        
     }
     
 
@@ -120,16 +147,17 @@ extension WriteReviewViewModel {
 }
 
 // MARK: Action
-extension WriteReviewViewModel {
+extension ReviewModifyViewModel {
     
     enum Action {
-        case writeReView(images: [UIImage], rating: Int)
+        case modifyReView
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
     func action(_ action: Action) {
-        switch action {        case let .writeReView(images, rating):
-            handleWriteReView(images, rating)
+        switch action {
+        case .modifyReView:
+            handleModifyReView()
         }
     }
     
@@ -137,7 +165,7 @@ extension WriteReviewViewModel {
 }
 
 // MARK: Alert 처리
-extension WriteReviewViewModel: AnyObjectWithCommonUI {
+extension ReviewModifyViewModel: AnyObjectWithCommonUI {
     var isShowingMessage: Bool { output.isShowingMessage }
     var presentedMessageTitle: String? { output.presentedMessage?.title }
     var presentedMessageBody: String? { output.presentedMessage?.message }
@@ -148,5 +176,6 @@ extension WriteReviewViewModel: AnyObjectWithCommonUI {
         output.presentedMessage = nil
     }
 }
+
 
 

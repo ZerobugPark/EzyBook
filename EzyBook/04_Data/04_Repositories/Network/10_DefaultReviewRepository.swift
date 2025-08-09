@@ -8,7 +8,7 @@
 import Foundation
 
 
-final class DefaultReviewRepository: ReviewRatingListRepository, ReviewWriteRepository, ReviewDetailRepository, ActivityReviewListRepository {
+final class DefaultReviewRepository: ReviewRatingListRepository, ReviewWriteRepository, ReviewModifyRepository, ReviewDeleteRepository, ReviewDetailRepository, ActivityReviewListRepository {
 
 
     private let networkService: NetworkService
@@ -29,7 +29,7 @@ final class DefaultReviewRepository: ReviewRatingListRepository, ReviewWriteRepo
 
     
     /// 리뷰 작성
-    func requestWriteReivew(_ id: String, _ content: String, _ rating: Int, _ reviewImageUrls: [String]?, _ orderCode: String) async throws -> UserReviewEntity {
+    func requestWriteReview(_ id: String, _ content: String, _ rating: Int, _ reviewImageUrls: [String]?, _ orderCode: String) async throws -> UserReviewEntity {
         
         
         let dto = ReviewWriteRequestDTO(
@@ -46,6 +46,34 @@ final class DefaultReviewRepository: ReviewRatingListRepository, ReviewWriteRepo
         
         
     }
+    
+    /// 리뷰 수정
+    func requestModifyReview(_ id: String, _ content: String?, _ rating: Int?, _ reviewImageUrls: [String]?, _ reviewID: String) async throws -> UserReviewEntity {
+        
+        
+        let dto = ReviewModifyRequestDTO(
+            content: content,
+            rating: rating,
+            reviewImageUrls: reviewImageUrls
+        )
+        
+        let router = ReviewRequest.Put.modifyReview(id: id, reviewID: reviewID, dto: dto)
+        
+        let data = try await networkService.fetchData(dto: UserReviewResponseDTO.self, router)
+        return data.toEntity()
+        
+        
+    }
+    
+    /// 리뷰 삭제
+    func requestDeleteReview(_ id: String, _ reviewID: String) async throws {
+        
+        let router = ReviewRequest.Delete.reviewDelete(id: id, reviewID: reviewID)
+        
+        let _ = try await networkService.fetchData(dto: EmptyDTO.self, router)
+        
+    }
+    
     
     // 리뷰 상세 조회
     func reqeustReviewDetailList(_ activityID: String, _ reviewID: String) async throws -> UserReviewEntity {

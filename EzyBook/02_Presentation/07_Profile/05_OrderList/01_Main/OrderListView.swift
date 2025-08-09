@@ -13,7 +13,6 @@ struct OrderListView: View {
 
     @StateObject var viewModel: OrderListViewModel
     @ObservedObject var coordinator: ProfileCoordinator
-    var onRatingUpdated: ((String, Int) -> Void)?
     
     @EnvironmentObject var appState: AppState
     @State private var selectedOrder: OrderList?
@@ -48,9 +47,7 @@ struct OrderListView: View {
             }
         }
         .fullScreenCover(item: $selectedOrder) { order in
-            coordinator.makeWriteReviewView(order.activityID, order.orderCode) { (orderCode, rating) in
-                onRatingUpdated?(orderCode, rating)
-            }
+            coordinator.makeWriteReviewView(order.activityID, order.orderCode)
         }
         .withCommonUIHandling(viewModel) { code, _ in
             if code == 418 {

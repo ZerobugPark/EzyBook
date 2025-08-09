@@ -216,64 +216,6 @@ extension SearchViewModel {
 
 }
 
-
-
-// MARK:  Keep Status
-extension SearchViewModel {
-    
-    private func handleKeepActivity(_ index: Int) {
-        Task {
-            await performKeepActivity(for: index)
-        }
-    }
-    
-    private func performKeepActivity(for index: Int) async {
-        guard let data = _searchActivityDetailList[index] else {
-            print("존재하지 않는 아이디 입니다.")
-            return
-        }
-        
-        /// 일단 네트워크 통신과 상관없이 상태 변경 (이후 실패시 기존 상태로 변경)
-        /// 유저입장에서 통신전에 상태를 변경하는것을 먼저 인지하게 하고, 만약 실패시, UI를 다시 업데이트 하는 형태로 변경
-        await toggleKeepUI(index) // UI 업데이트
-        
-        
-        
-        do {
-            try await updateKeepStatus(for: data, at: index)
-        } catch {
-            await rollbackKeepUI(index, error: error)
-        }
-        
-    }
-    
-    @MainActor
-    private func toggleKeepUI(_ index: Int) {
-        _searchActivityDetailList[index]?.isKeep.toggle()
-    }
-    
-    private func updateKeepStatus(for data: FilterActivityModel, at index: Int) async throws {
-        var statusChanged = data.isKeep
-        statusChanged.toggle()
-        
-        let detail = try await activityUseCases.activityKeepCommand.execute(
-            id: data.activityID,
-            stauts: statusChanged
-        )
-        
-        await MainActor.run {
-            _searchActivityDetailList[index]?.isKeep = detail.keepStatus
-        }
-    }
-    
-    @MainActor
-    private func rollbackKeepUI(_ index: Int, error: Error) {
-        _searchActivityDetailList[index]?.isKeep.toggle()
-        handleError(error)
-    }
-    
-}
-
 // MARK: Banner
 extension SearchViewModel {
     
@@ -296,7 +238,6 @@ extension SearchViewModel {
     enum Action {
         case searchButtonTapped
         case prefetchSearchContent(index: Int)
-        case keepButtonTapped(index: Int)
         case bannerResult(msg: String)
         
     }
@@ -314,8 +255,6 @@ extension SearchViewModel {
 
         case .prefetchSearchContent(let index):
             handleSearchListPrefetch(index)
-        case .keepButtonTapped(let index):
-            handleKeepActivity(index)
         case .bannerResult(let msg):
             handleBannerResult(msg: msg)
         }

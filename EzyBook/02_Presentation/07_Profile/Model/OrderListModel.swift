@@ -72,7 +72,10 @@ extension OrderList {
 
 
 
-struct UserReviewDetailList {
+struct UserReviewDetailList: Identifiable {
+    
+    var id: String {reviewID }
+    
     let reviewID: String
     let content: String
     let rating: Int

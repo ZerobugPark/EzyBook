@@ -10,5 +10,8 @@ import Foundation
 struct ReviewUseCases {
     
     let imageUpload: ReviewImageUpload
-    let reviewWrite: ReViewWriteUseCase
+    let reviewWrite: ReviewWriteUseCase
+    let reviewModify: ReviewModifyUseCase
+    let reviewDelete: ReviewDeleteUseCase
+    let reviewDetail: ReviewDetailUseCase
 }

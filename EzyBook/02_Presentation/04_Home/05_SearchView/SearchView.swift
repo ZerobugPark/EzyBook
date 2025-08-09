@@ -22,9 +22,7 @@ struct SearchView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .center, spacing: 15) {
                     makeAdvertiseView()
-                    ActivityIntroduceView(data: viewModel.output.activitySearchDetailList) { index in
-                        viewModel.action(.keepButtonTapped(index: index))
-                    } currentIndex: { index in
+                    ActivityIntroduceView(data: viewModel.output.activitySearchDetailList)  { index in
                         viewModel.action(.prefetchSearchContent(index: index))
                     } onItemTapped: { id in
                         coordinator.push(.detailView(activityID: id))

@@ -38,8 +38,6 @@ struct HomeView: View {
                         }
       
                     ActivityIntroduceView(data: viewModel.output.filterActivityDetailList) { index in
-                        viewModel.action(.keepButtonTapped(index: index))
-                    } currentIndex: { index in
                         viewModel.action(.prefetchfilterActivityContent(index: index))
                         viewModel.action(.paginationAcitiviyList(index: index))
                     } onItemTapped: { id in

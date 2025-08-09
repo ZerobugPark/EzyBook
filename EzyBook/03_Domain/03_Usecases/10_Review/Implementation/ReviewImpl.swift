@@ -28,7 +28,7 @@ extension DefaultReviewImageUpload {
 
 
 // MARK: 리뷰 작성
-final class DefaultReViewWriteUseCase: ReViewWriteUseCase {
+final class DefaultReviewWriteUseCase: ReviewWriteUseCase {
     
     private let repo: ReviewWriteRepository
     
@@ -38,16 +38,60 @@ final class DefaultReViewWriteUseCase: ReViewWriteUseCase {
     
 }
 
-extension DefaultReViewWriteUseCase {
+extension DefaultReviewWriteUseCase {
     
     func execute(
         id: String, content: String, rating: Int, reviewImageUrls: [String]?, orderCode: String) async throws -> UserReviewEntity {
         
-        try await repo.requestWriteReivew(id, content, rating, reviewImageUrls, orderCode)
+        try await repo.requestWriteReview(id, content, rating, reviewImageUrls, orderCode)
       
     }
     
 }
+
+// MARK: 리뷰 수정
+final class DefaultReviewModifyUseCase: ReviewModifyUseCase {
+    
+    private let repo: ReviewModifyRepository
+    
+    init(repo: ReviewModifyRepository) {
+        self.repo = repo
+    }
+    
+}
+
+extension DefaultReviewModifyUseCase {
+    
+    func execute(
+        id: String, content: String?, rating: Int?, reviewImageUrls: [String]?, reviewID: String) async throws -> UserReviewEntity {
+        
+        try await repo.requestModifyReview(id, content, rating, reviewImageUrls, reviewID)
+      
+    }
+    
+}
+
+// MARK: 리뷰 삭제
+final class DefaultReviewDeleteUseCase: ReviewDeleteUseCase {
+    
+    private let repo: ReviewDeleteRepository
+    
+    init(repo: ReviewDeleteRepository) {
+        self.repo = repo
+    }
+    
+}
+
+extension DefaultReviewDeleteUseCase {
+    
+    func execute(id: String, reviewID: String) async throws {
+        try await repo.requestDeleteReview(id, reviewID)
+    }
+    
+}
+
+
+
 
 
 
