@@ -75,7 +75,8 @@ extension CommonDIContainer {
             activityKeepUseCase: makeActivityKeepCommandUseCase(),
             activityKeppListUseCase: makeActivityKeepListUseCase(),
             postKeepUseCase: makePostLikeUseCase(),
-            postLikeListUseCase: makePostLikeListUseCase()
+            postLikeListUseCase: makePostLikeListUseCase(),
+            myPostUseCase: makeMyPostUseCase()
         )
     }
     
@@ -115,7 +116,9 @@ extension CommonDIContainer {
         DefaultPostLikeListUseCase(repo: makeKeepStatusRepository())
     }
     
- 
+    private func makeMyPostUseCase() -> MyPostUseCase {
+        DefaultMyPostUseCase(repo: makeKeepStatusRepository())
+    }
     
 }
 // MARK: Data (내부용)

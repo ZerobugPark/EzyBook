@@ -85,7 +85,8 @@ final class AppDIContainer: ObservableObject {
         
         profileDIContainer = ProfileDIContainer(
             networkService: networkService,
-            commonDIContainer: commonDICotainer
+            commonDIContainer: commonDICotainer,
+            communityDIContainer: communityDIContainer
         )
         
         cacheManager = CacheManager(imageCache: imageCache)

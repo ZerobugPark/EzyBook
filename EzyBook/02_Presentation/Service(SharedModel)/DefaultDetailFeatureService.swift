@@ -47,14 +47,18 @@ final class FavoriteService: FavoriteServiceProtocol {
     private let activityKeppListUseCase: ActivityKeepListUseCase
     private let postKeepUseCase: PostLikeUseCase
     private let postLikeListUseCase: PostLikeListUseCase
+    private let myPostUseCase: MyPostUseCase
     
     
-    init(activityKeepUseCase: ActivityKeepCommandUseCase, activityKeppListUseCase: ActivityKeepListUseCase, postKeepUseCase: PostLikeUseCase, postLikeListUseCase: PostLikeListUseCase) {
+    
+    init(activityKeepUseCase: ActivityKeepCommandUseCase, activityKeppListUseCase: ActivityKeepListUseCase, postKeepUseCase: PostLikeUseCase, postLikeListUseCase: PostLikeListUseCase, myPostUseCase: MyPostUseCase) {
         self.activityKeepUseCase = activityKeepUseCase
         self.activityKeppListUseCase = activityKeppListUseCase
         self.postKeepUseCase = postKeepUseCase
         self.postLikeListUseCase = postLikeListUseCase
+        self.myPostUseCase = myPostUseCase
     }
+    
     
     func activtyKeep(id: String, status: Bool) async throws -> Bool {
         
@@ -78,6 +82,10 @@ final class FavoriteService: FavoriteServiceProtocol {
     func postLikeList(next: String?, limit: String) async throws -> PostSummaryPaginationEntity {
         
         try await postLikeListUseCase.execute(next: next, limit: limit)
+    }
+    
+    func myPostList(next: String?, limit: String, userID: String) async throws -> PostSummaryPaginationEntity {
+        try await myPostUseCase.execute(next: next, limit: limit, userID: userID)
     }
 }
 

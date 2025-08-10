@@ -15,7 +15,7 @@ protocol PostLikeUseCase {
 
 protocol PostLikeListUseCase {
     
-    func execute(next: String?, limit: String) async throws -> PostSummaryPaginationEntity 
+    func execute(next: String?, limit: String) async throws -> PostSummaryPaginationEntity
 }
 
 protocol ActivityKeepCommandUseCase {
@@ -25,4 +25,9 @@ protocol ActivityKeepCommandUseCase {
 
 protocol ActivityKeepListUseCase {
     func execute(next: String?, limit: String) async throws ->  ActivitySummaryListEntity
+}
+
+
+protocol MyPostUseCase {
+    func execute(next: String?, limit: String, userID: String) async throws -> PostSummaryPaginationEntity
 }

@@ -8,9 +8,24 @@
 import SwiftUI
 import Combine
 
-final class PostLikeViewModel: ViewModelType {
+enum PostStatus {
+    case myPost
+    case postLike
+    
+    var title: String {
+        switch self {
+        case .myPost:
+            return "내 게시글"
+        case .postLike:
+            return "게시글"
+        }
+    }
+}
+
+final class MyPostViewModel: ViewModelType {
     
     private let favoriteList: FavoriteServiceProtocol
+    private let deleteUseCase: PostDeleteUseCase
     
     var input = Input()
     @Published var output = Output()
@@ -21,18 +36,35 @@ final class PostLikeViewModel: ViewModelType {
     private let limit = 10
     private var nextCursor: String?
     
+    let postStatus: PostStatus
     
-    init(favoriteList: FavoriteServiceProtocol) {
+    var userID: String {
+        UserSession.shared.currentUser?.userID ?? ""
+    }
+    
+    init(
+        favoriteList: FavoriteServiceProtocol,
+        postStatus: PostStatus,
+        deleteUseCase: PostDeleteUseCase
+    ) {
         self.favoriteList = favoriteList
+        self.postStatus = postStatus
+        self.deleteUseCase = deleteUseCase
         
         transform()
-        loadInitialLikePostList()
+        
+        if postStatus == .postLike {
+            loadInitialLikePostList()
+        } else {
+            loadInitialMyPostList()
+        }
+        
     }
     
 }
 
 // MARK: Input/Output
-extension PostLikeViewModel {
+extension MyPostViewModel {
     
     struct Input { }
     
@@ -64,7 +96,107 @@ extension PostLikeViewModel {
     
 }
 
-extension PostLikeViewModel {
+
+// MARK: 내 게시글
+
+private extension MyPostViewModel {
+    
+    /// Init 시점에서 호출
+    private func loadInitialMyPostList() {
+        Task {
+            await MainActor.run { output.isLoading = true }
+            
+            await performMyPostListList()
+            
+            
+            await MainActor.run {
+                output.isLoading = false
+                
+            }
+        }
+    }
+    
+    private func performMyPostListList() async {
+        do {
+            
+            let data = try await favoriteList.myPostList(next: nextCursor, limit: String(limit), userID: userID)
+            
+            nextCursor = data.nextCursor
+            
+            await MainActor.run {
+                output.likeList = data.data
+            }
+            
+        } catch {
+            await handleError(error)
+        }
+    }
+    
+    // MARK: 페이지네이션
+    private func handlePostPaginationRequest() {
+        
+        Task {
+            
+            guard let nextCursor, nextCursor != "0" else { return }
+            
+            await MainActor.run { output.isLoading = true }
+            
+            await perfomMyPostPagination()
+            
+            await MainActor.run { output.isLoading = false }
+            
+        }
+    }
+    
+    private func perfomMyPostPagination() async {
+        do {
+            
+            let data = try await favoriteList.myPostList(next: nextCursor, limit: String(limit), userID: userID)
+            
+            nextCursor = data.nextCursor
+            
+            await MainActor.run {
+                output.likeList.append(contentsOf: data.data)
+            }
+            
+        } catch {
+            await handleError(error)
+        }
+    }
+    
+    // MARK: Post 삭제
+    
+    private func handleDeletePost(_ postID: String) {
+        Task {
+            await perfomDeletePost(postID)
+        }
+    }
+    
+    private func perfomDeletePost(_ postID: String) async {
+        
+        do {
+            _ = try await deleteUseCase.execute(postID: postID)
+            
+            await MainActor.run {
+                if let index = output.likeList.firstIndex(where: { $0.postID == postID }) {
+                    output.likeList.remove(at: index)
+                }
+            }
+            
+        
+        } catch {
+            await handleError(error)
+        }
+        
+    }
+
+
+}
+
+
+
+// MARK: 내가 좋아하는 게시글
+extension MyPostViewModel {
     
     /// Init 시점에서 호출
     private func loadInitialLikePostList() {
@@ -130,11 +262,8 @@ extension PostLikeViewModel {
         }
     }
     
-}
-
-private extension PostLikeViewModel {
     
-    
+    /// 좋아요 취소
     func handleRemoveLike(_ postID: String) {
         Task {
             await performRemoveActivity(postID)
@@ -157,16 +286,22 @@ private extension PostLikeViewModel {
             await handleError(error)
         }
     }
+    
+
 }
 
 
 
+
+
 // MARK: Action
-extension PostLikeViewModel {
+extension MyPostViewModel {
     
     enum Action {
         case paginationLikeList
-        case removePost(postID: String)
+        case cancelLike(postID: String)
+        case paginationMyPost
+        case deletePost(postID: String)
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
@@ -174,17 +309,23 @@ extension PostLikeViewModel {
         switch action {
         case .paginationLikeList:
             handleLikePaginationRequest()
-        case .removePost(let id):
+        case .cancelLike(let id):
             handleRemoveLike(id)
+        case .paginationMyPost:
+            handlePostPaginationRequest()
+        case .deletePost(let postID):
+            handleDeletePost(postID)
         }
     }
+    
+    
     
     
 }
 
 
 // MARK: Alert 처리
-extension PostLikeViewModel: AnyObjectWithCommonUI {
+extension MyPostViewModel: AnyObjectWithCommonUI {
     
     var isShowingMessage: Bool { output.isShowingMessage }
     var presentedMessageTitle: String? { output.presentedMessage?.title }

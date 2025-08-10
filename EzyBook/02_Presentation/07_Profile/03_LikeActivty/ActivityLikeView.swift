@@ -28,7 +28,7 @@ struct ActivityLikeView: View {
                             } label: {
                                 Label("좋아요 취소", systemImage: "heart.slash")
                             }
-                            .tint(.red)
+                            .tint(.rosyPunch)
                         }
                         .onAppear {
                             let triggerIndex = max(0, viewModel.output.likeList.count - 3)

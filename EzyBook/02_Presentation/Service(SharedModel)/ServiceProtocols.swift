@@ -27,6 +27,7 @@ protocol FavoriteServiceProtocol {
     func activtyKeepList(next: String?, limit: String) async throws -> ActivitySummaryListEntity
     func postLike(postID: String, status: Bool) async throws -> Bool
     func postLikeList(next: String?, limit: String) async throws -> PostSummaryPaginationEntity
+    func myPostList(next: String?, limit: String, userID: String) async throws -> PostSummaryPaginationEntity 
 }
 
 protocol LocationServiceProtocol {

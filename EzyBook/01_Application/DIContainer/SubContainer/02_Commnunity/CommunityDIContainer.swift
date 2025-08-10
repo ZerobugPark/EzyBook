@@ -54,6 +54,11 @@ extension CommunityDIContainer {
         DefaultPostDetailUseCase(repo: makeCommunityRepository())
     }
     
+    ///게시글 삭제
+    func makePostDeleteUseCase() -> PostDeleteUseCase {
+        DefaultPostDeleteUseCase(repo: makeCommunityRepository())
+    }
+    
     
     // MARK: Make Order List
     private func makeOrderListUseCase() -> OrderListLookUpUseCase {

@@ -8,8 +8,6 @@
 import Foundation
 
 final class DefaultBannerRepository: BannerInfoRepository {
- 
-    
 
     private let networkService: NetworkService
     

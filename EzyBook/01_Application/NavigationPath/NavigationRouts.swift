@@ -75,7 +75,7 @@ enum ProfileRoute: Hashable {
     case orderListView(list: [OrderEntity])
     case reviewListView(list: [OrderEntity])
     case activityLikeList
-    case postLikeList
+    case myPost(status: PostStatus)
     
 }
 

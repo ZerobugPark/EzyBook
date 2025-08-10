@@ -398,11 +398,11 @@ extension ProfileView {
             MenuSection(
                 title: "나의 활동",
                 items: [
-                    MenuItem(icon: "doc.text", title: "내 포스팅") {
-                        print("내 포스팅")
+                    MenuItem(icon: "doc.text", title: "내 게시글") {
+                        coordinator.push(.myPost(status: .myPost))
                     },
                     MenuItem(icon: "heart.text.clipboard", title: "내가 좋아요한 게시글") {
-                        coordinator.push(.postLikeList)
+                        coordinator.push(.myPost(status: .postLike))
                     },
                     MenuItem(icon: "heart", title: "내가 좋아요한 액티비티") {
                         coordinator.push(.activityLikeList)

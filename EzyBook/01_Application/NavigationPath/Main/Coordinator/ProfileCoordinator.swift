@@ -75,9 +75,9 @@ final class ProfileCoordinator: ObservableObject {
                 viewModel: vm,
                 coordinator: self
             )
-        case .postLikeList:
-            let vm = self.container.makePostLikeViewModel()
-            PostLikeView(viewModel: vm, coordinator: self)
+        case .myPost(let status):
+            let vm = self.container.makeMyPostViewModel(postStatus: status)
+            MyPostView(viewModel: vm, coordinator: self)
         }
     }
 

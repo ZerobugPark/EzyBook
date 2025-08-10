@@ -8,7 +8,7 @@
 import Foundation
 
 
-final class DefaultKeepStatusRepository: ActivityKeepCommandRepository,  ActivityKeepListRepository, PostLikeRepository, PorstLikeListRepository {
+final class DefaultKeepStatusRepository: ActivityKeepCommandRepository,  ActivityKeepListRepository, PostLikeRepository, PostLikeListRepository, MyPostListRepository {
     
     private let networkService: NetworkService
     
@@ -57,6 +57,19 @@ final class DefaultKeepStatusRepository: ActivityKeepCommandRepository,  Activit
         let dto = MyActivityQuery(country: nil, category: nil, limit: limit, next: next)
         
         let router = ActivityPostRequest.Get.likedPosts(dto: dto)
+        
+        let data = try await networkService.fetchData(dto: PostSummaryPaginationResponseDTO.self, router)
+        
+        return data.toEntity()
+        
+    }
+    
+    func reqeustMyPostList(_ next: String?, _ limit: String, _ userID: String)  async throws -> PostSummaryPaginationEntity {
+        
+        
+        let dto = MyActivityQuery(country: nil, category: nil, limit: limit, next: next)
+        
+        let router = ActivityPostRequest.Get.writtenPost(userID: userID, dto: dto)
         
         let data = try await networkService.fetchData(dto: PostSummaryPaginationResponseDTO.self, router)
         

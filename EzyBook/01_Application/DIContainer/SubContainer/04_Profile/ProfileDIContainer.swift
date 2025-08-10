@@ -12,10 +12,12 @@ final class ProfileDIContainer {
     
     private let networkService: DefaultNetworkService
     private let commonDIContainer: CommonDIContainer
+    private let communityDIContainer: CommunityDIContainer
     
-    init(networkService: DefaultNetworkService, commonDIContainer: CommonDIContainer) {
+    init(networkService: DefaultNetworkService, commonDIContainer: CommonDIContainer, communityDIContainer: CommunityDIContainer) {
         self.networkService = networkService
         self.commonDIContainer = commonDIContainer
+        self.communityDIContainer = communityDIContainer
     }
     
 
@@ -170,8 +172,12 @@ extension ProfileDIContainer {
         ActiviyLikeViewModel(favoriteList: commonDIContainer.makeDetailFeatureService().favorite)
     }
     
-    func makePostLikeViewModel() -> PostLikeViewModel {
-        PostLikeViewModel(favoriteList: commonDIContainer.makeDetailFeatureService().favorite)
+    func makeMyPostViewModel(postStatus: PostStatus) -> MyPostViewModel {
+        MyPostViewModel(
+            favoriteList: commonDIContainer.makeDetailFeatureService().favorite,
+            postStatus: postStatus,
+            deleteUseCase: communityDIContainer.makePostDeleteUseCase()
+        )
     }
     
 }

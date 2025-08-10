@@ -35,4 +35,8 @@ protocol PostDetailUseCase {
     func execute(postID: String) async throws -> PostEntity
 }
 
+protocol PostDeleteUseCase {
+    func execute(postID: String) async throws -> EmptyEntity
+}
+
 

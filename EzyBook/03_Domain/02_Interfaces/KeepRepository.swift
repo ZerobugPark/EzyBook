@@ -24,6 +24,12 @@ protocol PostLikeRepository {
 }
 
 /// 게시글 좋아요 목록
-protocol PorstLikeListRepository {
+protocol PostLikeListRepository {
     func requestPostLikeList(_ next: String?, _ limit: String) async throws -> PostSummaryPaginationEntity
+}
+
+
+/// 내가 작성한 게시글 목록
+protocol MyPostListRepository {
+    func reqeustMyPostList(_ next: String?, _ limit: String, _ userID: String)  async throws -> PostSummaryPaginationEntity
 }

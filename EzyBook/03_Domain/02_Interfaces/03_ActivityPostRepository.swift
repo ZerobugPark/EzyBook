@@ -35,5 +35,8 @@ protocol PostDetailRepository {
     func requestPostDetail(postID: String) async throws -> PostEntity
 }
 
+protocol PostDeleteRepository {
+    func requestDeletePost(postID: String) async throws -> EmptyEntity
+}
 
 

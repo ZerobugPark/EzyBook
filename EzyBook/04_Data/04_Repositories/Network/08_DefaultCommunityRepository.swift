@@ -8,7 +8,7 @@
 import Foundation
 
 
-final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSearchRepository, PostActivityRepository, WrittenPostListRepository, PostDetailRepository {
+final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSearchRepository, PostActivityRepository, WrittenPostListRepository, PostDetailRepository, PostDeleteRepository {
     
     private let networkService: NetworkService
     
@@ -39,6 +39,7 @@ final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSea
         
     }
     
+    /// 포스트 작성
     func requestWirtePost(_ country: String, _ category: String, _ title: String, _ content: String, activity_id: String, latitude: Double, longitude: Double, _ files: [String]) async throws -> PostEntity {
         
         let dto = ActivityPostRequestDTO(
@@ -60,6 +61,7 @@ final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSea
         
     }
     
+    /// 작성된 포스트 리스트 (내가 작성한 리스트 X)
     func requestWrittenPostList(id: String) async throws -> [String] {
         var allPostIDs: [String] = []
         var nextCursor: String? = nil
@@ -76,6 +78,7 @@ final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSea
         return allPostIDs
     }
     
+    /// 포스트 상세 조회
     func requestPostDetail(postID: String) async throws -> PostEntity {
         
         let router = ActivityPostRequest.Get.detailPost(postID: postID)
@@ -83,6 +86,16 @@ final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSea
         
         return data.toEntity()
         
+    }
+    
+    /// 포스트 삭제
+    func requestDeletePost(postID: String) async throws -> EmptyEntity {
+        
+        let router = ActivityPostRequest.Delete.deletePost(postID: postID)
+        
+        let data = try await networkService.fetchData(dto: EmptyDTO.self, router)
+        
+        return data.toEntity()
     }
  
 }

@@ -22,13 +22,6 @@ enum ActivityPostRequest {
         case writtenPost(userID: String, dto: MyActivityQuery) //내가 작성한 게시글
         case likedPosts(dto: MyActivityQuery) // 내가 킵한 액티비티 리스트
         
-
-        //case deletePost(postID: String) // 게시글 삭제 나중에 만들자
-        
-        //            case .deletePost(let postID):
-        //                ActivityPostEndPoint.deletePost(postID: postID).requestURL
-        
-        
         var requiresAuth: Bool {
             true
         }
@@ -137,6 +130,42 @@ extension ActivityPostRequest {
     
     
 }
+
+// MARK:  Delete
+extension ActivityPostRequest {
+    
+    enum Delete: DeleteRouter {
+    
+        case deletePost(postID: String)
+        
+                    
+     
+        var requiresAuth: Bool {
+            true
+        }
+        
+        var endpoint: URL? {
+            switch self {
+            case .deletePost(let postID):
+                ActivityPostEndPoint.deletePost(postID: postID).requestURL //게시글 킵/킵취소
+            
+            }
+        }
+        
+        var requestBody: Encodable? {
+            return nil
+        }
+        
+        var headers: HTTPHeaders {
+            [
+                "SeSACKey": APIConstants.apiKey
+            ]
+            
+        }
+    }
+    
+}
+
 
 // MARK: Put
 extension ActivityPostRequest {

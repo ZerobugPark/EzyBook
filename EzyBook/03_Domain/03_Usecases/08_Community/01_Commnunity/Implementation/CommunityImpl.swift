@@ -91,6 +91,22 @@ extension DefaultPostDetailUseCase {
     }
 }
 
+final class DefaultPostDeleteUseCase: PostDeleteUseCase {
+
+    let repo: PostDeleteRepository
+    
+    init(repo: PostDeleteRepository) {
+        self.repo = repo
+    }
+}
+extension DefaultPostDeleteUseCase {
+    
+    func execute(postID: String) async throws -> EmptyEntity {
+        try await repo.requestDeletePost(postID: postID)
+    }
+}
+
+
 
 
 
