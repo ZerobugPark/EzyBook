@@ -8,7 +8,7 @@
 import Foundation
 
 
-final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSearchRepository, PostActivityRepository, WrittenPostListRepository, PostDetailRepository, PostDeleteRepository {
+final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSearchRepository, PostActivityRepository, WrittenPostListRepository, PostDetailRepository, PostDeleteRepository, PostModifyRepository {
     
     private let networkService: NetworkService
     
@@ -40,7 +40,7 @@ final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSea
     }
     
     /// 포스트 작성
-    func requestWirtePost(_ country: String, _ category: String, _ title: String, _ content: String, activity_id: String, latitude: Double, longitude: Double, _ files: [String]) async throws -> PostEntity {
+    func requestWritePost(_ country: String, _ category: String, _ title: String, _ content: String, activity_id: String, latitude: Double, longitude: Double, _ files: [String]) async throws -> PostEntity {
         
         let dto = ActivityPostRequestDTO(
             country: country,
@@ -96,6 +96,25 @@ final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSea
         let data = try await networkService.fetchData(dto: EmptyDTO.self, router)
         
         return data.toEntity()
+    }
+    
+    
+    /// 포스트 수정
+    func requestModifyPost(_ postID: String, _ title: String?, _ content: String?, _ files: [String]?) async throws -> PostEntity {
+        
+        let dto = ActivityPostModifyRequestDTO(
+            title: title,
+            content: content,
+            files: files
+        )
+        
+        
+        let router = ActivityPostRequest.Put.modifyPost(postID: postID, body: dto)
+        
+        let data = try await networkService.fetchData(dto: PostResponseDTO.self, router)
+        
+        return data.toEntity()
+        
     }
  
 }

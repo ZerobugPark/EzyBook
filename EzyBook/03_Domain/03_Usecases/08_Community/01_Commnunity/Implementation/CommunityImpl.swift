@@ -56,7 +56,7 @@ extension DefaultPostActivityUseCase {
     
     func execute(country: String, category: String, title: String, content: String, activity_id: String, latitude: Double, longitude: Double, files: [String]) async throws -> PostEntity {
         
-        try await repo.requestWirtePost(country, category, title, content, activity_id: activity_id, latitude: latitude, longitude: longitude, files)
+        try await repo.requestWritePost(country, category, title, content, activity_id: activity_id, latitude: latitude, longitude: longitude, files)
     }
 }
 
@@ -106,6 +106,21 @@ extension DefaultPostDeleteUseCase {
     }
 }
 
+
+final class DefaultPostModifyUseCase: PostModifyUseCase {
+    
+    let repo: PostModifyRepository
+    
+    init(repo: PostModifyRepository) {
+        self.repo = repo
+    }
+}
+
+extension DefaultPostModifyUseCase {
+    func execute(postID: String, title: String?, content: String?, files: [String]?) async throws -> PostEntity {
+        try await repo.requestModifyPost(postID, title, content,files)
+    }
+}
 
 
 

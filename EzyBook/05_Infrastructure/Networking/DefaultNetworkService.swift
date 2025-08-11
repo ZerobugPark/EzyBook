@@ -68,15 +68,15 @@ final class DefaultNetworkService: NetworkService {
         }
         
  
-        if let request = response.request {
-            print("Full URL:", request.url?.absoluteString ?? "nil")
-            print("HTTP Method:", request.httpMethod ?? "nil")
-            print("Headers:", request.headers)
-        }
+//        if let request = response.request {
+//            print("Full URL:", request.url?.absoluteString ?? "nil")
+//            print("HTTP Method:", request.httpMethod ?? "nil")
+//            print("Headers:", request.headers)
+//        }
         
 
         #if DEBUG
-        let urlString = urlRequest.url?.absoluteString ?? "Invalid URL"
+        //let urlString = urlRequest.url?.absoluteString ?? "Invalid URL"
         #endif
         
         let statusCode = response.response?.statusCode
@@ -87,7 +87,7 @@ final class DefaultNetworkService: NetworkService {
             let decodedResult = decodingService.decode(data: data, type: dto)
             
             #if DEBUG
-            NetworkLog.success(url: urlString, statusCode: statusCode ?? 0, data: data)
+            //NetworkLog.success(url: urlString, statusCode: statusCode ?? 0, data: data)
             #endif
            
             switch decodedResult {
@@ -98,7 +98,7 @@ final class DefaultNetworkService: NetworkService {
             }
         case .failure(let afError):
             #if DEBUG
-            NetworkLog.failure(url: urlString, statusCode: statusCode ?? 0, data: response.data)
+           // NetworkLog.failure(url: urlString, statusCode: statusCode ?? 0, data: response.data)
             #endif
             
             let responseData = response.data

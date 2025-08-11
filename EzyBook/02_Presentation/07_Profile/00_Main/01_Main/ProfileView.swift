@@ -399,10 +399,10 @@ extension ProfileView {
                 title: "나의 활동",
                 items: [
                     MenuItem(icon: "doc.text", title: "내 게시글") {
-                        coordinator.push(.myPost(status: .myPost))
+                        coordinator.push(.myPost(postCategory: .myPost))
                     },
                     MenuItem(icon: "heart.text.clipboard", title: "내가 좋아요한 게시글") {
-                        coordinator.push(.myPost(status: .postLike))
+                        coordinator.push(.myPost(postCategory: .likedPosts))
                     },
                     MenuItem(icon: "heart", title: "내가 좋아요한 액티비티") {
                         coordinator.push(.activityLikeList)

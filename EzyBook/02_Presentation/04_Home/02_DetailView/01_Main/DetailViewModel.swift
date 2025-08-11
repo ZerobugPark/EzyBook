@@ -43,6 +43,11 @@ final class DetailViewModel: ViewModelType {
         
         loadInitialActivitiyDetail()
         transform()
+        print(#function, Self.desc)
+    }
+    
+    deinit {
+        print(#function, Self.desc)
     }
     
     

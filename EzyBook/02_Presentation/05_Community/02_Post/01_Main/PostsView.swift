@@ -12,8 +12,10 @@ import AVFoundation
 
 struct PostsView: View {
     
-    @State private var selectedMedia: [PickerSelectedMedia] = []
-    @ObservedObject var coordinator: CommunityCoordinator
+    @ObservedObject var router: AnyPostsRouter
+    
+    /// 수정일때만, 클로저 호출
+    var isModified: ((ModifyPost?) -> ())?
     
     /// 이것도 코디네이터가 가지고 있어야하나?
     @State var selectedActivity = false // 화면전환 트리거
@@ -23,6 +25,8 @@ struct PostsView: View {
     @StateObject var viewModel: PostViewModel
     
     @State private var isProcessingThumbnails: Bool = false
+    
+    
     
     var body: some View {
         ZStack {
@@ -42,9 +46,10 @@ struct PostsView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 16) {
                     
-                    ActivitySelectView(country: viewModel.output.country, catrgory: viewModel.output.catrgory, title: viewModel.output.activityTitle) {
+                    ActivitySelectView(country: viewModel.output.country, category: viewModel.output.category, title: viewModel.output.activityTitle) {
                         selectedActivity = true
                     }
+                    .allowsHitTesting(viewModel.postMode == .create)
                     .padding(.top, 16)
                     
                     PostContentView(
@@ -53,24 +58,20 @@ struct PostsView: View {
                         isTextEditorFocused: $isTextEditorFocused
                     )
                     
+                    
                     MediaPickerView(
                         mediaType: .all,
                         maxImageCount: 5,
-                        selectedMedia: $selectedMedia,
+                        selectedMedia: $viewModel.selectedMedia,
                         isProcessingThumbnails: $isProcessingThumbnails
                     )
                     
                     
                     PrimaryActionButton(
-                        title: "작성하기",
+                        title: viewModel.postMode.btnTitle,
                         isEnabled: viewModel.isConfirm
                     ) {
-                        viewModel.action(
-                            .writePost(
-                                images: selectedMedia.filter { $0.type == .image }.compactMap { $0.image },
-                                videos: selectedMedia.filter { $0.type == .video } .compactMap { $0.videoURL }
-                            )
-                        )
+                        viewModel.action(.writePost)
                     }
                     
                 }
@@ -86,22 +87,31 @@ struct PostsView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 BackButtonView {
-                    coordinator.pop()
+                    router.pop()
                 }
             }
             ToolbarItem(placement: .principal) {
-                Text("게시글 작성")
+                Text(viewModel.postMode.title)
                     .appFont(PaperlogyFontStyle.body, textColor: .blackSeafoam)
             }
         }
-        .fullScreenCover(isPresented: $selectedActivity) {
-            coordinator.makeMyActivityView { orderList in
-                viewModel.action(.acitivitySelected(activity: orderList))
+        .fullScreenCover(
+            isPresented: Binding(
+                get: { selectedActivity && viewModel.postMode == .create && router.canPresentActivityPicker },
+                set: { selectedActivity = $0 }
+            )
+        ) {
+            router.presentActivityPicker { order in
+                viewModel.action(.acitivitySelected(activity: order))
             }
         }
         .withCommonUIHandling(viewModel) { code, isSuccess in
             if isSuccess {
-                coordinator.pop()
+                if viewModel.postMode != .create {
+                    isModified?(viewModel.isModified)
+                }
+                router.pop()
+                
             } else if code == 418 {
                 appState.isLoggedIn = false
             }
@@ -115,13 +125,13 @@ private extension PostsView {
     struct ActivitySelectView: View {
         
         var country: String
-        var catrgory: String
+        var category: String
         var title: String
         
         var onTap: () -> (Void)
         var body: some View {
             VStack(alignment: .leading, spacing: 16) {
-                Text("액비티비 선택")
+                Text("액티비비 선택")
                     .appFont(PretendardFontStyle.body1)
                 
                 Button {
@@ -144,11 +154,11 @@ private extension PostsView {
                 }
                 
                 
-                if !country.isEmpty && !catrgory.isEmpty {
+                if !country.isEmpty && !category.isEmpty {
                     HStack(alignment: .center, spacing: 10) {
                         Text("국가: " + country)
                             .appFont(PretendardFontStyle.body1, textColor: .grayScale90)
-                        Text("카테고리: " + catrgory)
+                        Text("카테고리: " + category)
                             .appFont(PretendardFontStyle.body1, textColor: .grayScale90)
                     }
                 }

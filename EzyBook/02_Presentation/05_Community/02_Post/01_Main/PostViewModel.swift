@@ -8,12 +8,48 @@
 import SwiftUI
 import Combine
 
+enum PostStatus: Hashable, Equatable {
+    case create
+    case modify(existing: PostSummaryEntity)
+    
+    var title: String {
+        switch self {
+        case .create:
+            return "게시글 작성"
+        case .modify:
+            return "게시글 수정"
+        }
+    }
+    
+    var btnTitle: String {
+        switch self {
+        case .create:
+            return "작성하기"
+        case .modify:
+            return "수정하기"
+        }
+    }
+}
+
+struct ModifyPost {
+    let postID: String
+    let title: String
+    let content: String
+    let files: [String]?
+    
+    
+}
+
 
 final class PostViewModel: ViewModelType {
     
     
     private let uploadUseCase: PostImageUploadUseCase
     private let writePostUseCase: PostActivityUseCase
+    private let modifyPostUseCsae: PostModifyUseCase
+    let postMode: PostStatus
+    private var postID = ""
+    private(set) var isModified: ModifyPost?
     
     var input = Input()
     @Published var output = Output()
@@ -39,14 +75,30 @@ final class PostViewModel: ViewModelType {
             checkConfirmStatus()
         }
     }
-  
+    @Published var selectedMedia: [PickerSelectedMedia] = []
   
     init(
         uploadUseCase: PostImageUploadUseCase,
-        writePostUseCase :PostActivityUseCase
+        writePostUseCase: PostActivityUseCase,
+        postStatus: PostStatus,
+        modifyPostUseCsae: PostModifyUseCase
     ) {
         self.uploadUseCase = uploadUseCase
         self.writePostUseCase = writePostUseCase
+        self.postMode = postStatus
+        self.modifyPostUseCsae = modifyPostUseCsae
+        
+        
+        // Prefill fields when editing an existing post
+        if case let .modify(existing) = postMode {
+            self.title = existing.title
+            self.content = existing.content
+            self.output.country = existing.activity?.country ?? ""
+            self.output.category = existing.activity?.category ?? ""
+            self.output.activityTitle = existing.activity?.title ?? "기존에 등록한 투어가 없습니다."
+            self.postID = existing.postID
+        }
+        
         transform()
         
     }
@@ -66,7 +118,7 @@ extension PostViewModel {
         }
         
         var country = ""
-        var catrgory = ""
+        var category = ""
         var activityTitle = "투어를 선택해주세요"
         
      
@@ -88,7 +140,12 @@ extension PostViewModel {
     
     @MainActor
     private func handleSuccess() {
-        output.presentedMessage = .success(msg: "게시글 작성이 완료되었습니다.")
+        if postMode == .create {
+            output.presentedMessage = .success(msg: "게시글 작성이 완료되었습니다.")
+        } else {
+            output.presentedMessage = .success(msg: "게시글 수정이 완료되었습니다.")
+        }
+        
     }
     
 }
@@ -97,8 +154,12 @@ extension PostViewModel {
 // MARK: Activity Post
 private extension PostViewModel {
     
-    private func handleWritePostRequest(_ images: [UIImage], _ videos: [URL]) {
+    private func handleWritePostRequest() {
         Task {
+            
+            let videos = selectedMedia.filter { $0.type == .video } .compactMap { $0.videoURL }
+            let images = selectedMedia.filter { $0.type == .image }.compactMap { $0.image }
+            
             await MainActor.run { output.isLoading = true }
             let videoPath = await performUploadVideoIfNeeded(videos)
             let imagePath = await performUploadImageIfNeeded(images)
@@ -189,9 +250,12 @@ private extension PostViewModel {
 private extension PostViewModel {
     
     private func checkConfirmStatus() {
-        guard selectedActivity != nil else {
-            isConfirm = false
-            return
+        
+        if postMode == .create {
+            guard selectedActivity != nil else {
+                isConfirm = false
+                return
+            }
         }
         
         guard !title.isEmpty, !content.isEmpty else {
@@ -199,6 +263,60 @@ private extension PostViewModel {
             return
         }
         isConfirm = true
+    }
+    
+}
+
+// MARK: Modify
+private extension PostViewModel {
+    
+    private func handleModifyPostRequest() {
+        Task {
+            
+            let videos = selectedMedia.filter { $0.type == .video } .compactMap { $0.videoURL }
+            let images = selectedMedia.filter { $0.type == .image }.compactMap { $0.image }
+            
+            await MainActor.run { output.isLoading = true }
+            let videoPath = await performUploadVideoIfNeeded(videos)
+            let imagePath = await performUploadImageIfNeeded(images)
+
+            if (videos.isEmpty || videoPath != nil) && (images.isEmpty || imagePath != nil) {
+                let allPaths: [String] = (videoPath?.files ?? []) + (imagePath?.files ?? [])
+                print("here")
+                let success = await performModifyPost(title: title, content: content, paths: allPaths)
+
+                if success {
+                    await MainActor.run {
+                        handleSuccess()
+                    }
+                }
+            }
+            await MainActor.run { output.isLoading = false }
+        }
+    }
+    
+    private func performModifyPost(title: String, content: String, paths: [String]) async -> Bool {
+        do {
+            print("here2")
+            let data = try await modifyPostUseCsae.execute(
+                postID: postID,
+                title: title,
+                content: content,
+                files: paths.isEmpty ? nil : paths
+            )
+            
+            isModified = ModifyPost(
+                postID: data.postID,
+                title: data.title,
+                content: data.content,
+                files: data.files
+            )
+            return true
+
+        } catch {
+            await handleError(error)
+            return false
+        }
     }
     
 }
@@ -212,7 +330,7 @@ extension PostViewModel {
         Task { @MainActor in
             output.activityTitle = activity.title
             output.country = activity.country
-            output.catrgory = activity.category
+            output.category = activity.category
             selectedActivity = activity
         }
         
@@ -226,7 +344,7 @@ extension PostViewModel {
     
     enum Action {
         case acitivitySelected(activity: OrderList)
-        case writePost(images: [UIImage], videos: [URL])
+        case writePost
         
     }
     
@@ -235,8 +353,13 @@ extension PostViewModel {
         switch action {
         case .acitivitySelected(let activity):
             handleActivityUpadte(activity)
-        case let .writePost(images, videos):
-            handleWritePostRequest(images, videos)
+        case .writePost:
+            if postMode == .create {
+                handleWritePostRequest()
+            } else {
+                handleModifyPostRequest()
+            }
+            
             
         }
     }

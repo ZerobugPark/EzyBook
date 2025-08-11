@@ -70,7 +70,7 @@ struct MainTabView: View {
         )
         _profileCoordinator = StateObject(
             wrappedValue:  ProfileCoordinator(
-                container: container.profileDIContainer
+                container: container
             )
         )
         

@@ -40,6 +40,12 @@ final class SearchViewModel: ViewModelType {
     init(activityUseCases: ActivityUseCases) {
         self.activityUseCases = activityUseCases
         transform()
+        
+        print(#function, Self.desc)
+    }
+    
+    deinit {
+        print(#function, Self.desc)
     }
     
     

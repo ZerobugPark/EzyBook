@@ -37,7 +37,7 @@ extension HomeRoute {
 
 enum CommunityRoute: Hashable {
     case communityView
-    case postView
+    case postView(status: PostStatus)
     case detailView(postID: String)
 }
 extension CommunityRoute {
@@ -75,7 +75,8 @@ enum ProfileRoute: Hashable {
     case orderListView(list: [OrderEntity])
     case reviewListView(list: [OrderEntity])
     case activityLikeList
-    case myPost(status: PostStatus)
+    case myPost(postCategory: ProfilePostCategory)
+    case modifyPost(mode: PostStatus, token: UUID)
     
 }
 

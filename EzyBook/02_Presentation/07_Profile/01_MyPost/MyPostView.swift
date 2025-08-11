@@ -15,52 +15,46 @@ struct MyPostView: View {
     @ObservedObject var coordinator: ProfileCoordinator
     @EnvironmentObject var appState: AppState
     
+    
     var body: some View {
         
         ZStack {
             
             List {
-                ForEach(Array(viewModel.output.likeList.enumerated()), id: \.element.id) { index, post in
+                ForEach(viewModel.output.likeList.indices, id: \.self) { index in
+                    
+                    let post = viewModel.output.likeList[index]
                     
                     PostLikeCardView(data: post)
                         .listRowSeparator(.hidden)
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                             Button {
-                                if viewModel.postStatus == .postLike {
-                                    viewModel.action(.cancelLike(postID: post.postID))
-                                } else {
-                                    viewModel.action(.deletePost(postID: post.postID))
-                                }
-                             
+                                trailingSwipeTapped(post.postID)
                             } label: {
-                                if viewModel.postStatus == .postLike {
+                                if viewModel.postCategory == .likedPosts {
                                     Label("좋아요 취소", systemImage: "heart.slash")
                                 } else {
                                     Label("삭제하기", systemImage: "trash.slash.fill")
                                 }
                                 
-                                
                             }
                             .tint(.rosyPunch)
                         }
-                        .postSwipe(enabled: viewModel.postStatus == .myPost) {
+                        .postSwipe(enabled: viewModel.postCategory == .myPost) {
                             Button {
-                           
+                                coordinator.pushModify(mode: .modify(existing: post)) { modifyData in
+                                    viewModel.action(.modifyPost(data: modifyData))
+                                }
+                                
                             } label: {
                                 Label("수정하기", systemImage: "pencil.slash")
                             }
                             .tint(.blackSeafoam)
                         }
                         .onAppear {
-                            let triggerIndex = max(0, viewModel.output.likeList.count - 3)
-                            guard index == triggerIndex else { return }
-                            if viewModel.postStatus == .postLike {
-                                viewModel.action(.paginationLikeList)
-                            } else {
-                                viewModel.action(.paginationMyPost)
-                            }
-                            
+                            viewModel.action(.pagination(index: index))
                         }
+
                 }
             }
             .listStyle(.plain)
@@ -76,7 +70,7 @@ struct MyPostView: View {
                 }
             }
             ToolbarItem(placement: .principal) {
-                Text(viewModel.postStatus.title)
+                Text(viewModel.postCategory.title)
                     .appFont(PaperlogyFontStyle.body, textColor: .blackSeafoam)
             }
         }
@@ -87,6 +81,15 @@ struct MyPostView: View {
         }
         .loadingOverlayModify(viewModel.output.isLoading)
         
+    }
+    
+    
+    private func trailingSwipeTapped(_ postID: String) {
+        if viewModel.postCategory == .likedPosts {
+            viewModel.action(.cancelLike(postID: postID))
+        } else {
+            viewModel.action(.deletePost(postID: postID))
+        }
     }
 }
 
@@ -128,7 +131,7 @@ struct LikeListMainContentView: View {
                         Text("국가: \(data.country) 카테고리: \(data.category)")
                             .appFont(PretendardFontStyle.body3, textColor: .grayScale60)
                         
-                        Text("content")
+                        Text("후기")
                             .appFont(PretendardFontStyle.body3, textColor: .grayScale75)
                         
                         Text(data.content)
@@ -142,7 +145,7 @@ struct LikeListMainContentView: View {
                 Spacer()
                 
                 if !data.files.isEmpty {
-                    RemoteImageView(path: data.files[0] )
+                    RemoteImageView(path: data.files[0])
                         .frame(width: 80, height: 80)
                         .foregroundColor(.white)
                         .clipShape(RoundedRectangle(cornerRadius: 12))

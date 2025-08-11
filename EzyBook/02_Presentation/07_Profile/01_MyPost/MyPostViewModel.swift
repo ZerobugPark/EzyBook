@@ -8,15 +8,15 @@
 import SwiftUI
 import Combine
 
-enum PostStatus {
+enum ProfilePostCategory {
     case myPost
-    case postLike
+    case likedPosts
     
     var title: String {
         switch self {
         case .myPost:
             return "내 게시글"
-        case .postLike:
+        case .likedPosts:
             return "게시글"
         }
     }
@@ -36,7 +36,9 @@ final class MyPostViewModel: ViewModelType {
     private let limit = 10
     private var nextCursor: String?
     
-    let postStatus: PostStatus
+    private var isPaginating = false
+    
+    let postCategory: ProfilePostCategory
     
     var userID: String {
         UserSession.shared.currentUser?.userID ?? ""
@@ -44,16 +46,16 @@ final class MyPostViewModel: ViewModelType {
     
     init(
         favoriteList: FavoriteServiceProtocol,
-        postStatus: PostStatus,
+        postCategory: ProfilePostCategory,
         deleteUseCase: PostDeleteUseCase
     ) {
         self.favoriteList = favoriteList
-        self.postStatus = postStatus
+        self.postCategory = postCategory
         self.deleteUseCase = deleteUseCase
         
         transform()
         
-        if postStatus == .postLike {
+        if postCategory == .likedPosts {
             loadInitialLikePostList()
         } else {
             loadInitialMyPostList()
@@ -83,7 +85,7 @@ extension MyPostViewModel {
     
     func transform() { }
     
-
+    
     @MainActor
     private func handleError(_ error: Error) {
         if let apiError = error as? APIError {
@@ -133,16 +135,26 @@ private extension MyPostViewModel {
     }
     
     // MARK: 페이지네이션
-    private func handlePostPaginationRequest() {
+    private func handlePostPaginationRequest(_ index: Int) {
         
         Task {
+            
+            
+            guard !isPaginating else { return }
+            
+            let triggerIndex = max(0, output.likeList.count - 3)
+            
+            guard index >= triggerIndex else { return }
             
             guard let nextCursor, nextCursor != "0" else { return }
             
             await MainActor.run { output.isLoading = true }
             
+            isPaginating = true
+            
             await perfomMyPostPagination()
             
+            isPaginating = false
             await MainActor.run { output.isLoading = false }
             
         }
@@ -183,14 +195,14 @@ private extension MyPostViewModel {
                 }
             }
             
-        
+            
         } catch {
             await handleError(error)
         }
         
     }
-
-
+    
+    
 }
 
 
@@ -212,7 +224,7 @@ extension MyPostViewModel {
             }
         }
     }
-
+    
     private func performfavoriteList() async {
         do {
             
@@ -228,18 +240,28 @@ extension MyPostViewModel {
             await handleError(error)
         }
     }
-
+    
     
     // MARK: 페이지네이션
-    private func handleLikePaginationRequest() {
+    private func handleLikePaginationRequest(_ index: Int) {
         
         Task {
+            
+            guard !isPaginating else { return }
+            
+            let triggerIndex = max(0, output.likeList.count - 3)
+            
+            guard index >= triggerIndex else { return }
             
             guard let nextCursor, nextCursor != "0" else { return }
             
             await MainActor.run { output.isLoading = true }
             
+            isPaginating = true
+            
             await perfomPagination()
+            
+            isPaginating = false
             
             await MainActor.run { output.isLoading = false }
             
@@ -287,10 +309,52 @@ extension MyPostViewModel {
         }
     }
     
-
+    
 }
 
-
+/// 수정된 내용 리턴
+private extension MyPostViewModel {
+    
+    
+    func handleModifiedPost(data: ModifyPost?) {
+        guard let data else { return }
+        
+        Task {
+            await modifedPostUpdate(data)
+        }
+    }
+    
+    @MainActor
+    private func modifedPostUpdate(_ data: ModifyPost) {
+        guard let index = output.likeList.firstIndex(where: { $0.postID == data.postID }) else { return }
+        
+        let prev = output.likeList[index]
+        print("원본데이터", prev.files)
+        // ModifyPost.files 가 옵셔널일 수 있으므로 안전 병합
+        let mergedFiles = (data.files ?? prev.files)
+        
+        
+        let modified = PostSummaryEntity(
+            postID: data.postID,
+            country: prev.country,
+            category: prev.category,
+            title: data.title,
+            content: data.content,
+            activity: prev.activity,
+            geolocation: prev.geolocation,
+            creator: prev.creator,
+            files: mergedFiles,
+            isLike: prev.isLike,
+            likeCount: prev.likeCount,
+            createdAt: prev.createdAt,
+            updatedAt: prev.updatedAt
+        )
+        
+        print("수정된 데이터", modified.files)
+        output.likeList[index] = modified
+    }
+    
+}
 
 
 
@@ -298,23 +362,28 @@ extension MyPostViewModel {
 extension MyPostViewModel {
     
     enum Action {
-        case paginationLikeList
+        case pagination(index: Int)
         case cancelLike(postID: String)
-        case paginationMyPost
         case deletePost(postID: String)
+        case modifyPost(data: ModifyPost?)
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
     func action(_ action: Action) {
         switch action {
-        case .paginationLikeList:
-            handleLikePaginationRequest()
+        case .pagination(let index):
+            if postCategory == .likedPosts {
+                handleLikePaginationRequest(index)
+            } else {
+                handlePostPaginationRequest(index)
+            }
+            
         case .cancelLike(let id):
             handleRemoveLike(id)
-        case .paginationMyPost:
-            handlePostPaginationRequest()
         case .deletePost(let postID):
             handleDeletePost(postID)
+        case .modifyPost(let data):
+            handleModifiedPost(data: data)
         }
     }
     

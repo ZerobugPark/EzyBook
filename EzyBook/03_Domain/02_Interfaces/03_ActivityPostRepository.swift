@@ -23,7 +23,7 @@ protocol PostUploadRepository {
 }
 
 protocol PostActivityRepository {
-    func requestWirtePost(_ country: String, _ category: String, _ title: String, _ content: String, activity_id: String, latitude: Double, longitude: Double, _ files: [String]) async throws -> PostEntity
+    func requestWritePost(_ country: String, _ category: String, _ title: String, _ content: String, activity_id: String, latitude: Double, longitude: Double, _ files: [String]) async throws -> PostEntity
 }
 
 protocol WrittenPostListRepository {
@@ -37,6 +37,10 @@ protocol PostDetailRepository {
 
 protocol PostDeleteRepository {
     func requestDeletePost(postID: String) async throws -> EmptyEntity
+}
+
+protocol PostModifyRepository {
+    func requestModifyPost(_ postID: String, _ title: String?, _ content: String?, _ files: [String]?) async throws -> PostEntity
 }
 
 

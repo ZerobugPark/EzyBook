@@ -172,10 +172,10 @@ extension ProfileDIContainer {
         ActiviyLikeViewModel(favoriteList: commonDIContainer.makeDetailFeatureService().favorite)
     }
     
-    func makeMyPostViewModel(postStatus: PostStatus) -> MyPostViewModel {
+    func makeMyPostViewModel(postCategory: ProfilePostCategory) -> MyPostViewModel {
         MyPostViewModel(
             favoriteList: commonDIContainer.makeDetailFeatureService().favorite,
-            postStatus: postStatus,
+            postCategory: postCategory,
             deleteUseCase: communityDIContainer.makePostDeleteUseCase()
         )
     }

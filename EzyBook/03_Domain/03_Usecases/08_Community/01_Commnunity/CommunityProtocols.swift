@@ -40,3 +40,7 @@ protocol PostDeleteUseCase {
 }
 
 
+protocol PostModifyUseCase {
+    func execute(postID: String, title: String?, content: String?, files: [String]?) async throws -> PostEntity
+}
+

@@ -29,7 +29,7 @@ struct ActivitySummaryListEntity {
 }
 
 /// New 액티비티 목록 조회
-/// 액비티비 검색
+/// 액티비비 검색
 struct ActivitySummaryEntity {
     let activityID: String // 고유 식별자
     let title: String // 제목
@@ -72,8 +72,8 @@ struct ActivityDetailEntity {
     let category: String // 투어
     var thumbnailPaths: [String] // 썸네일 이미지 경로
     let geolocation: ActivityGeolocationEntity // 위치
-    let startDate: String // 액비비티 운영 기간(시작)
-    let endDate: String? // 액비비티 운영 기간(종료)
+    let startDate: String // 액티비티 운영 기간(시작)
+    let endDate: String? // 액티비티 운영 기간(종료)
     let price: ActivityPriceEntity // 가격
     let tags: [String] // 태그 (ex. 오픈할인)
     let pointReward: Int // 액티비티 포인트 리워드
@@ -139,7 +139,7 @@ extension ActivityDetailEntity {
 
 /// // 액티비티 킵/ 킵 취소 작업 후 상태
 struct ActivityKeepEntity {
-    let keepStatus: Bool // 현재 액비비티에 대한 사용자의 킵 상태 (즉 킵을 하면 true가 리턴)
+    let keepStatus: Bool // 현재 액티비티에 대한 사용자의 킵 상태 (즉 킵을 하면 true가 리턴)
 }
 
 

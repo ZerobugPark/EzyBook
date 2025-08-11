@@ -104,12 +104,17 @@ extension CommunityDIContainer {
     
     /// Modify
     private func makePostModifyServiceProtocol() -> PostModifyServiceProtocol {
-        PostModifyService(modify: makePostModifyUseCase())
+        PostModifyService(modify: makeModifyCommnetUseCase())
     }
     
-    private func makePostModifyUseCase() -> ModifyCommnetUseCase {
+    private func makeModifyCommnetUseCase() -> ModifyCommnetUseCase {
         DefaultModifyCommnetUseCase(repo: makeCommentRepository())
     }
+    
+    private func makeModifyPostUseCase() -> PostModifyUseCase {
+        DefaultPostModifyUseCase(repo: makeCommunityRepository())
+    }
+    
 
 }
 
@@ -144,10 +149,12 @@ extension CommunityDIContainer {
         )
     }
     
-    func makePostViewModel() -> PostViewModel {
+    func makePostViewModel(_ status: PostStatus) -> PostViewModel {
         PostViewModel(
             uploadUseCase: makePostImageUploadUseCase(),
-            writePostUseCase: makePostWirteUseCase()
+            writePostUseCase: makePostWirteUseCase(),
+            postStatus: status,
+            modifyPostUseCsae: makeModifyPostUseCase()
             
         )
     }

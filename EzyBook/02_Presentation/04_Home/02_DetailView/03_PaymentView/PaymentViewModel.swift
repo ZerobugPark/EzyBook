@@ -22,8 +22,12 @@ final class PaymentViewModel: ViewModelType {
         
         self.vaildationUseCase = vaildationUseCase
         transform()
+        print(#function, Self.desc)
     }
     
+    deinit {
+        print(#function, Self.desc)
+    }
     
 }
 

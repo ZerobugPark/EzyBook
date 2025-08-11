@@ -68,6 +68,12 @@ final class HomeViewModel: ViewModelType {
         loadInitialActivities(selectedFlag, selectedFilter)
         
         transform()
+        
+        print(#function, Self.desc)
+    }
+    
+    deinit {
+        print(#function, Self.desc)
     }
     
 }
