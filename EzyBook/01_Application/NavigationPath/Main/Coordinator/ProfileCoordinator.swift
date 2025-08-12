@@ -7,17 +7,18 @@
 
 import SwiftUI
 
-final class ProfileCoordinator: ObservableObject {
+final class ProfileCoordinator: ObservableObject, PostsRouting {
     
     
     @Published var path = NavigationPath()
     @Published var isTabbarHidden: Bool = false
     private var tabbarHiddenStack: [Bool] = []
     
+    private var modifyCallbacks: [UUID: (ModifyPost?) -> Void] = [:]
     
-    private let container: ProfileDIContainer
+    private let container: AppDIContainer
     
-    init(container: ProfileDIContainer) {
+    init(container: AppDIContainer) {
         self.container = container
 
     }
@@ -50,27 +51,54 @@ final class ProfileCoordinator: ObservableObject {
     func destinationView(route: ProfileRoute) -> some View {
         switch route {
         case .profileView:
-            let vm = self.container.makeProfileViewModel()
-            let sVm = self.container.makeProfileSupplementaryViewModel()
+            let vm = self.container.profileDIContainer.makeProfileViewModel()
+            let sVm = self.container.profileDIContainer.makeProfileSupplementaryViewModel()
             ProfileView(
                 viewModel: vm,
-                supplementviewModel: sVm,
+                supplementViewModel: sVm,
                 coordinator: self
             )
         case .orderListView(let list):
-            let vm = self.container.makeOrderListViewModel(orderList: list)
+            let vm = self.container.profileDIContainer.makeOrderListViewModel(orderList: list)
             OrderListView(viewModel: vm, coordinator: self)
         
         case .reviewListView(let list):
-            let vm = self.container.makeReviewViewModel(list: list)
+            let vm = self.container.profileDIContainer.makeReviewViewModel(list: list)
             ReviewDetailView(
                 viewModel: vm,
                 coordinator: self) { data in
                     vm.action(.modifyReview(data: data))
                 }
             
+        case .activityLikeList:
+            let vm = self.container.profileDIContainer.makeActiviyLikeViewModel()
+            ActivityLikeView(viewModel: vm, coordinator: self)
+        case .myPost(let postCategory):
+            let vm = self.container.profileDIContainer.makeMyPostViewModel(postCategory: postCategory)
+            MyPostView(viewModel: vm, coordinator: self)
+        case .modifyPost(let mode, let token):
+            let vm = self.container.communityDIContainer.makePostViewModel(mode)
+            let router = AnyPostsRouter(ProfileCoordinatorRouter(coordinator: self))
+            PostsView(
+                router: router,
+                isModified: { [weak self] modified in
+                    self?.completeModify(token: token, result: modified)
+                }, viewModel: vm
+            )
         }
     }
+
+    func completeModify(token: UUID, result: ModifyPost?) {
+        /// 딕셔너리에 지우면서 삭제된 값 만환
+        modifyCallbacks.removeValue(forKey: token)?(result)
+    }
+    
+    func pushModify(mode: PostStatus, onCompleted: @escaping (ModifyPost?) -> Void) {
+        let token = UUID()
+        modifyCallbacks[token] = onCompleted
+        push(.modifyPost(mode: mode, token: token))
+    }
+     
 
 }
 
@@ -80,19 +108,19 @@ extension ProfileCoordinator {
     }
     
     func makeWriteReviewView(_ activityID: String, _ orderCode: String) -> some View {
-        let vm = self.container.makeWriteReviewViewModel(id: activityID, code: orderCode)
+        let vm = self.container.profileDIContainer.makeWriteReviewViewModel(id: activityID, code: orderCode)
         return ReviewWriteView(viewModel: vm) {
             self.popToRoot()
         }
     }
     
     func makeProfileModifyView(onConfirm: @escaping (ProfileLookUpEntity?) -> Void) -> some View {
-        let vm = self.container.makeProfileModifyViewModel()
+        let vm = self.container.profileDIContainer.makeProfileModifyViewModel()
         return ProfileModifyView(viewModel: vm, onConfirm: onConfirm)
     }
     
     func makeModifyReviewView(_ data: UserReviewDetailList, onConfirm: @escaping (UserReviewDetailList?) -> Void) -> some View {
-        let vm = self.container.makeModifyReviewViewModel(data)
+        let vm = self.container.profileDIContainer.makeModifyReviewViewModel(data)
         return ReviewModifyView(viewModel: vm, onConfirm: onConfirm)
     }
     

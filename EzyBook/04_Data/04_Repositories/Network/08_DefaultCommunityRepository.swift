@@ -8,7 +8,7 @@
 import Foundation
 
 
-final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSearchRepository, PostActivityRepository, WrittenPostListRepository, PostDetailRepository, PostLikeRepository {
+final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSearchRepository, PostActivityRepository, WrittenPostListRepository, PostDetailRepository, PostDeleteRepository, PostModifyRepository {
     
     private let networkService: NetworkService
     
@@ -39,7 +39,8 @@ final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSea
         
     }
     
-    func requestWirtePost(_ country: String, _ category: String, _ title: String, _ content: String, activity_id: String, latitude: Double, longitude: Double, _ files: [String]) async throws -> PostEntity {
+    /// 포스트 작성
+    func requestWritePost(_ country: String, _ category: String, _ title: String, _ content: String, activity_id: String, latitude: Double, longitude: Double, _ files: [String]) async throws -> PostEntity {
         
         let dto = ActivityPostRequestDTO(
             country: country,
@@ -60,6 +61,7 @@ final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSea
         
     }
     
+    /// 작성된 포스트 리스트 (내가 작성한 리스트 X)
     func requestWrittenPostList(id: String) async throws -> [String] {
         var allPostIDs: [String] = []
         var nextCursor: String? = nil
@@ -76,6 +78,7 @@ final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSea
         return allPostIDs
     }
     
+    /// 포스트 상세 조회
     func requestPostDetail(postID: String) async throws -> PostEntity {
         
         let router = ActivityPostRequest.Get.detailPost(postID: postID)
@@ -85,16 +88,35 @@ final class DefaultCommunityRepository: PostSummaryPaginationRepository, PostSea
         
     }
     
-    func requestPostLike(_ postID: String, _ status: Bool) async throws -> PostKeepEntity {
+    /// 포스트 삭제
+    func requestDeletePost(postID: String) async throws -> EmptyEntity {
         
-        let dto = ActivityPostLikeRequestDTO(likeStatus: status)
+        let router = ActivityPostRequest.Delete.deletePost(postID: postID)
         
-        let router = ActivityPostRequest.Post.postKeep(postID: postID, body: dto)
-        let data = try await networkService.fetchData(dto: PostKeepResponseDTO.self, router)
+        let data = try await networkService.fetchData(dto: EmptyDTO.self, router)
+        
+        return data.toEntity()
+    }
+    
+    
+    /// 포스트 수정
+    func requestModifyPost(_ postID: String, _ title: String?, _ content: String?, _ files: [String]?) async throws -> PostEntity {
+        
+        let dto = ActivityPostModifyRequestDTO(
+            title: title,
+            content: content,
+            files: files
+        )
+        
+        
+        let router = ActivityPostRequest.Put.modifyPost(postID: postID, body: dto)
+        
+        let data = try await networkService.fetchData(dto: PostResponseDTO.self, router)
         
         return data.toEntity()
         
     }
+ 
 }
 
 

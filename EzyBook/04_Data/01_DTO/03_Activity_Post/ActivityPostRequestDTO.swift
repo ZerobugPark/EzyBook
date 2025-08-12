@@ -35,14 +35,14 @@ struct ActivityPostRequestDTO: Encodable {
 ///게시글 수정
 struct ActivityPostModifyRequestDTO: Encodable {
     
-    let country: String?
-    let category: String?
+    let country: String? = nil
+    let category: String? = nil
     let title: String?
     let content: String?
-    let activityID: String?
-    let latitude: String?
-    let longitude: String?
-    let files: String?
+    let activityID: String? = nil
+    let latitude: String? = nil
+    let longitude: String? = nil
+    let files: [String]?
     
     
     enum CodingKeys: String, CodingKey {

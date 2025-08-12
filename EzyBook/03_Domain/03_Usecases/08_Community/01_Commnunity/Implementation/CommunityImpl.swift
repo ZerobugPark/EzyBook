@@ -56,7 +56,7 @@ extension DefaultPostActivityUseCase {
     
     func execute(country: String, category: String, title: String, content: String, activity_id: String, latitude: Double, longitude: Double, files: [String]) async throws -> PostEntity {
         
-        try await repo.requestWirtePost(country, category, title, content, activity_id: activity_id, latitude: latitude, longitude: longitude, files)
+        try await repo.requestWritePost(country, category, title, content, activity_id: activity_id, latitude: latitude, longitude: longitude, files)
     }
 }
 
@@ -91,19 +91,34 @@ extension DefaultPostDetailUseCase {
     }
 }
 
-final class DefaultPostLikeUseCase: PostLikeUseCase {
+final class DefaultPostDeleteUseCase: PostDeleteUseCase {
+
+    let repo: PostDeleteRepository
     
-    let repo: PostLikeRepository
+    init(repo: PostDeleteRepository) {
+        self.repo = repo
+    }
+}
+extension DefaultPostDeleteUseCase {
     
-    init(repo: PostLikeRepository) {
+    func execute(postID: String) async throws -> EmptyEntity {
+        try await repo.requestDeletePost(postID: postID)
+    }
+}
+
+
+final class DefaultPostModifyUseCase: PostModifyUseCase {
+    
+    let repo: PostModifyRepository
+    
+    init(repo: PostModifyRepository) {
         self.repo = repo
     }
 }
 
-extension DefaultPostLikeUseCase {
-    
-    func execute(postID: String, status: Bool) async throws -> PostKeepEntity {
-        try await repo.requestPostLike(postID, status)
+extension DefaultPostModifyUseCase {
+    func execute(postID: String, title: String?, content: String?, files: [String]?) async throws -> PostEntity {
+        try await repo.requestModifyPost(postID, title, content,files)
     }
 }
 

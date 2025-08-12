@@ -37,7 +37,7 @@ extension HomeRoute {
 
 enum CommunityRoute: Hashable {
     case communityView
-    case postView
+    case postView(status: PostStatus)
     case detailView(postID: String)
 }
 extension CommunityRoute {
@@ -74,16 +74,19 @@ enum ProfileRoute: Hashable {
     case profileView
     case orderListView(list: [OrderEntity])
     case reviewListView(list: [OrderEntity])
+    case activityLikeList
+    case myPost(postCategory: ProfilePostCategory)
+    case modifyPost(mode: PostStatus, token: UUID)
     
 }
 
 extension ProfileRoute {
     var hidesTabbar: Bool {
         switch self {
-        case .orderListView, .reviewListView:
-            return true
-        default:
+        case .profileView:
             return false
+        default:
+            return true
         }
     }
 }

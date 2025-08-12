@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-final class CommunityCoordinator: ObservableObject {
-    
+final class CommunityCoordinator: ObservableObject, PostsRouting {
+
     
     @Published var path = NavigationPath()
     @Published var isTabbarHidden: Bool = false
@@ -52,15 +52,18 @@ final class CommunityCoordinator: ObservableObject {
         case .communityView:
             let vm = container.communityDIContainer.makeCommunityViewModel()
             CommunityView(viewModel: vm, coordinator: self)
-        case .postView:
-            let vm =  container.communityDIContainer.makePostViewModel()
-            PostsView(coordinator: self, viewModel: vm)
+        case .postView(let status):
+            let vm =  container.communityDIContainer.makePostViewModel(status)
+            let router = AnyPostsRouter(CommunityCoordinatorRouter(coordinator: self))
+            PostsView(router: router, viewModel: vm)
         case .detailView(let id):
             let vm =  container.communityDIContainer.makePostDetailViewModel(postID: id)
             PostDetailView(viewModel: vm, coordinator: self)
         }
     }
-
+    
+ 
+    
 }
 
 

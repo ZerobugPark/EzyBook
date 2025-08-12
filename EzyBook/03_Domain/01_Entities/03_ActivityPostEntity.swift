@@ -19,7 +19,7 @@ struct PostSummaryPaginationEntity {
 }
 
 
-struct PostSummaryEntity: Identifiable {
+struct PostSummaryEntity: Hashable, Identifiable, Equatable {
     var id = UUID()
     
     let postID: String
@@ -50,6 +50,24 @@ struct PostSummaryEntity: Identifiable {
         self.likeCount = dto.likeCount
         self.createdAt = dto.createdAt
         self.updatedAt = dto.updatedAt
+    }
+    
+
+    init(id: UUID = UUID(), postID: String, country: String, category: String, title: String, content: String, activity: ActivitySummaryEntity_Post?, geolocation: GeolocationEntity, creator: UserInfoEntity, files: [String], isLike: Bool, likeCount: Int, createdAt: String, updatedAt: String) {
+        self.id = id
+        self.postID = postID
+        self.country = country
+        self.category = category
+        self.title = title
+        self.content = content
+        self.activity = activity
+        self.geolocation = geolocation
+        self.creator = creator
+        self.files = files
+        self.isLike = isLike
+        self.likeCount = likeCount
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
     }
     
 }
@@ -85,7 +103,7 @@ extension PostSummaryEntity {
 }
 
 
-struct GeolocationEntity {
+struct GeolocationEntity: Hashable, Equatable {
     let longitude: Float
     let latitude: Float
     
@@ -208,7 +226,7 @@ extension PostEntity {
 }
 
 
-struct ActivitySummaryEntity_Post {
+struct ActivitySummaryEntity_Post: Hashable, Equatable {
     let id: String
     let title: String?
     let country: String?

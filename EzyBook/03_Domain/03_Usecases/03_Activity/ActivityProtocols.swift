@@ -25,7 +25,3 @@ protocol ActivitySearchUseCase {
 }
 
 
-protocol ActivityKeepCommandUseCase {
-    func execute(id: String, stauts: Bool) async throws -> ActivityKeepEntity
-}
-

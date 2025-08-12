@@ -44,9 +44,19 @@ final class ChatRoomService: ChatRoomServiceProtocol {
 final class FavoriteService: FavoriteServiceProtocol {
     
     private let activityKeepUseCase: ActivityKeepCommandUseCase
+    private let activityKeppListUseCase: ActivityKeepListUseCase
+    private let postKeepUseCase: PostLikeUseCase
+    private let postLikeListUseCase: PostLikeListUseCase
+    private let myPostUseCase: MyPostUseCase
     
-    init(activityKeepUseCase: ActivityKeepCommandUseCase) {
+    
+    
+    init(activityKeepUseCase: ActivityKeepCommandUseCase, activityKeppListUseCase: ActivityKeepListUseCase, postKeepUseCase: PostLikeUseCase, postLikeListUseCase: PostLikeListUseCase, myPostUseCase: MyPostUseCase) {
         self.activityKeepUseCase = activityKeepUseCase
+        self.activityKeppListUseCase = activityKeppListUseCase
+        self.postKeepUseCase = postKeepUseCase
+        self.postLikeListUseCase = postLikeListUseCase
+        self.myPostUseCase = myPostUseCase
     }
     
     
@@ -55,6 +65,27 @@ final class FavoriteService: FavoriteServiceProtocol {
         let result = try await activityKeepUseCase.execute(id: id, stauts: status)
         
         return result.keepStatus
+    }
+    
+    func activtyKeepList(next: String?, limit: String) async throws -> ActivitySummaryListEntity {
+        
+        try await activityKeppListUseCase.execute(next: next, limit: limit)
+    }
+    
+    
+    func postLike(postID: String, status: Bool) async throws -> Bool {
+        let result = try await postKeepUseCase.execute(postID: postID, status: status)
+        
+        return result.likeStatus
+    }
+    
+    func postLikeList(next: String?, limit: String) async throws -> PostSummaryPaginationEntity {
+        
+        try await postLikeListUseCase.execute(next: next, limit: limit)
+    }
+    
+    func myPostList(next: String?, limit: String, userID: String) async throws -> PostSummaryPaginationEntity {
+        try await myPostUseCase.execute(next: next, limit: limit, userID: userID)
     }
 }
 

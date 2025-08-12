@@ -17,7 +17,7 @@ enum ActivityRequest {
         case activityDetail(param: ActivityDetailRequestDTO)
         case newActivities(param: ActivityNewSummaryListRequestDTO)
         case serachActiviy(param: ActivitySearchListRequestDTO)
-        
+        case keptActivities(param: ActivitySummaryListRequestDTO)
         var requiresAuth: Bool {
             true
         }
@@ -34,6 +34,8 @@ enum ActivityRequest {
                 ActivityEndPoint.newActivities.requestURL
             case .serachActiviy:
                 ActivityEndPoint.activitySearch.requestURL
+            case .keptActivities:
+                ActivityEndPoint.keptActivities.requestURL
             }
         }
         
@@ -46,7 +48,7 @@ enum ActivityRequest {
         
         var parameters: Parameters? {
             switch self {
-            case .activityList(let param):
+            case .activityList(let param), .keptActivities(let param):
                 /// 파라미터 타입으로 할 경우 옵셔널에 대한 대응이 불가능해서
                 /// return시 업 캐스팅 처리
                 /// [String: String]은 [String: Any]의 하위 타입
@@ -69,6 +71,7 @@ enum ActivityRequest {
                 return filtered.isEmpty ? nil : filtered as Parameters // 업캐스팅
             case .serachActiviy(let param):
                 return ["title": param.title]
+                
             default:
                 return nil
             }

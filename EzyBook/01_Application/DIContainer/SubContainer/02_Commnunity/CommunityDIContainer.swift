@@ -54,8 +54,9 @@ extension CommunityDIContainer {
         DefaultPostDetailUseCase(repo: makeCommunityRepository())
     }
     
-    private func makePostLikeUesCase() -> PostLikeUseCase {
-        DefaultPostLikeUseCase(repo: makeCommunityRepository())
+    ///게시글 삭제
+    func makePostDeleteUseCase() -> PostDeleteUseCase {
+        DefaultPostDeleteUseCase(repo: makeCommunityRepository())
     }
     
     
@@ -103,12 +104,17 @@ extension CommunityDIContainer {
     
     /// Modify
     private func makePostModifyServiceProtocol() -> PostModifyServiceProtocol {
-        PostModifyService(modify: makePostModifyUseCase())
+        PostModifyService(modify: makeModifyCommnetUseCase())
     }
     
-    private func makePostModifyUseCase() -> ModifyCommnetUseCase {
+    private func makeModifyCommnetUseCase() -> ModifyCommnetUseCase {
         DefaultModifyCommnetUseCase(repo: makeCommentRepository())
     }
+    
+    private func makeModifyPostUseCase() -> PostModifyUseCase {
+        DefaultPostModifyUseCase(repo: makeCommunityRepository())
+    }
+    
 
 }
 
@@ -143,10 +149,12 @@ extension CommunityDIContainer {
         )
     }
     
-    func makePostViewModel() -> PostViewModel {
+    func makePostViewModel(_ status: PostStatus) -> PostViewModel {
         PostViewModel(
             uploadUseCase: makePostImageUploadUseCase(),
-            writePostUseCase: makePostWirteUseCase()
+            writePostUseCase: makePostWirteUseCase(),
+            postStatus: status,
+            modifyPostUseCsae: makeModifyPostUseCase()
             
         )
     }
@@ -155,7 +163,7 @@ extension CommunityDIContainer {
         PostDetailViewModel(
             postDetailUseCase: makePostDetailUesCase(),
             postService: makePostFeatureService(),
-            postLikeUseCase: makePostLikeUesCase(),
+            postLikeUseCase: commonDIContainer.makePostLikeUseCase(),
             postID: postID
         )
     }

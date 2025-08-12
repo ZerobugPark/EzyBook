@@ -96,7 +96,7 @@ struct CommunityView: View {
             LoadingOverlayView(isLoading: viewModel.output.isLoading)
             
             FloatingButton(text: "글쓰기") {
-                coordinator.push(.postView)
+                coordinator.push(.postView(status: .create))
             }
             
             

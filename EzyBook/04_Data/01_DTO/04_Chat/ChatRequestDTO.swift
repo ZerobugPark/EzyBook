@@ -24,3 +24,4 @@ struct ChatSendMessageRequestDTO: Encodable {
 struct ChatListRequestDTO: Encodable {
     let next: String?
 }
+

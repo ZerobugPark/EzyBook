@@ -59,8 +59,8 @@ struct ActivityDetailResponseDTO: Decodable, EntityConvertible {
     let category: String? // 투어
     let thumbnails: [String] // 썸네일 이미지 경로
     let geolocation: ActivityGeolocationDTO // 위치
-    let startDate: String? // 액비비티 운영 기간(시작)
-    let endDate: String? // 액비비티 운영 기간(종료)
+    let startDate: String? // 액티비티 운영 기간(시작)
+    let endDate: String? // 액티비티 운영 기간(종료)
     let price: ActivityPriceDTO // 가격
     let tags: [String] // 태그 (ex. 오픈할인)
     let pointReward: Int // 액티비티 포인트 리워드
@@ -115,7 +115,7 @@ struct ActivityKeepResponseDTO: Decodable, EntityConvertible {
 
 
 /// New 액티비티 목록 조회
-/// 액비티비 검색
+/// 액티비비 검색
 struct ActivityListResponseDTO: Decodable, EntityConvertible {
     let data: [ActivitySummaryResponseDTO]
 }

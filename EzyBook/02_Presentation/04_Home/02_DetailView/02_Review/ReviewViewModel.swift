@@ -26,6 +26,12 @@ final class ReviewViewModel: ViewModelType {
             
         loadInitialReviews(activityID)
         transform()
+        
+        print(#function, Self.desc)
+    }
+    
+    deinit {
+        print(#function, Self.desc)
     }
     
 }
