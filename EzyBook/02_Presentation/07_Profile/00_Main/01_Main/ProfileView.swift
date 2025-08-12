@@ -11,7 +11,7 @@ import PhotosUI
 struct ProfileView: View {
     
     @StateObject var viewModel: ProfileViewModel
-    @StateObject var supplementviewModel: ProfileSupplementaryViewModel
+    @StateObject var supplementViewModel: ProfileSupplementaryViewModel
     @ObservedObject var coordinator: ProfileCoordinator
     @EnvironmentObject var appState: AppState
     
@@ -23,6 +23,20 @@ struct ProfileView: View {
     
 
     @State private var modifyTapped = false
+    
+    init(
+        viewModel: ProfileViewModel,
+        supplementViewModel: ProfileSupplementaryViewModel,
+        coordinator: ProfileCoordinator
+    ) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+        _supplementViewModel = StateObject(wrappedValue: supplementViewModel)
+        _coordinator = ObservedObject(wrappedValue: coordinator)
+        
+        print("ProfileView InIt")
+    }
+    
+
     
     
     var body: some View {
@@ -53,7 +67,7 @@ struct ProfileView: View {
             photoLibrary: .shared()
         )
         .onAppear {
-            viewModel.action(.bindSupplement(supplementviewModel))
+            viewModel.action(.bindSupplement(supplementViewModel))
         }
         .onChange(of: photoItems) { newItems in
             guard let firstItem = newItems.first else {
@@ -408,7 +422,7 @@ extension ProfileView {
                         coordinator.push(.activityLikeList)
                     },
                     MenuItem(icon: "pencil", title: "리뷰 조회") {
-                        coordinator.push(.reviewListView(list: supplementviewModel.output.orderList))
+                        coordinator.push(.reviewListView(list: supplementViewModel.output.orderList))
                     }
                 ]
             ),
@@ -416,7 +430,7 @@ extension ProfileView {
                 title: "나의 결제",
                 items: [
                     MenuItem(icon: "square.3.layers.3d", title: "주문 내역 조회") {
-                        coordinator.push(.orderListView(list: supplementviewModel.output.orderList))
+                        coordinator.push(.orderListView(list: supplementViewModel.output.orderList))
                     }
                 ]
             )

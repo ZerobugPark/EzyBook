@@ -55,7 +55,7 @@ final class ProfileCoordinator: ObservableObject, PostsRouting {
             let sVm = self.container.profileDIContainer.makeProfileSupplementaryViewModel()
             ProfileView(
                 viewModel: vm,
-                supplementviewModel: sVm,
+                supplementViewModel: sVm,
                 coordinator: self
             )
         case .orderListView(let list):

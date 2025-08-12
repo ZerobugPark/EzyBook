@@ -16,7 +16,7 @@ struct ProfileViewCoordinatorView: View {
         NavigationStack(path: $coordinator.path) {
             ProfileView(
                 viewModel: container.profileDIContainer.makeProfileViewModel(),
-                supplementviewModel: container.profileDIContainer.makeProfileSupplementaryViewModel(),
+                supplementViewModel: container.profileDIContainer.makeProfileSupplementaryViewModel(),
                 coordinator: coordinator
             )
                 .navigationDestination(for: ProfileRoute.self) { route in
