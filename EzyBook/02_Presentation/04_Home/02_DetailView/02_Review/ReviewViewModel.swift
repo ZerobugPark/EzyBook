@@ -100,75 +100,6 @@ extension ReviewViewModel {
 }
 
 
-
-
-// MARK: 리뷰 데이터 (프리패치)
-// 추후 데이터가 많아지면 기능 추가
-extension ReviewViewModel {
-    
-
-//    // MARK: 프리패치
-//    private func handleSearchListPrefetch(_ index: Int) {
-//        Task {
-//            await fetchSearchListNeeded(for: index)
-//        }
-//    }
-//    
-//    private func fetchSearchListNeeded(for index: Int) async {
-//        let fetchIndex = index + 1
-//
-//        guard await shouldFetchSearchDetail(at: fetchIndex) else { return }
-//
-//        do {
-//           // let detail = try await requestSearchDetail(at: fetchIndex)
-//            //await updateSearchDetailUI(detail, at: fetchIndex)
-//        } catch {
-//            searchActivityindicats.remove(fetchIndex)
-//            await handleError(error)
-//        }
-//    }
-//    
-//    @MainActor
-//    private func shouldFetchSearchDetail(at index: Int) -> Bool {
-//        if index < 0 || index >= searchActivitySummaryList.count {
-//            print("🚨 Invalid index detected: \(index), listCount: \(searchActivitySummaryList.count)")
-//            return false
-//        }
-//        if searchActivityindicats.contains(index) {
-//            return false
-//        }
-//        searchActivityindicats.insert(index)
-//        return true
-//    }
-//
-////    private func requestSearchDetail(at index: Int) async throws -> FilterActivityModel {
-////       // return try await reqeuestActivityDetailList(searchActivitySummaryList[index], type: FilterActivityModel.self)
-////    }
-//
-//    @MainActor
-//    private func updateSearchDetailUI(_ detail: FilterActivityModel, at index: Int) {
-//        _searchActivityDetailList[index] = detail
-//    }
-
-}
-
-
-//// MARK: Action
-extension ReviewViewModel {
-    
-    enum Action {
-    
-        
-        
-    }
-    
-    /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
-    func action(_ action: Action) {
-    }
-    
-    
-}
-
 // MARK: Alert 처리
 extension ReviewViewModel: AnyObjectWithCommonUI {
     
@@ -184,4 +115,3 @@ extension ReviewViewModel: AnyObjectWithCommonUI {
     
     
 }
-

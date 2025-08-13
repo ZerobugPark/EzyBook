@@ -18,6 +18,10 @@ final class ProfileCoordinator: ObservableObject, PostsRouting {
     
     private let container: AppDIContainer
     
+    private lazy var profileVM = container.profileDIContainer.makeFactory().makeProfileVM()
+    
+    
+
     init(container: AppDIContainer) {
         self.container = container
 

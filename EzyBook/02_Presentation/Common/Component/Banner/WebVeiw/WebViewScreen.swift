@@ -9,10 +9,15 @@ import SwiftUI
 
 struct WebViewScreen: View {
     
-    
     let tokenManager: TokenStorage
-    @ObservedObject var coordinator: HomeCoordinator
+    private let coordinator: HomeCoordinator
     let onComplete: ((String) -> Void)?
+    
+    init(tokenManager: TokenStorage, coordinator: HomeCoordinator, onComplete: ((String) -> Void)?) {
+        self.tokenManager = tokenManager
+        self.coordinator = coordinator
+        self.onComplete = onComplete
+    }
 
 
     private let url = URL(string: APIConstants.baseURL + "/event-application")!

@@ -8,6 +8,13 @@
 import Foundation
 import UIKit
 
+protocol ProfileFactory {
+    func makeProfileVM() -> ProfileViewModel
+    func makeSupplementVM() -> ProfileSupplementaryViewModel
+    func makeOrderListVM(orderList: [OrderEntity]) -> OrderListViewModel
+}
+
+
 final class ProfileDIContainer {
     
     private let networkService: DefaultNetworkService
@@ -20,6 +27,27 @@ final class ProfileDIContainer {
         self.communityDIContainer = communityDIContainer
     }
     
+    // Expose a factory that knows how to build view models, while keeping wiring here in DI
+    func makeFactory() -> ProfileFactory { Impl(container: self) }
+
+    // Private implementation of ProfileFactory
+    private final class Impl: ProfileFactory {
+        private let container: ProfileDIContainer
+        init(container: ProfileDIContainer) { self.container = container }
+
+        func makeProfileVM() -> ProfileViewModel {
+            container.makeProfileViewModel()
+        }
+
+        func makeSupplementVM() -> ProfileSupplementaryViewModel {
+            container.makeProfileSupplementaryViewModel()
+        }
+
+        func makeOrderListVM(orderList: [OrderEntity]) -> OrderListViewModel {
+            container.makeOrderListViewModel(orderList: orderList)
+        }
+    }
+
 
     
 }

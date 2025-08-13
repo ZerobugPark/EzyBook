@@ -179,10 +179,11 @@ struct ChatRoomView: View {
     
     
     func imageFullScreenCover(info: PreviewItem) -> some View {
-        ZoomableImageFullScreenView(
-            viewModel: container.homeDIContainer.makeZoomableImageFullScreenViewModel(),
-            path: info.path
-        )
+        EmptyView()
+//        ZoomableImageFullScreenView(
+//            viewModel: container.homeDIContainer.makeZoomableImageFullScreenViewModel(),
+//            path: info.path
+//        )
     }
     
     func fileFullScreenCover(info: PreviewItem) -> some View {

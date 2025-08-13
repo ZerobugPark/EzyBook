@@ -8,13 +8,11 @@
 import SwiftUI
 
 enum AuthRoute {
-    case socialLogin
     case emailLogin
 
 }
 
 enum HomeRoute: Hashable {
-    case homeView
     case searchView
     case detailView(activityID: String)
     case reviewView(activityID: String)
@@ -22,18 +20,6 @@ enum HomeRoute: Hashable {
     case advertiseView(callbackID: UUID)
     
 }
-
-extension HomeRoute {
-    var hidesTabbar: Bool {
-        switch self {
-        case .detailView, .reviewView, .chatRoomView, .advertiseView, .searchView:
-            return true
-        default:
-            return false
-        }
-    }
-}
-
 
 enum CommunityRoute: Hashable {
     case communityView
@@ -55,19 +41,7 @@ extension CommunityRoute {
 
 
 enum ChatRoute: Hashable {
-    case chatView
     case chatRoomView(roomID: String, opponentNick: String)
-}
-
-extension ChatRoute {
-    var hidesTabbar: Bool {
-        switch self {
-        case .chatRoomView:
-            return true
-        default:
-            return false
-        }
-    }
 }
 
 enum ProfileRoute: Hashable {

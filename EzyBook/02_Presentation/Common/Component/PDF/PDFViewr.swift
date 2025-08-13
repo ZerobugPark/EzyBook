@@ -26,8 +26,7 @@ fileprivate struct PDFFullScreenViewImpl: View {
     
     init(path: String, container: AppDIContainer) {
         _viewModel = StateObject(
-            wrappedValue: PDFViewModel(
-                fileLoad: container.chatDIContainer.makeFileLoadUseCase(), path: path)
+            wrappedValue: container.chatFactory.makePDFViewModel(path: path)
         )
     }
 

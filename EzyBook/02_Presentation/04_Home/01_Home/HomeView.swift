@@ -9,9 +9,15 @@ import SwiftUI
 
 struct HomeView: View {
     
-    @StateObject var viewModel: HomeViewModel
     @EnvironmentObject var appState: AppState
-    @ObservedObject var coordinator: HomeCoordinator
+    
+    private let coordinator: HomeCoordinator
+    @ObservedObject var viewModel: HomeViewModel
+    
+    init(coordinator: HomeCoordinator, viewModel: HomeViewModel) {
+        self.coordinator = coordinator
+        self.viewModel = viewModel
+    }
     
     
     var body: some View {

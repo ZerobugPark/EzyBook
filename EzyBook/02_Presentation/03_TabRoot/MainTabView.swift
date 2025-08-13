@@ -59,14 +59,14 @@ struct MainTabView: View {
     init(container: AppDIContainer) {
         _homeCoordinator = StateObject(
             wrappedValue: HomeCoordinator(
-                container: container
+                factory: container.homeFactory
             )
         )
         _communityCoordinator = StateObject(
             wrappedValue: CommunityCoordinator(container: container)
         )
         _chatCoordinator = StateObject(
-            wrappedValue: ChatCoordinator(container: container.chatDIContainer)
+            wrappedValue: ChatCoordinator(factory: container.chatFactory)
         )
         _profileCoordinator = StateObject(
             wrappedValue:  ProfileCoordinator(
@@ -81,13 +81,13 @@ struct MainTabView: View {
     private var isCurrentTabbarHidden: Bool {
         switch activeTab {
         case .home:
-            return homeCoordinator.isTabbarHidden
+            return !homeCoordinator.routeStack.isEmpty
         case .community:
-            return communityCoordinator.isTabbarHidden
+            return !communityCoordinator.path.isEmpty
         case .chat:
-            return chatCoordinator.isTabbarHidden
+            return !chatCoordinator.path.isEmpty
         case .profile:
-            return profileCoordinator.isTabbarHidden
+            return !profileCoordinator.path.isEmpty
         }
     }
     

@@ -29,7 +29,13 @@ final class MyActivityListViewModel: ViewModelType {
         self.userWrittenPostListUseCase = userWrittenPostListUseCase
         transform()
         handleLoadInitialOrderList()
+        print(#function, Self.desc)
     }
+    
+    deinit {
+        print(#function, Self.desc)
+    }
+
     
 }
 

@@ -21,6 +21,11 @@ final class EmailLoginViewModel: ViewModelType {
     init(emailLoginUseCase: EmailLoginUseCase) {
         self.emailLoginUseCase = emailLoginUseCase
         transform()
+        print(#function, Self.desc)
+    }
+    
+    deinit {
+        print(#function, Self.desc)
     }
 }
 

@@ -18,7 +18,7 @@ struct ImageResponse {
 }
 
 
-final class DefaultImageLoader: ImageLoder {
+final class DefaultImageLoader: ImageLoader {
     
     private let tokenService: TokenLoadable
     private let interceptor: TokenInterceptor

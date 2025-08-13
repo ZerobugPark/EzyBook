@@ -46,7 +46,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
             if let error = error {
                 print("❌ 권한 요청 에러: \(error.localizedDescription)")
             }
-
+            
             if granted {
                 DispatchQueue.main.async {
                     UIApplication.shared.registerForRemoteNotifications()
@@ -70,13 +70,13 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         return true
     }
     
-
+    
     
     
     @objc private func didEnterChatRoom(_ notification: Notification) {
         activeChatRoomID = notification.object as? String
     }
-
+    
     @objc private func didLeaveChatRoom(_ notification: Notification) {
         activeChatRoomID = nil
     }
@@ -91,9 +91,12 @@ struct EzyBookApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject private var notifier = NotificationPermissionObserver()
     
+    @State private var isBootstrapping = true        // 초기화 진행 중
+    @State private var didInitOnce = false           // 첫 초기화 완료 여부 (재진입시 중복 방지)
+    
     /// AppStorage로 설치 마커 관리
     /// 지웠다 삭제시 키체인 삭제
-      @AppStorage("com.myapp.firstInstallDone") private var didInstallBefore: Bool = false
+    @AppStorage("com.myapp.firstInstallDone") private var didInstallBefore: Bool = false
     
     
     init() {
@@ -104,14 +107,14 @@ struct EzyBookApp: App {
         setupNavigationBarApperance()
         
         if !didInstallBefore {
-                if KeychainHelper.hasAnyItem() {
-                    // 재설치된 상태 → Keychain 초기화
-                    KeychainHelper.deleteAllItems()
-                    print("🔒 재설치 감지: Keychain 초기화 완료")
-                }
-                // 이후 실행부터는 검사 로직 건너뛰도록 마커 설정
-                didInstallBefore = true
+            if KeychainHelper.hasAnyItem() {
+                // 재설치된 상태 → Keychain 초기화
+                KeychainHelper.deleteAllItems()
+                print("🔒 재설치 감지: Keychain 초기화 완료")
             }
+            // 이후 실행부터는 검사 로직 건너뛰도록 마커 설정
+            didInstallBefore = true
+        }
         
         
     }
@@ -119,43 +122,76 @@ struct EzyBookApp: App {
     
     var body: some Scene {
         WindowGroup {
-            AppEntryView()
-                .environmentObject(container)
-                .environmentObject(appState)
-                .onOpenURL(perform: { url in
-                    if (AuthApi.isKakaoTalkLoginUrl(url)) {
-                        _ = AuthController.handleOpenUrl(url: url)
-                    }
-                })
-                .onChange(of: scenePhase) { phase in
-                    if phase == .active {
-                        Task {
-                            await container.cacheManager.cleanUpDiskCache()
-                            
-                            do {
-                                try await container.initializeAppSession()
-                                appState.isLoggedIn = true
-                            } catch {
-                                appState.isLoggedIn = false
-                            }
-                            
-                        }
-                    }
+            
+            Group {
+                if !didInitOnce {
+                    EzyBookSplashView()
+
+                } else {
+                    AppEntryView()
                 }
-                .onSubmit {
-                    /// 푸시 상태 변경시 디바이스 토근 업데이트 필요
-                    print("Current permission:", notifier.status)
-                }
-                .onReceive(NotificationCenter.default.publisher(for: .didReceiveDeepLink)) { note in
-                    guard
-                        let info = note.userInfo as? [String: Any],
-                        let type = info["type"] as? String, type == "chat",
-                        let roomID = info["roomID"] as? String
-                    else { return }
+            }
+            .environmentObject(container)
+            .environmentObject(appState)
+            .task { // 최초 진입 시 1회 초기화
+                guard didInitOnce == false else { return }
+                await bootstrap()
                 
-                    // Buffer for consumption when UI is ready (covers suspended/cold start)
-                    appState.pendingRoomID = roomID
+                didInitOnce = true
+            }
+            .task(id: scenePhase) {            // 2) 포그라운드 복귀: 가벼운 재개 작업
+                guard scenePhase == .active else { return }
+                
+                // 부트스트랩 직후는 호출 X
+                guard didInitOnce else { return }
+                // await resumeIfNeeded()
+            }
+            .onOpenURL(perform: { url in
+                if (AuthApi.isKakaoTalkLoginUrl(url)) {
+                    _ = AuthController.handleOpenUrl(url: url)
                 }
+            })
+            .onSubmit {
+                /// 푸시 상태 변경시 디바이스 토근 업데이트 필요
+                print("Current permission:", notifier.status)
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .didReceiveDeepLink)) { note in
+                guard
+                    let info = note.userInfo as? [String: Any],
+                    let type = info["type"] as? String, type == "chat",
+                    let roomID = info["roomID"] as? String
+                else { return }
+                
+                // Buffer for consumption when UI is ready (covers suspended/cold start)
+                appState.pendingRoomID = roomID
+            }
+        }
+        
+    }
+    
+    @MainActor
+    private func bootstrap() async {
+        // Run in parallel: disk cache cleanup, session validation, and a minimum splash delay
+        async let cleanup: Void = container.cacheManager.cleanUpDiskCache()
+        async let session: Void = validateAppSession()
+        async let minDelay: Void = { try? await Task.sleep(nanoseconds: 500_000_000) }()
+        
+        _ = await(cleanup, session, minDelay)
+    }
+    
+    // 선택: 복귀 시 가벼운 처리만
+    @MainActor
+    private func resumeIfNeeded() async {
+        await validateAppSession()
+    }
+    
+    @MainActor
+    private func validateAppSession() async {
+        do {
+            try await container.initializeAppSession()
+            appState.isLoggedIn = true
+        } catch {
+            appState.isLoggedIn = false
         }
     }
 }
@@ -183,7 +219,7 @@ extension AppDelegate: MessagingDelegate {
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         
         guard let fcmToken else { return }
-            UserDefaultManager.fcmToken = fcmToken
+        UserDefaultManager.fcmToken = fcmToken
         
         // 서버로 보냘 때, fcm 토큰을 보내야함
         print("Firebase registration token: \(String(describing: fcmToken))") // 디바이스 토큰과 다르다.
@@ -197,7 +233,7 @@ extension AppDelegate: MessagingDelegate {
             object: nil,
             userInfo: dataDict
         )
-
+        
     }
     
     /// 스위즐링 No시 APNs 등록,  토큰값 가져옴
@@ -205,7 +241,7 @@ extension AppDelegate: MessagingDelegate {
         let tokenString = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
         print("✅ APNs token received: \(tokenString)")
         Messaging.messaging().apnsToken = deviceToken
-    
+        
     }
     
     // error 발생
@@ -250,8 +286,8 @@ extension AppDelegate {
         
         let userInfo = response.notification.request.content.userInfo
         guard let roomID = userInfo["room_id"] as? String else { return }
-
-
+        
+        
         /// 앱 상태를 확인해야 하니 살짝 지연
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             NotificationCenter.default.post(
@@ -261,6 +297,6 @@ extension AppDelegate {
             )
             print("📤 didReceiveDeepLink posted → roomID:\(roomID)")
         }
-            
+        
     }
 }

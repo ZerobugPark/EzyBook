@@ -18,7 +18,7 @@ struct AppEntryView: View {
             MainTabView(container: container)
         } else {
             AuthCoordinatorView(
-                coordinator: AuthCoordinator(container: container.loginDIContainer)
+                coordinator: AuthCoordinator(factory: container.loginFactory)
             )
         }
         

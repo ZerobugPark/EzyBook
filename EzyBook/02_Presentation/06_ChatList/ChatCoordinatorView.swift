@@ -14,7 +14,7 @@ struct ChatCoordinatorView: View {
     
     var body: some View {
         NavigationStack(path: $coordinator.path) {
-            ChatListView(viewModel: container.chatDIContainer.makeChatListViewModel(), coordinator: coordinator)
+            coordinator.rootView()
                 .navigationDestination(for: ChatRoute.self) { route in
                     coordinator.destinationView(route: route)
                 }

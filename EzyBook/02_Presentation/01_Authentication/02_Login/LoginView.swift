@@ -10,8 +10,13 @@ import AuthenticationServices
 
 struct LoginView: View {
     
-    @ObservedObject var coordinator: AuthCoordinator
-    @StateObject var viewModel: LoginViewModel
+    private let coordinator: AuthCoordinator
+    @ObservedObject var viewModel: LoginViewModel
+    
+    init(coordinator: AuthCoordinator, viewModel: LoginViewModel) {
+        self.coordinator = coordinator
+        self.viewModel = viewModel
+    }
     
     var body: some View {
         

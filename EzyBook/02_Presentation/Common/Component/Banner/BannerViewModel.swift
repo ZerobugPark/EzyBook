@@ -24,9 +24,13 @@ final class BannerViewModel: ViewModelType {
 
         transform()
         loadInitialBannerList()
+        print(#function, Self.desc)
     }
     
     
+    deinit {
+        print(#function, Self.desc)
+    }
  
 }
 

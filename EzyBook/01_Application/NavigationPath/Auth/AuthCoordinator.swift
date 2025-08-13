@@ -12,37 +12,81 @@ import SwiftUI
 
 final class AuthCoordinator: ObservableObject {
     
-    @Published var path = NavigationPath()
+    @Published var routeStack: [AuthRoute] = []
     
-    private let container: LoginDIContainer
+    private let factory: LoginFactory
     
-    init(container: LoginDIContainer) {
-        self.container = container
+    private lazy var loginViewModel = factory.makeSocialLoginViewModel()
+  
+    private var emailViewModel: EmailLoginViewModel?
+    private var accountViewModel: CreateAccountViewModel?
+    
+    private func getEmailVM() -> EmailLoginViewModel {
+        if let vm = emailViewModel { return vm }
+        let vm = factory.makeEmailLoginViewModel()
+        emailViewModel = vm
+        return vm
+    }
+
+    private func getAccountVM() -> CreateAccountViewModel {
+        if let vm = accountViewModel { return vm }
+        let vm = factory.makeAccountViewModel()
+        accountViewModel = vm
+        return vm
     }
     
+    
+    init(factory: LoginFactory) {
+        self.factory = factory
+    }
+    
+}
+
+extension AuthCoordinator {
+    
+    
+    @ViewBuilder
+    func rootView() -> some View {
+        LoginView(coordinator: self, viewModel: self.loginViewModel)
+    }
+       
     func push(_ route: AuthRoute) {
-        path.append(route)
+        
+        if case .emailLogin = route {
+            if emailViewModel == nil { emailViewModel = factory.makeEmailLoginViewModel() }
+            if accountViewModel == nil { accountViewModel = factory.makeAccountViewModel() }
+          }
+        
+        
+        routeStack.append(route)
     }
 
     func pop() {
-        path.removeLast()
+        
+        guard let last = routeStack.popLast() else { return }
+        
+        switch last {
+        case .emailLogin:
+            emailViewModel = nil
+            accountViewModel = nil
+        }
+        
+       
     }
 
     func popToRoot() {
-        path = NavigationPath()
+        routeStack.removeAll()
     }
 
     
     @ViewBuilder
     func destinationView(route: AuthRoute) -> some View {
         switch route {
-        case .socialLogin:
-            LoginView(coordinator: self, viewModel: self.container.makeSocialLoginViewModel())
         case .emailLogin:
             LoginSignUpPagerView(
                 coordinator: self,
-                loginViewModel: self.container.makeEmailLoginViewModel(),
-                acountViewModel: self.container.makeAccountViewModel()
+                loginViewModel: getEmailVM(),
+                accountViewModel: getAccountVM()
             )
         }
     }

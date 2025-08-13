@@ -6,8 +6,13 @@
 //
 
 import Foundation
-/// 동일 인스턴스가 필요한 경우 lazy var로 선언
-/// 그 외 함수로 처리
+
+protocol LoginFactory {
+    func makeAccountViewModel() -> CreateAccountViewModel
+    func makeEmailLoginViewModel() -> EmailLoginViewModel
+    func makeSocialLoginViewModel() -> LoginViewModel
+}
+
 final class LoginDIContainer {
     
     private let networkService: DefaultNetworkService
@@ -18,6 +23,27 @@ final class LoginDIContainer {
         self.tokenService = tokenService
     }
     
+    func makeFactory() -> LoginFactory { Impl(container: self) }
+    
+    private final class Impl: LoginFactory {
+        
+        private let container: LoginDIContainer
+        init(container: LoginDIContainer) { self.container = container }
+        
+        
+        func makeAccountViewModel() -> CreateAccountViewModel {
+            CreateAccountViewModel(createUseCases: container.makeCreateAccountUseCase())
+        }
+        
+        func makeEmailLoginViewModel() -> EmailLoginViewModel {
+            EmailLoginViewModel(emailLoginUseCase: container.makeEmailLoginUseCase())
+        }
+        
+        func makeSocialLoginViewModel() -> LoginViewModel {
+            LoginViewModel(socialLoginUseCases: container.makeSocialLoginUseCase())
+        }
+        
+    }
     
 }
 // MARK: Maek Auth UseCase
@@ -83,24 +109,4 @@ extension LoginDIContainer {
     private func makeSocialLoginService() -> DefaultSocialLoginService {
         DefaultSocialLoginService()
     }
-}
-
-
-    
-  
-// MARK: Make Auth ViewModel
-extension LoginDIContainer {
-    
-    func makeAccountViewModel() -> CreateAccountViewModel {
-        CreateAccountViewModel(createUseCases: makeCreateAccountUseCase())
-    }
-    
-    func makeEmailLoginViewModel() -> EmailLoginViewModel {
-        EmailLoginViewModel(emailLoginUseCase: makeEmailLoginUseCase())
-    }
-    
-    func makeSocialLoginViewModel() -> LoginViewModel {
-        LoginViewModel(socialLoginUseCases: makeSocialLoginUseCase())
-    }
-    
 }

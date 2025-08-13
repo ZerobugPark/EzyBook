@@ -11,7 +11,6 @@ final class AppDIContainer: ObservableObject {
     
     // MARK: - Infrastructure
     private let decoder = ResponseDecoder()
-    let storage = KeyChainTokenStorage()
     
     private let tokenNetworkService: DefaultNetworkService // 토큰 전용 네트워크 서비스
     
@@ -25,51 +24,83 @@ final class AppDIContainer: ObservableObject {
     
     // MARK: Data
     let cacheManager: CacheManageable
+    
+    // MARK: Infra
+    let videoLoaderDelegate: VideoLoaderDelegate
 
     
-    // MARK: - DIContainer Factory
-    let commonDICotainer: CommonDIContainer
+    // MARK: - DIContainer
+    private let commonDICotainer: CommonDIContainer
+    private let mediaDIConatiner: MediaDIContainer
+    private let homeDIContainer: HomeDIContainer
+    private let chatDIContainer: ChatDIContainer
     
-    let loginDIContainer: LoginDIContainer
-    let homeDIContainer: HomeDIContainer
+    private let loginDIContainer: LoginDIContainer
+    
     let communityDIContainer: CommunityDIContainer
-    let chatDIContainer: ChatDIContainer
+    
     let profileDIContainer: ProfileDIContainer
-                                                                    
-
+    
+    
+    //MARK: Factory
+    let loginFactory: LoginFactory
+    let homeFactory: HomeFactory
+    let mediaFactory: MediaFactory
+    let chatFactory: ChatFactory
     
     
     init() {
         tokenNetworkService = DefaultNetworkService(decodingService: decoder, interceptor: nil)
         /// 어차피 액세스 토큰 갱신이기 때문에, 내부에처  헤더값이랑 같이 보내주면 됨 (즉, 이 때는 인터셉터를 쓸 필요가 없음)
-        tokenService = DefaultTokenService(storage: storage, networkService: tokenNetworkService)
+        tokenService = DefaultTokenService(storage: KeyChainTokenStorage.shared, networkService: tokenNetworkService)
         interceptor = TokenInterceptor(tokenService: tokenService)
         networkService = DefaultNetworkService(decodingService: decoder, interceptor: interceptor)
         
         
         imageCache = ImageCache()
         imageLoader = DefaultImageLoader(tokenService: tokenService, interceptor: interceptor)
+        videoLoaderDelegate = VideoLoaderDelegate(tokenService: tokenService, interceptor: interceptor)
         
+        
+        /// 공통 사용
+        mediaDIConatiner = MediaDIContainer(
+            imageLoader: imageLoader,
+            videoLoader: videoLoaderDelegate,
+            imageCache: imageCache
+        )
+        mediaFactory = mediaDIConatiner.makeFactory()
         
         commonDICotainer = CommonDIContainer(
-            imageLoader: imageLoader,
-            imageCache: imageCache,
             networkService: networkService
         )
         
+        
+        /// 로그인
         loginDIContainer = LoginDIContainer(
             networkService: networkService,
             tokenService: tokenService
         )
         
+        loginFactory = loginDIContainer.makeFactory()
+        
+        /// 채팅 공통 및 채팅 목록
+        chatDIContainer = ChatDIContainer(
+            networkService: networkService,
+            commonDIContainer: commonDICotainer,
+            storage: KeyChainTokenStorage.shared
+        )
+        
+        chatFactory = chatDIContainer.makeFactory()
+        
+        /// 홈 화면
         homeDIContainer = HomeDIContainer(
             networkService: networkService,
             commonDIContainer: commonDICotainer,
-            videoLoader: VideoLoaderDelegate(
-                tokenService: tokenService,
-                interceptor: interceptor
-            )
+            mediaFactory: mediaFactory,
+            chatFactory: chatFactory
         )
+        
+        homeFactory = homeDIContainer.makeFactory()
         
         
         communityDIContainer = CommunityDIContainer(
@@ -77,12 +108,7 @@ final class AppDIContainer: ObservableObject {
             commonDIContainer: commonDICotainer
         )
         
-        chatDIContainer = ChatDIContainer(
-            networkService: networkService,
-            commonDIContainer: commonDICotainer,
-            storage: storage
-        )
-        
+  
         profileDIContainer = ProfileDIContainer(
             networkService: networkService,
             commonDIContainer: commonDICotainer,

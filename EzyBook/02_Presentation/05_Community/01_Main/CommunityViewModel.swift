@@ -45,9 +45,13 @@ final class CommunityViewModel: ViewModelType {
         Task {
             await fetchLocationIfNeeded()
         }
-        
+        print(#function, Self.desc)
         loadInitialPost()
         transform()
+    }
+    
+    deinit {
+        print(#function, Self.desc)
     }
     
 }

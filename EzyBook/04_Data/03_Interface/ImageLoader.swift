@@ -7,6 +7,6 @@
 
 import SwiftUI
 
-protocol ImageLoder {
+protocol ImageLoader {
     func fetchImageData(from url: String, etag: String?) async throws -> ImageResponse
 }

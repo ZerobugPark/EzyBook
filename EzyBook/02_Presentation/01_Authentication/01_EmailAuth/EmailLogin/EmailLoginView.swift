@@ -12,9 +12,17 @@ struct EmailLoginView: View {
     @Binding var selectedIndex: Int
     @ObservedObject var viewModel: EmailLoginViewModel
 
-    @ObservedObject var coordinator: AuthCoordinator
-    
+    private let coordinator: AuthCoordinator
     @FocusState private var isFocused: LoginInputFieldType?
+    
+    init(selectedIndex: Binding<Int>, viewModel: EmailLoginViewModel, coordinator: AuthCoordinator) {
+        _selectedIndex = selectedIndex
+        self.viewModel = viewModel
+        self.coordinator = coordinator
+    }
+    
+    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             

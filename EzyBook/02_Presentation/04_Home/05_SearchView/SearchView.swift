@@ -11,11 +11,19 @@ struct SearchView: View {
     
     @EnvironmentObject var appState: AppState
     
-    @StateObject var viewModel: SearchViewModel
-    @StateObject var bannerViewModel: BannerViewModel
-    @ObservedObject var coordinator: HomeCoordinator
+    @ObservedObject var viewModel: SearchViewModel
+    @ObservedObject var bannerViewModel: BannerViewModel
+    private let coordinator: HomeCoordinator
    
     @State private var isSearching = false
+    
+    
+    init(viewModel: SearchViewModel, bannerViewModel: BannerViewModel, coordinator: HomeCoordinator) {
+        self.viewModel = viewModel
+        self.bannerViewModel = bannerViewModel
+        self.coordinator = coordinator
+    }
+    
     
     var body: some View {
         ZStack {
@@ -24,8 +32,8 @@ struct SearchView: View {
                     makeAdvertiseView()
                     ActivityIntroduceView(data: viewModel.output.activitySearchDetailList)  { index in
                         viewModel.action(.prefetchSearchContent(index: index))
-                    } onItemTapped: { id in
-                        coordinator.push(.detailView(activityID: id))
+                    } onItemTapped: { [weak coordinator] id in
+                        coordinator?.push(.detailView(activityID: id))
                     }
                     
                 }
@@ -62,17 +70,9 @@ struct SearchView: View {
                 appState.isLoggedIn = false
             }
         }
-        .onAppear {
-            // 탭바 터치 가능 여부
-            appState.isLoding = viewModel.output.isLoading
-            
-        }
-        .loadingOverlayModify(viewModel.output.isLoading)
         
     }
     
-
-
 }
 
 
@@ -82,8 +82,8 @@ extension SearchView {
     
     private func makeAdvertiseView() -> some View {
         ZStack {
-            BannerView(viewModel: bannerViewModel) { _ in
-                coordinator.pushAdvertiseView { result in
+            BannerView(viewModel: bannerViewModel) { [weak coordinator] _ in
+                coordinator?.pushAdvertiseView { result in
                     viewModel.action(.bannerResult(msg: result))
                 
                 }

@@ -27,11 +27,7 @@ fileprivate struct RemoteImageViewImpl: View {
 
     init(path: String, container: AppDIContainer, scale: CGFloat) {
         _viewModel = StateObject(
-            wrappedValue: RemoteImageViewModel(
-                imageLoadUseCases: container.commonDICotainer.makeImageLoadUseCase(),
-                scale: scale,
-                path: path
-            )
+            wrappedValue: container.mediaFactory.makeRemoteImageViewModel(scale: scale, path: path)
         )
     }
 

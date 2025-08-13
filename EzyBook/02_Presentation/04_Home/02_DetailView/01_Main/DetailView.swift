@@ -8,17 +8,24 @@
 import SwiftUI
 import AVKit
 
-struct SelectedMedia: Identifiable {
-    let id: Int
-    let isVideo: Bool
+
+struct FullScreenItem: Identifiable {
+    let id = UUID()
+    let type: FullScreenType
 }
+
+enum FullScreenType {
+    case media(idx: Int, isVideo: Bool)
+    case payment
+}
+
 
 struct DetailView: View {
     
     @EnvironmentObject var appState: AppState
     
-    @StateObject var viewModel: DetailViewModel
-    @ObservedObject  var coordinator: HomeCoordinator
+    @ObservedObject var viewModel: DetailViewModel
+    private let coordinator: HomeCoordinator
     
     
     @State private var personCount = 1
@@ -27,7 +34,12 @@ struct DetailView: View {
     @State private var selectedIndex = 0
     
     /// 화면전환 트리거
-    @State private var selectedMedia: SelectedMedia?
+    @State private var fullScreen: FullScreenItem?
+    
+    init(viewModel: DetailViewModel, coordinator: HomeCoordinator) {
+        self.viewModel = viewModel
+        self.coordinator = coordinator
+    }
     
     
     var body: some View {
@@ -42,10 +54,9 @@ struct DetailView: View {
                             thumbnails: viewModel.output.activityDetailInfo.thumbnailPaths,
                             reviews: viewModel.output.reviews,
                             selectedIndex: $selectedIndex,
-                            selectedMedia: $selectedMedia
-                        ) {
-                            coordinator.push(.reviewView(activityID: viewModel.activityID))
-                        }
+                            selectedMedia: $fullScreen) { [id = viewModel.activityID, weak coordinator] in
+                                coordinator?.push(.reviewView(activityID: id))
+                            }
                         
                         ThumbnailSelectorView(
                             thumbnails: viewModel.output.activityDetailInfo.thumbnailPaths,
@@ -105,20 +116,28 @@ struct DetailView: View {
             LoadingOverlayView(isLoading: viewModel.output.isLoading)
         }
         /// TabView에다가 붙이면
-        .fullScreenCover(item: $selectedMedia) { media in
-            if media.isVideo {
-                coordinator.makeVideoPlayerView(path: viewModel.output.activityDetailInfo.thumbnailPaths[media.id])
-            } else {
-                coordinator.makeImageViewer(path: viewModel.output.activityDetailInfo.thumbnailPaths[media.id])
-            }
-        }
-        .fullScreenCover(isPresented: $viewModel.output.payButtonTapped) {
-            if let payItem = viewModel.output.payItem {
-                coordinator.makePaymentView(item: payItem) { msg in
-                    viewModel.action(.showPaymentResult(message: msg))
+        .fullScreenCover(item: $fullScreen) { item in
+            
+            switch item.type {
+            case let .media(index, isVideo):
+                if isVideo {
+                    coordinator.makeVideoPlayerView(path: viewModel.output.activityDetailInfo.thumbnailPaths[index])
+                } else {
+                    coordinator.makeImageViewer(path: viewModel.output.activityDetailInfo.thumbnailPaths[index])
+                }
+                
+            case .payment:
+                if let payItem = viewModel.output.payItem {
+                    coordinator.makePaymentView(item: payItem) { msg in
+                        viewModel.action(.paymentFailed(message: msg))
+                        
+                    } onSuccess: { impUid, merchantUid in
+                        viewModel.action(.paymentSuccess(impUid: impUid, merchantUid: merchantUid))
+                    }
                 }
             }
             
+     
         }
         .ignoresSafeArea(.container, edges: .top)
         .background(.grayScale15)
@@ -151,13 +170,13 @@ struct DetailView: View {
                 viewModel.output.roomID = nil //  트리거 리셋
             }
         }
-        .onDisappear {
-            selectedDate = nil
+        .onChange(of: viewModel.output.payButtonTapped) { newValue in
+            if newValue {
+                fullScreen = FullScreenItem(type: .payment)
+                viewModel.output.payButtonTapped = false
+            }
         }
-        .loadingOverlayModify(viewModel.output.isLoading)
     }
-    
-    
 }
 
 // MARK: Thumbnails Images
@@ -169,7 +188,7 @@ private extension DetailView {
         let reviews: ReviewRatingListEntity?
         
         @Binding var selectedIndex: Int
-        @Binding var selectedMedia: SelectedMedia?
+        @Binding var selectedMedia: FullScreenItem?
         
         var reviewAction: () -> Void
         
@@ -192,7 +211,7 @@ private extension DetailView {
                         }
                         .onTapGesture {
                             let isVideo = data.thumbnailPaths[index].hasSuffix(".mp4")
-                            selectedMedia = SelectedMedia(id: index, isVideo: isVideo)
+                            selectedMedia =  FullScreenItem(type: .media(idx: index, isVideo: isVideo))
                         }
                         .tag(index)
                     }

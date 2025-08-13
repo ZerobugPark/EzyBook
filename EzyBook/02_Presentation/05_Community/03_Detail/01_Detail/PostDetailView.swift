@@ -18,6 +18,11 @@ struct ModifyComment: Identifiable {
     let text: String
 }
 
+struct SelectedMedia: Identifiable {
+    let id: Int
+    let isVideo: Bool
+}
+
 
 struct PostDetailView: View {
     

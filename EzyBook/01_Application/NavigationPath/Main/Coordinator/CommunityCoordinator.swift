@@ -75,13 +75,15 @@ extension CommunityCoordinator {
     }
     
     func makeVideoPlayerView(path: String) -> some View {
-        let viewModel = container.homeDIContainer.makeVideoPlayerViewModel()
-        return VideoPlayerView(viewModel: viewModel, path: path)
+        EmptyView()
+//        let viewModel = container.homeDIContainer.makeVideoPlayerViewModel()
+//        return VideoPlayerView(viewModel: viewModel, path: path)
     }
     
     func makeImageViewer(path: String) -> some View {
-        let viewModel = container.homeDIContainer.makeZoomableImageFullScreenViewModel()
-        return ZoomableImageFullScreenView(viewModel: viewModel, path: path)
+        EmptyView()
+//        let viewModel = container.homeDIContainer.makeZoomableImageFullScreenViewModel()
+//        return ZoomableImageFullScreenView(viewModel: viewModel, path: path)
         
     }
     

@@ -21,6 +21,12 @@ final class CreateAccountViewModel: ViewModelType {
     init(createUseCases: CreateAccountUseCases) {
         self.createUseCases = createUseCases
         transform()
+        
+        print(#function, Self.desc)
+    }
+    
+    deinit {
+        print(#function, Self.desc)
     }
     
 }

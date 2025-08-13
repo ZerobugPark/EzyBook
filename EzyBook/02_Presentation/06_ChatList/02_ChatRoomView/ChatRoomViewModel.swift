@@ -48,11 +48,14 @@ final class ChatRoomViewModel: ViewModelType {
         
         loadInitialChatList()
         transform()
+        
+        print(#function, Self.desc)
     }
     
     
     deinit {
         socketService.disconnect()
+        print(#function, Self.desc)
     }
 }
 

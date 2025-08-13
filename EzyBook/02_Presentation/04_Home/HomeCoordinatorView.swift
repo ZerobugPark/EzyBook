@@ -15,8 +15,8 @@ struct HomeCoordinatorView: View {
     
     var body: some View {
         
-        NavigationStack(path: $coordinator.path) {
-            HomeView(viewModel: container.homeDIContainer.makeHomeViewModel(), coordinator: coordinator)
+        NavigationStack(path: $coordinator.routeStack) {
+            coordinator.rootView()
                 .navigationDestination(for: HomeRoute.self) { route in
                     coordinator.destinationView(route: route)
                 }
