@@ -57,22 +57,10 @@ struct MainTabView: View {
     @StateObject var profileCoordinator: ProfileCoordinator
     
     init(container: AppDIContainer) {
-        _homeCoordinator = StateObject(
-            wrappedValue: HomeCoordinator(
-                factory: container.homeFactory
-            )
-        )
-        _communityCoordinator = StateObject(
-            wrappedValue: CommunityCoordinator(container: container)
-        )
-        _chatCoordinator = StateObject(
-            wrappedValue: ChatCoordinator(factory: container.chatFactory)
-        )
-        _profileCoordinator = StateObject(
-            wrappedValue:  ProfileCoordinator(
-                container: container
-            )
-        )
+        _homeCoordinator = StateObject(wrappedValue: HomeCoordinator(factory: container.homeFactory))
+        _communityCoordinator = StateObject(wrappedValue: CommunityCoordinator(factory: container.communityFactory))
+        _chatCoordinator = StateObject(wrappedValue: ChatCoordinator(factory: container.chatFactory))
+        _profileCoordinator = StateObject(wrappedValue:  ProfileCoordinator(container: container))
         
         /// TabBar Hidden이 안될 때,
         //UITabBar.appearance().isHidden = true
@@ -83,7 +71,7 @@ struct MainTabView: View {
         case .home:
             return !homeCoordinator.routeStack.isEmpty
         case .community:
-            return !communityCoordinator.path.isEmpty
+            return !communityCoordinator.routeStacks.isEmpty
         case .chat:
             return !chatCoordinator.path.isEmpty
         case .profile:

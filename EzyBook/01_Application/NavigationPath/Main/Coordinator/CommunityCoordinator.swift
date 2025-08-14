@@ -9,56 +9,73 @@ import SwiftUI
 
 final class CommunityCoordinator: ObservableObject, PostsRouting {
 
+    @Published var routeStacks: [CommunityRoute] = []
+    private let factory: CommunityFactory
     
-    @Published var path = NavigationPath()
-    @Published var isTabbarHidden: Bool = false
+    private lazy var communityViewModel = factory.makeCommunityViewModel()
     
-    private var tabbarHiddenStack: [Bool] = []
+    private lazy var postsRouter: AnyPostsRouter = {
+        AnyPostsRouter(CommunityCoordinatorRouter(coordinator: self))
+    }()
     
-    private let container: AppDIContainer
+    private var postViewModel: PostViewModel?
     
+    private func postVM(for status: PostStatus) -> PostViewModel {
+        if let vm = postViewModel { return vm }
+        let vm = factory.makePostViewModel(status)
+        postViewModel = vm
+        return vm
+    }
     
-    init(container: AppDIContainer) {
-        self.container = container
+    init(factory: CommunityFactory) {
+        self.factory = factory
 
+    }
+    
+
+    
+}
+
+extension CommunityCoordinator {
+ 
+    @ViewBuilder
+    func rootView() -> some View {
+        CommunityView(viewModel: communityViewModel, coordinator: self)
     }
     
     func push(_ route: CommunityRoute) {
-        let shouldHide = route.hidesTabbar
-        tabbarHiddenStack.append(shouldHide)
-        isTabbarHidden = shouldHide
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-            self.path.append(route)
-        }
+        self.routeStacks.append(route)
     }
 
     func pop() {
-        path.removeLast()
-        _ = tabbarHiddenStack.popLast()
-        isTabbarHidden = tabbarHiddenStack.last ?? false
+        
+        guard let last = routeStacks.popLast() else { return }
+        
+        switch last {
+        case .postView:
+            postViewModel = nil
+        default: break
+        
+        }
+        
+        _ = routeStacks.popLast()
+        
     }
 
     func popToRoot() {
-        path = NavigationPath()
-        tabbarHiddenStack = []
-        isTabbarHidden = false
+        routeStacks.removeAll()
+        
     }
     
     
     @ViewBuilder
     func destinationView(route: CommunityRoute) -> some View {
         switch route {
-        case .communityView:
-            let vm = container.communityDIContainer.makeCommunityViewModel()
-            CommunityView(viewModel: vm, coordinator: self)
         case .postView(let status):
-            let vm =  container.communityDIContainer.makePostViewModel(status)
-            let router = AnyPostsRouter(CommunityCoordinatorRouter(coordinator: self))
-            PostsView(router: router, viewModel: vm)
+            PostsView(router: postsRouter, viewModel: postVM(for: status))
         case .detailView(let id):
-            let vm =  container.communityDIContainer.makePostDetailViewModel(postID: id)
-            PostDetailView(viewModel: vm, coordinator: self)
+            let vm =  factory.makePostDetailViewModel(postID: id)
+            PostDetailView(coordinator: self, viewModel: vm)
         }
     }
     
@@ -70,33 +87,29 @@ final class CommunityCoordinator: ObservableObject, PostsRouting {
 extension CommunityCoordinator {
  
     func makeMyActivityView(onConfirm: @escaping (OrderList) -> Void) -> some View {
-        let vm =  container.communityDIContainer.makeMyActivityListViewModel()
+        let vm =  factory.makeMyActivityListViewModel()
         return MyActivityListView(viewModel: vm, onConfirm: onConfirm)
     }
     
     func makeVideoPlayerView(path: String) -> some View {
-        EmptyView()
-//        let viewModel = container.homeDIContainer.makeVideoPlayerViewModel()
-//        return VideoPlayerView(viewModel: viewModel, path: path)
+        let viewModel = factory.makeVideoPlayerViewModel()
+        return VideoPlayerView(viewModel: viewModel, path: path)
     }
     
     func makeImageViewer(path: String) -> some View {
-        EmptyView()
-//        let viewModel = container.homeDIContainer.makeZoomableImageFullScreenViewModel()
-//        return ZoomableImageFullScreenView(viewModel: viewModel, path: path)
+        let viewModel = factory.makeZoomableImageFullScreenViewModel()
+        return ZoomableImageFullScreenView(viewModel: viewModel, path: path)
         
     }
     
     func makeReplyView(data: CommentEntity, postID: String, onChange: @escaping ()-> Void) -> some View {
-        let vm = container.communityDIContainer.makeReplyViewModle(data: data, postID: postID)
-        
+        let vm = factory.makeReplyViewModle(data: data, postID: postID)
         return ReplyView(coordinator: self, viewModel: vm,onChagned: onChange)
     }
 
     func makeModifyView(data: ModifyComment, onSave: @escaping (String)-> Void) -> some View {
-        
         return CommnetModifyView(initialText: data.text, onSave: onSave)
-        
+
     }
 
     

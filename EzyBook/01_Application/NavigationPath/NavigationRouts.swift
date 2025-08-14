@@ -22,22 +22,9 @@ enum HomeRoute: Hashable {
 }
 
 enum CommunityRoute: Hashable {
-    case communityView
     case postView(status: PostStatus)
     case detailView(postID: String)
 }
-extension CommunityRoute {
-    
-    var hidesTabbar: Bool {
-        switch self {
-        case .postView, .detailView:
-            return true
-        default:
-            return false
-        }
-    }
-}
-
 
 
 enum ChatRoute: Hashable {

@@ -11,7 +11,6 @@ import UIKit
 protocol HomeFactory {
     func makeHomeViewModel() -> HomeViewModel
     func makeDetailViewModel(id: String) -> DetailViewModel
-    func makePaymentViewModel() -> PaymentViewModel
     func makeSearchViewModel() -> SearchViewModel
     func makeBannerViewModel() -> BannerViewModel
     func makeReviewViewModel(id: String) -> ReviewViewModel
@@ -54,12 +53,6 @@ final class HomeDIContainer {
                 favoirteService: container.commonDIContainer.makeDetailFeatureService().favorite,
                 paymentValidationUseCase: container.makePaymentValidationUseCase(),
                 activityID: id
-            )
-        }
-
-        func makePaymentViewModel() -> PaymentViewModel {
-            PaymentViewModel(
-                vaildationUseCase: container.makePaymentValidationUseCase()
             )
         }
 

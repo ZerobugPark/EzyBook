@@ -23,8 +23,6 @@ final class HomeCoordinator: ObservableObject {
     private var detailViewModel: DetailViewModel?
     private var searchViewModel: SearchViewModel?
     private var bannerViewModel: BannerViewModel?
-    private var paymentVM: PaymentViewModel?
-
     
     private func detailVM(for id: String) -> DetailViewModel {
         if let vm = detailViewModel { return vm }
@@ -53,6 +51,7 @@ final class HomeCoordinator: ObservableObject {
     
 }
 
+// MARK: Stack
 extension HomeCoordinator {
     @ViewBuilder
     func rootView() -> some View {
@@ -76,8 +75,7 @@ extension HomeCoordinator {
         case .searchView:
             searchViewModel = nil
             bannerViewModel = nil
-        default:
-            break
+        default: break
         }
         
     }
@@ -134,8 +132,7 @@ extension HomeCoordinator {
 }
 
 
-
-
+// MARK: FullScreen
 extension HomeCoordinator {
     func makeVideoPlayerView(path: String) -> some View {
         let viewModel = factory.makeVideoPlayerViewModel()
@@ -154,7 +151,5 @@ extension HomeCoordinator {
         return PaymentView(item: item, onFailed: onFailed, onSuccess: onSuccess)
     }
     
-  
-    
-    
+
 }

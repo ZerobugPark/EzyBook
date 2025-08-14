@@ -34,9 +34,14 @@ final class PostDetailViewModel: ViewModelType {
         self.postService = postService
         self.postLikeUseCase = postLikeUseCase
         self.postID = postID
-        
+        print(#function, Self.desc)
         loadInitialPostDetail()
         transform()
+        
+    }
+    
+    deinit {
+        print(#function, Self.desc)
     }
     
     

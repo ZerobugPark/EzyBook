@@ -15,8 +15,22 @@ struct FullScreenItem: Identifiable {
 }
 
 enum FullScreenType {
-    case media(idx: Int, isVideo: Bool)
-    case payment
+    
+    case home(HomeTap)
+    case community(CommunityTap)
+    
+    enum HomeTap {
+        case media(idx: Int, isVideo: Bool)
+        case payment
+    }
+    
+    enum CommunityTap {
+        case media(idx: Int, isVideo: Bool)
+        case modify(data: ModifyComment)
+        case reply(data: CommentEntity)
+    }
+    
+    
 }
 
 
@@ -119,14 +133,14 @@ struct DetailView: View {
         .fullScreenCover(item: $fullScreen) { item in
             
             switch item.type {
-            case let .media(index, isVideo):
+            case let .home(.media(index, isVideo)):
                 if isVideo {
                     coordinator.makeVideoPlayerView(path: viewModel.output.activityDetailInfo.thumbnailPaths[index])
                 } else {
                     coordinator.makeImageViewer(path: viewModel.output.activityDetailInfo.thumbnailPaths[index])
                 }
                 
-            case .payment:
+            case .home(.payment):
                 if let payItem = viewModel.output.payItem {
                     coordinator.makePaymentView(item: payItem) { msg in
                         viewModel.action(.paymentFailed(message: msg))
@@ -135,6 +149,7 @@ struct DetailView: View {
                         viewModel.action(.paymentSuccess(impUid: impUid, merchantUid: merchantUid))
                     }
                 }
+            default: EmptyView()
             }
             
      
@@ -172,7 +187,7 @@ struct DetailView: View {
         }
         .onChange(of: viewModel.output.payButtonTapped) { newValue in
             if newValue {
-                fullScreen = FullScreenItem(type: .payment)
+                fullScreen = FullScreenItem(type: .home(.payment))
                 viewModel.output.payButtonTapped = false
             }
         }
@@ -211,7 +226,7 @@ private extension DetailView {
                         }
                         .onTapGesture {
                             let isVideo = data.thumbnailPaths[index].hasSuffix(".mp4")
-                            selectedMedia =  FullScreenItem(type: .media(idx: index, isVideo: isVideo))
+                            selectedMedia = FullScreenItem(type: .home(.media(idx: index, isVideo: isVideo)))
                         }
                         .tag(index)
                     }

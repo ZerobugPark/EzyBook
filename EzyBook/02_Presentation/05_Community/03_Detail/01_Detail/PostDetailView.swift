@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 struct CommentActions {
     let onDelete: (String) -> Void
     let onReply: ((CommentEntity) -> Void)?
@@ -27,17 +28,28 @@ struct SelectedMedia: Identifiable {
 struct PostDetailView: View {
     
     @EnvironmentObject var appState: AppState
+    private let coordinator: CommunityCoordinator
+    @ObservedObject var viewModel: PostDetailViewModel
     
-    @StateObject var viewModel: PostDetailViewModel
-    @ObservedObject  var coordinator: CommunityCoordinator
     
     @State private var selectedIndex = 0
     /// 화면전환 트리거
-    @State private var selectedMedia: SelectedMedia?
-    @State private var replyingComment: CommentEntity? = nil
-    @State private var modifyComment: ModifyComment? = nil
+    @State private var fullScreen: FullScreenItem?
+    
+    
+    //    @State private var selectedMedia: SelectedMedia?
+    //    @State private var replyingComment: CommentEntity? = nil
+    //    @State private var modifyComment: ModifyComment? = nil
     
     @FocusState private var isTextEditorFocused: Bool
+    
+    init(coordinator: CommunityCoordinator, viewModel: PostDetailViewModel) {
+        self.coordinator = coordinator
+        self.viewModel = viewModel
+        
+    }
+    
+    
     
     var body: some View {
         VStack(spacing: 0) {
@@ -63,7 +75,7 @@ struct PostDetailView: View {
                                 data: viewModel.output.postDetailInfo,
                                 thumbnails: viewModel.output.postDetailInfo.files,
                                 selectedIndex: $selectedIndex,
-                                selectedMedia: $selectedMedia
+                                selectedMedia: $fullScreen
                             )
                         } else {
                             Spacer().frame(height: 80) // Ensure space below toolbar when no media exists
@@ -79,10 +91,12 @@ struct PostDetailView: View {
                                     viewModel.action(.deleteComment(commentID: commentID))
                                 },
                                 onReply: { data in
-                                    replyingComment = data
+                                    fullScreen = FullScreenItem(type: .community(.reply(data: data)))
                                 },
                                 onEdit: { id, content in
-                                    modifyComment = ModifyComment(id: id, text: content)
+                                    let data = ModifyComment(id: id, text: content)
+                                    fullScreen = FullScreenItem(type: .community(.modify(data: data)))
+                                    
                                 }
                             )
                         )
@@ -132,25 +146,30 @@ struct PostDetailView: View {
                 }
             }
         }
-        .fullScreenCover(item: $selectedMedia) { media in
-            if media.isVideo {
-                coordinator.makeVideoPlayerView(path: viewModel.output.postDetailInfo.files[media.id])
-            } else {
-                coordinator.makeImageViewer(path: viewModel.output.postDetailInfo.files[media.id])
-            }
-        }
-        .fullScreenCover(item: $replyingComment) { data in
-            coordinator.makeReplyView(data: data, postID: viewModel.postID) {
+        .fullScreenCover(item: $fullScreen) { item in
+            
+            switch item.type  {
+            case let .community(.media(index, isVideo)):
+                if isVideo {
+                    coordinator.makeVideoPlayerView(path: viewModel.output.postDetailInfo.files[index])
+                } else {
+                    coordinator.makeImageViewer(path: viewModel.output.postDetailInfo.files[index])
+                }
+            case let .community(.modify(data)):
                 
-                viewModel.action(.reloadData)
+                coordinator.makeModifyView(data: data)  { text in
+                    viewModel.action(.modifyContent(commentID: data.id, text: text))
+                }
+                
+            case let .community(.reply(data)):
+                coordinator.makeReplyView(data: data, postID: viewModel.postID) {
+                    
+                    viewModel.action(.reloadData)
+                }
+            default:
+                EmptyView()
             }
         }
-        .fullScreenCover(item: $modifyComment) { data in
-            coordinator.makeModifyView(data: data)  { text in
-                viewModel.action(.modifyContent(commentID: data.id, text: text))
-            }
-        }
-        
         .withCommonUIHandling(viewModel) { code, _ in
             if code == 418 {
                 appState.isLoggedIn = false
@@ -169,7 +188,7 @@ private extension PostDetailView {
         let thumbnails: [String]
         
         @Binding var selectedIndex: Int
-        @Binding var selectedMedia: SelectedMedia?
+        @Binding var selectedMedia: FullScreenItem?
         
         
         
@@ -192,7 +211,7 @@ private extension PostDetailView {
                         }
                         .onTapGesture {
                             let isVideo = thumbnails[index].hasSuffix(".mp4")
-                            selectedMedia = SelectedMedia(id: index, isVideo: isVideo)
+                            selectedMedia = FullScreenItem(type: .home(.media(idx: index, isVideo: isVideo)))
                         }
                         .tag(index)
                     }
@@ -315,7 +334,7 @@ struct CommentItemView: View {
     // TODO: isOnwer를 댓글 및 대댓글 다 각자 분기 처리 필요
     let isOwner: Bool
     let actions: CommentActions
-
+    
     init(
         data: CommentEntity,
         actions: CommentActions
@@ -429,8 +448,8 @@ struct ReplyContentView: View {
     let onDelete: () -> Void
     @State private var isActionSheetPresented = false
     
- 
-
+    
+    
     init(data: ReplyEntity, onEdit: @escaping () -> Void, onDelete: @escaping () -> Void) {
         self.data = data
         self.onEdit = onEdit

@@ -33,16 +33,19 @@ enum PostSort {
 
 struct CommunityView: View {
     
-    @State private var selectedPost = false
+    
+    @ObservedObject var viewModel: CommunityViewModel
+    private let coordinator: CommunityCoordinator
     
     @EnvironmentObject var appState: AppState
     
-    @StateObject var viewModel: CommunityViewModel
-    @ObservedObject var coordinator: CommunityCoordinator
-    
-    
-
     @State var isSearching: Bool = false
+    
+    init(viewModel: CommunityViewModel, coordinator: CommunityCoordinator) {
+        self.viewModel = viewModel
+        self.coordinator = coordinator
+
+    }
     
     var body: some View {
         ZStack {

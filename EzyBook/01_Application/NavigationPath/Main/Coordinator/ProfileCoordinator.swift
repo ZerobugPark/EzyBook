@@ -81,14 +81,15 @@ final class ProfileCoordinator: ObservableObject, PostsRouting {
             let vm = self.container.profileDIContainer.makeMyPostViewModel(postCategory: postCategory)
             MyPostView(viewModel: vm, coordinator: self)
         case .modifyPost(let mode, let token):
-            let vm = self.container.communityDIContainer.makePostViewModel(mode)
-            let router = AnyPostsRouter(ProfileCoordinatorRouter(coordinator: self))
-            PostsView(
-                router: router,
-                isModified: { [weak self] modified in
-                    self?.completeModify(token: token, result: modified)
-                }, viewModel: vm
-            )
+            EmptyView()
+//            let vm = self.container.communityDIContainer.makePostViewModel(mode)
+//            let router = AnyPostsRouter(ProfileCoordinatorRouter(coordinator: self))
+//            PostsView(
+//                router: router,
+//                isModified: { [weak self] modified in
+//                    self?.completeModify(token: token, result: modified)
+//                }, viewModel: vm
+//            )
         }
     }
 

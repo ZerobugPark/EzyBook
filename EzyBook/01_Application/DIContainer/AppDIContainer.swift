@@ -30,22 +30,25 @@ final class AppDIContainer: ObservableObject {
 
     
     // MARK: - DIContainer
-    private let commonDICotainer: CommonDIContainer
-    private let mediaDIConatiner: MediaDIContainer
-    private let homeDIContainer: HomeDIContainer
-    private let chatDIContainer: ChatDIContainer
     
     private let loginDIContainer: LoginDIContainer
     
-    let communityDIContainer: CommunityDIContainer
+    private let commonDICotainer: CommonDIContainer
+    private let mediaDIConatiner: MediaDIContainer
+    
+    private let homeDIContainer: HomeDIContainer
+    private let chatDIContainer: ChatDIContainer
+    private let communityDIContainer: CommunityDIContainer
     
     let profileDIContainer: ProfileDIContainer
     
     
     //MARK: Factory
     let loginFactory: LoginFactory
-    let homeFactory: HomeFactory
     let mediaFactory: MediaFactory
+    
+    let homeFactory: HomeFactory
+    let communityFactory: CommunityFactory
     let chatFactory: ChatFactory
     
     
@@ -105,8 +108,11 @@ final class AppDIContainer: ObservableObject {
         
         communityDIContainer = CommunityDIContainer(
             networkService: networkService,
-            commonDIContainer: commonDICotainer
+            commonDIContainer: commonDICotainer,
+            mediaFactory: mediaFactory
         )
+        
+        communityFactory = communityDIContainer.makeFactory()
         
   
         profileDIContainer = ProfileDIContainer(

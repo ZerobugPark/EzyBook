@@ -9,8 +9,6 @@ import SwiftUI
 
 struct HomeCoordinatorView: View {
     
-    
-    @EnvironmentObject var container: AppDIContainer
     @ObservedObject var coordinator: HomeCoordinator
     
     var body: some View {

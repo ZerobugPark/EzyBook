@@ -12,20 +12,26 @@ import AVFoundation
 
 struct PostsView: View {
     
-    @ObservedObject var router: AnyPostsRouter
+    @EnvironmentObject var appState: AppState
+    private let router: AnyPostsRouter
+    @ObservedObject var viewModel: PostViewModel
     
     /// 수정일때만, 클로저 호출
     var isModified: ((ModifyPost?) -> ())?
     
     /// 이것도 코디네이터가 가지고 있어야하나?
     @State var selectedActivity = false // 화면전환 트리거
-    @EnvironmentObject var appState: AppState
     @FocusState private var isTextEditorFocused: Bool
-    
-    @StateObject var viewModel: PostViewModel
-    
     @State private var isProcessingThumbnails: Bool = false
     
+
+
+    init(router: AnyPostsRouter, viewModel: PostViewModel, isModified: ((ModifyPost?) -> Void)? = nil) {
+        self.router = router
+        self.viewModel = viewModel
+        self.isModified = isModified
+    }
+
     
     
     var body: some View {

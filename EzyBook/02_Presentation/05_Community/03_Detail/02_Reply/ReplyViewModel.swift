@@ -20,21 +20,23 @@ final class ReplyViewModel: ViewModelType {
     private let postService: PostFeatureService
     private let postID: String
     
-    init(
-        commentData: CommentEntity,
-        postService: PostFeatureService,
-        postID: String
-    ) {
+    init(commentData: CommentEntity, postService: PostFeatureService,postID: String) {
 
         self.commentData = commentData
         self.postService = postService
         self.postID = postID
-        
+            
         output.commentInfo = commentData
         
-       transform()
+        transform()
+        
+        print(#function, Self.desc)
     }
     
+    
+    deinit {
+        print(#function, Self.desc)
+    }
     
 }
 
