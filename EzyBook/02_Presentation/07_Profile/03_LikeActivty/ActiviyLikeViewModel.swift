@@ -27,8 +27,14 @@ final class ActiviyLikeViewModel: ViewModelType {
         
         transform()
         loadInitialLikeActivityList()
+
+        print(#function, Self.desc)
+        
+        
     }
-    
+    deinit {
+        print(#function, Self.desc)
+    }
 }
 
 // MARK: Input/Output

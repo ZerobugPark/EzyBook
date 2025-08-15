@@ -32,7 +32,6 @@ enum ChatRoute: Hashable {
 }
 
 enum ProfileRoute: Hashable {
-    case profileView
     case orderListView(list: [OrderEntity])
     case reviewListView(list: [OrderEntity])
     case activityLikeList
@@ -41,13 +40,3 @@ enum ProfileRoute: Hashable {
     
 }
 
-extension ProfileRoute {
-    var hidesTabbar: Bool {
-        switch self {
-        case .profileView:
-            return false
-        default:
-            return true
-        }
-    }
-}

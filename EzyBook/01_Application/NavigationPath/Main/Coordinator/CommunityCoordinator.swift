@@ -9,7 +9,7 @@ import SwiftUI
 
 final class CommunityCoordinator: ObservableObject, PostsRouting {
 
-    @Published var routeStacks: [CommunityRoute] = []
+    @Published var routeStack: [CommunityRoute] = []
     private let factory: CommunityFactory
     
     private lazy var communityViewModel = factory.makeCommunityViewModel()
@@ -44,12 +44,12 @@ extension CommunityCoordinator {
     }
     
     func push(_ route: CommunityRoute) {
-        self.routeStacks.append(route)
+        self.routeStack.append(route)
     }
 
     func pop() {
         
-        guard let last = routeStacks.popLast() else { return }
+        guard let last = routeStack.popLast() else { return }
         
         switch last {
         case .postView:
@@ -58,12 +58,12 @@ extension CommunityCoordinator {
         
         }
         
-        _ = routeStacks.popLast()
+        _ = routeStack.popLast()
         
     }
 
     func popToRoot() {
-        routeStacks.removeAll()
+        routeStack.removeAll()
         
     }
     

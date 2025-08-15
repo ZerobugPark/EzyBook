@@ -38,9 +38,13 @@ final class ReviewDetailViewModel: ViewModelType {
         transform()
         
         handleLoadInitialReviewList()
+
+        print(#function, Self.desc)
         
     }
-    
+    deinit {
+        print(#function, Self.desc)
+    }
 }
 
 extension ReviewDetailViewModel {

@@ -60,9 +60,11 @@ final class MyPostViewModel: ViewModelType {
         } else {
             loadInitialMyPostList()
         }
-        
+        print(#function, Self.desc)
     }
-    
+    deinit {
+        print(#function, Self.desc)
+    }
 }
 
 // MARK: Input/Output

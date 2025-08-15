@@ -9,12 +9,7 @@ import SwiftUI
 
 final class ChatCoordinator: ObservableObject {
     
-    
-    @Published var path = NavigationPath()
-    @Published var isTabbarHidden: Bool = false
-    
-    private var tabbarHiddenStack: [Bool] = []
-    
+    @Published var routeStack: [ChatRoute] = []
     private let factory: ChatFactory
     
     private lazy var chatListViewModel = factory.makeChatListViewModel()
@@ -37,17 +32,16 @@ extension ChatCoordinator {
     
     
     func push(_ route: ChatRoute) {
-        self.path.append(route)
+        routeStack.append(route)
     }
     
     func pop() {
-        path.removeLast()
-        _ = tabbarHiddenStack.popLast()
-        isTabbarHidden = tabbarHiddenStack.last ?? false
+        _ = routeStack.popLast()
+
     }
     
     func popToRoot() {
-        path = NavigationPath()
+        routeStack.removeAll()
     }
     
     

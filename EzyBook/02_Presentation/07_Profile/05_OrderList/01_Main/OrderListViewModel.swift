@@ -35,9 +35,13 @@ final class OrderListViewModel: ViewModelType {
         
         transform()
         handleLoadInitialOrderList()
-        
+    
+        print(#function, Self.desc)
     }
     
+    deinit {
+        print(#function, Self.desc)
+    }
 }
 
 extension OrderListViewModel {

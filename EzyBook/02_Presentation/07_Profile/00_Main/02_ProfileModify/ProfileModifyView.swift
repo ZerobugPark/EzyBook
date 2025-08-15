@@ -10,13 +10,22 @@ import SwiftUI
 
 struct ProfileModifyView: View {
     
-    @StateObject var viewModel: ProfileModifyViewModel
-    let onConfirm: (ProfileLookUpEntity?) -> Void
-    
     @EnvironmentObject var appState: AppState
     @Environment(\.dismiss) private var dismiss
+    
+    @StateObject var viewModel: ProfileModifyViewModel
+    private let onConfirm: (ProfileLookUpEntity?) -> Void
+    
+
     @FocusState private var focusedField: SignUpFocusField?
     @State private var lastFocusedField: SignUpFocusField?
+    
+    
+    init(viewModel: ProfileModifyViewModel, onConfirm: @escaping (ProfileLookUpEntity?) -> Void) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+        self.onConfirm = onConfirm
+
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {

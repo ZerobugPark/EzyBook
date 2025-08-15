@@ -60,7 +60,6 @@ extension HomeCoordinator {
     
     
     func push(_ route: HomeRoute) {
-        print(route)
         routeStack.append(route)
         
     }

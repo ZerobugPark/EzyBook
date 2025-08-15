@@ -24,6 +24,11 @@ final class ProfileModifyViewModel: ViewModelType {
     init(useCase: ProfileModifyUseCase) {
         self.useCase = useCase
         transform()
+        print(#function, Self.desc)
+    }
+    
+    deinit {
+        print(#function, Self.desc)
     }
     
 }

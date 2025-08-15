@@ -104,30 +104,26 @@ extension CommunityDIContainer {
     }
     
     private func makePostSummaryPaginationUseCase() -> PostSummaryPaginationUseCase {
-        DefaultPostSummaryPaginationUseCase(repo: makeCommunityRepository())
+        DefaultPostSummaryPaginationUseCase(repo: commonDIContainer.makeCommunityRepository())
     }
     
     private func makePostSearchUseCase() -> PostSearchUseCase {
-        DefaultPostSearchUseCase(repo: makeCommunityRepository())
+        DefaultPostSearchUseCase(repo: commonDIContainer.makeCommunityRepository())
     }
     
     
     private func makePostWirteUseCase() -> PostActivityUseCase {
-        DefaultPostActivityUseCase(repo: makeCommunityRepository())
+        DefaultPostActivityUseCase(repo: commonDIContainer.makeCommunityRepository())
     }
     
     private func makeUserWrittenPostListUseCase() -> UserWrittenPostListUseCase {
-        DefaultUserWirttenPostListUseCase(repo: makeCommunityRepository())
+        DefaultUserWirttenPostListUseCase(repo: commonDIContainer.makeCommunityRepository())
     }
     
     private func makePostDetailUesCase() -> PostDetailUseCase {
-        DefaultPostDetailUseCase(repo: makeCommunityRepository())
+        DefaultPostDetailUseCase(repo: commonDIContainer.makeCommunityRepository())
     }
-    
-    ///게시글 삭제
-    func makePostDeleteUseCase() -> PostDeleteUseCase {
-        DefaultPostDeleteUseCase(repo: makeCommunityRepository())
-    }
+
     
     
     // MARK: Make Order List
@@ -180,7 +176,7 @@ extension CommunityDIContainer {
     }
     
     private func makeModifyPostUseCase() -> PostModifyUseCase {
-        DefaultPostModifyUseCase(repo: makeCommunityRepository())
+        DefaultPostModifyUseCase(repo: commonDIContainer.makeCommunityRepository())
     }
     
 
@@ -190,9 +186,7 @@ extension CommunityDIContainer {
 // MARK: Data
 extension CommunityDIContainer {
     
-    private func makeCommunityRepository() -> DefaultCommunityRepository {
-        DefaultCommunityRepository(networkService: networkService)
-    }
+
     
     private func makeCommentRepository() -> DefaultCommentRepository {
         DefaultCommentRepository(networkService: networkService)
@@ -200,47 +194,3 @@ extension CommunityDIContainer {
 
 }
 
-//
-//extension CommunityDIContainer {
-//    
-//    func makeCommunityViewModel() -> CommunityViewModel {
-//        CommunityViewModel(
-//            communityUseCases: makeCommunityUseCases(),
-//            loactionService: commonDIContainer.makeDetailFeatureService().location
-//        )
-//    }
-//    
-//    func makeMyActivityListViewModel() -> MyActivityListViewModel {
-//        MyActivityListViewModel(
-//            orderListUseCase: makeOrderListUseCase(),
-//            userWrittenPostListUseCase: makeUserWrittenPostListUseCase()
-//        )
-//    }
-//    
-//    func makePostViewModel(_ status: PostStatus) -> PostViewModel {
-//        PostViewModel(
-//            uploadUseCase: makePostImageUploadUseCase(),
-//            writePostUseCase: makePostWirteUseCase(),
-//            postStatus: status,
-//            modifyPostUseCsae: makeModifyPostUseCase()
-//            
-//        )
-//    }
-//    
-//    func makePostDetailViewModel(postID: String) -> PostDetailViewModel {
-//        PostDetailViewModel(
-//            postDetailUseCase: makePostDetailUesCase(),
-//            postService: makePostFeatureService(),
-//            postLikeUseCase: commonDIContainer.makePostLikeUseCase(),
-//            postID: postID
-//        )
-//    }
-//    
-//    func makeReplyViewModle(data: CommentEntity, postID: String) -> ReplyViewModel {
-//        ReplyViewModel(
-//            commentData: data,
-//            postService: makePostFeatureService(),
-//            postID: postID
-//        )
-//    }
-//}

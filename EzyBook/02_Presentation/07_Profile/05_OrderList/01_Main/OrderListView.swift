@@ -11,11 +11,18 @@ import SwiftUI
 // MARK: - Main View
 struct OrderListView: View {
 
+    private let coordinator: ProfileCoordinator
     @StateObject var viewModel: OrderListViewModel
-    @ObservedObject var coordinator: ProfileCoordinator
+    
     
     @EnvironmentObject var appState: AppState
     @State private var selectedOrder: OrderList?
+    
+    init(coordinator: ProfileCoordinator, viewModel: OrderListViewModel) {
+        self.coordinator = coordinator
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
+    
     
     
     var body: some View {

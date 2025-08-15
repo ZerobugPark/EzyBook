@@ -16,10 +16,19 @@ struct ReviewWriteView: View {
     @EnvironmentObject var appState: AppState
     @StateObject var viewModel: ReviewWriteViewModel
     
-    
-      let onConfirm: () -> Void
+    let onConfirm: () -> Void
     
     @State private var isProcessingThumbnails: Bool = false
+    
+    init(viewModel: ReviewWriteViewModel, onConfirm: @escaping () -> Void) {
+        
+        _viewModel = StateObject(wrappedValue: viewModel)
+        self.onConfirm = onConfirm
+        
+    }
+    
+    
+  
     
     var body: some View {
         ZStack {

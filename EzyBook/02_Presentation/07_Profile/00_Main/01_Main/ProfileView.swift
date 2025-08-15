@@ -10,9 +10,9 @@ import PhotosUI
 
 struct ProfileView: View {
     
-    @StateObject var viewModel: ProfileViewModel
-    @StateObject var supplementViewModel: ProfileSupplementaryViewModel
-    @ObservedObject var coordinator: ProfileCoordinator
+    @ObservedObject var viewModel: ProfileViewModel
+    @ObservedObject var supplementViewModel: ProfileSupplementaryViewModel
+    private let coordinator: ProfileCoordinator
     @EnvironmentObject var appState: AppState
     
     
@@ -24,16 +24,10 @@ struct ProfileView: View {
 
     @State private var modifyTapped = false
     
-    init(
-        viewModel: ProfileViewModel,
-        supplementViewModel: ProfileSupplementaryViewModel,
-        coordinator: ProfileCoordinator
-    ) {
-        _viewModel = StateObject(wrappedValue: viewModel)
-        _supplementViewModel = StateObject(wrappedValue: supplementViewModel)
-        _coordinator = ObservedObject(wrappedValue: coordinator)
-        
-        print("ProfileView InIt")
+    init(viewModel: ProfileViewModel, supplementViewModel: ProfileSupplementaryViewModel, coordinator: ProfileCoordinator) {
+        self.viewModel = viewModel
+        self.supplementViewModel = supplementViewModel
+        self.coordinator = coordinator
     }
     
 

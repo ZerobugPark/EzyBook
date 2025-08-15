@@ -11,9 +11,16 @@ import SwiftUI
 
 struct MyPostView: View {
     
-    @StateObject var viewModel: MyPostViewModel
-    @ObservedObject var coordinator: ProfileCoordinator
     @EnvironmentObject var appState: AppState
+    
+    private let coordinator: ProfileCoordinator
+    @ObservedObject var viewModel: MyPostViewModel
+    
+    
+    init(coordinator: ProfileCoordinator, viewModel: MyPostViewModel) {
+        self.coordinator = coordinator
+        self.viewModel = viewModel
+    }
     
     
     var body: some View {

@@ -12,7 +12,7 @@ struct CommunityCoordinatorView: View {
     @ObservedObject var coordinator: CommunityCoordinator
     
     var body: some View {
-        NavigationStack(path: $coordinator.routeStacks) {
+        NavigationStack(path: $coordinator.routeStack) {
             coordinator.rootView()
                 .navigationDestination(for: CommunityRoute.self) { route in
                     coordinator.destinationView(route: route)

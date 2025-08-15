@@ -10,86 +10,103 @@ import SwiftUI
 final class ProfileCoordinator: ObservableObject, PostsRouting {
     
     
-    @Published var path = NavigationPath()
-    @Published var isTabbarHidden: Bool = false
-    private var tabbarHiddenStack: [Bool] = []
+    @Published var routeStack: [ProfileRoute] = []
+
     
     private var modifyCallbacks: [UUID: (ModifyPost?) -> Void] = [:]
     
-    private let container: AppDIContainer
     
-    private lazy var profileVM = container.profileDIContainer.makeFactory().makeProfileVM()
+    private lazy var profileViewModel = factory.makeProfileViewModel()
+    private lazy var profileSupplementaryViewModel = factory.makeProfileSupplementaryViewModel()
+    
+    private lazy var postsRouter: AnyPostsRouter = {
+        AnyPostsRouter(ProfileCoordinatorRouter(coordinator: self))
+    }()
+    
+    private var postViewModel: PostViewModel?
+    private var myPostViewModel: MyPostViewModel?
+    
+    private let factory: ProfileFactory
+    
+    
+    private func postVM(for mode: PostStatus) -> PostViewModel {
+        if let vm = postViewModel { return vm }
+        let vm = factory.makePostViewModel(mode: mode)
+        postViewModel = vm
+        return vm
+    }
+    
+    private func myPostVM(for category: ProfilePostCategory) -> MyPostViewModel {
+        if let vm = myPostViewModel { return vm }
+        let vm = factory.makeMyPostViewModel(postCategory: category)
+        myPostViewModel = vm
+        return vm
+    }
     
     
 
-    init(container: AppDIContainer) {
-        self.container = container
+    init(factory: ProfileFactory) {
+        self.factory = factory
 
+    }
+    
+
+
+}
+
+extension ProfileCoordinator {
+    
+    @ViewBuilder
+    func rootView() -> some View {
+        ProfileView(viewModel: profileViewModel, supplementViewModel: profileSupplementaryViewModel, coordinator: self)
     }
     
     func push(_ route: ProfileRoute) {
-        let shouldHide = route.hidesTabbar
-        tabbarHiddenStack.append(shouldHide)
-        isTabbarHidden = shouldHide
-        
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-            self.path.append(route)
-        }
+
+        routeStack.append(route)
     }
 
+
     func pop() {
-        path.removeLast()
-        _ = tabbarHiddenStack.popLast()
-        isTabbarHidden = tabbarHiddenStack.last ?? false
+        guard let last = routeStack.popLast() else { return }
+
+        switch last {
+        case .myPost:
+            myPostViewModel = nil
+        case let .modifyPost(_, token):
+            postViewModel = nil
+            modifyCallbacks.removeValue(forKey: token)
+        default: break
+        }
+        
     }
 
     func popToRoot() {
-        path = NavigationPath()
-        tabbarHiddenStack = []
-        isTabbarHidden = false
+        routeStack.removeAll()
     }
     
     
     @ViewBuilder
     func destinationView(route: ProfileRoute) -> some View {
         switch route {
-        case .profileView:
-            let vm = self.container.profileDIContainer.makeProfileViewModel()
-            let sVm = self.container.profileDIContainer.makeProfileSupplementaryViewModel()
-            ProfileView(
-                viewModel: vm,
-                supplementViewModel: sVm,
-                coordinator: self
-            )
         case .orderListView(let list):
-            let vm = self.container.profileDIContainer.makeOrderListViewModel(orderList: list)
-            OrderListView(viewModel: vm, coordinator: self)
-        
+            let vm = factory.makeOrderListViewModel(orderList: list)
+            OrderListView(coordinator: self, viewModel: vm)
         case .reviewListView(let list):
-            let vm = self.container.profileDIContainer.makeReviewViewModel(list: list)
-            ReviewDetailView(
-                viewModel: vm,
-                coordinator: self) { data in
+            let vm = factory.makeReviewViewModel(list: list)
+            ReviewDetailView(coordinator: self, viewModel: vm) { data in
                     vm.action(.modifyReview(data: data))
                 }
-            
         case .activityLikeList:
-            let vm = self.container.profileDIContainer.makeActiviyLikeViewModel()
-            ActivityLikeView(viewModel: vm, coordinator: self)
+            let vm = factory.makeActiviyLikeViewModel()
+            ActivityLikeView(coordinator: self, viewModel: vm)
         case .myPost(let postCategory):
-            let vm = self.container.profileDIContainer.makeMyPostViewModel(postCategory: postCategory)
-            MyPostView(viewModel: vm, coordinator: self)
+            MyPostView(coordinator: self, viewModel: myPostVM(for: postCategory))
         case .modifyPost(let mode, let token):
-            EmptyView()
-//            let vm = self.container.communityDIContainer.makePostViewModel(mode)
-//            let router = AnyPostsRouter(ProfileCoordinatorRouter(coordinator: self))
-//            PostsView(
-//                router: router,
-//                isModified: { [weak self] modified in
-//                    self?.completeModify(token: token, result: modified)
-//                }, viewModel: vm
-//            )
+            PostsView(router: postsRouter, viewModel: postVM(for: mode), isModified: { [weak self] modified in
+                    self?.completeModify(token: token, result: modified)
+                }
+            )
         }
     }
 
@@ -104,7 +121,6 @@ final class ProfileCoordinator: ObservableObject, PostsRouting {
         push(.modifyPost(mode: mode, token: token))
     }
      
-
 }
 
 extension ProfileCoordinator {
@@ -113,19 +129,19 @@ extension ProfileCoordinator {
     }
     
     func makeWriteReviewView(_ activityID: String, _ orderCode: String) -> some View {
-        let vm = self.container.profileDIContainer.makeWriteReviewViewModel(id: activityID, code: orderCode)
+        let vm = factory.makeWriteReviewViewModel(id: activityID, code: orderCode)
         return ReviewWriteView(viewModel: vm) {
             self.popToRoot()
         }
     }
     
     func makeProfileModifyView(onConfirm: @escaping (ProfileLookUpEntity?) -> Void) -> some View {
-        let vm = self.container.profileDIContainer.makeProfileModifyViewModel()
+        let vm = factory.makeProfileModifyViewModel()
         return ProfileModifyView(viewModel: vm, onConfirm: onConfirm)
     }
     
     func makeModifyReviewView(_ data: UserReviewDetailList, onConfirm: @escaping (UserReviewDetailList?) -> Void) -> some View {
-        let vm = self.container.profileDIContainer.makeModifyReviewViewModel(data)
+        let vm = factory.makeModifyReviewViewModel(data)
         return ReviewModifyView(viewModel: vm, onConfirm: onConfirm)
     }
     

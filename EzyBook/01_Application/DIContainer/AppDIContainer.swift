@@ -39,8 +39,7 @@ final class AppDIContainer: ObservableObject {
     private let homeDIContainer: HomeDIContainer
     private let chatDIContainer: ChatDIContainer
     private let communityDIContainer: CommunityDIContainer
-    
-    let profileDIContainer: ProfileDIContainer
+    private let profileDIContainer: ProfileDIContainer
     
     
     //MARK: Factory
@@ -50,6 +49,7 @@ final class AppDIContainer: ObservableObject {
     let homeFactory: HomeFactory
     let communityFactory: CommunityFactory
     let chatFactory: ChatFactory
+    let profileFactory: ProfileFactory
     
     
     init() {
@@ -118,8 +118,10 @@ final class AppDIContainer: ObservableObject {
         profileDIContainer = ProfileDIContainer(
             networkService: networkService,
             commonDIContainer: commonDICotainer,
-            communityDIContainer: communityDIContainer
+            communityFactory: communityFactory
         )
+        
+        profileFactory = profileDIContainer.makeFactory()
         
         cacheManager = CacheManager(imageCache: imageCache)
         

@@ -23,8 +23,6 @@ struct PostsView: View {
     @State var selectedActivity = false // 화면전환 트리거
     @FocusState private var isTextEditorFocused: Bool
     @State private var isProcessingThumbnails: Bool = false
-    
-
 
     init(router: AnyPostsRouter, viewModel: PostViewModel, isModified: ((ModifyPost?) -> Void)? = nil) {
         self.router = router

@@ -9,9 +9,15 @@ import SwiftUI
 
 struct ActivityLikeView: View {
     
-    @StateObject var viewModel: ActiviyLikeViewModel
-    @ObservedObject var coordinator: ProfileCoordinator
     @EnvironmentObject var appState: AppState
+    private let coordinator: ProfileCoordinator
+    @StateObject var viewModel: ActiviyLikeViewModel
+    
+    init(coordinator: ProfileCoordinator, viewModel: ActiviyLikeViewModel) {
+        self.coordinator = coordinator
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
+    
     
     var body: some View {
         

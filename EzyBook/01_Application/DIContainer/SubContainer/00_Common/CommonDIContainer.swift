@@ -53,6 +53,12 @@ extension CommonDIContainer {
     }
   
     
+    ///게시글 삭제
+    func makePostDeleteUseCase() -> PostDeleteUseCase {
+        DefaultPostDeleteUseCase(repo: makeCommunityRepository())
+    }
+    
+    
     // MARK: 서비스 구현체 생성
     private func makeChatRoomService() -> ChatRoomServiceProtocol {
         ChatRoomService(createChatRoomUseCase: makeCreateChatRoomUseCase())
@@ -75,7 +81,6 @@ extension CommonDIContainer {
 
 // MARK: Use Cases (내부용)
 extension CommonDIContainer {
-    
 
     
     /// 채팅방 생성
@@ -110,6 +115,10 @@ extension CommonDIContainer {
 
 // MARK: Data
 extension CommonDIContainer {
+    
+    func makeCommunityRepository() -> DefaultCommunityRepository {
+        DefaultCommunityRepository(networkService: networkService)
+    }
     
     func makeProfileRepository() -> DefaultProfileRepository {
         DefaultProfileRepository(
