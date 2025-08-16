@@ -22,18 +22,18 @@ final class SearchViewModel: ViewModelType {
     /// 통신을 할 인덱스 관리 및 저장되는 데이터
     /// 검색 결과
     private var searchActivitySummaryList: [ActivitySummaryEntity] = [] // 서버 요청 데이터
-    private var searchActivityindicats = Set<Int>()
-    private var _searchActivityDetailList: [Int: FilterActivityModel] = [:] { // 화면에 보여줄 실제 상세 정보
-        didSet {
-            
-            let sortedValues = _searchActivityDetailList
-                .sorted { $0.key < $1.key }
-                .map { $0.value }
-            
-            output.activitySearchDetailList = sortedValues
-            
-        }
-    }
+      private var searchActivityindicats = Set<Int>() // 중복 방지
+//    private var _searchActivityDetailList: [Int: FilterActivityModel] = [:] { // 화면에 보여줄 실제 상세 정보
+//        didSet {
+//            
+//            let sortedValues = _searchActivityDetailList
+//                .sorted { $0.key < $1.key }
+//                .map { $0.value }
+//            
+//            output.activitySearchDetailList = sortedValues
+//            
+//        }
+    //}
     
     
     
@@ -117,7 +117,6 @@ extension SearchViewModel {
     
     @MainActor
     private func resetSearchState() {
-        searchActivityindicats.removeAll()
         output.isLoading = true
     }
     
@@ -125,21 +124,20 @@ extension SearchViewModel {
     private func performSearchActivities(_ query: String) async {
         do {
             let summary = try await activityUseCases.activitySearch.execute(title: query)
-            let details = try await prefetchInitial(for: summary, type: FilterActivityModel.self)
+            
             searchActivitySummaryList = summary
-            await updateSearchUI(with: details)
+            let details = try await prefetchInitial(for: summary, type: FilterActivityModel.self)
+            
+            await MainActor.run {
+                output.activitySearchDetailList = details
+            }
+            
         } catch {
             await handleError(error)
         }
     }
     
-    @MainActor
-    private func updateSearchUI(with details: [Int: FilterActivityModel]) {
-        _searchActivityDetailList = [:]
-        for (index, data) in details {
-            _searchActivityDetailList[index] = data
-        }
-    }
+ 
     
     @MainActor
     private func stopLoading() {
@@ -148,15 +146,30 @@ extension SearchViewModel {
     
     
     /// 상세보기 항목 몇개만 미리 가져오기
-    private func prefetchInitial<T: ActivityModelBuildable>(for list: [ActivitySummaryEntity], type: T.Type) async throws -> [Int: T] {
-        var result: [Int: T] = [:]
-        for i in 0..<min(3, list.count) {
-            let detail = try await reqeuestActivityDetailList(list[i], type: T.self)
-            result[i] = detail
+    private func prefetchInitial<T: ActivityModelBuildable>(for list: [ActivitySummaryEntity], type: T.Type) async throws -> [T] {
+        
+        let count = min(5, list.count)
+        guard count > 0 else { return [] }
+
+        return try await withThrowingTaskGroup(of: (Int, T).self) { group in
             
-            searchActivityindicats.insert(i)
+            for i in 0..<count {
+                let item = list[i]
+                group.addTask { [self] in
+
+                    let detail = try await reqeuestActivityDetailList(item, type: T.self)
+                    return (i, detail)
+                }
+            }
+
+            // 결과를 원래 순서대로 재구성
+            var results = Array<T?>(repeating: nil, count: count)
+            for try await (i, detail) in group {
+                results[i] = detail
+                searchActivityindicats.insert(i)
+            }
+            return results.compactMap { $0 }
         }
-        return result
     }
     
     /// prefetch쪽을 공통 뷰모델로 관리해볼까?
@@ -192,9 +205,13 @@ extension SearchViewModel {
 
         do {
             let detail = try await requestSearchDetail(at: fetchIndex)
-            await updateSearchDetailUI(detail, at: fetchIndex)
+            
+            await MainActor.run {
+                output.activitySearchDetailList.append(detail)
+            }
+            
         } catch {
-            searchActivityindicats.remove(fetchIndex)
+ 
             await handleError(error)
         }
     }
@@ -216,10 +233,7 @@ extension SearchViewModel {
         return try await reqeuestActivityDetailList(searchActivitySummaryList[index], type: FilterActivityModel.self)
     }
 
-    @MainActor
-    private func updateSearchDetailUI(_ detail: FilterActivityModel, at index: Int) {
-        _searchActivityDetailList[index] = detail
-    }
+ 
 
 }
 
