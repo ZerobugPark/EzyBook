@@ -7,6 +7,7 @@
 import SwiftUI
 
 
+
 struct MessageInputAction {
     let onSendTapped: () -> Void
     let onPhotoPicked: () -> Void
@@ -23,11 +24,21 @@ struct ChatRoomView: View {
         
     }
     
+    struct ScrollOffsetPreferenceKey: PreferenceKey {
+        static var defaultValue: CGFloat = 0
+        static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+            value = nextValue()
+        }
+    }
+    
+    
+    // @State private var topY: CGFloat = .infinity   // (no longer needed)
+    
     @StateObject var viewModel: ChatRoomViewModel
+    private let onBack: () -> Void
     
     @State private var height: CGFloat = 40
     
-
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var container: AppDIContainer
     
@@ -36,9 +47,24 @@ struct ChatRoomView: View {
     @State var isFilePickerTapped: Bool = false
     @State var imageTapped: PreviewItem?
     @State var fileTapped: PreviewItem?
+    @State private var showNewMessageToast = false
     
     
-    let onBack: () -> Void
+    
+    @State private var hasInitiallyLoaded = false  // 초기 로딩 완료 여부
+    @State private var userHasScrolled = false     // 사용자가 스크롤했는지 여부
+
+    // 스크롤 위치/상단 여부 추적
+    @State private var scrollOffset: CGFloat = 0
+    @State private var isAtTop: Bool = true   // 1) 초기엔 데이터가 없어 "최상단"으로 간주
+    
+
+    
+    
+    init(viewModel: ChatRoomViewModel, onBack: @escaping () -> Void) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+        self.onBack = onBack
+    }
     
     var body: some View {
         ZStack {
@@ -46,7 +72,18 @@ struct ChatRoomView: View {
                 
                 // 채팅 메시지 리스트
                 ScrollViewReader { proxy in
-                    ScrollView {
+                    ScrollView(showsIndicators: false) {
+                        
+                        Color.clear
+                            .frame(height: 1)
+                            .background(
+                                GeometryReader { geo in
+                                    let y = geo.frame(in: .named("chatScroll")).minY
+                                    Color.clear.preference(key: ScrollOffsetPreferenceKey.self, value: y)
+                                }
+                            )
+
+                        
                         LazyVStack(spacing: 12) {
                             ForEach(viewModel.output.groupedChatList, id: \.date) { group in
                                 dateDivider(for: group.date)
@@ -57,29 +94,95 @@ struct ChatRoomView: View {
                                     } onFileTap: { path in
                                         handleFileTap(path: path)
                                     }
-
-
+                                    .id(message.chatID)
                                 }
                             }
                             Color.clear
                                 .frame(height: 10) // 여유 공간
                                 .id("ScrollBottomPadding") // 고유 ID
                         }
+            
                         .padding(.vertical, 12)
                     }
-                    .onChange(of: viewModel.output.groupedChatList.count) { _ in
-                        scrollToBottom(proxy: proxy)
-         
+                    .coordinateSpace(name: "chatScroll")
+                    .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+                        print("[offset]", value)
+                        // 0) 현재 스크롤 오프셋 업데이트
+                        scrollOffset = value
+        
+                        // [규칙 정리]
+                        // - iOS16에서 ScrollView 상단일 때 minY는 0 근처, 내려갈수록 음수로 감소하는 패턴이 일반적
+                        // - 바운스/패딩 고려해 임계값을 -20 ~ +20 사이로 넉넉히 두자
+//                        let threshold: CGFloat = -8
+//                        let newIsAtTop = value >= threshold
+//
+//                        // 1) 초기엔 데이터가 없어 "최상단"으로 간주 — 상태만 반영하고 리턴
+//                        if !hasInitiallyLoaded {
+//                            isAtTop = newIsAtTop
+//                            return
+//                        }
+//
+//                        // 2) 데이터 로딩 후 자동으로 하단으로 내렸음 → 그 다음부터 "사용자 스크롤 시작"을 감지
+//                        if !userHasScrolled && !newIsAtTop {
+//                            userHasScrolled = true
+//                            print("👆 사용자가 스크롤 시작")
+//                        }
+//
+//                        // 3) 사용자가 스크롤한 적이 있고, 직전에는 최상단이 아니었는데 지금 최상단에 닿음 → 페이지네이션
+//                        if userHasScrolled && !isAtTop && newIsAtTop {
+//                            // print("🔄 최상단 도달 — 이전 페이지 로드")
+//                            //viewModel.prefetchOlderIfNeeded()
+//                        }
+//
+//                        // 마지막에 상태 갱신
+//                        isAtTop = newIsAtTop
+                    }
+
+                    // 초기 데이터 로딩이 완료되었을 때 호출
+                    .onChange(of: viewModel.output.groupedChatList.reduce(0) { $0 + $1.messages.count }) { total in
+                        if total > 0 && !viewModel.output.newMessage {
+                            scrollToBottom(proxy: proxy)
+
+                            // 초기 로딩 완료 표시 (약간의 지연 후)
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                hasInitiallyLoaded = true
+                            }
+                        }
+                    }
+                    .onChange(of: viewModel.output.newMessage) { isNew in
+                        if isNew {
+                            showNewMessageToast = true
+                        }
                     }
                     .onChange(of: viewModel.selectedImages.count) { _ in
-                          //  이미지가 선택되면 채팅 목록을 위로 살짝 올리기
-                          withAnimation(.easeInOut(duration: 0.3)) {
-                              proxy.scrollTo("ScrollBottomPadding", anchor: .top)
-                          }
-                      }
+                        //  이미지가 선택되면 채팅 목록을 위로 살짝 올리기
+                        proxy.scrollTo("ScrollBottomPadding", anchor: .bottom)
+                        
+                    }
+                    .overlay(alignment: .bottom) {
+                        if showNewMessageToast {
+                            Text("새 메시지가 도착했어요")
+                                .appFont(PretendardFontStyle.body2, textColor: .grayScale0)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(.grayScale100.opacity(0.8))
+                                .cornerRadius(12)
+                                .contentShape(Rectangle())
+                                .onTapGesture {
+                                    withAnimation(.easeInOut) {
+                                        showNewMessageToast = false
+                                    }
+                                    viewModel.output.newMessage = false
+                                    scrollToBottom(proxy: proxy)
+                                    
+                                }
+                                .padding()
+                                .transition(.move(edge: .top).combined(with: .opacity))
+                                .animation(.easeInOut, value: showNewMessageToast)
+                            
+                        }
+                    }
                 }
-                
-                
                 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack {
@@ -106,7 +209,10 @@ struct ChatRoomView: View {
                                     )
                 )
             }
-            .background(Color(UIColor.systemBackground))
+            .disabled(viewModel.output.isLoading)
+            
+            LoadingOverlayView(isLoading: viewModel.output.isLoading)
+            
             
         }
         .navigationBarBackButtonHidden(true)
@@ -146,18 +252,22 @@ struct ChatRoomView: View {
         .onDisappear {
             NotificationCenter.default.post(name: .didLeaveChatRoom, object: viewModel.roomID)
         }
-     
-     
+        
+        
     }
     
     // MARK: - 하단으로 스크롤
+    
+    
     private func scrollToBottom(proxy: ScrollViewProxy) {
-        if let lastGroup = viewModel.output.groupedChatList.last,
-           let lastMessage = lastGroup.messages.last {
+        
+        DispatchQueue.main.async {
             withAnimation(.easeInOut(duration: 0.3)) {
-                proxy.scrollTo(lastMessage.chatID, anchor: .bottom)
+                proxy.scrollTo("ScrollBottomPadding", anchor: .bottom)
             }
         }
+        
+        
     }
     
     
@@ -175,15 +285,15 @@ struct ChatRoomView: View {
         fileTapped = PreviewItem(path: path)
     }
     
-
+    
     
     
     func imageFullScreenCover(info: PreviewItem) -> some View {
-        EmptyView()
-//        ZoomableImageFullScreenView(
-//            viewModel: container.homeDIContainer.makeZoomableImageFullScreenViewModel(),
-//            path: info.path
-//        )
+        
+        ZoomableImageFullScreenView(
+            viewModel: container.mediaFactory.makeZoomableImageFullScreenViewModel(),
+            path: info.path
+        )
     }
     
     func fileFullScreenCover(info: PreviewItem) -> some View {
@@ -214,6 +324,7 @@ struct MessageView: View {
                         MessageBubleView(message: message)
                         
                     } else {
+                        ProfileImageView(path: message.opponentInfo.profileImageURL, size: 24)
                         MessageBubleView(message: message)
                         messageTimeView()
                         Spacer()
@@ -238,21 +349,13 @@ struct MessageBubleView: View {
     let message: ChatMessageEntity
     
     var body: some View {
-                
+        
         Text(message.content)
             .appFont(PretendardFontStyle.body2, textColor: .grayScale90)
             .padding(10)
             .background(message.isMine != true ? .grayScale45 : .deepSeafoam)
             .clipShape(RoundedRectangle(cornerRadius: 16.0, style: .continuous))
-//            .overlay(alignment: message.isMine != true ? .bottomLeading : .bottomTrailing) {
-//                Image(systemName: "arrowtriangle.down.fill")
-//                    .font(.title3)
-//                    .rotationEffect(.degrees(message.isMine != true ? 45: -45))
-//                    .offset(x: message.isMine != true ? -10 : 10, y: 10)
-//                    .foregroundStyle(message.isMine != true ? .grayScale45 : .deepSeafoam)
-//            }
-////        
-//        
+        
     }
 }
 
@@ -277,8 +380,8 @@ struct PdfView: View {
         }
         .padding(12)
         .background(
-          RoundedRectangle(cornerRadius: 10, style: .continuous)
-            .foregroundColor(.grayScale30)
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .foregroundColor(.grayScale30)
         )
         .contentShape(RoundedRectangle(cornerRadius: 10))
         .onTapGesture {

@@ -79,14 +79,6 @@ extension ActivityIntroduceView {
         }
         
         
-        
-        /// 마감 임박 구현 필요
-        private func lastChanceView() {
-            
-        }
-        
-        
-        
     }
     
     

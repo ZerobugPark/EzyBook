@@ -172,16 +172,6 @@ final class DefaultChatRoomRealmRepository: RealmRepository<ChatRoomTable> ,Chat
             }
     }
     
-    /// 나중에 비어있는방 제거
-    //    func cleanEmptyChatRooms() {
-    //        let emptyRooms = realm.objects(ChatRoomTable.self)
-    //            .filter("_messages.@count == 0")
-    //
-    //        try? realm.write {
-    //            realm.delete(emptyRooms)
-    //        }
-    //    }
-    
 }
 
 // MARK: 채팅목록
