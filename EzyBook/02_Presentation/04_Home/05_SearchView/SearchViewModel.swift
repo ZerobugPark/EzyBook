@@ -22,30 +22,18 @@ final class SearchViewModel: ViewModelType {
     /// 통신을 할 인덱스 관리 및 저장되는 데이터
     /// 검색 결과
     private var searchActivitySummaryList: [ActivitySummaryEntity] = [] // 서버 요청 데이터
-      private var searchActivityindicats = Set<Int>() // 중복 방지
-//    private var _searchActivityDetailList: [Int: FilterActivityModel] = [:] { // 화면에 보여줄 실제 상세 정보
-//        didSet {
-//            
-//            let sortedValues = _searchActivityDetailList
-//                .sorted { $0.key < $1.key }
-//                .map { $0.value }
-//            
-//            output.activitySearchDetailList = sortedValues
-//            
-//        }
-    //}
+    private var searchActivityindicats = Set<Int>() // 중복 방지
+
     
     
     
     init(activityUseCases: ActivityUseCases) {
         self.activityUseCases = activityUseCases
         transform()
-        
         print("SearchVM init", ObjectIdentifier(self))
     }
     
     deinit {
-        
         print("SearchVM deinit", ObjectIdentifier(self))
     }
     
