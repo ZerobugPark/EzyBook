@@ -43,3 +43,19 @@ protocol ChatUploadFileRepository {
 protocol ChatLoadPDFRepository {
     func requestLoadPDF(_ path: String) async throws -> Data
 }
+
+// 안읽은 채팅 내역 관련
+
+protocol SaveUnReadChatMessage {
+    func execute(roodID: String)
+}
+
+protocol ResetUnReadCount {
+    func execute(roodID: String)
+}
+
+
+protocol GetUnReadChatCount {
+    func execute(roodID: String) -> Int
+}
+

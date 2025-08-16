@@ -33,7 +33,7 @@ final class AppDIContainer: ObservableObject {
     
     private let loginDIContainer: LoginDIContainer
     
-    private let commonDICotainer: CommonDIContainer
+    let commonDICotainer: CommonDIContainer
     private let mediaDIConatiner: MediaDIContainer
     
     private let homeDIContainer: HomeDIContainer

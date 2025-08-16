@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 // MARK: Remote
 
@@ -208,5 +209,64 @@ extension DefaultFetchRealmChatRoomListUseCase {
     func execute() -> [LastMessageSummary]  {
         repo.fetchLatestChatList()
     }
+    
+    func publisher() -> AnyPublisher<[LastMessageSummary], Never> {
+        repo.chatRoomsPublisher()
+    }
 }
 
+
+// MARK: 안 읽은 채팅 내역
+
+final class DefaultSaveUnReadChatMessage: SaveUnReadChatMessage {
+    
+    private let repo: any UnReadChatRepository
+    
+    init(repo: any UnReadChatRepository) {
+        self.repo = repo
+    }
+    
+}
+
+extension DefaultSaveUnReadChatMessage {
+    
+    func execute(roodID: String) {
+        repo.increment(roomID: roodID)
+    }
+}
+
+final class DefaultResetUnReadCount: ResetUnReadCount {
+    
+    private let repo: any UnReadChatRepository
+    
+    init(repo: any UnReadChatRepository) {
+        self.repo = repo
+    }
+    
+}
+
+extension DefaultResetUnReadCount {
+    
+    func execute(roodID: String) {
+        repo.reset(roomID: roodID)
+    }
+    
+}
+
+
+final class DefaultGetUnReadChatCount: GetUnReadChatCount {
+    
+    private let repo: any UnReadChatRepository
+    
+    init(repo: any UnReadChatRepository) {
+        self.repo = repo
+    }
+    
+}
+
+extension DefaultGetUnReadChatCount {
+    func execute(roodID: String) -> Int {
+        repo.total(for: roodID)
+    }
+    
+}

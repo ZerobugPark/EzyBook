@@ -53,6 +53,7 @@ final class ChatRoomViewModel: ViewModelType {
         
         loadInitialChatList()
         transform()
+        chatUseCases.resetUnReadCount.execute(roodID: self.roomID)
         
         print(#function, Self.desc)
     }

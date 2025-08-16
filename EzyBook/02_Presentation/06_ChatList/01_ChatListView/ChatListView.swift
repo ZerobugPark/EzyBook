@@ -79,6 +79,15 @@ extension ChatListView {
                     
                 }
                 Spacer()
+                if list.unreadCount > 0 {
+                     Text("\(list.unreadCount)")
+                        .appFont(PretendardFontStyle.body3)
+                         .padding(6)
+                         .background(Color.red)
+                         .foregroundColor(.white)
+                         .clipShape(Circle())
+                 }
+                
                 Text(list.formattedDate)
                     .appFont(PretendardFontStyle.body3, textColor: .grayScale75)
             }

@@ -250,6 +250,7 @@ struct ChatRoomView: View {
             NotificationCenter.default.post(name: .didEnterChatRoom, object: viewModel.roomID)
         }
         .onDisappear {
+            
             NotificationCenter.default.post(name: .didLeaveChatRoom, object: viewModel.roomID)
         }
         

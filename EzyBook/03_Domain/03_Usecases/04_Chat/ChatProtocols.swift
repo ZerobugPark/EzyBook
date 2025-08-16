@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 
 // MARK: 채팅방 관련 프로토콜
@@ -45,6 +46,7 @@ protocol ChatRemoteRoomListUseCase {
 /// 채팅방 별 가장 최근 채팅 내역 호출
 protocol FetchRealmChatRoomListUseCase {
     func execute() -> [LastMessageSummary]
+    func publisher() -> AnyPublisher<[LastMessageSummary], Never>
 }
 
 /// 메시지 저장

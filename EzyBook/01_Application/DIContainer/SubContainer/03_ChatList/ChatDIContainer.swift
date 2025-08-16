@@ -55,7 +55,8 @@ final class ChatDIContainer {
         func makeChatListViewModel() -> ChatListViewModel {
             ChatListViewModel(
                 fetchChatListUseCase: container.makeFetchRealmChatRoomListUseCase(),
-                chatListUseCase: container.makeChatRemoteRoomListUseCase()
+                chatListUseCase: container.makeChatRemoteRoomListUseCase(),
+                unReadCountUseCase: container.commonDIContainer.makeGetUnReadChatCount()
             )
         }
         
@@ -83,7 +84,8 @@ extension ChatDIContainer {
             fetchRealmMessageList: makeFetchChatMessageListUseCase(),
             fetchRemoteMessage: makeFetchRemoteChatMessagesUseCase(),
             uploadImage: makeChatImageUploadUseCase(),
-            uploadFile: makeChatFileUploadUseCase()
+            uploadFile: makeChatFileUploadUseCase(),
+            resetUnReadCount: commonDIContainer.makeResetUnReadCount()
         )
     }
     

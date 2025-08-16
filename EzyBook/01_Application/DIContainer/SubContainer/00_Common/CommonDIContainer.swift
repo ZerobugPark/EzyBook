@@ -59,6 +59,19 @@ extension CommonDIContainer {
     }
     
     
+    /// 안읽은 채팅 내역
+    func makeSaveUnReadChatMessage() -> SaveUnReadChatMessage {
+        DefaultSaveUnReadChatMessage(repo: makeUnReadChatRepository())
+    }
+    
+    func makeResetUnReadCount() -> ResetUnReadCount {
+        DefaultResetUnReadCount(repo: makeUnReadChatRepository())
+    }
+    
+    func makeGetUnReadChatCount() -> GetUnReadChatCount {
+        DefaultGetUnReadChatCount(repo: makeUnReadChatRepository())
+    }
+    
     // MARK: 서비스 구현체 생성
     private func makeChatRoomService() -> ChatRoomServiceProtocol {
         ChatRoomService(createChatRoomUseCase: makeCreateChatRoomUseCase())
@@ -109,6 +122,10 @@ extension CommonDIContainer {
         DefaultKeepStatusRepository(
             networkService: networkService
         )
+    }
+    
+    private func makeUnReadChatRepository() -> DefaultUnReadChatRealmRepository {
+        DefaultUnReadChatRealmRepository()
     }
     
 }

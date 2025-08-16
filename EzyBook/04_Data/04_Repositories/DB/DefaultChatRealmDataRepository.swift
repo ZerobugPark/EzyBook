@@ -7,6 +7,7 @@
 
 import Foundation
 import RealmSwift
+import Combine
 
 
 final class DefaultChatRoomRealmRepository: RealmRepository<ChatRoomTable> ,ChatMessageRealmRepository {
@@ -172,6 +173,35 @@ final class DefaultChatRoomRealmRepository: RealmRepository<ChatRoomTable> ,Chat
             }
     }
     
+    func chatRoomsPublisher() -> AnyPublisher<[LastMessageSummary], Never> {
+        realm.objects(ChatRoomTable.self)
+            .sorted(byKeyPath: "lastMessageTime", ascending: false)
+            .collectionPublisher
+            .map { rooms in
+                rooms.map { room in
+                    let opponent = self.realm.object(ofType: UserInfoTable.self,
+                                                     forPrimaryKey: room.opponentUserID)
+                    
+                    let opponentInfo = OpponentSummary(
+                        userID: room.opponentUserID,
+                        nick: opponent?.nick ?? "알 수 없음",
+                        profileImageURL: opponent?.profileImageURL
+                    )
+                    
+                    return LastMessageSummary(
+                        roomID: room.roomID,
+                        content: room.lastMessage,
+                        updateAt: room.lastMessageTime,
+                        unreadCount: room.unreadCount,
+                        opponentInfo: opponentInfo,
+                        files: room.files
+                    )
+                }
+            }
+            .replaceError(with: [])
+            .eraseToAnyPublisher()
+    }
+    
 }
 
 // MARK: 채팅목록
@@ -186,7 +216,7 @@ extension DefaultChatRoomRealmRepository {
         for room in rooms {
             // sender 정보 조회
             let opponent = realm.object(ofType: UserInfoTable.self, forPrimaryKey: room.opponentUserID)
-            
+      
             let opponentInfo = OpponentSummary(
                 userID: room.opponentUserID,
                 nick: opponent?.nick ?? "알 수 없음",
@@ -207,6 +237,8 @@ extension DefaultChatRoomRealmRepository {
         
         return result
     }
+    
+        
     
 }
 
