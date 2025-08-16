@@ -28,10 +28,7 @@ struct MyPostView: View {
         ZStack {
             
             List {
-                ForEach(viewModel.output.likeList.indices, id: \.self) { index in
-                    
-                    let post = viewModel.output.likeList[index]
-                    
+                ForEach(Array(viewModel.output.likeList.enumerated()), id: \.element.postID) { index, post in
                     PostLikeCardView(data: post)
                         .listRowSeparator(.hidden)
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
@@ -43,7 +40,6 @@ struct MyPostView: View {
                                 } else {
                                     Label("삭제하기", systemImage: "trash.slash.fill")
                                 }
-                                
                             }
                             .tint(.rosyPunch)
                         }
@@ -52,7 +48,6 @@ struct MyPostView: View {
                                 coordinator.pushModify(mode: .modify(existing: post)) { modifyData in
                                     viewModel.action(.modifyPost(data: modifyData))
                                 }
-                                
                             } label: {
                                 Label("수정하기", systemImage: "pencil.slash")
                             }
@@ -61,7 +56,6 @@ struct MyPostView: View {
                         .onAppear {
                             viewModel.action(.pagination(index: index))
                         }
-
                 }
             }
             .listStyle(.plain)
@@ -153,6 +147,7 @@ struct LikeListMainContentView: View {
                 
                 if !data.files.isEmpty {
                     RemoteImageView(path: data.files[0])
+                        .id("\(data.updatedAt)_\(data.files.first ?? "")")
                         .frame(width: 80, height: 80)
                         .foregroundColor(.white)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
