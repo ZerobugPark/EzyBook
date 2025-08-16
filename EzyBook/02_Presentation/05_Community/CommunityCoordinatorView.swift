@@ -9,12 +9,11 @@ import SwiftUI
 
 struct CommunityCoordinatorView: View {
     
-    @EnvironmentObject var container: AppDIContainer
     @ObservedObject var coordinator: CommunityCoordinator
     
     var body: some View {
-        NavigationStack(path: $coordinator.path) {
-            CommunityView(viewModel: container.communityDIContainer.makeCommunityViewModel(), coordinator: coordinator)
+        NavigationStack(path: $coordinator.routeStack) {
+            coordinator.rootView()
                 .navigationDestination(for: CommunityRoute.self) { route in
                     coordinator.destinationView(route: route)
                 }

@@ -7,44 +7,80 @@
 
 import SwiftUI
 
+@MainActor
 final class HomeCoordinator: ObservableObject {
     
-    
-    @Published var path = NavigationPath()
-    
-    @Published var isTabbarHidden: Bool = false
-    private var tabbarHiddenStack: [Bool] = []
+    /// 디테일뷰 재생성 방지
+    @Published var routeStack: [HomeRoute] = []
     
     /// 네비게이션 스택에서 콜백 함수를 받기 위한 딕셔너리 처리
     var callbacks: [UUID: (String) -> Void] = [:]
 
-    private let container: AppDIContainer
+    private let factory: HomeFactory
     
-    init(container: AppDIContainer) {
-        self.container = container
-        
+    private lazy var homeViewModel = factory.makeHomeViewModel()
+    
+    private var detailViewModel: DetailViewModel?
+    private var searchViewModel: SearchViewModel?
+    private var bannerViewModel: BannerViewModel?
+    
+    private func detailVM(for id: String) -> DetailViewModel {
+        if let vm = detailViewModel { return vm }
+        let vm = factory.makeDetailViewModel(id: id)
+        detailViewModel = vm
+        return vm
     }
     
+    private func getSearchVM() -> SearchViewModel {
+        if let vm = searchViewModel { return vm }
+        let vm = factory.makeSearchViewModel()
+        searchViewModel = vm
+        return vm
+    }
+
+    private func getBannerVM() -> BannerViewModel {
+        if let vm = bannerViewModel { return vm }
+        let vm = factory.makeBannerViewModel()
+        bannerViewModel = vm
+        return vm
+    }
+    
+    init(factory: HomeFactory) {
+        self.factory = factory
+    }
+    
+}
+
+// MARK: Stack
+extension HomeCoordinator {
+    @ViewBuilder
+    func rootView() -> some View {
+        HomeView(coordinator: self, viewModel: self.homeViewModel)
+    }
+    
+    
     func push(_ route: HomeRoute) {
-        let shouldHide = route.hidesTabbar
-        tabbarHiddenStack.append(shouldHide)
-        isTabbarHidden = shouldHide
+        routeStack.append(route)
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-            self.path.append(route)
-        }
     }
     
     func pop() {
-        path.removeLast()
-        _ = tabbarHiddenStack.popLast()
-        isTabbarHidden = tabbarHiddenStack.last ?? false
+            
+        guard let last = routeStack.popLast() else { return }
+        
+        switch last {
+        case .detailView:
+            detailViewModel = nil
+        case .searchView:
+            searchViewModel = nil
+            bannerViewModel = nil
+        default: break
+        }
+        
     }
     
     func popToRoot() {
-        path = NavigationPath()
-        tabbarHiddenStack = []
-        isTabbarHidden = false
+        routeStack.removeAll()
     }
     
     //  광고(WebView) 전용 push
@@ -60,64 +96,59 @@ final class HomeCoordinator: ObservableObject {
         callbacks.removeValue(forKey: id)
         pop()
     }
-    
-
-    
+        
     @ViewBuilder
     func destinationView(route: HomeRoute) -> some View {
         switch route {
-        case .homeView:
-            HomeView(viewModel: self.container.homeDIContainer.makeHomeViewModel(), coordinator: self)
         case .searchView:
-            SearchView(
-                viewModel: self.container.homeDIContainer.makeSearchViewModel(),
-                bannerViewModel: self.container.homeDIContainer.makeBannerViewModel(), coordinator: self
-            )
-        case .detailView(let id):
+              SearchView(
+                viewModel: getSearchVM(),
+                  bannerViewModel: getBannerVM(),
+                  coordinator: self
+              )
             
-            let vm = self.container.homeDIContainer.makeDetailViewModel(id: id)
-            DetailView(viewModel: vm, coordinator: self)
+        case .detailView(let id):
+            DetailView(viewModel: detailVM(for: id), coordinator: self)
+            
         case .reviewView(let id):
-            let vm = self.container.homeDIContainer.makeReviewViewModel(id: id)
+            let vm = factory.makeReviewViewModel(id: id)
             ReviewView(viewModel: vm, coordinator: self)
         case .chatRoomView(let roomID, let opponentNick):
-            ChatRoomView(viewModel: self.container.chatDIContainer.makeChatRoomViewModel(roomID: roomID, opponentNick: opponentNick)) { [weak self] in
+            let vm = factory.makeChatRoomViewModel(roomID: roomID, opponentNick: opponentNick)
+            ChatRoomView(viewModel: vm) { [weak self] in
                 self?.pop()
             }
         case .advertiseView(let callbackID):
             WebViewScreen(
-                tokenManager: container.storage,
+                tokenManager: KeyChainTokenStorage.shared,
                 coordinator: self) { [weak self] msg in
                     self?.completeAdvertise(id: callbackID, message: msg)
-                    
+
                 }
          
         }
     }
-    
 }
 
 
-
-
-
+// MARK: FullScreen
 extension HomeCoordinator {
     func makeVideoPlayerView(path: String) -> some View {
-        let viewModel = container.homeDIContainer.makeVideoPlayerViewModel()
+        let viewModel = factory.makeVideoPlayerViewModel()
         return VideoPlayerView(viewModel: viewModel, path: path)
     }
     
     func makeImageViewer(path: String) -> some View {
-        let viewModel = container.homeDIContainer.makeZoomableImageFullScreenViewModel()
+        let viewModel = factory.makeZoomableImageFullScreenViewModel()
         return ZoomableImageFullScreenView(viewModel: viewModel, path: path)
         
     }
     
     
-    func makePaymentView(item: PayItem, onFinish: @escaping (DisplayMessage?) -> Void) -> some View {
-        let viewModel = container.homeDIContainer.makePaymentViewModel()
-        return PaymentView(item: item, onFinish: onFinish, viewModel: viewModel)
+    func makePaymentView(item: PayItem, onFailed: ((DisplayMessage) -> Void)?, onSuccess: ((String, String) -> Void)?) -> some View {
+        
+        return PaymentView(item: item, onFailed: onFailed, onSuccess: onSuccess)
     }
     
-    
+
 }

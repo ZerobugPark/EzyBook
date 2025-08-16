@@ -10,15 +10,21 @@ import SwiftUI
 struct ReviewModifyView: View {
     
     @Environment(\.dismiss) private var dismiss
-  
-    @FocusState private var isTextEditorFocused: Bool
+    
     @EnvironmentObject var appState: AppState
+    
     @StateObject var viewModel: ReviewModifyViewModel
-    
-    
     let onConfirm: (UserReviewDetailList?) -> Void
     
     @State private var isProcessingThumbnails: Bool = false
+    @FocusState private var isTextEditorFocused: Bool
+    
+    init(viewModel: ReviewModifyViewModel, onConfirm: @escaping (UserReviewDetailList?) -> Void) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+        self.onConfirm = onConfirm
+        
+    }
+    
     
     var body: some View {
         ZStack {

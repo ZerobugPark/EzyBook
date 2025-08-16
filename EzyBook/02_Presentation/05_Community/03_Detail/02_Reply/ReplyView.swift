@@ -11,15 +11,22 @@ import SwiftUI
 
 struct ReplyView: View {
     
-    @ObservedObject var coordinator: CommunityCoordinator
-    
-    @StateObject var viewModel: ReplyViewModel
     @Environment(\.dismiss) private var dismiss
+    private let coordinator: CommunityCoordinator
+    @StateObject var viewModel: ReplyViewModel
     
     let onChagned: () -> Void
     
     @FocusState private var isTextEditorFocused: Bool
     @State private var modifyComment: ModifyComment? = nil
+    
+    @State private var isChanged: Bool = false
+    
+    init(coordinator: CommunityCoordinator, viewModel: ReplyViewModel, onChagned: @escaping () -> Void) {
+        self.coordinator = coordinator
+        _viewModel = StateObject(wrappedValue: viewModel)
+        self.onChagned = onChagned
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -43,19 +50,21 @@ struct ReplyView: View {
                 ScrollView(.vertical, showsIndicators: false)  {
                     VStack(alignment: .leading, spacing: 12) {
                         
-                        CommentItemView(
-                            data: viewModel.output.commentInfo!,
-                            actions: CommentActions(
-                                onDelete: { commentID in
-                                    viewModel.action(.deleteComment(commentID: commentID))
-                                },
-                                onReply: nil,
-                                onEdit: { id, content in
-                                    modifyComment = ModifyComment(id: id, text: content)
-                                }
-                            )
-                        )
-                        
+                        if let comment = viewModel.output.commentInfo {
+                            VStack(alignment: .leading, spacing: 12) {
+                                CommentItemView(
+                                    data: comment,
+                                    actions: CommentActions(
+                                        onDelete: { commentID in
+                                            viewModel.action(.deleteComment(commentID: commentID))
+                                        },
+                                        onReply: nil,
+                                        onEdit: { id, content in
+                                            modifyComment = ModifyComment(id: id, text: content)
+                                        }
+                                    ))
+                            }
+                        }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(20)
@@ -74,9 +83,7 @@ struct ReplyView: View {
                 
                 Button(action: {
                     viewModel.action(.writeReply)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        onChagned()
-                    }
+                    isChanged = true
                 }) {
                     Image(systemName: "paperplane.fill")
                         .font(.title2)
@@ -95,10 +102,11 @@ struct ReplyView: View {
         .fullScreenCover(item: $modifyComment) { data in
             coordinator.makeModifyView(data: data) { text in
                 viewModel.action(.modifyContent(commentID: data.id, text: text))
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    onChagned()
-                }
+                isChanged = true
             }
+        }
+        .onDisappear {
+            if isChanged { onChagned() }
         }
         
     }

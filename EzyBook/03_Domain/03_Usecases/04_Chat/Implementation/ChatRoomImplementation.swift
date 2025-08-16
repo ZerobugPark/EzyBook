@@ -30,7 +30,7 @@ extension DefaultChatSendMessageUseCase {
 
     
     
-/// 채팅 리스트
+/// 채팅방 내 채팅 내역 불러오기
 final class DefaultFetchRemoteChatMessagesUseCase: FetchRemoteChatMessagesUseCase {
     
     private let repo: ChatListRepository

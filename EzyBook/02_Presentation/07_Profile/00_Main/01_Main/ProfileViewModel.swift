@@ -25,8 +25,12 @@ final class ProfileViewModel: ViewModelType {
 
         transform()
         handleInitProfileData()
+        print(#function, Self.desc)
     }
     
+    deinit {
+        print(#function, Self.desc)
+    }
 }
 
 extension ProfileViewModel {

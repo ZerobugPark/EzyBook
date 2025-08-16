@@ -334,21 +334,21 @@ extension HomeViewModel {
     
     private func shouldFetchFilterDetail(at index: Int)  async -> Bool {
         
-        print("📌 checking index: \(index), type: \(type(of: index))")
-          print("📌 Set contains type: \(filterActivityindicats.map { type(of: $0) })")
+        //print("📌 checking index: \(index), type: \(type(of: index))")
+          //print("📌 Set contains type: \(filterActivityindicats.map { type(of: $0) })")
     
 
         guard !paginationInProgress else { return false }
         guard index >= 0 else {
-            print("❌ Invalid index (negative)")
+            //print("❌ Invalid index (negative)")
             return false
         }
         guard index < filterActivitySummaryList.count else {
-            print("❌ Invalid index (out of bounds)")
+            //print("❌ Invalid index (out of bounds)")
             return false
         }
         guard !filterActivityindicats.contains(index) else {
-            print("🔁 Already fetched or in progress: \(index)")
+            //print("🔁 Already fetched or in progress: \(index)")
             return false
         }
         

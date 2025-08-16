@@ -9,13 +9,19 @@ import SwiftUI
 
 struct ReviewDetailView: View {
     
-    @StateObject var viewModel: ReviewDetailViewModel
-    @ObservedObject var coordinator: ProfileCoordinator
-    
     @EnvironmentObject var appState: AppState
     
+    private let coordinator: ProfileCoordinator
+    @StateObject var viewModel: ReviewDetailViewModel
+
+    private let onFinished: (UserReviewDetailList?) -> (Void)
     
-    let onFinished: (UserReviewDetailList?) -> (Void)
+    init(coordinator: ProfileCoordinator, viewModel: ReviewDetailViewModel, onFinished: @escaping (UserReviewDetailList?) -> Void) {
+        self.coordinator = coordinator
+        _viewModel = StateObject(wrappedValue: viewModel)
+        self.onFinished = onFinished
+    }
+    
     
     @State private var selectedReview: UserReviewDetailList?
     

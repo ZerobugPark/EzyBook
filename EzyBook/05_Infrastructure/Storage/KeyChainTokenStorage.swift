@@ -10,6 +10,10 @@ import Security
 
 final class KeyChainTokenStorage: TokenStorage {
     
+    static let shared = KeyChainTokenStorage()
+    
+    private init() { }
+    
     @discardableResult
     func saveToken(key: String, value token: String) -> Bool {
         guard let data = token.data(using: .utf8) else { return false }

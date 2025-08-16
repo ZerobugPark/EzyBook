@@ -100,9 +100,12 @@ final class PostViewModel: ViewModelType {
         }
         
         transform()
-        
+        print(#function, Self.desc)
     }
     
+    deinit {
+        print(#function, Self.desc)
+    }
 }
 
 extension PostViewModel {

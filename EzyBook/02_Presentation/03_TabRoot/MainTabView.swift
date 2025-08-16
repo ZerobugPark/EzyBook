@@ -57,22 +57,10 @@ struct MainTabView: View {
     @StateObject var profileCoordinator: ProfileCoordinator
     
     init(container: AppDIContainer) {
-        _homeCoordinator = StateObject(
-            wrappedValue: HomeCoordinator(
-                container: container
-            )
-        )
-        _communityCoordinator = StateObject(
-            wrappedValue: CommunityCoordinator(container: container)
-        )
-        _chatCoordinator = StateObject(
-            wrappedValue: ChatCoordinator(container: container.chatDIContainer)
-        )
-        _profileCoordinator = StateObject(
-            wrappedValue:  ProfileCoordinator(
-                container: container
-            )
-        )
+        _homeCoordinator = StateObject(wrappedValue: HomeCoordinator(factory: container.homeFactory))
+        _communityCoordinator = StateObject(wrappedValue: CommunityCoordinator(factory: container.communityFactory))
+        _chatCoordinator = StateObject(wrappedValue: ChatCoordinator(factory: container.chatFactory))
+        _profileCoordinator = StateObject(wrappedValue:  ProfileCoordinator(factory: container.profileFactory))
         
         /// TabBar Hidden이 안될 때,
         //UITabBar.appearance().isHidden = true
@@ -81,13 +69,13 @@ struct MainTabView: View {
     private var isCurrentTabbarHidden: Bool {
         switch activeTab {
         case .home:
-            return homeCoordinator.isTabbarHidden
+            return !homeCoordinator.routeStack.isEmpty
         case .community:
-            return communityCoordinator.isTabbarHidden
+            return !communityCoordinator.routeStack.isEmpty
         case .chat:
-            return chatCoordinator.isTabbarHidden
+            return !chatCoordinator.routeStack.isEmpty
         case .profile:
-            return profileCoordinator.isTabbarHidden
+            return !profileCoordinator.routeStack.isEmpty
         }
     }
     

@@ -12,8 +12,14 @@ import SwiftUI
 struct ReviewView: View {
     
     @EnvironmentObject var appState: AppState
-    @StateObject var viewModel: ReviewViewModel
-    @ObservedObject var coordinator: HomeCoordinator
+    @StateObject private var viewModel: ReviewViewModel
+    private let coordinator: HomeCoordinator
+    
+    
+    init(viewModel: ReviewViewModel, coordinator: HomeCoordinator) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+        self.coordinator = coordinator
+    }
     
     var body: some View {
         ZStack {
@@ -61,7 +67,6 @@ struct ReviewView: View {
                 appState.isLoggedIn = false
             }
         }
-        .loadingOverlayModify(viewModel.output.isLoading)
     }
 }
 

@@ -13,18 +13,13 @@ struct AuthCoordinatorView: View {
     @StateObject var coordinator: AuthCoordinator
         
     var body: some View {
-        NavigationStack(path: $coordinator.path) {
-            LoginView(
-                coordinator: coordinator, viewModel: container.loginDIContainer.makeSocialLoginViewModel()
-            ).navigationDestination(for: AuthRoute.self) { route in
+        NavigationStack(path: $coordinator.routeStack) {
+            coordinator.rootView()
+            .navigationDestination(for: AuthRoute.self) { route in
                 coordinator.destinationView(route: route)
                 
                 
             }
         }
     }
-}
-
-#Preview {
-    //AuthCoordinatorView()
 }

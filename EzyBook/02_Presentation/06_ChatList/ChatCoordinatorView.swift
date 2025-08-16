@@ -13,8 +13,8 @@ struct ChatCoordinatorView: View {
     @ObservedObject var coordinator: ChatCoordinator
     
     var body: some View {
-        NavigationStack(path: $coordinator.path) {
-            ChatListView(viewModel: container.chatDIContainer.makeChatListViewModel(), coordinator: coordinator)
+        NavigationStack(path: $coordinator.routeStack) {
+            coordinator.rootView()
                 .navigationDestination(for: ChatRoute.self) { route in
                     coordinator.destinationView(route: route)
                 }

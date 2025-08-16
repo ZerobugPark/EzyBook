@@ -14,6 +14,11 @@ struct MyActivityListView: View {
     @Environment(\.dismiss) private var dismiss
     let onConfirm: (OrderList) -> Void
     
+    init(viewModel: MyActivityListViewModel, onConfirm: @escaping (OrderList) -> Void) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+        self.onConfirm = onConfirm
+    }
+    
     var body: some View {
         ZStack {
             ScrollView(.vertical, showsIndicators: false) {

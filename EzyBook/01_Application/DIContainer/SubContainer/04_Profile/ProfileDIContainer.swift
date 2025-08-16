@@ -8,18 +8,111 @@
 import Foundation
 import UIKit
 
+protocol ProfileFactory {
+    func makeProfileViewModel() -> ProfileViewModel
+    func makeOrderListViewModel(orderList: [OrderEntity]) -> OrderListViewModel
+    func makeProfileSupplementaryViewModel() -> ProfileSupplementaryViewModel
+    func makeWriteReviewViewModel(id: String, code: String) -> ReviewWriteViewModel
+    func makeModifyReviewViewModel(_ data: UserReviewDetailList) -> ReviewModifyViewModel
+    func makeReviewViewModel(list: [OrderEntity]) -> ReviewDetailViewModel
+    func makeProfileModifyViewModel() -> ProfileModifyViewModel
+    func makeActiviyLikeViewModel() -> ActiviyLikeViewModel
+    func makeMyPostViewModel(postCategory: ProfilePostCategory) -> MyPostViewModel
+    func makePostViewModel(mode: PostStatus) -> PostViewModel
+    
+}
+
+
 final class ProfileDIContainer {
     
     private let networkService: DefaultNetworkService
     private let commonDIContainer: CommonDIContainer
-    private let communityDIContainer: CommunityDIContainer
+    private let communityFactory: CommunityFactory
     
-    init(networkService: DefaultNetworkService, commonDIContainer: CommonDIContainer, communityDIContainer: CommunityDIContainer) {
+    init(networkService: DefaultNetworkService, commonDIContainer: CommonDIContainer, communityFactory: CommunityFactory) {
         self.networkService = networkService
         self.commonDIContainer = commonDIContainer
-        self.communityDIContainer = communityDIContainer
+        self.communityFactory = communityFactory
     }
     
+    
+    func makeFactory() -> ProfileFactory { Impl(container: self) }
+
+    private final class Impl: ProfileFactory {
+        private let container: ProfileDIContainer
+        init(container: ProfileDIContainer) { self.container = container }
+
+        
+        func makeProfileViewModel() -> ProfileViewModel {
+            
+            ProfileViewModel(
+                profileUseCases: container.makeProfileUseCases()
+            )
+        }
+        
+        
+        func makeOrderListViewModel(orderList: [OrderEntity]) -> OrderListViewModel {
+            
+            OrderListViewModel(
+                orderList: orderList
+            )
+        }
+        
+        func makeProfileSupplementaryViewModel() -> ProfileSupplementaryViewModel {
+            ProfileSupplementaryViewModel(
+                orderListUseCase: container.makeOrderListUseCase()
+            )
+        }
+        
+        func makeWriteReviewViewModel(id: String, code: String) -> ReviewWriteViewModel {
+            ReviewWriteViewModel(
+                reviewUseCases: container.makeReviewUseCases(),
+                activityId: id,
+                orderCode: code
+            )
+        }
+        
+        func makeModifyReviewViewModel(_ data: UserReviewDetailList) -> ReviewModifyViewModel {
+            ReviewModifyViewModel(
+                reviewUseCases: container.makeReviewUseCases(),
+                reviewData: data
+            )
+        }
+        
+        
+        func makeReviewViewModel(list: [OrderEntity]) -> ReviewDetailViewModel {
+            
+            let filterList = list.filter { $0.review != nil }
+            
+            return ReviewDetailViewModel(
+                reviewUseCases: container.makeReviewUseCases(),
+                orderList: filterList
+            )
+        }
+        
+        func makeProfileModifyViewModel() -> ProfileModifyViewModel {
+            ProfileModifyViewModel(
+                useCase: container.makeProfileModifyUseCase()
+            )
+        }
+        
+        func makeActiviyLikeViewModel() -> ActiviyLikeViewModel {
+            ActiviyLikeViewModel(favoriteList: container.commonDIContainer.makeDetailFeatureService().favorite)
+        }
+        
+        func makeMyPostViewModel(postCategory: ProfilePostCategory) -> MyPostViewModel {
+            MyPostViewModel(
+                favoriteList: container.commonDIContainer.makeDetailFeatureService().favorite,
+                postCategory: postCategory,
+                deleteUseCase: container.commonDIContainer.makePostDeleteUseCase()
+            )
+        }
+        
+        func makePostViewModel(mode: PostStatus) -> PostViewModel {
+            container.communityFactory.makePostViewModel(mode)
+        }
+    }
+
 
     
 }
@@ -105,79 +198,73 @@ extension ProfileDIContainer {
 }
 
 
-// MARK: Data
-extension ProfileDIContainer {
-
-    
-}
-
 
 // MARK: Make ViewModel
-extension ProfileDIContainer {
-    
-    func makeProfileViewModel() -> ProfileViewModel {
-        
-        ProfileViewModel(
-            profileUseCases: makeProfileUseCases()
-        )
-    }
-    
-    
-    func makeOrderListViewModel(orderList: [OrderEntity]) -> OrderListViewModel {
-        
-        OrderListViewModel(
-            orderList: orderList
-        )
-    }
-    
-    func makeProfileSupplementaryViewModel() -> ProfileSupplementaryViewModel {
-        ProfileSupplementaryViewModel(
-            orderListUseCase: makeOrderListUseCase()
-        )
-    }
-    
-    func makeWriteReviewViewModel(id: String, code: String) -> ReviewWriteViewModel {
-        ReviewWriteViewModel(
-            reviewUseCases: makeReviewUseCases(),
-            activityId: id,
-            orderCode: code
-        )
-    }
-    
-    func makeModifyReviewViewModel(_ data: UserReviewDetailList) -> ReviewModifyViewModel {
-        ReviewModifyViewModel(
-            reviewUseCases: makeReviewUseCases(),
-            reviewData: data
-        )
-    }
-    
-    
-    func makeReviewViewModel(list: [OrderEntity]) -> ReviewDetailViewModel {
-        
-        let filterList = list.filter { $0.review != nil }
-        
-        return ReviewDetailViewModel(
-            reviewUseCases: makeReviewUseCases(),
-            orderList: filterList
-        )
-    }
-    
-    func makeProfileModifyViewModel() -> ProfileModifyViewModel {
-        ProfileModifyViewModel(
-            useCase: makeProfileModifyUseCase()
-        )
-    }
-    
-    func makeActiviyLikeViewModel() -> ActiviyLikeViewModel {
-        ActiviyLikeViewModel(favoriteList: commonDIContainer.makeDetailFeatureService().favorite)
-    }
-    
-    func makeMyPostViewModel(postCategory: ProfilePostCategory) -> MyPostViewModel {
-        MyPostViewModel(
-            favoriteList: commonDIContainer.makeDetailFeatureService().favorite,
-            postCategory: postCategory,
-            deleteUseCase: communityDIContainer.makePostDeleteUseCase()
-        )
-    }
-    
-}
+//extension ProfileDIContainer {
+//    
+//    func makeProfileViewModel() -> ProfileViewModel {
+//        
+//        ProfileViewModel(
+//            profileUseCases: makeProfileUseCases()
+//        )
+//    }
+//    
+//    
+//    func makeOrderListViewModel(orderList: [OrderEntity]) -> OrderListViewModel {
+//        
+//        OrderListViewModel(
+//            orderList: orderList
+//        )
+//    }
+//    
+//    func makeProfileSupplementaryViewModel() -> ProfileSupplementaryViewModel {
+//        ProfileSupplementaryViewModel(
+//            orderListUseCase: makeOrderListUseCase()
+//        )
+//    }
+//    
+//    func makeWriteReviewViewModel(id: String, code: String) -> ReviewWriteViewModel {
+//        ReviewWriteViewModel(
+//            reviewUseCases: makeReviewUseCases(),
+//            activityId: id,
+//            orderCode: code
+//        )
+//    }
+//    
+//    func makeModifyReviewViewModel(_ data: UserReviewDetailList) -> ReviewModifyViewModel {
+//        ReviewModifyViewModel(
+//            reviewUseCases: makeReviewUseCases(),
+//            reviewData: data
+//        )
+//    }
+//    
+//    
+//    func makeReviewViewModel(list: [OrderEntity]) -> ReviewDetailViewModel {
+//        
+//        let filterList = list.filter { $0.review != nil }
+//        
+//        return ReviewDetailViewModel(
+//            reviewUseCases: makeReviewUseCases(),
+//            orderList: filterList
+//        )
+//    }
+//    
+//    func makeProfileModifyViewModel() -> ProfileModifyViewModel {
+//        ProfileModifyViewModel(
+//            useCase: makeProfileModifyUseCase()
+//        )
+//    }
+//    
+//    func makeActiviyLikeViewModel() -> ActiviyLikeViewModel {
+//        ActiviyLikeViewModel(favoriteList: commonDIContainer.makeDetailFeatureService().favorite)
+//    }
+//    
+//    func makeMyPostViewModel(postCategory: ProfilePostCategory) -> MyPostViewModel {
+//        MyPostViewModel(
+//            favoriteList: commonDIContainer.makeDetailFeatureService().favorite,
+//            postCategory: postCategory,
+//            deleteUseCase: communityDIContainer.makePostDeleteUseCase()
+//        )
+//    }
+//    
+//}

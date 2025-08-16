@@ -11,9 +11,16 @@ struct LoginSignUpPagerView: View {
     @State private var selectedIndex = 0
     @State private var bounce = false
     
-    @ObservedObject var coordinator: AuthCoordinator
-    @StateObject var loginViewModel: EmailLoginViewModel
-    @StateObject var acountViewModel: CreateAccountViewModel
+    private let coordinator: AuthCoordinator
+    @ObservedObject private var loginViewModel: EmailLoginViewModel
+    @ObservedObject private var accountViewModel: CreateAccountViewModel
+    
+    init(coordinator: AuthCoordinator, loginViewModel: EmailLoginViewModel, accountViewModel: CreateAccountViewModel) {
+
+        self.coordinator = coordinator
+        self.loginViewModel = loginViewModel
+        self.accountViewModel = accountViewModel
+    }
     
     private let titles = ["로그인", "회원가입"]
     
@@ -43,7 +50,7 @@ struct LoginSignUpPagerView: View {
                     .tag(0)
                 CreateAccountView(
                     selectedIndex: $selectedIndex,
-                    viewModel: acountViewModel
+                    viewModel: accountViewModel
                 )
                     .padding(.top, 10)
                     .tag(1)

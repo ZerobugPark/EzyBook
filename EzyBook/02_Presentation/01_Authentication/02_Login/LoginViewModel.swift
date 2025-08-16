@@ -23,6 +23,12 @@ final class LoginViewModel: ViewModelType {
     init(socialLoginUseCases: SocialLoginUseCases) {
         self.socialLoginUseCases = socialLoginUseCases
         transform()
+        
+        print(#function, Self.desc)
+    }
+    
+    deinit {
+        print(#function, Self.desc)
     }
 }
 

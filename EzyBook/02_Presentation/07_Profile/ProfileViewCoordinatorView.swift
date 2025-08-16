@@ -8,17 +8,12 @@
 import SwiftUI
 
 struct ProfileViewCoordinatorView: View {
-    
-    @EnvironmentObject var container: AppDIContainer
+        
     @ObservedObject var coordinator: ProfileCoordinator
     
     var body: some View {
-        NavigationStack(path: $coordinator.path) {
-            ProfileView(
-                viewModel: container.profileDIContainer.makeProfileViewModel(),
-                supplementViewModel: container.profileDIContainer.makeProfileSupplementaryViewModel(),
-                coordinator: coordinator
-            )
+        NavigationStack(path: $coordinator.routeStack) {
+            coordinator.rootView()
                 .navigationDestination(for: ProfileRoute.self) { route in
                     coordinator.destinationView(route: route)
                 }

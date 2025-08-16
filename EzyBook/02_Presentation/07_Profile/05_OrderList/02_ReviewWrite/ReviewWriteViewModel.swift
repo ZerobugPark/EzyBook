@@ -35,6 +35,14 @@ final class ReviewWriteViewModel: ViewModelType {
         self.activityId = activityId
         self.orderCode = orderCode
         transform()
+        
+   
+        print(#function, Self.desc)
+        
+    }
+    
+    deinit {
+        print(#function, Self.desc)
     }
     
 }

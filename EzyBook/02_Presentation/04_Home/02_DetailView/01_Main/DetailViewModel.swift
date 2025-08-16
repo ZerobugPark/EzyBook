@@ -15,7 +15,7 @@ final class DetailViewModel: ViewModelType {
     private let orderUseCase: CreateOrderUseCase
     private let chatService: ChatRoomServiceProtocol
     private let favoirteService: FavoriteServiceProtocol
-
+    private let paymentValidationUseCase: PaymentValidationUseCase
     
     private(set) var activityID: String
     
@@ -31,6 +31,7 @@ final class DetailViewModel: ViewModelType {
         orderUseCaes: CreateOrderUseCase,
         chatService: ChatRoomServiceProtocol,
         favoirteService: FavoriteServiceProtocol,
+        paymentValidationUseCase: PaymentValidationUseCase,
         activityID: String
     ) {
 
@@ -39,6 +40,7 @@ final class DetailViewModel: ViewModelType {
         self.orderUseCase = orderUseCaes
         self.chatService = chatService
         self.favoirteService = favoirteService
+        self.paymentValidationUseCase = paymentValidationUseCase
         self.activityID = activityID
         
         loadInitialActivitiyDetail()
@@ -60,7 +62,7 @@ extension DetailViewModel {
     
     struct Output {
         
-        var isLoading = true
+        var isLoading = false
         
         var presentedMessage: DisplayMessage? = nil
         var isShowingMessage: Bool {
@@ -90,6 +92,11 @@ extension DetailViewModel {
     }
     
     func transform() {}
+    
+    @MainActor
+    private func handlePaymentError(_ msg: DisplayMessage) {
+        output.presentedMessage = msg
+    }
     
     
     @MainActor
@@ -143,9 +150,8 @@ private extension DetailViewModel {
     }
     
     /// 액티비티 상세 조회
-    func fetchActivityDetail(_ id: String) async throws -> ActivityDetailEntity  {
+    func fetchActivityDetail(_ id: String) async throws -> ActivityDetailEntity {
         try await activityUseCases.activityDetail.execute(id: id)
-        
     }
     
     /// mp4가 먼저 오게 정렬
@@ -258,24 +264,38 @@ extension DetailViewModel {
         output.payButtonTapped = true
     }
     
-    private func handleShowPaymentReulst(_ msg: DisplayMessage?) {
-            
-        let message = msg ?? .success(msg: "결제가 완료되었습니다.")
- 
-        
-        
-        Task {
-            if msg == nil {
-                await handleSuccess(message)
-                
-                /// 프로필 쪽 동기화를 위해 추가
-                NotificationCenter.default.post(name: .updatedProfileSupply, object: nil)
-            }
-           
-        }
+    /// 결제 오류
+    private func handlePaymentFaild(_ msg: DisplayMessage) {
+        Task { await handlePaymentError(msg) }
     }
     
     
+    /// 결제 검증
+    private func handlePaymentValidation(_ impUid: String, _ merchantUid: String) {
+        Task { await performValidateReceipt(impUid, merchantUid) }
+    }
+    
+    
+    private func performValidateReceipt(_ impUid: String, _ merchantUid: String) async {
+        do {
+            let data = try await paymentValidationUseCase.execute(impUid: impUid)
+            await MainActor.run {
+                if data.orderItem.orderCode != merchantUid {
+                    let error = DisplayMessage.error(code: 0, msg: "결제는 성공했으나, merchant가 다름")
+                    
+                    handlePaymentError(error)
+                    
+                } else {
+                    let msg = DisplayMessage.success(msg: "결제가 성공적으로 완료되었습니다.")
+                    handleSuccess(msg)
+                    NotificationCenter.default.post(name: .updatedProfileSupply, object: nil)
+                }
+            }
+        } catch {
+            await handleError(error)
+            
+        }
+    }
 
 }
 
@@ -307,13 +327,14 @@ extension DetailViewModel {
 
 
 
-//// MARK: Action
+// MARK: Action
 extension DetailViewModel {
     
     enum Action {
         case keepButtonTapped
         case makeOrder(id: String, name: String, time: String, count: Int, price: Int)
-        case showPaymentResult(message: DisplayMessage?)
+        case paymentFailed(message: DisplayMessage)
+        case paymentSuccess(impUid: String, merchantUid: String)
         case makeChatRoom
         case reloadDetailView
 
@@ -324,14 +345,16 @@ extension DetailViewModel {
         switch action {
         case .keepButtonTapped:
             handleKeepButtonTapped()
-        case .showPaymentResult(let message):
-            handleShowPaymentReulst(message)
+        case .paymentFailed(let message):
+            handlePaymentFaild(message)
         case .makeChatRoom:
             handleMakeChatRoomTapped()
         case let .makeOrder(id, name, time, count, price):
             handleCreateOrder(id, name, time, count, price)
         case .reloadDetailView:
             loadInitialActivitiyDetail()
+        case let .paymentSuccess(impUid, merchantUid):
+            handlePaymentValidation(impUid, merchantUid)
         }
     }
         

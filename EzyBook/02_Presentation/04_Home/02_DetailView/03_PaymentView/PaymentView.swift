@@ -14,11 +14,18 @@ import iamport_ios
 struct PaymentView: UIViewRepresentable {
     
     let item: PayItem
-    let onFinish: (DisplayMessage?) -> Void
+    let onFailed: ((DisplayMessage) -> Void)?
+    let onSuccess: ((String, String) -> Void)?
     
     @Environment(\.dismiss) var dismiss
-    @StateObject var viewModel: PaymentViewModel
     
+    
+    init(item: PayItem, onFailed: ((DisplayMessage) -> Void)?, onSuccess: ((String, String) -> Void)?) {
+        self.item = item
+        self.onFailed = onFailed
+        self.onSuccess = onSuccess
+        
+    }
     
     func makeUIView(context: Context) -> WKWebView {
         let webView = WKWebView()
@@ -42,14 +49,15 @@ struct PaymentView: UIViewRepresentable {
         }
         
         Iamport.shared.paymentWebView(webViewMode: webView, userCode: item.userCode, payment: payment) { iamportResponse in
-            print(String(describing: iamportResponse))
+            //print(String(describing: iamportResponse))
             
             guard let data = iamportResponse else {
                 
                 dismiss()
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    onFinish(DisplayMessage.error(code: -1, msg: iamportResponse?.error_msg ?? "알 수 없는 오류가 발생했습니다."))
+                    onFailed?(DisplayMessage.error(code: -1, msg: iamportResponse?.error_msg ?? "알 수 없는 오류가 발생했습니다."))
+
                 }
                 
                 return
@@ -62,20 +70,20 @@ struct PaymentView: UIViewRepresentable {
                 guard let impUid = data.imp_uid, let merchantUid = data.merchant_uid else {
                     dismiss()
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        onFinish(DisplayMessage.error(code: -1, msg: "imp 또는 merchant가 nil입니다."))
+                        onFailed?(DisplayMessage.error(code: -1, msg: iamportResponse?.error_msg ?? "imp 또는 merchant가 nil입니다."))
+                        
                     }
                     return
                 }
                 
-                viewModel.action(.vaildation(impUid: impUid, merchantUid: merchantUid) { error in
-                    dismiss()
-                    onFinish(error)
-                })
+                onSuccess?(impUid, merchantUid)
+                dismiss()
+              
                 
             } else {
                 dismiss()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    onFinish(DisplayMessage.error(code: -1, msg: data.error_msg ?? "결제가 취소되었습니다."))
+                    onFailed?(DisplayMessage.error(code: -1, msg: iamportResponse?.error_msg ?? "결제가 취소되었습니다."))
                 }
                 
             }

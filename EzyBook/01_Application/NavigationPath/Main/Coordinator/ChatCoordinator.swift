@@ -9,53 +9,53 @@ import SwiftUI
 
 final class ChatCoordinator: ObservableObject {
     
+    @Published var routeStack: [ChatRoute] = []
+    private let factory: ChatFactory
     
-    @Published var path = NavigationPath()
-    @Published var isTabbarHidden: Bool = false
+    private lazy var chatListViewModel = factory.makeChatListViewModel()
     
-    private var tabbarHiddenStack: [Bool] = []
-    
-    private let container: ChatDIContainer
-    
-    init(container: ChatDIContainer) {
-        self.container = container
+    init(factory: ChatFactory) {
+        self.factory = factory
         
     }
     
+
+}
+
+extension ChatCoordinator {
+    
+    
+    @ViewBuilder
+    func rootView() -> some View {
+        ChatListView(viewModel: self.chatListViewModel, coordinator: self)
+    }
+    
+    
     func push(_ route: ChatRoute) {
-        let shouldHide = route.hidesTabbar
-        tabbarHiddenStack.append(shouldHide)
-        
-        self.isTabbarHidden = shouldHide
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-            self.path.append(route)
-        }
+        routeStack.append(route)
     }
     
     func pop() {
-        path.removeLast()
-        _ = tabbarHiddenStack.popLast()
-        isTabbarHidden = tabbarHiddenStack.last ?? false
+        _ = routeStack.popLast()
+
     }
     
     func popToRoot() {
-        path = NavigationPath()
-        tabbarHiddenStack = []
-        isTabbarHidden = false
+        routeStack.removeAll()
     }
     
     
     @ViewBuilder
     func destinationView(route: ChatRoute) -> some View {
         switch route {
-        case .chatView:
-            ChatListView(viewModel: self.container.makeChatListViewModel(), coordinator: self)
         case .chatRoomView(let roomID, let opponentNick):
-            ChatRoomView(viewModel: self.container.makeChatRoomViewModel(roomID: roomID, opponentNick: opponentNick)) { [weak self] in
+            let vm = factory.makeChatRoomViewModel(roomID: roomID, opponentNick: opponentNick)
+            ChatRoomView(viewModel: vm) { [weak self] in
                 self?.pop()
             }
         }
         
     }
+    
+    
 }

@@ -12,10 +12,10 @@ import AVFoundation
 
 final class DefaultLoadImageRepository: LoadOriginalImage, LoadThumbnailImage {
     
-    private let imageLoader: ImageLoder
+    private let imageLoader: ImageLoader
     private let imageCache: ImageCache
     
-    init(imageLoader: ImageLoder, imageCache: ImageCache) {
+    init(imageLoader: ImageLoader, imageCache: ImageCache) {
         self.imageLoader = imageLoader
         self.imageCache = imageCache
     }

@@ -15,6 +15,11 @@ struct CreateAccountView: View {
     @FocusState private var focusedField: SignUpFocusField?
     @State private var lastFocusedField: SignUpFocusField?
     
+    init(selectedIndex: Binding<Int>, viewModel: CreateAccountViewModel) {
+        _selectedIndex = selectedIndex
+        self.viewModel = viewModel
+    }
+    
     // 비밀번호 히든 체크
     @State var visibleStates: [PasswordInputFieldType: Bool] = [
         .password: false,

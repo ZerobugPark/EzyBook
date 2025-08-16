@@ -9,18 +9,13 @@ import Foundation
 
 
 final class CommonDIContainer {
-    
-    private let imageLoader: ImageLoder
-    private let imageCache: ImageCache
+
     private let networkService: DefaultNetworkService
     
     
-    init(imageLoader: ImageLoder, imageCache: ImageCache, networkService: DefaultNetworkService) {
-        self.imageLoader = imageLoader
-        self.imageCache = imageCache
+    init(networkService: DefaultNetworkService) {
         self.networkService = networkService
     }
-
 }
 
 
@@ -40,14 +35,7 @@ extension CommonDIContainer {
         DefaultProfileLookUpUseCase(repo: makeProfileRepository())
     }
     
-    /// 이미지 로드
-    func makeImageLoadUseCase() -> ImageLoadUseCases {
-        ImageLoadUseCases(
-            originalImage: makeOriginalImageUseCase(),
-            thumbnailImage: makeThumbnailImageUseCase()
-        )
-    }
-    
+
     /// 상대방 프로필 조회
     func makeProfileSearchUseCase() -> ProfileSearchUseCase {
         DefaultProfileSearchUseCase(repo: makeProfileRepository())
@@ -64,6 +52,12 @@ extension CommonDIContainer {
         DefaultPostLikeUseCase(repo: makeKeepStatusRepository())
     }
   
+    
+    ///게시글 삭제
+    func makePostDeleteUseCase() -> PostDeleteUseCase {
+        DefaultPostDeleteUseCase(repo: makeCommunityRepository())
+    }
+    
     
     // MARK: 서비스 구현체 생성
     private func makeChatRoomService() -> ChatRoomServiceProtocol {
@@ -87,20 +81,7 @@ extension CommonDIContainer {
 
 // MARK: Use Cases (내부용)
 extension CommonDIContainer {
-    
-    /// Load Image from Server
-    private func makeOriginalImageUseCase() -> DefaultLoadImageOriginalUseCase {
-        DefaultLoadImageOriginalUseCase(
-            repo: makeLoadImageRepository()
-        )
-        
-    }
-    
-    private func makeThumbnailImageUseCase() -> DefaultThumbnailImageUseCase {
-        DefaultThumbnailImageUseCase(
-            repo: makeLoadImageRepository()
-        )
-    }
+
     
     /// 채팅방 생성
     private func makeCreateChatRoomUseCase() -> CreateChatRoomUseCase {
@@ -123,14 +104,7 @@ extension CommonDIContainer {
 }
 // MARK: Data (내부용)
 extension CommonDIContainer {
-    
-    private func makeLoadImageRepository() -> DefaultLoadImageRepository {
-        DefaultLoadImageRepository(
-            imageLoader: imageLoader,
-            imageCache: imageCache
-        )
-    }
-    
+        
     private func makeKeepStatusRepository() -> DefaultKeepStatusRepository {
         DefaultKeepStatusRepository(
             networkService: networkService
@@ -141,6 +115,10 @@ extension CommonDIContainer {
 
 // MARK: Data
 extension CommonDIContainer {
+    
+    func makeCommunityRepository() -> DefaultCommunityRepository {
+        DefaultCommunityRepository(networkService: networkService)
+    }
     
     func makeProfileRepository() -> DefaultProfileRepository {
         DefaultProfileRepository(

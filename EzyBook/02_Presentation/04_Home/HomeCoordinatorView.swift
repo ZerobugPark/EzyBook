@@ -9,14 +9,12 @@ import SwiftUI
 
 struct HomeCoordinatorView: View {
     
-    
-    @EnvironmentObject var container: AppDIContainer
     @ObservedObject var coordinator: HomeCoordinator
     
     var body: some View {
         
-        NavigationStack(path: $coordinator.path) {
-            HomeView(viewModel: container.homeDIContainer.makeHomeViewModel(), coordinator: coordinator)
+        NavigationStack(path: $coordinator.routeStack) {
+            coordinator.rootView()
                 .navigationDestination(for: HomeRoute.self) { route in
                     coordinator.destinationView(route: route)
                 }
