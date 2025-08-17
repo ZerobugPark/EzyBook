@@ -49,7 +49,6 @@ struct ChatRoomView: View {
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                
                 // 채팅 메시지 리스트
                 ScrollViewReader { proxy in
                     ScrollView(showsIndicators: false) {
@@ -157,6 +156,10 @@ struct ChatRoomView: View {
             LoadingOverlayView(isLoading: viewModel.output.isLoading)
             
             
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            hideKeyboard()
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)
@@ -442,18 +445,13 @@ private extension ChatRoomView {
                     }
                     
                     HStack(spacing: 8) {
-                        TextField("메시지를 입력하세요", text: $content, axis: .vertical)
-                            .textFieldStyle(PlainTextFieldStyle())
-                        
+                        CustomTextEditor(text: $content)
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(Color(UIColor.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
-                    
+
                     
                     Button {
                         actions.onSendTapped()
+                        hideKeyboard()
                     } label: {
                         Image(systemName: "paperplane.fill")
                             .font(.title2)
