@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Combine
+import RealmSwift
 
 final class ChatListViewModel: ViewModelType {
     
@@ -17,7 +18,9 @@ final class ChatListViewModel: ViewModelType {
     
     private let fetchChatListUseCase: FetchRealmChatRoomListUseCase
     private let chatListUseCase: ChatRemoteRoomListUseCase
+    private let unReadCountUseCase: GetUnReadChatCount
     
+    private let realm: Realm = try! Realm()
     
     private var userID: String {
         UserSession.shared.currentUser!.userID
@@ -27,10 +30,12 @@ final class ChatListViewModel: ViewModelType {
     init(
         fetchChatListUseCase: FetchRealmChatRoomListUseCase,
         chatListUseCase: ChatRemoteRoomListUseCase,
+        unReadCountUseCase: GetUnReadChatCount
     ) {
         
         self.fetchChatListUseCase = fetchChatListUseCase
         self.chatListUseCase = chatListUseCase
+        self.unReadCountUseCase = unReadCountUseCase
         
         requestChatRoomList()
         transform()
@@ -61,7 +66,23 @@ extension ChatListViewModel {
         
     }
     
-    func transform() {}
+    func transform() {
+        
+        fetchChatListUseCase.publisher()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] list in
+                self?.applyRoomDiff(list)
+            }
+            .store(in: &cancellables)
+     
+        NotificationCenter.default.publisher(for: .updateMessageList)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.requestChatRoomList()
+            }
+            .store(in: &cancellables)
+        
+    }
     
     
     
@@ -106,7 +127,9 @@ extension ChatListViewModel {
             let remoteData = try await chatListUseCase.execute()
             
             await MainActor.run {
-                output.chatRoomList = remoteData.filter{ $0.lastChat != nil }.map { $0.toLastMessageSummary(myID: userID) }
+                output.chatRoomList = remoteData
+                    .filter{ $0.lastChat != nil }
+                    .map { $0.toLastMessageSummary(myID: userID, unReadCount: unReadCountUseCase) }
             }
         } catch {
             await handleError(error)
@@ -115,6 +138,21 @@ extension ChatListViewModel {
         
     }
     
+    private func applyRoomDiff(_ newList: [LastMessageSummary]) {
+        // 1) 업데이트/삽입
+        for item in newList {
+            if let idx = output.chatRoomList.firstIndex(where: { $0.roomID == item.roomID }) {
+                // 변경이 있을 때만 대입 (불필요한 리렌더 방지)
+                if output.chatRoomList[idx] != item {
+                    output.chatRoomList[idx] = item
+                }
+            }
+        }
+
+
+        // 3) 최신순 정렬 유지
+        output.chatRoomList.sort { $0.updateAt > $1.updateAt }
+    }
     
     
 }

@@ -120,7 +120,8 @@ struct ChatMessageEntity {
 }
 
 
-struct LastMessageSummary: Identifiable {
+struct LastMessageSummary: Identifiable, Equatable {
+    
     var id: String { roomID }
     let roomID: String
     let content: String
@@ -154,7 +155,7 @@ struct LastMessageSummary: Identifiable {
     
 }
 
-struct OpponentSummary {
+struct OpponentSummary: Equatable {
     let userID: String
     let nick: String
     let profileImageURL: String?

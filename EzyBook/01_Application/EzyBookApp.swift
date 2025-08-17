@@ -16,6 +16,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     
     /// 현재 활성화된 채팅 방 ID
     private var activeChatRoomID: String?
+    var unreadStore: SaveUnReadChatMessage?
     
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
@@ -78,6 +79,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     }
     
     @objc private func didLeaveChatRoom(_ notification: Notification) {
+        print("here")
         activeChatRoomID = nil
     }
 }
@@ -164,6 +166,9 @@ struct EzyBookApp: App {
                 
                 // Buffer for consumption when UI is ready (covers suspended/cold start)
                 appState.pendingRoomID = roomID
+            }
+            .onAppear {
+                delegate.unreadStore = container.commonDICotainer.makeSaveUnReadChatMessage()
             }
         }
         
@@ -257,33 +262,22 @@ extension AppDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
         let userInfo = notification.request.content.userInfo
-        print("userInfo", userInfo)
-        
+
         // 동일 채팅방에 있으면 푸시 억제
         if let roomID = userInfo["room_id"] as? String,
-           roomID == activeChatRoomID {
-            return []
-        }
-        
-        //print(userInfo)
-        /// 앱을 사용중이면, 탭시 이전화면으로 이동, 사용중이 않다면 홈으로 이동
-        
-        /// 기본 노출 옵션
-        /// sound 알람
-        /// banner: 배너
-        /// list: 알림센터
-        if #available(iOS 14.0, *) {
-            return [.banner]
+           roomID != activeChatRoomID {
+            unreadStore?.execute(roodID: roomID)
+            NotificationCenter.default.post(name: .updateMessageList, object: nil)
+            return [.banner, .list, .sound]
         } else {
             return []
         }
+
     }
-    
     
     /// 푸시 클릭시
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
-        
-        
+    
         let userInfo = response.notification.request.content.userInfo
         guard let roomID = userInfo["room_id"] as? String else { return }
         

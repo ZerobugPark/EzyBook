@@ -62,11 +62,7 @@ struct HomeView: View {
                 TitleTextView(title: "EzyBook")
             }
 
-            ToolbarItem(placement: .topBarTrailing) {
-                HStack(alignment: .center, spacing: 0) {
-                    makeAlarmButton()
-                }
-            }
+     
             
         }
         .withCommonUIHandling(viewModel) { code, _ in
@@ -80,23 +76,6 @@ struct HomeView: View {
     }
      
 }
-
-
-
-// MARK: 내용입력
-extension HomeView {
-    
-    private func makeAlarmButton() -> some View {
-        Button {
-            print("text heart")
-        } label: {
-            Image(.iconNoti)
-        }
-    }
-    
-}
-
-
 
 // MARK: Component
 

@@ -51,6 +51,9 @@ extension Notification.Name {
     
     /// 좋아요, 리뷰 등 동기화
     static let updatedProfileSupply = Notification.Name("updatedProfileSupply")
+    
+    /// 메시지 동기화
+    static let updateMessageList = Notification.Name("updateMessageList")
 }
 
 

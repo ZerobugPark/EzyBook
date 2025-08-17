@@ -16,6 +16,7 @@ struct ChatListUseCases {
     let fetchRemoteMessage:   FetchRemoteChatMessagesUseCase
     let uploadImage: ChatImageUploadUseCase
     let uploadFile: ChatFileUploadUseCase
+    let resetUnReadCount: ResetUnReadCount
 }
 
 

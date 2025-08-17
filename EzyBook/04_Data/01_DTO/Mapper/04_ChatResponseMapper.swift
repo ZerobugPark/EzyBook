@@ -53,7 +53,7 @@ extension ChatEntity {
 
 
 extension ChatRoomEntity {
-    func toLastMessageSummary(myID: String) -> LastMessageSummary {
+    func toLastMessageSummary(myID: String, unReadCount: GetUnReadChatCount) -> LastMessageSummary {
         let opponent = participants.first { $0.userID != myID }
         let opponentSummary = OpponentSummary(
             userID: opponent?.userID ?? "",
@@ -65,7 +65,7 @@ extension ChatRoomEntity {
             roomID: lastChat?.roomID ?? "",
             content: lastChat?.content ?? "",
             updateAt: lastChat?.updatedAt.toDate() ?? Date(),
-            unreadCount: 0,
+            unreadCount: unReadCount.execute(roodID: lastChat?.roomID ?? ""),
             opponentInfo: opponentSummary,
             files: lastChat?.files ?? []
         )
