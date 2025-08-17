@@ -36,11 +36,7 @@ struct PostDetailView: View {
     /// 화면전환 트리거
     @State private var fullScreen: FullScreenItem?
     
-    
-    //    @State private var selectedMedia: SelectedMedia?
-    //    @State private var replyingComment: CommentEntity? = nil
-    //    @State private var modifyComment: ModifyComment? = nil
-    
+
     @FocusState private var isTextEditorFocused: Bool
     
     init(coordinator: CommunityCoordinator, viewModel: PostDetailViewModel) {
@@ -163,7 +159,6 @@ struct PostDetailView: View {
                 
             case let .community(.reply(data)):
                 coordinator.makeReplyView(data: data, postID: viewModel.postID) {
-                    
                     viewModel.action(.reloadData)
                 }
             default:
@@ -211,7 +206,7 @@ private extension PostDetailView {
                         }
                         .onTapGesture {
                             let isVideo = thumbnails[index].hasSuffix(".mp4")
-                            selectedMedia = FullScreenItem(type: .home(.media(idx: index, isVideo: isVideo)))
+                            selectedMedia = FullScreenItem(type: .community(.media(idx: index, isVideo: isVideo)))
                         }
                         .tag(index)
                     }

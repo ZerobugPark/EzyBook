@@ -54,6 +54,9 @@ extension Notification.Name {
     
     /// 메시지 동기화
     static let updateMessageList = Notification.Name("updateMessageList")
+    
+    /// 커뮤니티 동기화
+    static let updateCommunity = Notification.Name("updateCommunity")
 }
 
 

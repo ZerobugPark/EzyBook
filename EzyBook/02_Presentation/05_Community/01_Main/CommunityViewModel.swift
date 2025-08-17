@@ -100,6 +100,21 @@ extension CommunityViewModel {
             }
             .store(in: &cancellables)
         
+        NotificationCenter.default.publisher(for: .updateCommunity)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                
+                guard let self else { return }
+                self.selectedFlag = .all
+                self.selectedFilter = .all
+                Task {
+                    await self.reloadPostList(flag: self.selectedFlag, filter: self.selectedFilter)
+                }
+                
+           
+            }
+            .store(in: &cancellables)
+        
         
     }
     
@@ -135,6 +150,7 @@ extension CommunityViewModel {
             let query = await makePostLookUpQuery(flag, filter)
             let data = try await communityUseCases.postSummary.execute(query: query)
             nextCursor = data.nextCursor
+            
             
             await MainActor.run {
                 output.postList.append(contentsOf: data.data)
@@ -218,6 +234,7 @@ extension CommunityViewModel {
         }
     }
     
+
     
     // MARK: 정렬 버튼 선택
     private func handleSortButtonTapped() {

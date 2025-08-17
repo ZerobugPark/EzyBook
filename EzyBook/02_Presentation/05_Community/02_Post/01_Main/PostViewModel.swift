@@ -144,6 +144,7 @@ extension PostViewModel {
     @MainActor
     private func handleSuccess() {
         if postMode == .create {
+            NotificationCenter.default.post(name: .updateCommunity, object: nil)
             output.presentedMessage = .success(msg: "게시글 작성이 완료되었습니다.")
         } else {
             output.presentedMessage = .success(msg: "게시글 수정이 완료되었습니다.")
