@@ -1,7 +1,6 @@
 # ✈️ 간편한 예약으로 액티비티를 더 가까이 EzyBook
-![ReadMeTitle](https://github.com/user-attachments/assets/261e3f47-aecf-4b38-ae8b-6837c6277129)
+![ReadMeTitle](https://github.com/user-attachments/assets/4c462f8e-ba91-4373-ab42-264e38e3082a)
 <br><br><br>
-
 
 ## 프로젝트 소개
 "EzyBook"은 Easy(쉬운)와 Book(예약)의 합성어로, 누구나 쉽고 간편하게 액티비티를 예약할 수 있는 서비스입니다.  
