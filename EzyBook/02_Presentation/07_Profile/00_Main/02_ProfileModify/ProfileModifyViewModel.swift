@@ -128,7 +128,7 @@ extension ProfileModifyViewModel {
     
     
     private func handleModifyButtonTapped() {
-        Task {
+        Task { @MainActor in
             await performModifyRequest()
         }
     }
