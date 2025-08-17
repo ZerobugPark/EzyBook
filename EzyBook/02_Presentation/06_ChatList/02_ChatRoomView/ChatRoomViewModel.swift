@@ -217,16 +217,11 @@ extension ChatRoomViewModel {
         socketService.onMessageReceived = { [weak self] message in
             guard let self else { return }
             Task {
-                
-                
-                
                 // If syncing, buffer; else process immediately
                 if self.isInitialSyncing {
                     self.bufferedSocketMessages.append(message)
                     return
                 }
-                
-
                 
                 // Dedup guard
                 if self.alreadyHasMessage(message.chatID) {
@@ -295,21 +290,9 @@ extension ChatRoomViewModel {
                 await MainActor.run {
                     chatUseCases.saveRealmMessages.execute(chatList: chatList, myID: userID)
                     
-                    /// 데이터의 정확성을 위해 렘에서 데이터 조회 SOT
-                    let messages =  chatUseCases.fetchRealmMessageList.excute(
-                        roomID: roomID,
-                        before: nil,
-                        limit: 30,
-                        myID: userID
-                    )
-                    chatMessageEntity = messages
-                    let calendar = Calendar.current
-                    let grouped = Dictionary(grouping: messages) {
-                        calendar.startOfDay(for: $0.createdAt)
-                    }
-                    output.groupedChatList = grouped
-                        .sorted { $0.key < $1.key }
-                        .map { ($0.key, $0.value) }
+                    let result = performLoadChatList()
+                    output.groupedChatList = result
+                    
                 }
             } else {
                 // 추가 로드 (append)
@@ -350,10 +333,91 @@ extension ChatRoomViewModel {
             let exists = output.groupedChatList[index].messages.contains(where: { $0.chatID == message.chatID })
             if !exists {
                 output.groupedChatList[index].messages.append(message)
+                output.groupedChatList[index].messages = sortMessages(output.groupedChatList[index].messages)
             }
         } else {
             output.groupedChatList.append((date: date, messages: [message]))
             output.groupedChatList.sort { $0.date < $1.date }
+        }
+    }
+    
+    
+    // MARK: 페이지네이션
+    private func handelLoadChatList() {
+
+        
+        guard let earliest = output.groupedChatList
+            .flatMap({ $0.messages })
+            .min(by: { $0.createdAt < $1.createdAt }) else {return }
+        
+        fetchRealmChatList(date: earliest.createdAt)
+    }
+    
+    private func fetchRealmChatList(date: Date) {
+        guard !isLoadingMore else { return }
+
+        let result = performLoadChatList(before: date)
+
+        Task { @MainActor in
+            
+            for newGroup in result {
+                if let idx = output.groupedChatList.firstIndex(where: { $0.date == newGroup.date }) {
+            
+                    let existingIDs = Set(output.groupedChatList[idx].messages.map { $0.chatID })
+                    let deduped = newGroup.messages.filter { !existingIDs.contains($0.chatID) }
+                    output.groupedChatList[idx].messages.append(contentsOf: deduped)
+                    output.groupedChatList[idx].messages = sortMessages(output.groupedChatList[idx].messages)
+                } else {
+                    output.groupedChatList.append((date: newGroup.date, messages: sortMessages(newGroup.messages)))
+                }
+            
+                let currentIDs = Set(chatMessageEntity.map { $0.chatID })
+                let toAppend = newGroup.messages.filter { !currentIDs.contains($0.chatID) }
+                chatMessageEntity.append(contentsOf: toAppend)
+            }
+
+            output.groupedChatList.sort { $0.date < $1.date }
+            isLoadingMore = false
+        }
+    }
+    
+    func performLoadChatList(before: Date? = nil) -> [(date: Date, messages: [ChatMessageEntity])] {
+        isLoadingMore = true
+
+        
+        let fetchedRaw = chatUseCases.fetchRealmMessageList.excute(
+            roomID: roomID,
+            before: before,
+            limit: 50,
+            myID: userID
+        )
+        
+        let fetched: [ChatMessageEntity]
+        if let boundary = before {
+            fetched = fetchedRaw.filter { $0.createdAt < boundary }
+        } else {
+            fetched = fetchedRaw
+        }
+        
+        var existingIDs = Set(chatMessageEntity.map { $0.chatID })
+        for group in output.groupedChatList {
+            for m in group.messages { existingIDs.insert(m.chatID) }
+        }
+        
+        let newMessages = fetched.filter { !existingIDs.contains($0.chatID) }
+        
+        let calendar = Calendar.current
+        let grouped = Dictionary(grouping: newMessages) { calendar.startOfDay(for: $0.createdAt) }
+
+        return grouped.sorted { $0.key < $1.key }.map { ($0.key, sortMessages($0.value)) }
+    }
+    
+    
+    /// 안전 정렬
+    private func sortMessages(_ xs: [ChatMessageEntity]) -> [ChatMessageEntity] {
+        xs.sorted { a, b in
+            if a.createdAt != b.createdAt { return a.createdAt < b.createdAt }
+            return a.chatID < b.chatID
         }
     }
     
@@ -471,6 +535,7 @@ extension ChatRoomViewModel {
     enum Action {
         case sendButtonTapped
         case sendFile
+        case loadChatList
     }
     
     /// handle: ~ 함수를 처리해 (액션을 처리하는 함수 느낌으로 사용)
@@ -480,6 +545,8 @@ extension ChatRoomViewModel {
             handleSendButtonTapped()
         case .sendFile:
             handleFileUpload()
+        case .loadChatList:
+            handelLoadChatList()
         }
     }
     

@@ -62,7 +62,7 @@ protocol FetchLatestChatMessageUseCase {
 
 /// 메시지 내역 조회
 protocol FetchChatMessageListUseCase {
-    func excute(roomID: String, before: String?, limit: Int, myID: String) -> [ChatMessageEntity] 
+    func excute(roomID: String, before: Date?, limit: Int, myID: String) -> [ChatMessageEntity] 
 }
 
 protocol FetchRemoteChatMessagesUseCase {

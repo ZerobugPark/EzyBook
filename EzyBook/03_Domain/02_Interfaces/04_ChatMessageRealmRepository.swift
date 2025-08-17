@@ -5,6 +5,7 @@
 //  Created by youngkyun park on 7/3/25.
 //
 
+import UIKit
 import Combine
 
 protocol ChatMessageRealmRepository: Repository where T == ChatRoomTable {
@@ -13,7 +14,7 @@ protocol ChatMessageRealmRepository: Repository where T == ChatRoomTable {
     func save(chatList: [ChatEntity], myID: String, retryCount: Int) // 다건 저장
     func fetchLatestChatList() -> [LastMessageSummary]
     func fetchLatestMessages(roomID: String, myID: String) ->  ChatMessageEntity?
-    func fetchMessageList(roomID: String, before: String?, limit: Int, myID: String) -> [ChatMessageEntity]
+    func fetchMessageList(roomID: String, before: Date?, limit: Int, myID: String) -> [ChatMessageEntity]
     func chatRoomsPublisher() -> AnyPublisher<[LastMessageSummary], Never>
 }
 

@@ -141,7 +141,7 @@ final class DefaultRealmFetchChatMessageListUseCase: FetchChatMessageListUseCase
 }
 
 extension DefaultRealmFetchChatMessageListUseCase {
-    func excute(roomID: String, before: String?, limit: Int, myID: String) -> [ChatMessageEntity] {
+    func excute(roomID: String, before: Date?, limit: Int, myID: String) -> [ChatMessageEntity] {
         let data = repo.fetchMessageList(roomID: roomID, before: before, limit: limit, myID: myID)
 
         return data

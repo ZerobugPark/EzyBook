@@ -136,7 +136,7 @@ final class DefaultChatRoomRealmRepository: RealmRepository<ChatRoomTable> ,Chat
     
     
     /// 채팅 내역 불러오기
-    func fetchMessageList(roomID: String, before: String?, limit: Int, myID: String) -> [ChatMessageEntity] {
+    func fetchMessageList(roomID: String, before: Date?, limit: Int, myID: String) -> [ChatMessageEntity] {
         
         
         guard let room = realm.object(ofType: ChatRoomTable.self, forPrimaryKey: roomID) else {
@@ -153,7 +153,7 @@ final class DefaultChatRoomRealmRepository: RealmRepository<ChatRoomTable> ,Chat
         
         var messages = room.messages
         
-        if let beforeDate = before?.toDate() {
+        if let beforeDate = before {
             messages = messages.filter { $0.createdAt < beforeDate }
         }
         
