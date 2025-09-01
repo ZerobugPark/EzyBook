@@ -15,6 +15,7 @@ struct ReviewDetailView: View {
     @StateObject var viewModel: ReviewDetailViewModel
 
     private let onFinished: (UserReviewDetailList?) -> (Void)
+    @State private var showActionSheet: Bool = false
     
     init(coordinator: ProfileCoordinator, viewModel: ReviewDetailViewModel, onFinished: @escaping (UserReviewDetailList?) -> Void) {
         self.coordinator = coordinator
@@ -25,19 +26,17 @@ struct ReviewDetailView: View {
     
     @State private var selectedReview: UserReviewDetailList?
     
+    @State private var data: UserReviewDetailList = UserReviewDetailList()
+    
     var body: some View {
         ZStack {
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVStack(spacing: 16) {
                     ForEach(viewModel.output.groupedReviewList) { group in
-                        ReviewListGroupeView(group: group, actions: ReviewAction(
-                            onEdit: { data in
-                                selectedReview = data
-                            },
-                            onDelete: { data in
-                                viewModel.action(.deleteReview(data: data))
-                            })
-                        )
+                        ReviewListGroupeView(group: group) { review in
+                            data = review
+                            showActionSheet = true
+                        }
                         
                     }
                     
@@ -47,6 +46,12 @@ struct ReviewDetailView: View {
             }
             .disabled(viewModel.output.isLoading)
             LoadingOverlayView(isLoading: viewModel.output.isLoading)
+        }
+        .confirmationDialog("", isPresented: $showActionSheet, titleVisibility: .hidden) {
+            Button("수정하기") { selectedReview = data }
+            Button("삭제하기", role: .destructive) { viewModel.action(.deleteReview(data: data))}
+
+            Button("닫기", role: .cancel) { }
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)
@@ -83,16 +88,10 @@ struct ReviewDetailView: View {
 
 private extension ReviewDetailView {
     
-    struct ReviewAction {
-        
-        let onEdit: (UserReviewDetailList) -> Void
-        let onDelete: (UserReviewDetailList) -> Void
-    }
-    
     struct ReviewListGroupeView: View {
         
         let group: GroupedReview
-        let actions: ReviewAction
+        let tapped: (UserReviewDetailList) -> Void
         
         
         var body: some View {
@@ -102,7 +101,7 @@ private extension ReviewDetailView {
                     .padding([.top, .leading], 4)
                 
                 ForEach(group.reviews, id: \.reviewID) { review in
-                    ReviewDetailListCardView(data: review, actions: actions)
+                    ReviewDetailListCardView(data: review, tapped: tapped)
                 }
             }
         }
@@ -113,11 +112,11 @@ private extension ReviewDetailView {
     // MARK: - Card Component
     struct ReviewDetailListCardView: View {
         let data: UserReviewDetailList
-        let actions: ReviewAction
+        let tapped: (UserReviewDetailList) -> Void
         
         var body: some View {
             VStack(spacing: 0) {
-                ReviewListMainContentView(data: data, actions: actions)
+                ReviewListMainContentView(data: data, tapped: tapped)
                 ReViewListRatingView(data: data)
             }
             .background(.grayScale0)
@@ -129,7 +128,7 @@ private extension ReviewDetailView {
     // MARK: - Main Content
     struct ReviewListMainContentView: View {
         let data: UserReviewDetailList
-        let actions: ReviewAction
+        let tapped: (UserReviewDetailList) -> Void
         
         var body: some View {
             VStack(alignment: .leading, spacing: 12) {
@@ -154,14 +153,16 @@ private extension ReviewDetailView {
                     
                     Spacer()
                     
-                    
-                    ActionButtonView {
-                        actions.onEdit(data)
-                    } onDelete: {
-                        actions.onDelete(data)
+                    Button(action: {
+                        tapped(data)
+                    }) {
+                        Image(systemName: "ellipsis")
+                            .rotationEffect(.degrees(90))
+                            .foregroundColor(.gray)
                     }
                     .padding(.top, 5)
                     
+                       
                     
                 }
             }
@@ -197,32 +198,4 @@ private extension ReviewDetailView {
     }
     
     
-}
-
-struct ActionButtonView: View {
-    
-    let onEdit: () -> Void
-    let onDelete: () -> Void
-    
-    @State private var isPresented: Bool = false
-    
-    var body: some View {
-        
-        
-        Button(action: {
-            print("tapped")
-            isPresented = true
-        }) {
-            Image(systemName: "ellipsis")
-                .rotationEffect(.degrees(90))
-                .foregroundColor(.gray)
-        }
-        .confirmationDialog("", isPresented: $isPresented, titleVisibility: .hidden) {
-            Button("수정하기", action: onEdit)
-            Button("삭제하기", role: .destructive, action: onDelete)
-            Button("닫기", role: .cancel) { }
-        }
-        
-        
-    }
 }

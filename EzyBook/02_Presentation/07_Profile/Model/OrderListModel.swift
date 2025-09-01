@@ -101,4 +101,18 @@ struct UserReviewDetailList: Identifiable {
         self.createdAt = dto.createdAt
         self.updatedAt = dto.updatedAt
     }
+    
+    init() {
+        self.reviewID = ""
+        self.content = ""
+        self.rating = 0
+        self.activityID =  ""
+        self.title = ""
+        self.reviewImageURLs = []
+        self.reservationItemName = ""
+        self.reservationItemTime = ""
+        self.creator = UserInfoEntity(userID: "", nick: "")
+        self.createdAt = ""
+        self.updatedAt = ""
+    }
 }
