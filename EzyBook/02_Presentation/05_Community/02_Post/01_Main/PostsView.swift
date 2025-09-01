@@ -186,6 +186,7 @@ private extension PostsView {
                     .appFont(PretendardFontStyle.body1)
                 TextEditor(text: $title)
                     .frame(height: 40)
+                    .padding(.leading, 2)
                     .focused(isTextEditorFocused)
                     .overlay(
                           RoundedRectangle(cornerRadius: 15)
@@ -198,6 +199,7 @@ private extension PostsView {
                 
                 TextEditor(text: $content)
                     .frame(height: 150) // Set the height for the text input area
+                    .padding(.leading, 2)
                     .focused(isTextEditorFocused)
                     .overlay(
                           RoundedRectangle(cornerRadius: 15)

@@ -445,7 +445,11 @@ private extension ChatRoomView {
                     }
                     
                     HStack(spacing: 8) {
-                        CustomTextEditor(text: $content)
+                        TextField("메시지를 입력하세요", text: self.$content, axis: .vertical)
+                                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                                            .lineLimit(1...4)
+
+                        //CustomTextEditor(text: $content)
                     }
 
                     

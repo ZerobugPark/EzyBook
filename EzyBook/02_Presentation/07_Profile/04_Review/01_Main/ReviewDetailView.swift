@@ -210,6 +210,7 @@ struct ActionButtonView: View {
         
         
         Button(action: {
+            print("tapped")
             isPresented = true
         }) {
             Image(systemName: "ellipsis")
