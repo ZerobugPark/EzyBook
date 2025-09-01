@@ -257,11 +257,16 @@ struct MessageView: View {
     var body: some View {
         VStack(alignment: message.isMine != true ? .leading : .trailing) {
             
+       
             if let firstFile = message.files.first, firstFile.hasSuffix(".pdf") {
                 PdfView(file: firstFile, onFileTapped: onFileTap)
+                    .padding(.leading, message.isMine ? 0 : 40)
+                
             } else {
                 PhotoGridView(paths: message.files, onImageTappped: onImageTap)
+                    .padding(.leading, message.isMine ? 0 : 40)
             }
+             
             
             if !message.content.isEmpty {
                 HStack(alignment: .bottom, spacing: 4) {
@@ -300,7 +305,7 @@ struct MessageBubleView: View {
         Text(message.content)
             .appFont(PretendardFontStyle.body2, textColor: .grayScale90)
             .padding(10)
-            .background(message.isMine != true ? .grayScale45 : .deepSeafoam)
+            .background(message.isMine != true ? .grayScale45 : .lightblue)
             .clipShape(RoundedRectangle(cornerRadius: 16.0, style: .continuous))
         
     }
