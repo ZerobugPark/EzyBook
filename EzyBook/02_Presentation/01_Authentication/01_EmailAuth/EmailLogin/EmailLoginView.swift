@@ -125,7 +125,7 @@ extension EmailLoginView {
                             textColor: isFocused.wrappedValue == currentField ? .deepSeafoam : .grayScale60
                         )
                         .scaleEffect(isFocused.wrappedValue == currentField || !text.isEmpty ? 0.9 : 1.0, anchor: .leading)
-                        .offset(y: isFocused.wrappedValue == currentField || !text.isEmpty ? -10 : 20)
+                        .offset(y: isFocused.wrappedValue == currentField || !text.isEmpty ? 0 : 20)
                         .animation(.spring(response: 0.4), value: isFocused.wrappedValue == currentField || !text.isEmpty)
                     
                     TextField("", text: $text)
@@ -161,7 +161,7 @@ extension EmailLoginView {
                             textColor: isFocused.wrappedValue == currentField ? .deepSeafoam : .grayScale60
                         )
                         .scaleEffect(isFocused.wrappedValue == currentField || !text.isEmpty ? 0.9 : 1.0, anchor: .leading)
-                        .offset(y: isFocused.wrappedValue == currentField || !text.isEmpty ? -10 : 20)
+                        .offset(y: isFocused.wrappedValue == currentField || !text.isEmpty ? 0 : 20)
                         .animation(.spring(response: 0.4), value: isFocused.wrappedValue == currentField || !text.isEmpty)
                     
                     HStack {

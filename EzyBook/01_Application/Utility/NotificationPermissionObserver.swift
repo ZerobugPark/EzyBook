@@ -10,7 +10,7 @@ import SwiftUI
 class NotificationPermissionObserver: ObservableObject {
     @Published private(set) var status: UNAuthorizationStatus = .notDetermined
     private var previousStatus: UNAuthorizationStatus?
-
+ 
     init() {
         // 1) 처음 상태 불러오기
         refreshStatus()

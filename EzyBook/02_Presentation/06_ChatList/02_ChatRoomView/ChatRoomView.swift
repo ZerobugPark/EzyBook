@@ -133,8 +133,11 @@ struct ChatRoomView: View {
                                 viewModel.selectedImages.remove(at: index)
                             }
                         }
+                        
                     }
-                }.disabled(viewModel.selectedImages.isEmpty)
+                    .padding(10)
+                }
+                .disabled(viewModel.selectedImages.isEmpty)
                 
                 // 메시지 입력 바
                 MessageInputView(content: $viewModel.content, actions:
