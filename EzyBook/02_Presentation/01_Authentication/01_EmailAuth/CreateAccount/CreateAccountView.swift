@@ -244,8 +244,14 @@ extension CreateAccountView {
         VStack(alignment: .leading, spacing: 5) {
             FieldTitle(title: SignUpMessage.Title.introduce, isRequired: false)
             TextEditor(text: $viewModel.input.introduceTextField)
+                .padding(5)
                 .frame(height: 150) // Set the height for the text input area
-                .border(Color.grayScale60.opacity(0.5), width: 1) // 테두리 추가
+                .cornerRadius(15)
+                .overlay(
+                       RoundedRectangle(cornerRadius: 15)
+                           .stroke(Color.grayScale60.opacity(0.5), lineWidth: 1)
+                   )
+        
         }
     }
     
