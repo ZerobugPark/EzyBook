@@ -14,12 +14,11 @@ struct PrimaryActionButton: View {
     
     var body: some View {
         Button(action: action) {
-            Text(title)
-                .font(.body)
-                .foregroundColor(.white)
+            Text(title)                
+                .appFont(PaperlogyFontStyle.body, textColor: .grayScale0)
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
-                .background(isEnabled ? Color.blue : Color.gray)
+                .background(isEnabled ? Color.blackSeafoam : Color.grayScale60)
                 .cornerRadius(12)
         }
         .disabled(!isEnabled)
