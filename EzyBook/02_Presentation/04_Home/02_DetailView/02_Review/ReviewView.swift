@@ -58,7 +58,7 @@ struct ReviewView: View {
                 }
             }
             ToolbarItem(placement: .principal) {
-                Text("사용자 후기")
+                Text("리뷰")
                     .appFont(PaperlogyFontStyle.body, textColor: .blackSeafoam)
             }
         }

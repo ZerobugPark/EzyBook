@@ -51,7 +51,7 @@ struct SearchView: View {
                 }
             }
             ToolbarItem(placement: .principal) {
-                Text("EXCITING")
+                Text("검색")
                     .appFont(PaperlogyFontStyle.body, textColor: .blackSeafoam)
             }
         }
