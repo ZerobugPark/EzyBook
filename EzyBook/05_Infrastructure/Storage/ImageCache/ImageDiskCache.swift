@@ -10,7 +10,7 @@ import Foundation
 
 final class ImageDiskCache {
     private let directory: URL
-    private let maxCacheSize: UInt64 = 300 * 1024 * 1024 // 300MB
+    private let maxCacheSize: UInt64 = 500 * 1024 * 1024 // 500MB
     private let maxFileAge: TimeInterval = 7 * 24 * 60 * 60 // 7일
 
     init() {

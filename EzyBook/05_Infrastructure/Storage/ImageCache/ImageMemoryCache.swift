@@ -15,7 +15,7 @@ final class ImageMemoryCache {
         // 개수 기준으로 제한
         cache.countLimit = 100
         // 메모리 기준으로 제한. (이미지의 크기가 평균 2.5MB 정도이기 때문에, 100장) 
-        cache.totalCostLimit = 250 * 1024 * 1024 // 200MB
+        cache.totalCostLimit = 250 * 1024 * 1024 // 250MB
     }
 
     
